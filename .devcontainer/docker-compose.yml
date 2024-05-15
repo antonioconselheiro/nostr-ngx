@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  nostr-credential-ngx-dev:
+    image: nostr-credential-ngx-dev
+    container_name: nostr-credential-ngx-dev
+    build:
+      context: ../.
+      dockerfile: ./.devcontainer/Dockerfile
+    working_dir: /nostr-credential-ngx
+    ports:
+      - "4203:4203"
+    volumes:
+      - ..:/nostr-credential-ngx:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    tty: true

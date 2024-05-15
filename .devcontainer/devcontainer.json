@@ -1,0 +1,22 @@
+{
+  "name": "Dev Environment for Nostr Credential for Angular",
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+  "service": "nostr-credential-ngx-dev",
+	"workspaceFolder": "/nostr-credential-ngx",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+        "Angular.ng-template",
+        "ms-vscode.vscode-typescript-next",
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "naumovs.color-highlight",
+        "manishsencha.readme-preview",
+        "wix.vscode-import-cost",
+        "jrjrjr.amberlight"
+      ]
+		}
+	}
+}
