@@ -1,6 +1,6 @@
 import { SafeHtml } from '@angular/platform-browser';
 import { TNostrPublic } from '../../../nostr-ngx/src/domain/nostr-public.type';
-import { DataLoadType } from '../../../nostr-ngx/src/domain/data-load.type';
+import { DataLoadType } from '../../../nostr-ngx/src/domain/data-load.enum';
 import { NostrUser } from '../../../nostr-ngx/src/domain/nostr-user';
 
 export interface IProfile {

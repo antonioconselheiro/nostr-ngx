@@ -28,5 +28,6 @@ export enum NostrEventKind {
   ProductsStall = 30017,
   Product = 30018,
   Article = 30023,
-  AppSpecificData = 30078
+  AppSpecificData = 30078,
+  UserStatuses = 30315
 }
