@@ -14,7 +14,7 @@ RUN mv nak-v0.1.13-linux-amd64 /usr/bin/nak
 RUN chmod +x /usr/bin/nak
 
 # workdir
-WORKDIR /nostr-credential-ngx
+WORKDIR /nostr-ngx
 
 # credentials
 COPY ./.gitconfig /root/.gitconfig

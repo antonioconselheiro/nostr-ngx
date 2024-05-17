@@ -1,0 +1,1 @@
+export type TNcryptsec = string;

@@ -35,6 +35,39 @@
           }
         }
       }
+    },
+    "nostr-ngx": {
+      "projectType": "library",
+      "root": "projects/nostr-ngx",
+      "sourceRoot": "projects/nostr-ngx/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/nostr-ngx/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/nostr-ngx/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/nostr-ngx/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/nostr-ngx/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
     }
   }
 }

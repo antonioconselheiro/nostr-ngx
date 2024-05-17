@@ -16,6 +16,9 @@
     "paths": {
       "nostr-credential-ngx": [
         "./dist/nostr-credential-ngx"
+      ],
+      "nostr-ngx": [
+        "./dist/nostr-ngx"
       ]
     },
     "moduleResolution": "node",
