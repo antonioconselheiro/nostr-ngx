@@ -1,0 +1,20 @@
+form {
+  padding: 1rem;
+
+  div {
+    input,
+    label {
+      display: block;
+      width: 100%;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 900px;
+      height: 250px;
+    }
+  }
+}

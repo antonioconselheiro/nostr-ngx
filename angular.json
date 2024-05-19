@@ -131,7 +131,8 @@
               "buildTarget": "belomonte:build:production"
             },
             "development": {
-              "buildTarget": "belomonte:build:development"
+              "buildTarget": "belomonte:build:development",
+              "port": 4203
             }
           },
           "defaultConfiguration": "development"
