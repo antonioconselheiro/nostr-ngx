@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Event, EventTemplate, finalizeEvent, generateSecretKey, nip19, NostrEvent } from 'nostr-tools';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Event, EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip19, NostrEvent } from 'nostr-tools';
 import { NostrModule, NostrService } from '@belomonte/nostr-ngx';
 import { Subscription } from 'rxjs';
 
@@ -11,7 +11,8 @@ import { Subscription } from 'rxjs';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NostrModule
+    NostrModule,
+    FormsModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -83,11 +84,12 @@ export class AppComponent {
 
   formEventPublish = this.fb.group({
     nsec: [''],
+    pubkey: [''],
     event: [this.formatToString(this.templateUserStatuses)]  
   });
 
   formRelayFilter = this.fb.group({
-    filter: [this.formatToString(this.defaultFilter)],
+    filter: [this.formatToString(this.defaultFilter)]
   });
 
   nostrSecretHide = true;
@@ -97,13 +99,27 @@ export class AppComponent {
     private nostrService: NostrService
   ) { }
 
+  getPubkey(nsec: string): string {
+    const { data } = nip19.decode(nsec);
+    return getPublicKey(data as Uint8Array);
+  }
+
   generateNostrSecret(): void {
+    const nsec = nip19.nsecEncode(generateSecretKey());
     this.formEventPublish.patchValue({
-      nsec: nip19.nsecEncode(generateSecretKey())
+      nsec: nsec,
+      pubkey: this.getPubkey(nsec)
     });
   }
 
   formatToString(event: object): string {
+    if ('created_at' in event) {
+      event = {
+        ...event,
+        created_at: Math.floor(new Date().getTime() / 1000)
+      }
+    }
+
     return JSON.stringify(event, null, '  ');
   }
 

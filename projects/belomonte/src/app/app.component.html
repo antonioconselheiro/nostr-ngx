@@ -5,10 +5,15 @@
     <legend>Relay Publish</legend>
     <div>
       <label>Nostr Secret</label>
-      <input formControlName="nsec" [type]="nostrSecretHide ? 'password' : 'text'" />
+      <input #nsec formControlName="nsec" [type]="nostrSecretHide ? 'password' : 'text'" />
       <button (click)="nostrSecretHide = !nostrSecretHide" *ngIf="!nostrSecretHide" type="button">hide</button>
       <button (click)="nostrSecretHide = !nostrSecretHide" *ngIf="nostrSecretHide" type="button">show</button>
       <button (click)="generateNostrSecret()" type="button">generate</button>
+    </div>
+
+    <div>
+      <label>Pubkey</label>
+      <input type="text" formControlName="pubkey" readonly  />
     </div>
   
     <div>
