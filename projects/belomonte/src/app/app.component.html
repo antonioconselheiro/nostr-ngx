@@ -24,7 +24,7 @@
   
     <div>
       <button (click)="sign()" type="button">Sign</button>
-      <button type="button">Send</button>
+      <button (click)="publish()" type="button">Send</button>
     </div>
   </fieldset>
 </form>
@@ -38,8 +38,9 @@
     </div>
   
     <div>
-      <button type="button">Request</button>
-      <button type="button">Listen</button>
+      <button (click)="request()" type="button">Request</button>
+      <button *ngIf="!listening" (click)="listen()" type="button">Listen</button>
+      <button *ngIf="listening" (click)="listening.unsubscribe(); listening = null" type="button">Stop Listen</button>
     </div>
   </fieldset>
 </form>

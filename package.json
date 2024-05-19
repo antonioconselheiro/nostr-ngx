@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "start": "ng serve belomonte --host=0.0.0.0",
-    "build": "ng build",
+    "build": "npm run build:nostr && npm run build:credential",
+    "build:nostr": "npm -C projects/nostr-ngx run build",
+    "build:credential": "npm -C projects/nostr-credential-ngx run build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

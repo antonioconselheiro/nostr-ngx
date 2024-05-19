@@ -14,10 +14,10 @@
     "declaration": false,
     "experimentalDecorators": true,
     "paths": {
-      "nostr-credential-ngx": [
+      "@belomonte/nostr-credential-ngx": [
         "./dist/nostr-credential-ngx"
       ],
-      "nostr-ngx": [
+      "@belomonte/nostr-ngx": [
         "./dist/nostr-ngx"
       ]
     },
