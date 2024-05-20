@@ -17,7 +17,7 @@ export class NostrConfigStorage {
     sessionFrom: 'none'
   };
 
-  readLocalStorage<T extends INostrLocalConfig>(): T {
+  readLocalStorage<T extends INostrLocalConfig = INostrLocalConfig>(): T {
     const data = localStorage.getItem(this.NOSTR_STORAGE_KEY);
     if (data) {
       try {
@@ -31,11 +31,11 @@ export class NostrConfigStorage {
     return this.defaultLocal as T;
   }
 
-  saveLocalStorage<T extends INostrLocalConfig>(configs: T): void {
+  saveLocalStorage<T extends INostrLocalConfig = INostrLocalConfig>(configs: T): void {
     localStorage.setItem(this.NOSTR_STORAGE_KEY, JSON.stringify(configs));
   }
 
-  readSessionStorage<T extends INostrSessionConfig>(): T {
+  readSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(): T {
     const data = sessionStorage.getItem(this.NOSTR_STORAGE_KEY);
     if (data) {
       try {
@@ -49,7 +49,7 @@ export class NostrConfigStorage {
     return this.defaultSession as T;
   }
 
-  saveSessionStorage<T extends INostrSessionConfig>(configs: T): void {
+  saveSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(configs: T): void {
     sessionStorage.setItem(this.NOSTR_STORAGE_KEY, JSON.stringify(configs));
   }
 }

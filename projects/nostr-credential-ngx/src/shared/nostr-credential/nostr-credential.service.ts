@@ -5,8 +5,6 @@ import { Injectable } from '@angular/core';
 })
 export class NostrCredentialService {
 
-  credentialsStore: 'session' | 'signer' = 'session';
-
   constructor() { }
 
   getPublicKey() {

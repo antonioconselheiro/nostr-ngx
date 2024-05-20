@@ -1,11 +1,8 @@
 import { SafeHtml } from '@angular/platform-browser';
-import { TNostrPublic } from '../../../nostr-ngx/src/domain/nostr-public.type';
-import { DataLoadType } from '../../../nostr-ngx/src/domain/data-load.enum';
-import { NostrUser } from '../../../nostr-ngx/src/domain/nostr-user';
+import { TNostrPublic, DataLoadEnum } from '@belomonte/nostr-ngx';
 
 export interface IProfile {
   npub: TNostrPublic;
-  user: NostrUser;
   name?: string;
   // eslint-disable-next-line @typescript-eslint/naming-convention
   display_name?: string;
@@ -20,5 +17,5 @@ export interface IProfile {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   created_at?: number;
   nip05valid?: boolean;
-  load: DataLoadType;
+  load: DataLoadEnum;
 }

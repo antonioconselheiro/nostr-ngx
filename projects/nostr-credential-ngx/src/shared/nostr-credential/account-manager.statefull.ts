@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { IProfile } from '@domain/profile.interface';
-import { ProfileEncrypt } from '@shared/profile-service/profile.encrypt';
 import { BehaviorSubject } from 'rxjs';
 import { IUnauthenticatedUser } from '../profile-service/unauthenticated-user';
+import { ProfileEncrypt } from '../profile-service/profile.encrypt';
+import { IProfile } from '../../domain/profile.interface';
 
 @Injectable()
 export class AccountManagerStatefull {
