@@ -13,7 +13,10 @@ export interface IProfile {
   lud16?: string;
   website?: string;
   nip05?: string;
-  //  format: 1684022601
+
+  /**
+   * format: timeestamp in seconds, ex: 1684022601 
+   */
   // eslint-disable-next-line @typescript-eslint/naming-convention
   created_at?: number;
   nip05valid?: boolean;

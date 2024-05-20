@@ -3,60 +3,90 @@ import { NostrConfigStorage } from './nostr-config.storage';
 import { TNip5Type } from '../../domain/nip5.type';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TRelayMap } from '../../domain/relay-map.type';
+import { NostrGuard } from './nostr.guard';
+import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 
-/**
- * TODO:
- * Essa classe deverá ler os relays configurados na ferramenta,
- * os relays publicamente associados a conta e os relays registrados
- * na extensão.
- * 
- * A classe deve conter um método onde ele indica se é capaz ou não
- * de editar os relays default, sendo capaz de editar os públicos e
- * os configurados localmente na ferramenta.
- * 
- * A classe deve ter meios alterar as configurações de relays quando
- * possível.
- */
 @Injectable({
   providedIn: 'root'
 })
 export class RelayService {
 
   constructor(
-    private nostrConfigStorage: NostrConfigStorage
+    private guard: NostrGuard,
+    private configs: NostrConfigStorage
   ) { }
 
-  getMyRelays(): TRelayMap {
-    const relayFrom = this.nostrConfigStorage.readLocalStorage().relayFrom;
+  filterWritableRelays(relays: TRelayMap): string[] {
+    return Object.keys(relays).filter(relay => relays[relay].write);
+  }
+
+  filterReadableRelays(relays: TRelayMap): string[] {
+    return Object.keys(relays).filter(relay => relays[relay].read);
+  }
+
+  setLocalRelays(relays: TRelayMap, npub: TNostrPublic) {
+    const local = this.configs.readLocalStorage();
+
+    if (npub) {
+      local.userRelays = local.userRelays || {};
+      local.userRelays[npub] = relays;
+    } else {
+      local.commonRelays = relays;
+    }
+  }
+
+  getMyRelays(): Promise<TRelayMap>;
+  getMyRelays(nip5: TNip5Type): Promise<TRelayMap>;
+  getMyRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
+  getMyRelays(userPublicAddress?: string): Promise<TRelayMap>;
+  getMyRelays(userPublicAddress?: string): Promise<TRelayMap> {
+    const local = this.configs.readLocalStorage();
+    const relayFrom = local.relayFrom;
+
     if (relayFrom === 'signer') {
       return this.getRelaysFromSigner();
     } else if (relayFrom === 'localStorage') {
-      return this.getRelaysFromStorage();
+      return this.getRelaysFromStorage(local, userPublicAddress);
     } else if (relayFrom === 'public') {
       if (userPublicAddress) {
         return this.getUserPublicRelays(userPublicAddress);
       }
     }
 
-    return {};
+    return Promise.resolve({});
   }
 
-  private getRelaysFromSigner(): TRelayMap {
+  private getRelaysFromSigner(): Promise<TRelayMap> {
+    if (window.nostr) {
+      return window.nostr.getRelays();
+    }
 
+    return Promise.resolve({});
   }
 
-  private getRelaysFromStorage(): TRelayMap;
-  private getRelaysFromStorage(nip5: TNip5Type): TRelayMap;
-  private getRelaysFromStorage(nostrPublic: TNostrPublic): TRelayMap;
-  private getRelaysFromStorage(userPublicAddress?: string): TRelayMap;
-  private getRelaysFromStorage(userPublicAddress?: string): TRelayMap {
+  private getRelaysFromStorage(local: INostrLocalConfig, ): Promise<TRelayMap>;
+  private getRelaysFromStorage(local: INostrLocalConfig, nostrPublic: TNostrPublic): Promise<TRelayMap>;
+  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMap>;
+  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMap> {
+    if (!userPublicAddress) {
+      return Promise.resolve(local.commonRelays || {});
+    } else if (this.guard.isNostrPublic(userPublicAddress)) {
+      return Promise.resolve(local.userRelays && local.userRelays[userPublicAddress] || {})
+    }
 
+    return Promise.resolve({});
   }
 
-  getUserPublicRelays(nip5: TNip5Type): TRelayMap;
-  getUserPublicRelays(nostrPublic: TNostrPublic): TRelayMap;
-  getUserPublicRelays(userPublicAddress: string): TRelayMap;
-  getUserPublicRelays(userPublicAddress: string): TRelayMap {
-
+  getUserPublicRelays(nip5: TNip5Type): Promise<TRelayMap>;
+  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
+  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMap>;
+  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMap> {
+    /**
+     * TODO: preciso consultar o nip5 do usuário, tlvz lá tenha uma
+     * listagem de relays,
+     * se eu tiver o npub no lugar do nip5 eu preciso descobrir em
+     * ual relay irei buscar pela listagem de relays do usuário
+     */
+    return Promise.resolve({});
   }
 }
