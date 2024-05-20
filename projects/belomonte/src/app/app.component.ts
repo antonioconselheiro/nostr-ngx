@@ -112,8 +112,8 @@ export class AppComponent {
     });
   }
 
-  formatToString(event: object): string {
-    if ('created_at' in event) {
+  formatToString(event: object, updateCreationTime = true): string {
+    if ('created_at' in event && updateCreationTime) {
       event = {
         ...event,
         created_at: Math.floor(new Date().getTime() / 1000)
@@ -130,7 +130,7 @@ export class AppComponent {
       const verifiedEvent = finalizeEvent(JSON.parse(raw.event), data as Uint8Array);
 
       this.formEventPublish.patchValue({
-        event: this.formatToString(verifiedEvent)
+        event: this.formatToString(verifiedEvent, false)
       });
     }
   }
