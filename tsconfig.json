@@ -21,7 +21,7 @@
         "./dist/nostr-ngx"
       ]
     },
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",

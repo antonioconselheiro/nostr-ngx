@@ -1,1 +1,1 @@
-export type TNcryptsec = string;
+export type TNcryptsec = `ncryptsec1${string}`;

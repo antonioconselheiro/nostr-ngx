@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { NostrConfigStorage } from './nostr-config.storage';
+import { TNip5Type } from '../../domain/nip5.type';
+import { TNostrPublic } from '../../domain/nostr-public.type';
+import { TRelayMap } from '../../domain/relay-map.type';
 
 /**
  * TODO:
@@ -18,15 +22,41 @@ import { Injectable } from '@angular/core';
 })
 export class RelayService {
 
-  getDefaultReadRelays(): string[] {
-    return [
-      'ws://umbrel.local:4848'
-    ];
+  constructor(
+    private nostrConfigStorage: NostrConfigStorage
+  ) { }
+
+  getMyRelays(): TRelayMap {
+    const relayFrom = this.nostrConfigStorage.readLocalStorage().relayFrom;
+    if (relayFrom === 'signer') {
+      return this.getRelaysFromSigner();
+    } else if (relayFrom === 'localStorage') {
+      return this.getRelaysFromStorage();
+    } else if (relayFrom === 'public') {
+      if (userPublicAddress) {
+        return this.getUserPublicRelays(userPublicAddress);
+      }
+    }
+
+    return {};
   }
 
-  getDefaultWriteRelays(): string[] {
-    return [
-      'ws://umbrel.local:4848'
-    ];
+  private getRelaysFromSigner(): TRelayMap {
+
+  }
+
+  private getRelaysFromStorage(): TRelayMap;
+  private getRelaysFromStorage(nip5: TNip5Type): TRelayMap;
+  private getRelaysFromStorage(nostrPublic: TNostrPublic): TRelayMap;
+  private getRelaysFromStorage(userPublicAddress?: string): TRelayMap;
+  private getRelaysFromStorage(userPublicAddress?: string): TRelayMap {
+
+  }
+
+  getUserPublicRelays(nip5: TNip5Type): TRelayMap;
+  getUserPublicRelays(nostrPublic: TNostrPublic): TRelayMap;
+  getUserPublicRelays(userPublicAddress: string): TRelayMap;
+  getUserPublicRelays(userPublicAddress: string): TRelayMap {
+
   }
 }

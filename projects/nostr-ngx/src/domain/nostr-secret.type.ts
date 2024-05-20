@@ -1,1 +1,1 @@
-export type TNostrSecret = string;
+export type TNostrSecret = `nsec1${string}`;

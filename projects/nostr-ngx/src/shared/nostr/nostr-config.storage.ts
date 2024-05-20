@@ -7,13 +7,13 @@ import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 })
 export class NostrConfigStorage {
 
-  readonly NOSTR_STORAGE_KEY = 'nostr';
+  private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  defaultLocal: INostrLocalConfig = {
+  private defaultLocal: INostrLocalConfig = {
     relayFrom: 'none'
   };
 
-  defaultSession: INostrSessionConfig = {
+  private defaultSession: INostrSessionConfig = {
     sessionFrom: 'none'
   };
 

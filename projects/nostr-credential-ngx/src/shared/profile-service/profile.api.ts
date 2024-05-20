@@ -1,9 +1,6 @@
-import { Injectable } from "@angular/core";
-import { NostrEventKind } from "@domain/nostr-event-kind.enum";
-import { TNostrPublic } from "@domain/nostr-public.type";
-import { NostrUser } from "@domain/nostr-user";
-import { NostrService } from "@shared/nostr-api/nostr.service";
-import { Event } from 'nostr-tools';
+import { Injectable } from '@angular/core';
+import { NostrEventKind, NostrService, TNostrPublic } from '@belomonte/nostr-ngx';
+import { nip19, NostrEvent } from 'nostr-tools';
 
 @Injectable()
 export class ProfileApi {
@@ -12,13 +9,13 @@ export class ProfileApi {
     private nostrService: NostrService
   ) { }
 
-  loadProfiles(npubs: Array<TNostrPublic>): Promise<Event[]> {
+  loadProfiles(npubs: Array<TNostrPublic>): Promise<NostrEvent[]> {
     return this.nostrService.request([
       {
         kinds: [
           Number(NostrEventKind.Metadata)
         ],
-        authors: npubs.map(npub => (new NostrUser(npub)).publicKeyHex)
+        authors: npubs.map(npub => String(nip19.decode(npub).data))
       }
     ])
   }

@@ -1,1 +1,1 @@
-export type TNostrPublic = string;
+export type TNostrPublic = `npub1${string}`;

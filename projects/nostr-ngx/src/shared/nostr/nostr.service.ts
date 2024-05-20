@@ -15,7 +15,7 @@ export class NostrService {
   request(filters: Filter[], relays?: string[]): Promise<Array<Event>> {
     const pool = new SimplePool();
     const events = new Array<Event>();
-    relays = relays || this.relayService.getDefaultReadRelays();
+    relays = relays || this.relayService.getMyRelays();
 
     return new Promise(resolve => {
       const poolSubscription = pool.subscribeMany(
@@ -30,9 +30,9 @@ export class NostrService {
     });
   }
 
-  subscribe(filters: Filter[], relays?: string[]): Observable<Event> {
+  observable(filters: Filter[], relays?: string[]): Observable<Event> {
     const pool = new SimplePool();
-    relays = relays || this.relayService.getDefaultReadRelays();
+    relays = relays || this.relayService.getMyRelays();
 
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();

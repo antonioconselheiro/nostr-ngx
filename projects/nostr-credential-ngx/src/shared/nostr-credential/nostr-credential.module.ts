@@ -1,7 +1,7 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NostrCredentialService } from './nostr-credential.service';
+import { NgModule } from '@angular/core';
 import { AccountManagerStatefull } from './account-manager.statefull';
+import { NostrCredentialService } from './nostr-credential.service';
 
 @NgModule({
   imports: [
