@@ -16,7 +16,7 @@ export class NostrService {
   async request(filters: Filter[], relays?: TRelayMap): Promise<Array<Event>> {
     const pool = new SimplePool();
     const events = new Array<Event>();
-    relays = relays || await this.relayService.getMyRelays();
+    relays = relays || await this.relayService.getCurrentUserRelays();
     const relayList = this.relayService.filterReadableRelays(relays);
 
     return new Promise(resolve => {
@@ -38,7 +38,7 @@ export class NostrService {
     const onDestroy$ = new Subject<void>();
 
     this.relayService
-      .getMyRelays()
+      .getCurrentUserRelays()
       .then(overrideRelays => {
         const relayList = this.relayService.filterReadableRelays(relays || overrideRelays);
         const poolSubscription = pool.subscribeMany(
@@ -60,7 +60,7 @@ export class NostrService {
   }
 
   async publish(event: Event, relays?: TRelayMap): Promise<void> {
-    relays = relays || await this.relayService.getMyRelays();
+    relays = relays || await this.relayService.getCurrentUserRelays();
     const relayList = this.relayService.filterWritableRelays(relays);
 
     return Promise.all(

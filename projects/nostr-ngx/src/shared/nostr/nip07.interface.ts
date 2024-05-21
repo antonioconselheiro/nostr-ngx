@@ -4,7 +4,7 @@ import { TRelayMap } from '../../domain/relay-map.type';
 /**
  * https://github.com/nostr-protocol/nips/blob/master/07.md
  */
-export interface INip7 {
+export interface INip07 {
   getPublicKey(): Promise<string>;
   signEvent(event: EventTemplate): Promise<NostrEvent>;
   getRelays(): Promise<TRelayMap>;

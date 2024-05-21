@@ -1,5 +1,5 @@
 import { SafeHtml } from '@angular/platform-browser';
-import { TNostrPublic, DataLoadEnum } from '@belomonte/nostr-ngx';
+import { TNostrPublic, DataLoadEnum, TNip05Type } from '@belomonte/nostr-ngx';
 
 export interface IProfile {
   npub: TNostrPublic;
@@ -12,7 +12,7 @@ export interface IProfile {
   banner?: string;
   lud16?: string;
   website?: string;
-  nip05?: string;
+  nip05?: TNip05Type;
 
   /**
    * format: timeestamp in seconds, ex: 1684022601 

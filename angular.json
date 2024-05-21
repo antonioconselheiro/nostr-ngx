@@ -5,9 +5,14 @@
   "projects": {
     "nostr-credential-ngx": {
       "projectType": "library",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "projects/nostr-credential-ngx",
       "sourceRoot": "projects/nostr-credential-ngx/src",
-      "prefix": "lib",
+      "prefix": "auth",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
@@ -38,9 +43,14 @@
     },
     "nostr-ngx": {
       "projectType": "library",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "projects/nostr-ngx",
       "sourceRoot": "projects/nostr-ngx/src",
-      "prefix": "lib",
+      "prefix": "nostr",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
