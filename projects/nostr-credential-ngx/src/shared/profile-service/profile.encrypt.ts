@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NostrUser } from '@domain/nostr-user';
 import { IProfile } from '@domain/profile.interface';
-import { IUnauthenticatedUser } from './unauthenticated-user';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
 import { nip19 } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 

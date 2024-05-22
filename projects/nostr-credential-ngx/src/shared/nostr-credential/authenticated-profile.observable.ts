@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IProfile } from '../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../profile-service/unauthenticated-user';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
 import { ProfileProxy } from '../profile-service/profile.proxy';
 import { ProfileEncrypt } from '../profile-service/profile.encrypt';
 

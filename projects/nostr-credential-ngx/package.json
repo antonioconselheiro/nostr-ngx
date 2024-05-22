@@ -6,6 +6,10 @@
     "@angular/core": "^17.3.0",
     "nostr-tools": "^2.5.2"
   },
+  "optionalDependencies": {
+    "angular-tabler-icons": "^3.1.0",
+    "@belomonte/async-modal-ngx": "^0.0.4"
+  },
   "dependencies": {
     "tslib": "^2.3.0"
   },
