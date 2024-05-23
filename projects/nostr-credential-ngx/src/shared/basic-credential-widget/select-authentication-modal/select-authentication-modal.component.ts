@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
 import { AuthModalSteps } from '../auth-modal-steps.type';
+import { AccountManagerService } from '../account-manager.service';
 
 @Component({
   selector: 'auth-select-authentication-modal',
@@ -19,11 +20,11 @@ export class SelectAuthenticationModalComponent {
   selected = new EventEmitter<IUnauthenticatedUser>();
 
   constructor(
-    private nostrSecretStatefull: NostrSecretStatefull
+    private accountManagerService: AccountManagerService
   ) { }
 
   logout(account: IUnauthenticatedUser): void {
-    this.nostrSecretStatefull.removeAccount(account);
+    this.accountManagerService.removeAccount(account);
 
     //  wait the observable send centralizated
     //  and updated info of account amount

@@ -1,7 +1,8 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthenticatedProfileObservable } from '../../nostr-credential/authenticated-profile.observable';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'auth-authenticate-modal',
@@ -9,6 +10,7 @@ import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
   styleUrl: './authenticate-modal.component.scss'
 })
 export class AuthenticateModalComponent {
+
   @Input()
   account: IUnauthenticatedUser | null = null;
 
