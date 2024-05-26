@@ -20,16 +20,16 @@ export class AuthenticateModalComponent {
   @Output()
   close = new EventEmitter<void>();
 
-  @ViewChild('pin')
-  pinField?: ElementRef;
+  @ViewChild('showPassword')
+  passwordField?: ElementRef;
 
-  showPin = false;
+  showPassword = false;
   submitted = false;
   loading = false;
-  readonly pinLength = 8;
+  readonly showPasswordLength = 8;
 
   authenticateForm = this.fb.group({
-    pin: ['', [
+    password: ['', [
       Validators.required.bind(this),
     ]]
   });
@@ -39,18 +39,17 @@ export class AuthenticateModalComponent {
     private profiles$: AuthenticatedProfileObservable
   ) { }
 
-
   ngAfterViewInit(): void {
-    this.pinField?.nativeElement?.focus();
+    this.passwordField?.nativeElement?.focus();
   }
 
   getFormControlErrorStatus(error: string): boolean {
-    const errors = this.authenticateForm.controls.pin.errors || {};
+    const errors = this.authenticateForm.controls.password.errors || {};
     return errors[error] || false;
   }
 
   showErrors(): boolean {
-    return this.submitted && !!this.authenticateForm.controls.pin.errors;
+    return this.submitted && !!this.authenticateForm.controls.password.errors;
   }
 
   onAuthenticateSubmit(event: SubmitEvent): void {
@@ -59,24 +58,19 @@ export class AuthenticateModalComponent {
     this.submitted = true;
 
     const account = this.account;
-    const { pin } = this.authenticateForm.getRawValue();
+    const { password } = this.authenticateForm.getRawValue();
     if (!this.authenticateForm.valid || !account) {
       return;
     }
     this.loading = true;
+
     try {
-      this.profiles$.authenticateAccount(account, pin ?? '')
+      this.profiles$.authenticateAccount(account, password ?? '')
         .then(() => this.close.emit())
-        //  FIXME: consigo centralizar o tratamento de catch para promises?
-        .catch(e => {
-          //  FIXME: validar situações onde realmente pode ocorrer
-          //  um erro e tratar na tela com uma mensagem
-          this.networkError$.next(e);
-        })
         .finally(() => this.loading = false);
     } catch {
       this.loading = false;
-      this.authenticateForm.controls.pin.setErrors({
+      this.authenticateForm.controls.password.setErrors({
         invalid: true
       });
     }

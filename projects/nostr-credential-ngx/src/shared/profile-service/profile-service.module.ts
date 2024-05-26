@@ -5,7 +5,7 @@ import { AuthenticatedProfileObservable } from '../nostr-credential/authenticate
 import { ProfileApi } from './profile.api';
 import { ProfileCache } from './profile.cache';
 import { ProfileConverter } from './profile.converter';
-import { ProfileEncrypt } from './profile.encrypt';
+import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
 
 @NgModule({
@@ -16,7 +16,7 @@ import { ProfileProxy } from './profile.proxy';
     ProfileApi,
     ProfileCache,
     ProfileProxy,
-    ProfileEncrypt,
+    AccountConverter,
     ProfileConverter,
     AccountManagerStatefull,
     AuthenticatedProfileObservable

@@ -2,7 +2,7 @@
 <p>Insert the PIN to open the Nostr Secret and authenticate</p>
 
 <section *ngIf="account" class="unauthenticated-account">
-  <tw-profile-picture [account]="account"></tw-profile-picture>
+  <auth-profile-picture [account]="account"></auth-profile-picture>
   <div class="user-info">
     <span class="user-name">
       {{account.displayName}}
@@ -13,14 +13,14 @@
 </section>
 
 <form [formGroup]="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
-  <div [class.error]="showErrors()" class="floating-label pin-field">
-    <input #pin name="pin" tabindex="1" [maxlength]="pinLength" formControlName="pin" id="authenticatePinField"
-      [class.has-value]="pin.value" [attr.type]="showPin ? 'text' : 'password'" />
+  <div [class.error]="showErrors()" class="floating-label">
+    <input #password name="password" tabindex="1" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
+      [class.has-value]="password.value" [attr.type]="showPassword ? 'text' : 'password'" />
 
-    <label for="authenticatePinField">Pin</label>
+    <label for="authenticatePasswordField">Password</label>
 
-    <button type="button" tabindex="4" [attr.title]="showPin ? 'hide pin' : 'show pin'" [class.icon-show]="!showPin"
-      [class.icon-hide]="showPin" (click)="showPin = !showPin" class="bordered icon-info svg-button">
+    <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'" [class.icon-show]="!showPassword"
+      [class.icon-hide]="showPassword" (click)="showPassword = !showPassword" class="bordered icon-info svg-button">
       <div class="svg-wrapper">
         <div role="img"></div>
       </div>
@@ -38,7 +38,7 @@
         <div role="img"></div>
       </div>
 
-      <tw-loading *ngIf="loading"></tw-loading>
+      <auth-loading *ngIf="loading"></auth-loading>
 
       <span>
         Authenticate

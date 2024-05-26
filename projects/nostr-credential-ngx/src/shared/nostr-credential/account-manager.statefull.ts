@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
-import { ProfileEncrypt } from '../profile-service/profile.encrypt';
+import { AccountConverter } from '../profile-service/account.converter';
 import { IProfile } from '../../domain/profile.interface';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class AccountManagerStatefull {
   static instance: AccountManagerStatefull | null = null;
 
   constructor(
-    private profileEncrypt: ProfileEncrypt
+    private profileEncrypt: AccountConverter
   ) {
     if (!AccountManagerStatefull.instance) {
       AccountManagerStatefull.instance = this;

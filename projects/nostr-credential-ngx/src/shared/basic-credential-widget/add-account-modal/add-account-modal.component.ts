@@ -6,8 +6,10 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AccountManagerService } from '../account-manager.service';
 import { IProfile } from '../../../domain/profile.interface';
-import { DataLoadEnum } from '@belomonte/nostr-ngx';
+import { DataLoadEnum, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
+import { getPublicKey, nip19 } from 'nostr-tools';
+import { NostrSigner } from '../../profile-service/nostr.signer';
 
 @Component({
   selector: 'auth-add-account-modal',
@@ -22,7 +24,7 @@ export class AddAccountModalComponent {
   submitted = false;
 
   showNostrSecret = false;
-  showPin = false;
+  showPassword = false;
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -30,7 +32,7 @@ export class AddAccountModalComponent {
   @Output()
   selected = new EventEmitter<IUnauthenticatedUser>();
 
-  readonly pinLength = 8;
+  readonly passwordLength = 8;
 
   accountForm = this.fb.group({
     nsec: ['', [
@@ -38,7 +40,7 @@ export class AddAccountModalComponent {
       NostrValidators.nostrSecret
     ]],
 
-    pin: ['', [
+    password: ['', [
       Validators.required.bind(this),
     ]]
   });
@@ -47,14 +49,15 @@ export class AddAccountModalComponent {
     private fb: FormBuilder,
     private camera$: CameraObservable,
     private profileProxy: ProfileProxy,
+    private nostrSigner: NostrSigner,
     private accountManagerService: AccountManagerService
   ) { }
 
-  getFormControlErrors(fieldName: 'nsec' | 'pin'): ValidationErrors | null {
+  getFormControlErrors(fieldName: 'nsec' | 'password'): ValidationErrors | null {
     return this.accountForm.controls[fieldName].errors;
   }
 
-  getFormControlErrorStatus(fieldName: 'nsec' | 'pin', error: string): boolean {
+  getFormControlErrorStatus(fieldName: 'nsec' | 'password', error: string): boolean {
     const errors = this.accountForm.controls[fieldName].errors || {};
     return errors[error] || false;
   }
@@ -68,29 +71,31 @@ export class AddAccountModalComponent {
       return;
     }
 
-    const { pin, nsec } = this.accountForm.getRawValue()
-    if (!nsec || !pin) {
+    const { password, nsec } = this.accountForm.getRawValue() as { password: string, nsec: TNostrSecret };
+    if (!nsec || !password) {
       return;
     }
 
-    const user = new NostrUser(nsec);
+    const user = this.derivateUserFromNostrSecret(nsec as TNostrSecret);
+    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
+
     this.loading = true;
     this.profileProxy
-      .load(user.nostrPublic)
-      .then(profile => this.addAccount(profile, user, pin ?? ''))
-      //  FIXME: consigo centralizar o tratamento de catch para promises?
-      .catch(e => {
-        //  FIXME: validar situações onde realmente pode ocorrer
-        //  um erro e tratar na tela com uma mensagem
-        this.networkError$.next(e);
-      })
+      .load(user.npub)
+      .then(profile => this.addAccount(profile, ncrypted))
       .finally(() => this.loading = false);
+  }
+
+  private derivateUserFromNostrSecret(nostrSecret: TNostrSecret): { npub: TNostrPublic, pubhex: string } {
+    const { data } = nip19.decode(nostrSecret);
+    const pubhex = getPublicKey(data);
+
+    return { pubhex, npub: nip19.npubEncode(pubhex) };
   }
 
   readQrcodeUsingCamera(pin?: HTMLInputElement): void {
     this.asyncReadQrcodeUsingCamera()
       .then(() => pin?.focus())
-      .catch(e => this.error$.next(e))
   }
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {
@@ -99,10 +104,10 @@ export class AddAccountModalComponent {
     return Promise.resolve();
   }
 
-  private addAccount(profile: IProfile, user: NostrUser, pin: string): void {
+  private addAccount(profile: IProfile, ncryptsec: TNcryptsec): void {
     if (profile.load === DataLoadEnum.EAGER_LOADED) {
       this.accountForm.reset();
-      const unauthenticatedAccount = this.accountManagerService.addAccount({ ...profile, user }, pin);
+      const unauthenticatedAccount = this.accountManagerService.addAccount(profile, ncryptsec);
       if (!unauthenticatedAccount) {
         this.changeStep.next('select-account');
       } else {

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
-import { ProfileEncrypt } from '../profile-service/profile.encrypt';
+import { AccountConverter } from '../profile-service/account.converter';
 import { BehaviorSubject } from 'rxjs';
 import { IProfile } from '../../domain/profile.interface';
+import { TNcryptsec } from '@belomonte/nostr-ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class AccountManagerService {
   static instance: AccountManagerService | null = null;
 
   constructor(
-    private profileEncrypt: ProfileEncrypt
+    private accountConverter: AccountConverter
   ) {
     if (!AccountManagerService.instance) {
       AccountManagerService.instance = this;
@@ -29,8 +30,8 @@ export class AccountManagerService {
   accounts$ = this.accountsSubject.asObservable();
 
   // eslint-disable-next-line complexity
-  addAccount(profile: IProfile, pin: string): IUnauthenticatedUser | null {
-    const unauthenticated = this.profileEncrypt.encryptAccount(profile, pin);
+  addAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser | null {
+    const unauthenticated = this.accountConverter.convertProfileToAccount(profile, ncryptsec);
     if (!unauthenticated) {
       return null;
     }

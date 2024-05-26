@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { IProfile } from '../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
 import { ProfileProxy } from '../profile-service/profile.proxy';
-import { ProfileEncrypt } from '../profile-service/profile.encrypt';
+import { AccountConverter } from '../profile-service/account.converter';
 
 /**
  * This class responsible for caching event information
@@ -23,7 +23,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
 
   constructor(
     private profileProxy: ProfileProxy,
-    private profileEncrypt: ProfileEncrypt
+    private profileEncrypt: AccountConverter
   ) {
     const authProfileSerialized = sessionStorage.getItem('ProfilesObservable_auth');
     const authProfile = authProfileSerialized ? JSON.parse(authProfileSerialized) as IProfile : null;

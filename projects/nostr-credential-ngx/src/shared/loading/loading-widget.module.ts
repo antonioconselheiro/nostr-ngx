@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfilePictureComponent } from './profile-picture/profile-picture.component';
+import { LoadingComponent } from './loading.component';
 
 @NgModule({
   declarations: [
-    ProfilePictureComponent
+    LoadingComponent
   ],
   imports: [
     CommonModule
   ],
   exports: [
-    ProfilePictureComponent
+    LoadingComponent
   ]
 })
-export class ProfileWidgetModule { }
+export class LoadingWidgetModule { }
