@@ -35,6 +35,17 @@ export class NostrConfigStorage {
     localStorage.setItem(this.NOSTR_STORAGE_KEY, JSON.stringify(configs));
   }
 
+  updateLocalStorage<T extends INostrLocalConfig = INostrLocalConfig>(updater: (configs: T) => T) {
+    const local = this.readLocalStorage<T>();
+    this.saveLocalStorage(updater(local));
+  }
+
+  async asyncUpdateLocalStorage<T extends INostrLocalConfig = INostrLocalConfig>(updater: (configs: T) => Promise<T>) {
+    const local = this.readLocalStorage<T>();
+    const updatedLocal = await updater(local);
+    this.saveLocalStorage(updatedLocal);
+  }
+
   readSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(): T {
     const data = sessionStorage.getItem(this.NOSTR_STORAGE_KEY);
     if (data) {
@@ -51,5 +62,16 @@ export class NostrConfigStorage {
 
   saveSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(configs: T): void {
     sessionStorage.setItem(this.NOSTR_STORAGE_KEY, JSON.stringify(configs));
+  }
+
+  updateSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(updater: (configs: T) => T) {
+    const session = this.readSessionStorage<T>();
+    this.saveSessionStorage(updater(session));
+  }
+
+  async asyncUpdateSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(updater: (configs: T) => Promise<T>) {
+    const session = this.readSessionStorage<T>();
+    const updatedSession = await updater(session);
+    this.saveSessionStorage(updatedSession);
   }
 }

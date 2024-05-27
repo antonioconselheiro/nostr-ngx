@@ -56,7 +56,6 @@ export class NostrSigner {
     } else {
       return nip49.encrypt(nsec, password) as TNcryptsec;
     }
-
   }
 
   hasSignerExtension(): boolean {

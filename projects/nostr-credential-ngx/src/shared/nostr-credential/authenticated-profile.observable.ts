@@ -4,37 +4,26 @@ import { IProfile } from '../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
 import { ProfileProxy } from '../profile-service/profile.proxy';
 import { AccountConverter } from '../profile-service/account.converter';
+import { NostrConfigStorage, TNostrPublic } from '@belomonte/nostr-ngx';
+import { INostrCredentialLocalConfig } from '../../domain/nostr-credential-local-config.interface';
+import { INostrCredentialSessionConfig } from '../../domain/nostr-credential-session-config.interface';
 
-/**
- * This class responsible for caching event information
- * involving profiles, including events: Metadata (0)
- * 
- * Them main observable of this class emit the authenticated
- * profile metadata
- */
 @Injectable()
 export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | null> {
 
-  accounts: {
-    [npub: string]: IUnauthenticatedUser
-  } = JSON.parse(localStorage.getItem('accountManagerStatefull_accounts') || '{}');
-
   static instance: AuthenticatedProfileObservable | null = null;
+  
+  accounts: Record<string, IUnauthenticatedUser> = this.nostrConfigStorage.readLocalStorage<INostrCredentialLocalConfig>().accounts || {};
 
   constructor(
     private profileProxy: ProfileProxy,
-    private profileEncrypt: AccountConverter
+    private accountConverter: AccountConverter,
+    private nostrConfigStorage: NostrConfigStorage
   ) {
-    const authProfileSerialized = sessionStorage.getItem('ProfilesObservable_auth');
-    const authProfile = authProfileSerialized ? JSON.parse(authProfileSerialized) as IProfile : null;
+    const session = nostrConfigStorage.readSessionStorage<INostrCredentialSessionConfig>();
+    const profile = session.sessionFrom === 'sessionStorage' && session.nsec && session.profile || null;
 
-    super(authProfile);
-
-    if (!AuthenticatedProfileObservable.instance) {
-      AuthenticatedProfileObservable.instance = this;
-    }
-
-    return AuthenticatedProfileObservable.instance;
+    super(profile)
   }
 
   getAuthProfile(): IProfile | null {
@@ -42,39 +31,27 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   }
 
   authenticateWithNostrSecret(nsec: string): Promise<IProfile> {
-    return this.autenticate(NostrUser.fromNostrSecret(nsec));
+    return this.loadProfile(NostrUser.fromNostrSecret(nsec));
   }
 
-  authenticateAccount(account: IUnauthenticatedUser & { ncryptsec: string }, pin: string): Promise<IProfile> {
-    const user = this.profileEncrypt.decryptAccount(account, pin);
-    return this.autenticate(user);
+  authenticateAccount(account: IUnauthenticatedUser, pin: string): Promise<IProfile> {
+    const user = this.accountConverter.decryptAccount(account, pin);
+    return this.loadProfile(user);
   }
 
   authenticateEncryptedEncode(ncryptsec: string, pin: string): Promise<IProfile> {
-    const nsec = this.profileEncrypt.decryptNcryptsec(ncryptsec, pin);
-
-    return this.autenticate(NostrUser.fromNostrSecret(nsec));
+    const nsec = this.accountConverter.decryptNcryptsec(ncryptsec, pin);
+    return this.loadProfile(NostrUser.fromNostrSecret(nsec));
   }
 
-  private autenticate(user: Required<NostrUser>): Promise<IProfile> {
+  private loadProfile(npub: TNostrPublic): Promise<IProfile> {
     return this.profileProxy
-      .load(user.nostrPublic)
+      .load(npub)
       .then(profile => {
-        const authProfile = { ...profile, ...{ user } };
-        this.next(authProfile);
-        sessionStorage.setItem('ProfilesObservable_auth', JSON.stringify(authProfile));
-        return Promise.resolve(authProfile);
+        this.next(profile);
+        sessionStorage.setItem('ProfilesObservable_auth', JSON.stringify(profile));
+        return Promise.resolve(profile);
       });
-  }
-
-  hasNcryptsec(
-    account: IUnauthenticatedUser
-  ): account is IUnauthenticatedUser & { ncryptsec: string } {
-    if (account.ncryptsec) {
-      return true;
-    }
-
-    return false;
   }
 
   logout(): void {
