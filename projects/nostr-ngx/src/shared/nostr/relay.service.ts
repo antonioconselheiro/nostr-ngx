@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrConfigStorage } from './nostr-config.storage';
-import { TNip05Type } from '../../domain/nip05.type';
+import { TNip05 } from '../../domain/nip05.type';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TRelayMap } from '../../domain/relay-map.type';
 import { NostrGuard } from './nostr.guard';
@@ -17,11 +17,15 @@ export class RelayService {
   ) { }
 
   filterWritableRelays(relays: TRelayMap): string[] {
-    return Object.keys(relays).filter(relay => relays[relay].write);
+    return Object
+      .keys(relays)
+      .filter(relay => relays[relay].write);
   }
 
   filterReadableRelays(relays: TRelayMap): string[] {
-    return Object.keys(relays).filter(relay => relays[relay].read);
+    return Object
+      .keys(relays)
+      .filter(relay => relays[relay].read);
   }
 
   setLocalRelays(relays: TRelayMap, npub?: TNostrPublic) {
@@ -36,7 +40,7 @@ export class RelayService {
   }
 
   getCurrentUserRelays(): Promise<TRelayMap>;
-  getCurrentUserRelays(nip5: TNip05Type): Promise<TRelayMap>;
+  getCurrentUserRelays(nip5: TNip05): Promise<TRelayMap>;
   getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap> {
@@ -77,7 +81,7 @@ export class RelayService {
     return Promise.resolve({});
   }
 
-  getUserPublicRelays(nip5: TNip05Type): Promise<TRelayMap>;
+  getUserPublicRelays(nip5: TNip05): Promise<TRelayMap>;
   getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
   getUserPublicRelays(userPublicAddress: string): Promise<TRelayMap>;
   getUserPublicRelays(userPublicAddress: string): Promise<TRelayMap> {

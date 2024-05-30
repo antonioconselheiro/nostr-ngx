@@ -46,6 +46,16 @@ export class NostrConfigStorage {
     this.saveLocalStorage(updatedLocal);
   }
 
+  patchLocalStorage<T extends INostrLocalConfig = INostrLocalConfig>(configs: Partial<T>): void {
+    this.updateLocalStorage<T>(savedConfigs => {
+      return { ...savedConfigs, ...configs };
+    });
+  }
+
+  clearLocalStorage(): void {
+    delete localStorage[this.NOSTR_STORAGE_KEY];
+  }
+
   readSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(): T {
     const data = sessionStorage.getItem(this.NOSTR_STORAGE_KEY);
     if (data) {
@@ -73,5 +83,15 @@ export class NostrConfigStorage {
     const session = this.readSessionStorage<T>();
     const updatedSession = await updater(session);
     this.saveSessionStorage(updatedSession);
+  }
+
+  patchSessionStorage<T extends INostrSessionConfig = INostrSessionConfig>(configs: Partial<T>): void {
+    this.updateSessionStorage<T>(savedConfigs => {
+      return { ...savedConfigs, ...configs };
+    });
+  }
+
+  clearSessionStorage(): void {
+    delete sessionStorage[this.NOSTR_STORAGE_KEY];
   }
 }

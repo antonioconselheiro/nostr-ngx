@@ -11,19 +11,17 @@ import { INostrCredentialLocalConfig } from '../../domain/nostr-credential-local
 })
 export class AccountManagerService {
 
-  accounts: {
-    [npub: string]: IUnauthenticatedUser
-  } = JSON.parse(localStorage.getItem('AccountManagerService_accounts') || '{}');
+  private accounts = this.nostrConfigStorage.readLocalStorage<INostrCredentialLocalConfig>().accounts || {};
+
+  private accountsSubject = new BehaviorSubject<IUnauthenticatedUser[]>(Object.values(this.accounts));
+
+  accounts$ = this.accountsSubject.asObservable();
 
   constructor(
     private accountConverter: AccountConverter,
     private nostrConfigStorage: NostrConfigStorage
   ) { }
 
-  private accountsSubject = new BehaviorSubject<IUnauthenticatedUser[]>(Object.values(this.accounts));
-  accounts$ = this.accountsSubject.asObservable();
-
-  // eslint-disable-next-line complexity
   addAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser | null {
     const unauthenticated = this.accountConverter.convertProfileToAccount(profile, ncryptsec);
     if (!unauthenticated) {

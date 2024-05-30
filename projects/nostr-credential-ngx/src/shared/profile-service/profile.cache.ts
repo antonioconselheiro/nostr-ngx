@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
-import { NostrEventKind } from "@domain/nostr-event-kind.enum";
 import { Event } from 'nostr-tools';
 import { ProfileConverter } from "./profile.converter";
-import { IProfile } from "@domain/profile.interface";
-import { TNostrPublic } from "@domain/nostr-public.type";
-import { DataLoadType } from "@domain/data-load.type";
+import { IProfile } from "../../domain/profile.interface";
+import { DataLoadEnum, TNostrPublic } from "@belomonte/nostr-ngx";
 
 @Injectable()
 export class ProfileCache {
@@ -37,7 +35,7 @@ export class ProfileCache {
   }
 
   isEagerLoaded(npub: string): boolean {
-    return this.get(npub).load === DataLoadType.EAGER_LOADED;
+    return this.get(npub).load === DataLoadEnum.EAGER_LOADED;
   }
 
   getFromPubKey(pubkey: string): IProfile {

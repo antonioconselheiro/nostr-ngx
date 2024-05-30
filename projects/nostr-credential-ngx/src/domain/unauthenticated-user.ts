@@ -1,7 +1,9 @@
+import { TNcryptsec, TNostrPublic, TNip05 } from "@belomonte/nostr-ngx";
+
 export interface IUnauthenticatedUser {
-  npub: string;
-  ncryptsec: string;
+  npub: TNostrPublic;
+  ncryptsec: TNcryptsec;
   displayName: string;
   picture: string;
-  nip05?: string;
+  nip05?: TNip05;
 }

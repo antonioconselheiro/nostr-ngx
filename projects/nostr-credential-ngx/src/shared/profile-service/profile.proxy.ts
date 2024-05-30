@@ -6,7 +6,7 @@ import { ProfileCache } from "./profile.cache";
 import { ProfileConverter } from "./profile.converter";
 import { IUnauthenticatedUser } from "../../domain/unauthenticated-user";
 import { IProfile } from "../../domain/profile.interface";
-import { NostrUser } from "@nostr-ngx/src/domain/nostr-user";
+import { TNostrPublic } from "@belomonte/nostr-ngx";
 
 /**
  * Orchestrate the interaction with the profile data,

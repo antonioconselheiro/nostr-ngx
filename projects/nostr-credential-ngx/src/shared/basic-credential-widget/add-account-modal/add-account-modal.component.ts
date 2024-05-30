@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
-import { ProfileProxy } from '../../profile-service/profile.proxy';
-import { AuthModalSteps } from '../auth-modal-steps.type';
-import { NostrValidators } from '../../nostr-validators/nostr.validators';
-import { AccountManagerService } from '../account-manager.service';
+import { DataLoadEnum, NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
-import { DataLoadEnum, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
 import { CameraObservable } from '../../camera/camera.observable';
-import { getPublicKey, nip19 } from 'nostr-tools';
+import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../profile-service/nostr.signer';
+import { ProfileProxy } from '../../profile-service/profile.proxy';
+import { AccountManagerService } from '../account-manager.service';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'auth-add-account-modal',
@@ -17,6 +16,7 @@ import { NostrSigner } from '../../profile-service/nostr.signer';
   styleUrl: './add-account-modal.component.scss'
 })
 export class AddAccountModalComponent {
+
   @Input()
   accounts: IUnauthenticatedUser[] = [];
 
@@ -41,7 +41,7 @@ export class AddAccountModalComponent {
     ]],
 
     password: ['', [
-      Validators.required.bind(this),
+      Validators.required.bind(this)
     ]]
   });
 
@@ -50,6 +50,7 @@ export class AddAccountModalComponent {
     private camera$: CameraObservable,
     private profileProxy: ProfileProxy,
     private nostrSigner: NostrSigner,
+    private nostrConverter: NostrConverter,
     private accountManagerService: AccountManagerService
   ) { }
 
@@ -76,7 +77,7 @@ export class AddAccountModalComponent {
       return;
     }
 
-    const user = this.derivateUserFromNostrSecret(nsec as TNostrSecret);
+    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
     const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
 
     this.loading = true;
@@ -86,16 +87,9 @@ export class AddAccountModalComponent {
       .finally(() => this.loading = false);
   }
 
-  private derivateUserFromNostrSecret(nostrSecret: TNostrSecret): { npub: TNostrPublic, pubhex: string } {
-    const { data } = nip19.decode(nostrSecret);
-    const pubhex = getPublicKey(data);
-
-    return { pubhex, npub: nip19.npubEncode(pubhex) };
-  }
-
-  readQrcodeUsingCamera(pin?: HTMLInputElement): void {
+  readQrcodeUsingCamera(passwordEl: HTMLInputElement): void {
     this.asyncReadQrcodeUsingCamera()
-      .then(() => pin?.focus())
+      .then(() => passwordEl.focus())
   }
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {

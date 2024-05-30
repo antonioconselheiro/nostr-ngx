@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { NostrService } from './nostr.service';
 import { RelayService } from './relay.service';
 import { NostrGuard } from './nostr.guard';
+import { NostrConverter } from './nostr.converter';
 
 @NgModule({
   imports: [
@@ -11,7 +12,8 @@ import { NostrGuard } from './nostr.guard';
   providers: [
     NostrService,
     RelayService,
-    NostrGuard
+    NostrGuard,
+    NostrConverter
   ]
 })
 export class NostrModule { }
