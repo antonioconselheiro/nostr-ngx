@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
-import { DataLoadEnum, NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
+import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
 import { CameraObservable } from '../../camera/camera.observable';
@@ -11,7 +11,7 @@ import { AccountManagerService } from '../account-manager.service';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
-  selector: 'auth-add-account-modal',
+  selector: 'nostr-add-account-modal',
   templateUrl: './add-account-modal.component.html',
   styleUrl: './add-account-modal.component.scss'
 })
@@ -99,7 +99,7 @@ export class AddAccountModalComponent {
   }
 
   private addAccount(profile: IProfile, ncryptsec: TNcryptsec): void {
-    if (profile.load === DataLoadEnum.EAGER_LOADED) {
+    if (profile.load) {
       this.accountForm.reset();
       const unauthenticatedAccount = this.accountManagerService.addAccount(profile, ncryptsec);
       if (!unauthenticatedAccount) {

@@ -1,12 +1,11 @@
 import { Injectable } from "@angular/core";
+import { NostrConverter, TNostrPublic, TNostrSecret } from "@belomonte/nostr-ngx";
 import { Event } from 'nostr-tools';
+import { IProfile } from "../../domain/profile.interface";
+import { IUnauthenticatedUser } from "../../domain/unauthenticated-user";
 import { AccountManagerStatefull } from "../nostr-credential/account-manager.statefull";
 import { ProfileApi } from "./profile.api";
 import { ProfileCache } from "./profile.cache";
-import { ProfileConverter } from "./profile.converter";
-import { IUnauthenticatedUser } from "../../domain/unauthenticated-user";
-import { IProfile } from "../../domain/profile.interface";
-import { TNostrPublic } from "@belomonte/nostr-ngx";
 
 /**
  * Orchestrate the interaction with the profile data,
@@ -26,13 +25,13 @@ export class ProfileProxy {
     private accountManagerStatefull: AccountManagerStatefull,
     private profileApi: ProfileApi,
     private profileCache: ProfileCache,
-    private profileConverter: ProfileConverter
+    private nostrConverter: NostrConverter
   ) { }
 
-  get(npubs: string): IProfile;
-  get(npubs: string[]): IProfile[];
-  get(npubs: string[] | string): IProfile | IProfile[];
-  get(npubs: string[] | string): IProfile | IProfile[] {
+  get(npubs: TNostrPublic): IProfile;
+  get(npubs: TNostrPublic[]): IProfile[];
+  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[];
+  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[] {
     return this.profileCache.get(npubs);
   }
 
@@ -43,12 +42,12 @@ export class ProfileProxy {
     this.profileCache.cache(profiles);
   }
 
-  async load(npubs: string): Promise<IProfile>;
-  async load(npubs: string[]): Promise<IProfile[]>;
-  async load(npubs: string[] | string): Promise<IProfile | IProfile[]> {
+  async load(npubs: TNostrPublic): Promise<IProfile>;
+  async load(npubs: TNostrPublic[]): Promise<IProfile[]>;
+  async load(npubs: TNostrPublic[] | TNostrPublic): Promise<IProfile | IProfile[]> {
     if (typeof npubs === 'string') {
       const indexedProfile = ProfileCache.profiles[npubs];
-      if (!indexedProfile || indexedProfile.load === DataLoadType.LAZY_LOADED) {
+      if (!indexedProfile || !indexedProfile.load) {
         return this.loadProfile(npubs);
       }
 
@@ -59,14 +58,13 @@ export class ProfileProxy {
   }
 
   loadFromPubKey(pubkey: string): Promise<IProfile> {
-    return this.loadProfile(this.profileConverter.castPubkeyToNostrPublic(pubkey));
+    return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
   }
 
-  async loadAccount(nsec: string, pin?: string | void | null): Promise<IUnauthenticatedUser | null> {
-    const user = new NostrUser(nsec);
-    const profile = await this.load(user.nostrPublic);
-    profile.user = user;
-    const account = this.accountManagerStatefull.createAccount(profile, pin);
+  async loadAccount(nsec: TNostrSecret, pin: string): Promise<IUnauthenticatedUser | null> {
+    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
+    const profile = await this.load(user.npub);
+    const account = this.accountManagerStatefull.createAccount(profile, nsec, pin);
 
     return Promise.resolve(account);
   }
@@ -79,7 +77,7 @@ export class ProfileProxy {
     return this.forceProfileReload(notLoaded);
   }
 
-  async loadProfile(npub: string): Promise<IProfile> {
+  async loadProfile(npub: TNostrPublic): Promise<IProfile> {
     return this.loadProfiles([npub])
       .then(npubs => Promise.resolve(npubs[0]));
   }

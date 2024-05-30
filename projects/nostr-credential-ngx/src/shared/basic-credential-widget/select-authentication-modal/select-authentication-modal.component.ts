@@ -4,7 +4,7 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerService } from '../account-manager.service';
 
 @Component({
-  selector: 'auth-select-authentication-modal',
+  selector: 'nostr-select-authentication-modal',
   templateUrl: './select-authentication-modal.component.html',
   styleUrl: './select-authentication-modal.component.scss'
 })

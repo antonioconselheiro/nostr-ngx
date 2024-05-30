@@ -12,7 +12,7 @@
       },
       "root": "projects/nostr-credential-ngx",
       "sourceRoot": "projects/nostr-credential-ngx/src",
-      "prefix": "auth",
+      "prefix": "nostr",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",

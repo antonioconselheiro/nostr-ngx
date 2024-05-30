@@ -1,5 +1,5 @@
 import { SafeHtml } from '@angular/platform-browser';
-import { TNostrPublic, DataLoadEnum, TNip05Type } from '@belomonte/nostr-ngx';
+import { TNip05, TNostrPublic } from '@belomonte/nostr-ngx';
 
 export interface IProfile {
   npub: TNostrPublic;
@@ -12,7 +12,7 @@ export interface IProfile {
   banner?: string;
   lud16?: string;
   website?: string;
-  nip05?: TNip05Type;
+  nip05?: TNip05;
 
   /**
    * format: timeestamp in seconds, ex: 1684022601 
@@ -20,5 +20,5 @@ export interface IProfile {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   created_at?: number;
   nip05valid?: boolean;
-  load: DataLoadEnum;
+  load: boolean;
 }

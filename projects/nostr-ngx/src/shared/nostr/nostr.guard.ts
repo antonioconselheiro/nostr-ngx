@@ -6,15 +6,15 @@ import { TNostrPublic } from '../../domain/nostr-public.type';
 @Injectable()
 export class NostrGuard {
 
-  isNostrSecret(nsec: string): nsec is TNostrSecret {
-    return /^nsec/.test(nsec);
+  isNostrSecret(nsec: unknown): nsec is TNostrSecret {
+    return typeof nsec === 'string' && /^nsec/.test(nsec);
   }
 
-  isNostrPublic(npub: string): npub is TNostrPublic {
-    return /^npub/.test(npub);
+  isNostrPublic(npub: unknown): npub is TNostrPublic {
+    return typeof npub === 'string' && /^npub/.test(npub);
   }
 
-  isNcryptsec(ncryptsec: string): ncryptsec is TNcryptsec {
-    return /^ncryptsec/.test(ncryptsec);
+  isNcryptsec(ncryptsec: unknown): ncryptsec is TNcryptsec {
+    return typeof ncryptsec === 'string' && /^ncryptsec/.test(ncryptsec);
   }
 }

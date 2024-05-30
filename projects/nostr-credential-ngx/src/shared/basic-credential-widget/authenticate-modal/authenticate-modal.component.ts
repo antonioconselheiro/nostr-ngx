@@ -5,7 +5,7 @@ import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
-  selector: 'auth-authenticate-modal',
+  selector: 'nostr-authenticate-modal',
   templateUrl: './authenticate-modal.component.html',
   styleUrl: './authenticate-modal.component.scss'
 })
@@ -26,7 +26,7 @@ export class AuthenticateModalComponent {
   showPassword = false;
   submitted = false;
   loading = false;
-  readonly showPasswordLength = 8;
+  readonly passwordLength = 8;
 
   authenticateForm = this.fb.group({
     password: ['', [

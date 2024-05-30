@@ -1,4 +1,3 @@
-export * from './domain/data-load.enum';
 export * from './domain/ncryptsec.type';
 export * from './domain/nip05.type';
 export * from './domain/nostr-event-kind.enum';

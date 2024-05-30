@@ -6,4 +6,5 @@ export interface IUnauthenticatedUser {
   displayName: string;
   picture: string;
   nip05?: TNip05;
+  nip05valid?: boolean;
 }

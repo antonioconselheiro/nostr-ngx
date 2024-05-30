@@ -18,4 +18,9 @@ export class NostrConverter {
   decryptNcryptsec(encryptedSecret: TNcryptsec, password: string): TNostrSecret {
     return nip19.nsecEncode(nip49.decrypt(encryptedSecret, password));
   }
+
+  castPubkeyToNostrPublic(pubkey: string): TNostrPublic {
+    return nip19.npubEncode(pubkey);
+  }
+
 }

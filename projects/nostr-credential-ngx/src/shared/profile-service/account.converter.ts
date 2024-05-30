@@ -3,12 +3,12 @@ import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
 import { nip19 } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 import { IProfile } from '../../domain/profile.interface';
-import { TNostrSecret } from '@belomonte/nostr-ngx';
+import { TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 
 @Injectable()
 export class AccountConverter {
 
-  convertProfileToAccount(profile: IProfile, ncryptsec: string): IUnauthenticatedUser {
+  convertProfileToAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser {
     const displayName = profile.display_name || profile.name || '';
     const picture = profile.picture || ''; // TODO: include a config to define a default image or a random image generator function
 
@@ -17,7 +17,8 @@ export class AccountConverter {
       displayName,
       ncryptsec,
       npub: profile.npub,
-      nip05: profile.nip05
+      nip05: profile.nip05,
+      nip05valid: profile.nip05valid
     };
 
     return account;

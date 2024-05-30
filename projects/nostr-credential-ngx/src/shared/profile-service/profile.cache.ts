@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
+import { NostrConverter, NostrEventKind, TNostrPublic } from "@belomonte/nostr-ngx";
 import { Event } from 'nostr-tools';
-import { ProfileConverter } from "./profile.converter";
 import { IProfile } from "../../domain/profile.interface";
-import { DataLoadEnum, TNostrPublic } from "@belomonte/nostr-ngx";
+import { ProfileConverter } from "./profile.converter";
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ProfileCache {
 
   static instance: ProfileCache | null = null;
@@ -14,6 +16,7 @@ export class ProfileCache {
   } = {};
 
   constructor(
+    private nostrConverter: NostrConverter,
     private profileConverter: ProfileConverter
   )  {
     if (!ProfileCache.instance) {
@@ -23,10 +26,10 @@ export class ProfileCache {
     return ProfileCache.instance;
   }
 
-  get(npubs: string): IProfile;
-  get(npubs: string[]): IProfile[];
-  get(npubs: string[] | string): IProfile | IProfile[];
-  get(npubs: string[] | string): IProfile | IProfile[] {
+  get(npubs: TNostrPublic): IProfile;
+  get(npubs: TNostrPublic[]): IProfile[];
+  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[];
+  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[] {
     if (typeof npubs === 'string') {
       return this.getLazily(npubs);
     } else {
@@ -34,15 +37,15 @@ export class ProfileCache {
     }
   }
 
-  isEagerLoaded(npub: string): boolean {
-    return this.get(npub).load === DataLoadEnum.EAGER_LOADED;
+  isEagerLoaded(npub: TNostrPublic): boolean {
+    return this.get(npub).load || false;
   }
 
   getFromPubKey(pubkey: string): IProfile {
-    return this.get(this.profileConverter.castPubkeyToNostrPublic(pubkey));
+    return this.get(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
   }
 
-  private getLazily(npub: string): IProfile {
+  private getLazily(npub: TNostrPublic): IProfile {
     if (ProfileCache.profiles[npub]) {
       return ProfileCache.profiles[npub];
     }
@@ -74,7 +77,7 @@ export class ProfileCache {
   }
 
   private chooseNewer(updatedProfile: IProfile, indexedProfile: IProfile | undefined): IProfile {
-    if (!indexedProfile || indexedProfile.load === DataLoadType.LAZY_LOADED) {
+    if (!indexedProfile || indexedProfile.load) {
       return updatedProfile;
     }
 

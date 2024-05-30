@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DataLoadEnum, TNostrPublic } from '@belomonte/nostr-ngx';
+import {  TNostrPublic } from '@belomonte/nostr-ngx';
 import { Event, nip19 } from 'nostr-tools';
 import { IProfile } from '../../domain/profile.interface';
 import { IProfileMetadata } from './profile-metadata.interface';
@@ -7,12 +7,8 @@ import { IProfileMetadata } from './profile-metadata.interface';
 @Injectable()
 export class ProfileConverter {
 
-  castPubkeyToNostrPublic(pubkey: string): string {
-    return nip19.npubEncode(pubkey);
-  }
-
   getMetadataFromNostrPublic(npub: TNostrPublic): IProfile {
-    return { npub, load: DataLoadEnum.LAZY_LOADED };
+    return { npub, load: false };
   }
 
   convertEventToProfile(profile: Event, mergeWith?: IProfile ): IProfile {
@@ -28,12 +24,12 @@ export class ProfileConverter {
     if (mergeWith) {
       newProfile = mergeWith;
       newProfile.npub = npub;
-      newProfile.load = DataLoadEnum.EAGER_LOADED;
+      newProfile.load = true;
       Object.assign(newProfile, metadata);
     } else {
       newProfile = {
         npub: npub,
-        load: DataLoadEnum.EAGER_LOADED,
+        load: true,
         ...metadata
       }
     }

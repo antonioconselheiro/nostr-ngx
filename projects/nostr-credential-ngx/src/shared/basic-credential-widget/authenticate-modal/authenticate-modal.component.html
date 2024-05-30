@@ -2,7 +2,7 @@
 <p>Insert the PIN to open the Nostr Secret and authenticate</p>
 
 <section *ngIf="account" class="unauthenticated-account">
-  <auth-profile-picture [account]="account"></auth-profile-picture>
+  <nostr-profile-picture [account]="account"></nostr-profile-picture>
   <div class="user-info">
     <span class="user-name">
       {{account.displayName}}
@@ -38,7 +38,7 @@
         <div role="img"></div>
       </div>
 
-      <auth-loading *ngIf="loading"></auth-loading>
+      <nostr-loading *ngIf="loading"></nostr-loading>
 
       <span>
         Authenticate
