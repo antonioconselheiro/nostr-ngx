@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerService } from '../account-manager.service';
+import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
   selector: 'nostr-select-authentication-modal',
@@ -20,7 +20,7 @@ export class SelectAuthenticationModalComponent {
   selected = new EventEmitter<IUnauthenticatedUser>();
 
   constructor(
-    private accountManagerService: AccountManagerService
+    private accountManagerService: AccountManagerStatefull
   ) { }
 
   logout(account: IUnauthenticatedUser): void {

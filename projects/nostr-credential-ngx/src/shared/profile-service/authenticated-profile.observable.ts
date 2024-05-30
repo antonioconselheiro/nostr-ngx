@@ -1,20 +1,17 @@
 import { Injectable } from '@angular/core';
 import { NostrConfigStorage, NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { INostrCredentialLocalConfig } from '../../domain/nostr-credential-local-config.interface';
 import { INostrCredentialSessionConfig } from '../../domain/nostr-credential-session-config.interface';
 import { IProfile } from '../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
-import { AccountConverter } from '../profile-service/account.converter';
-import { ProfileProxy } from '../profile-service/profile.proxy';
+import { AccountConverter } from './account.converter';
+import { ProfileProxy } from './profile.proxy';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | null> {
-
-  static instance: AuthenticatedProfileObservable | null = null;
-  
-  accounts = this.nostrConfigStorage.readLocalStorage<INostrCredentialLocalConfig>().accounts || {};
-
+ 
   constructor(
     private profileProxy: ProfileProxy,
     private accountConverter: AccountConverter,

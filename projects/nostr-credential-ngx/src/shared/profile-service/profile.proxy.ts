@@ -3,9 +3,10 @@ import { NostrConverter, TNostrPublic, TNostrSecret } from "@belomonte/nostr-ngx
 import { Event } from 'nostr-tools';
 import { IProfile } from "../../domain/profile.interface";
 import { IUnauthenticatedUser } from "../../domain/unauthenticated-user";
-import { AccountManagerStatefull } from "../nostr-credential/account-manager.statefull";
+import { NostrSigner } from "./nostr.signer";
 import { ProfileApi } from "./profile.api";
 import { ProfileCache } from "./profile.cache";
+import { AccountManagerStatefull } from "./account-manager.statefull";
 
 /**
  * Orchestrate the interaction with the profile data,
@@ -22,8 +23,9 @@ import { ProfileCache } from "./profile.cache";
 export class ProfileProxy {
 
   constructor(
-    private accountManagerStatefull: AccountManagerStatefull,
+    private nostrSigner: NostrSigner,
     private profileApi: ProfileApi,
+    private accountManagerStatefull: AccountManagerStatefull,
     private profileCache: ProfileCache,
     private nostrConverter: NostrConverter
   ) { }
@@ -61,10 +63,12 @@ export class ProfileProxy {
     return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
   }
 
-  async loadAccount(nsec: TNostrSecret, pin: string): Promise<IUnauthenticatedUser | null> {
+  async loadAccount(nsec: TNostrSecret, password: string): Promise<IUnauthenticatedUser | null> {
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
+
     const profile = await this.load(user.npub);
-    const account = this.accountManagerStatefull.createAccount(profile, nsec, pin);
+    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
+    const account = this.accountManagerStatefull.addAccount(profile, ncrypted);
 
     return Promise.resolve(account);
   }

@@ -7,8 +7,8 @@ import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../profile-service/nostr.signer';
 import { ProfileProxy } from '../../profile-service/profile.proxy';
-import { AccountManagerService } from '../account-manager.service';
 import { AuthModalSteps } from '../auth-modal-steps.type';
+import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
   selector: 'nostr-add-account-modal',
@@ -51,7 +51,7 @@ export class AddAccountModalComponent {
     private profileProxy: ProfileProxy,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
-    private accountManagerService: AccountManagerService
+    private accountManagerService: AccountManagerStatefull
   ) { }
 
   getFormControlErrors(fieldName: 'nsec' | 'password'): ValidationErrors | null {

@@ -9,12 +9,10 @@ import { INostrCredentialLocalConfig } from '../../domain/nostr-credential-local
 @Injectable({
   providedIn: 'root'
 })
-export class AccountManagerService {
+export class AccountManagerStatefull {
 
   private accounts = this.nostrConfigStorage.readLocalStorage<INostrCredentialLocalConfig>().accounts || {};
-
   private accountsSubject = new BehaviorSubject<IUnauthenticatedUser[]>(Object.values(this.accounts));
-
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
@@ -38,11 +36,7 @@ export class AccountManagerService {
   }
 
   private update(): void {
-    this.nostrConfigStorage.updateLocalStorage<INostrCredentialLocalConfig>(configs => {
-      configs.accounts = this.accounts;
-      this.accountsSubject.next(Object.values(this.accounts));
-
-      return configs;
-    });
+    this.nostrConfigStorage.patchLocalStorage<INostrCredentialLocalConfig>({ accounts: this.accounts });
+    this.accountsSubject.next(Object.values(this.accounts));
   }
 }

@@ -5,7 +5,6 @@ export * from './domain/profile-picture.interface';
 export * from './domain/profile.interface';
 export * from './domain/unauthenticated-user';
 
-export * from './shared/basic-credential-widget/account-manager.service';
 export * from './shared/basic-credential-widget/auth-modal-arguments.interface';
 export * from './shared/basic-credential-widget/auth-modal-steps.type';
 export * from './shared/basic-credential-widget/basic-credential-widget.module';
@@ -21,10 +20,8 @@ export * from './shared/camera/camera.observable';
 export * from './shared/loading/loading-widget.module';
 export * from './shared/loading/loading.component';
 
-export * from './shared/nostr-credential/account-manager.statefull';
-export * from './shared/nostr-credential/authenticated-profile.observable';
-export * from './shared/nostr-credential/nostr-credential.module';
-export * from './shared/nostr-credential/nostr-credential.service';
+export * from './shared/profile-service/account-manager.statefull';
+export * from './shared/profile-service/authenticated-profile.observable';
 
 export * from './shared/nostr-validators/nostr-secret.validator-fn';
 export * from './shared/nostr-validators/nostr.validators';
