@@ -16,13 +16,21 @@ export class RelayService {
     private configs: NostrConfigStorage
   ) { }
 
-  filterWritableRelays(relays: TRelayMap): string[] {
+  filterWritableRelays(relays: TRelayMap | string[]): string[] {
+    if (relays instanceof Array) {
+      return relays;
+    }
+
     return Object
       .keys(relays)
       .filter(relay => relays[relay].write);
   }
 
-  filterReadableRelays(relays: TRelayMap): string[] {
+  filterReadableRelays(relays: TRelayMap | string[]): string[] {
+    if (relays instanceof Array) {
+      return relays;
+    }
+
     return Object
       .keys(relays)
       .filter(relay => relays[relay].read);

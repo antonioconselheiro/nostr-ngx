@@ -13,7 +13,7 @@ export class NostrService {
     private relayService: RelayService
   ) { }
 
-  async request(filters: Filter[], relays?: TRelayMap): Promise<Array<Event>> {
+  async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
     const pool = new SimplePool();
     const events = new Array<Event>();
     relays = relays || await this.relayService.getCurrentUserRelays();
@@ -32,7 +32,7 @@ export class NostrService {
     });
   }
 
-  observable(filters: Filter[], relays?: TRelayMap): Observable<Event> {
+  observable(filters: Filter[], relays?: TRelayMap | string[]): Observable<Event> {
     const pool = new SimplePool();
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
@@ -59,7 +59,7 @@ export class NostrService {
       .pipe(takeUntil(onDestroy$));
   }
 
-  async publish(event: Event, relays?: TRelayMap): Promise<void> {
+  async publish(event: Event, relays?: TRelayMap | string[]): Promise<void> {
     relays = relays || await this.relayService.getCurrentUserRelays();
     const relayList = this.relayService.filterWritableRelays(relays);
 

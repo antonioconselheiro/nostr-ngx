@@ -75,7 +75,6 @@ export class ProfileProxy {
 
   async loadProfiles(...npubss: TNostrPublic[][]): Promise<IProfile[]> {
     const npubs = [...new Set(npubss.flat(1))];
-
     const notLoaded = npubs.filter(npub => !this.profileCache.isEagerLoaded(npub))
 
     return this.forceProfileReload(notLoaded);
