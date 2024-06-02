@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
+import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
-  selector: 'nostr-select-authentication-modal',
-  templateUrl: './select-authentication-modal.component.html',
-  styleUrl: './select-authentication-modal.component.scss'
+  selector: 'nostr-select-authentication-list',
+  templateUrl: './select-authentication-list.component.html',
+  styleUrl: './select-authentication-list.component.scss'
 })
-export class SelectAuthenticationModalComponent {
+export class SelectAuthenticationListComponent {
 
   @Input()
   accounts: IUnauthenticatedUser[] = [];

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AccountConverter } from '../profile-service/account.converter';
 import { BehaviorSubject } from 'rxjs';
 import { IProfile } from '../../domain/profile.interface';

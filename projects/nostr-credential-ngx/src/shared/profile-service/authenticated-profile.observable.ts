@@ -3,7 +3,7 @@ import { NostrConfigStorage, NostrConverter, TNcryptsec, TNostrPublic, TNostrSec
 import { BehaviorSubject } from 'rxjs';
 import { INostrCredentialSessionConfig } from '../../domain/nostr-credential-session-config.interface';
 import { IProfile } from '../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
 

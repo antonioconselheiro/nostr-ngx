@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user';
+import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../profile-service/nostr.signer';
@@ -11,11 +11,11 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
-  selector: 'nostr-add-account-modal',
-  templateUrl: './add-account-modal.component.html',
-  styleUrl: './add-account-modal.component.scss'
+  selector: 'nostr-add-account-form',
+  templateUrl: './add-account-form.component.html',
+  styleUrl: './add-account-form.component.scss'
 })
-export class AddAccountModalComponent {
+export class AddAccountFormComponent {
 
   @Input()
   accounts: IUnauthenticatedUser[] = [];
