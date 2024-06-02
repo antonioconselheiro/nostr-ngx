@@ -5,7 +5,9 @@ import * as nip49 from 'nostr-tools/nip49';
 import { IProfile } from '../../domain/profile.interface';
 import { TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AccountConverter {
 
   convertProfileToAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser {

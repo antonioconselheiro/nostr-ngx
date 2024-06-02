@@ -13,7 +13,7 @@ export class NostrAuthCheckComponent {
     private modalService: ModalService
   ){ }
 
-  openAuthModal() {
+  openAuthModal(): void {
     this.modalService
       .createModal(ModalNostrCredentialComponent)
       .build();

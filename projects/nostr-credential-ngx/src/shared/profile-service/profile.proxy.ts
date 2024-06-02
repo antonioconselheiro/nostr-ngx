@@ -19,7 +19,9 @@ import { AccountManagerStatefull } from "./account-manager.statefull";
  * through this facade, which orchestrates services with
  * different responsibilities (cache, api, cast)
  */
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ProfileProxy {
 
   constructor(

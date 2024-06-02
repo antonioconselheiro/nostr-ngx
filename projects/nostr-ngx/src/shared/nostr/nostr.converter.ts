@@ -5,7 +5,9 @@ import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TNcryptsec } from '../../domain/ncryptsec.type';
 import * as nip49 from 'nostr-tools/nip49';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class NostrConverter {
 
   convertNostrSecretToPublic(nostrSecret: TNostrSecret): { npub: TNostrPublic, pubhex: string } {

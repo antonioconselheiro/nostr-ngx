@@ -3,7 +3,9 @@ import { TNostrSecret } from '../../domain/nostr-secret.type';
 import { TNcryptsec } from '../../domain/ncryptsec.type';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class NostrGuard {
 
   isNostrSecret(nsec: unknown): nsec is TNostrSecret {

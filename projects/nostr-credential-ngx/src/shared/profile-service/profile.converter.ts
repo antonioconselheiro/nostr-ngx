@@ -4,7 +4,9 @@ import { Event, nip19 } from 'nostr-tools';
 import { IProfile } from '../../domain/profile.interface';
 import { IProfileMetadata } from './profile-metadata.interface';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ProfileConverter {
 
   getMetadataFromNostrPublic(npub: TNostrPublic): IProfile {

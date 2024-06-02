@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { NostrEventKind, NostrService, TNostrPublic } from '@belomonte/nostr-ngx';
 import { nip19, NostrEvent } from 'nostr-tools';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ProfileApi {
 
   constructor(
