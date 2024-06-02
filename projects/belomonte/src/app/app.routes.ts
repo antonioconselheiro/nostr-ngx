@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { RelayCommunicationCheckComponent } from './shared/relay-communication-check/relay-communication-check.component';
-import { NostrAuthCheckComponent } from './shared/nostr-auth-check/nostr-auth-check.component';
+import { RelayCommunicationCheckComponent } from './pages/relay-communication-check/relay-communication-check.component';
+import { NostrAuthCheckComponent } from './pages/nostr-auth-check/nostr-auth-check.component';
 
 export const routes: Routes = [
   {

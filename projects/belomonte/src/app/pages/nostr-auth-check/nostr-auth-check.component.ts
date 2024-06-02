@@ -11,11 +11,12 @@ export class NostrAuthCheckComponent {
 
   constructor(
     private modalService: ModalService
-  ){ }
+  ) { }
 
   openAuthModal(): void {
     this.modalService
       .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
       .build();
   }
 }

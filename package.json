@@ -4,6 +4,7 @@
   "license": "Unlicense",
   "scripts": {
     "start": "ng serve belomonte --host=0.0.0.0",
+    "dev": "npm start",
     "build": "npm run build:nostr && npm run build:credential",
     "build:nostr": "npm -C projects/nostr-ngx run build",
     "build:credential": "npm -C projects/nostr-credential-ngx run build",
@@ -19,6 +20,8 @@
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
+    "@belomonte/async-modal-ngx": "^0.1.0",
+    "nostr-tools": "^2.7.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
