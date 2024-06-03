@@ -5,7 +5,15 @@
     "entryFile": "src/index.ts"
   },
   "assets": [
-    "src/styles/**",
-    "src/styles.scss"
+    {
+      "glob": "**/*.scss",
+      "input": "src/styles",
+      "output": "./styles"
+    },
+    {
+      "glob": "styles.scss",
+      "input": "src",
+      "output": "./"
+    }
   ]
 }
