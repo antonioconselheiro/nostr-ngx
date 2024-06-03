@@ -3,5 +3,9 @@
   "dest": "../../dist/nostr-credential-ngx",
   "lib": {
     "entryFile": "src/index.ts"
-  }
+  },
+  "assets": [
+    "src/styles/**",
+    "src/styles.scss"
+  ]
 }

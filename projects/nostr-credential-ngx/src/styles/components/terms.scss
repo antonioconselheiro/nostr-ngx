@@ -1,0 +1,29 @@
+///
+/// terms of use
+///
+/// @group Components
+/// @class footer.terms
+///
+/// @example
+/// ```
+/// <footer class="terms">terms</footer>
+/// ```
+///
+footer.terms {
+  color: var(--lowestContrast);
+  text-align: center;
+  margin: 1rem;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+
+  a,
+  span {
+    color: var(--lowestContrast);
+  }
+
+  a:hover,
+  span:hover {
+    text-decoration: underline;
+  }
+}

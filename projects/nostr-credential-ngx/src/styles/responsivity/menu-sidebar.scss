@@ -1,0 +1,35 @@
+body {
+  //  default, mobile
+  --menusidebarWidth: 0;
+  --menusidebarDisplay: none;
+  --menusidebarMobileDisplay: block;
+  --menusidebarDisplayLabels: none;
+  --menusidebarDisplayFlexLabels: none;
+  --menusidebarDisplayTweetButtonIcon: none;
+  --menusidebarTweetButtonWidth: 0;
+  --menusidebarProfileMinWidth: 0;
+  --menusidebarProfileMargin: .6rem;
+
+  //  intermediary
+  @media screen and (min-width: 800px) and (max-width: 1200px) {
+    --menusidebarWidth: 59px;
+    --menusidebarMobileDisplay: none;
+    --menusidebarDisplay: flex;
+    --menusidebarDisplayTweetButtonIcon: block;
+    --menusidebarTweetButtonWidth: 55px;
+    --menusidebarProfileMargin: .2rem;
+  }
+
+  //  desktop
+  @media screen and (min-width: 1200px) {
+    --menusidebarWidth: 275px;
+    --menusidebarDisplay: flex;
+    --menusidebarMobileDisplay: none;
+    --menusidebarDisplayLabels: block;
+    --menusidebarDisplayFlexLabels: flex;
+    --menusidebarDisplayTweetButtonIcon: none;
+    --menusidebarTweetButtonWidth: 90%;
+    --menusidebarProfileMinWidth: 72px;
+    --menusidebarProfileMargin: .75rem;
+  }
+}

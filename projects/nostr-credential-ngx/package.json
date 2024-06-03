@@ -14,6 +14,9 @@
     "tslib": "^2.3.0"
   },
   "sideEffects": false,
+  "exports": {
+    "./styles/": "./styles/"
+  },
   "scripts": {
     "build": "ng build"
   }

@@ -1,3 +1,5 @@
+import { EventTemplate, NostrEvent } from 'nostr-tools';
+
 export * from './domain/ncryptsec.type';
 export * from './domain/nip05.type';
 export * from './domain/nostr-event-kind.enum';
@@ -15,10 +17,22 @@ export * from './shared/nostr/nostr.converter';
 export * from './shared/nostr/relay.service';
 export * from './shared/nostr/signer-not-found.error';
 
-import { Nip07 } from 'nostr-tools/nip07'
+export interface WindowNostr {
+  getPublicKey(): Promise<string>
+  signEvent(event: EventTemplate): Promise<NostrEvent>
+  getRelays(): Promise<any>
+  nip04?: {
+    encrypt(pubkey: string, plaintext: string): Promise<string>
+    decrypt(pubkey: string, ciphertext: string): Promise<string>
+  }
+  nip44?: {
+    encrypt(pubkey: string, plaintext: string): Promise<string>
+    decrypt(pubkey: string, ciphertext: string): Promise<string>
+  }
+}
 
 declare global {
   interface Window {
-    nostr?: Nip07;
+    nostr?: WindowNostr;
   }
 }
