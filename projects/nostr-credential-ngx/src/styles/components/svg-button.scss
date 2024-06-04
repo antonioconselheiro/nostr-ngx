@@ -26,19 +26,23 @@ button.svg-button {
     border-radius: 50%;
     padding: .5rem;
 
-    svg,
-    i-tabler {
+    svg {
       width: 17.2px;
       min-height: 17px;
-      background-color: var(--lowContrast);
+      color: var(--lowContrast);
       mask-repeat: no-repeat;
       mask-size: contain;
     }
   }
 
+  i-tabler {
+    width: auto;
+    height: auto;
+  }
+
   &:disabled {
-    svg,
-    i-tabler {
+    > svg,
+    > i-tabler {
       opacity: .5;
       cursor: default;
     }
@@ -52,9 +56,8 @@ button.svg-button {
         border: 1px solid var(--primary); 
       }
 
-      svg,
-      i-tabler {
-        background-color: var(--imgButtonDefault) !important;
+      svg {
+        color: var(--imgButtonDefault) !important;
         transition: background-color .3s;
       }
     }
@@ -89,11 +92,10 @@ button.svg-button {
   height: 20px;
   width: 20px;
 
-  svg,
-  i-tabler {
+  svg {
     height: 20px;
     width: 20px;
-    background-color: var(--lowContrast);
+    color: var(--lowContrast);
     display: inline-block;
     mask-repeat: no-repeat;
     mask-size: contain;
