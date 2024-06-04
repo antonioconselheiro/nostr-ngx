@@ -18,10 +18,10 @@
     "./styles/": "./styles/"
   },
   "scripts": {
-    "docs": "sassdoc src --dest=sassdoc --verbose && npx compodoc -p tsconfig.json",
     "prebuild": "ng lint",
     "build:ngx": "ng build",
-    "build:sass": "sass ./styles.scss",
-    "build": "npm run build:ngx && npm run build:sass"
+    "build:sass": "sass ./src/styles.scss --style compressed > ../../dist/nostr-credential-ngx/style.css",
+    "build": "npm run build:ngx && npm run build:sass",
+    "docs": "sassdoc src --dest=sassdoc --verbose && npx compodoc -p tsconfig.json"
   }
 }
