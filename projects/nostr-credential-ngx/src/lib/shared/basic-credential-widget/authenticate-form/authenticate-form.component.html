@@ -19,16 +19,16 @@
 
     <label for="authenticatePasswordField">Password</label>
 
-    <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'" [class.icon-show]="!showPassword"
-      [class.icon-hide]="showPassword" (click)="showPassword = !showPassword" class="bordered icon-info svg-button">
+    <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'"
+     (click)="showPassword = !showPassword" class="bordered icon-info svg-button">
       <div class="svg-wrapper">
-        <div role="img"></div>
+        <i-tabler [name]="showPassword ? 'eye-off' : 'eye'"></i-tabler>
       </div>
     </button>
 
     <ng-container *ngIf="showErrors()">
-      <span *ngIf="getFormControlErrorStatus('required')" class="error">Include a Pin to improve your privacity</span>
-      <span *ngIf="getFormControlErrorStatus('invalid')" class="error">Invalid pin, nsec could not be open</span>
+      <span *ngIf="getFormControlErrorStatus('required')" class="error">Include a password to improve your privacity</span>
+      <span *ngIf="getFormControlErrorStatus('invalid')" class="error">Invalid password, nsec could not be open</span>
     </ng-container>
   </div>
 

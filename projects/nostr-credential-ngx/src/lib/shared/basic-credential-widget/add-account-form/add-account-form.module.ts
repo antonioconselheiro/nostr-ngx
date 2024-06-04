@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AddAccountFormComponent } from './add-account-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { LoadingWidgetModule } from '../../loading/loading-widget.module';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    LoadingWidgetModule
+    LoadingWidgetModule,
+    TablerIconsModule
   ],
   exports: [
     AddAccountFormComponent

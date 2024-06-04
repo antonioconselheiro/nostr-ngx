@@ -106,6 +106,7 @@
               "projects/belomonte/src/assets"
             ],
             "styles": [
+              "dist/nostr-credential-ngx/styles.scss",
               "projects/belomonte/src/styles.scss"
             ],
             "scripts": []

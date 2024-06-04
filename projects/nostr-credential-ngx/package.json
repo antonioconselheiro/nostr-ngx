@@ -18,7 +18,6 @@
     "./styles/": "./styles/"
   },
   "scripts": {
-    "prebuild": "ng lint",
     "build:ngx": "ng build",
     "build:sass": "sass ./src/styles.scss --style compressed > ../../dist/nostr-credential-ngx/style.css",
     "build": "npm run build:ngx && npm run build:sass",

@@ -4,6 +4,7 @@ import { AuthenticateFormComponent } from './authenticate-form.component';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ProfileWidgetModule } from '../../profile-widget/profile-widget.module';
+import { TablerIconsModule } from 'angular-tabler-icons';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { ProfileWidgetModule } from '../../profile-widget/profile-widget.module'
     CommonModule,
     ReactiveFormsModule,
     LoadingWidgetModule,
-    ProfileWidgetModule
+    ProfileWidgetModule,
+    TablerIconsModule
   ],
   exports: [
     AuthenticateFormComponent
