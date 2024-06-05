@@ -33,14 +33,14 @@
       id="addAccountPasswordField" [class.has-value]="password.value" [attr.readonly]="loading ? 'readonly' : null"
       [attr.type]="showPassword ? 'text' : 'password'" />
 
-    <label for="addAccountPasswordField">Pin</label>
+    <label for="addAccountPasswordField">Password</label>
 
-    <!-- TODO: incluir popover ao clique com explicação do porquê do pin -->
+    <!-- TODO: incluir popover ao clique com explicação do porquê do password -->
     <button title="tap for information" type="button" tabindex="6" class="bordered svg-button">
       <nostr-svg-render name="info"></nostr-svg-render>
     </button>
 
-    <button type="button" tabindex="7" [attr.title]="showPassword ? 'hide pin' : 'show pin'"
+    <button type="button" tabindex="7" [attr.title]="showPassword ? 'hide password' : 'show password'"
       (click)="showPassword = !showPassword" class="bordered svg-button">
 
       <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>

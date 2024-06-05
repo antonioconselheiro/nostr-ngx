@@ -39,8 +39,8 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     return this.loadProfile(user.npub);
   }
 
-  authenticateAccount(account: IUnauthenticatedUser, pin: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
-    const nsec = this.accountConverter.decryptAccount(account, pin);
+  authenticateAccount(account: IUnauthenticatedUser, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
+    const nsec = this.accountConverter.decryptAccount(account, password);
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
     this.nostrConfigStorage.clearSessionStorage();
     this.nostrConfigStorage.patchSessionStorage({ ncryptsec: account.ncryptsec });
@@ -52,8 +52,8 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     return this.loadProfile(user.npub);
   }
 
-  authenticateEncryptedEncode(ncryptsec: TNcryptsec, pin: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
-    const nsec = this.nostrConverter.decryptNcryptsec(ncryptsec, pin);
+  authenticateEncryptedEncode(ncryptsec: TNcryptsec, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
+    const nsec = this.nostrConverter.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
     this.nostrConfigStorage.clearSessionStorage();
     this.nostrConfigStorage.patchSessionStorage({ ncryptsec });
