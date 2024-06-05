@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalService } from '@belomonte/async-modal-ngx'
-import { ModalNostrCredentialComponent } from '@belomonte/nostr-credential-ngx';
+import { CredentialHandlerService } from '@belomonte/nostr-credential-ngx';
 
 @Component({
   selector: 'app-nostr-auth-check',
@@ -10,13 +9,10 @@ import { ModalNostrCredentialComponent } from '@belomonte/nostr-credential-ngx';
 export class NostrAuthCheckComponent {
 
   constructor(
-    private modalService: ModalService
+    private credentialHandlerService: CredentialHandlerService
   ) { }
 
   openAuthModal(): void {
-    this.modalService
-      .createModal(ModalNostrCredentialComponent)
-      .setOutletName('nostrCredential')
-      .build();
+    this.credentialHandlerService.handle();
   }
 }
