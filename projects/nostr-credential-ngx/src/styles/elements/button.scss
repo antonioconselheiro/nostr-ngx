@@ -1,3 +1,4 @@
+// FIXME: a biblioteca não deve exportar scss sem classes, diretamente nos elementos
 button {
   border: 0;
   background-color: transparent;
@@ -8,12 +9,12 @@ button {
     outline: none;
   }
 
-  tw-loading {
+  nostr-loading {
     max-width: 22px;
     max-height: 22px;
   }
 
-  tw-loading ~ span,
+  nostr-loading ~ span,
   .inline-icon ~ span {
     margin-left: 0.75rem;
   }

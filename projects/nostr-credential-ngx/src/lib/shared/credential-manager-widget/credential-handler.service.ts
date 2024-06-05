@@ -15,6 +15,9 @@ export class CredentialHandlerService {
     this.modalService
     .createModal(ModalNostrCredentialComponent)
     .setOutletName('nostrCredential')
+    .setData({
+      title: 'Accounts' // FIXME: change to il8n
+    })
     .build();
   }
 }

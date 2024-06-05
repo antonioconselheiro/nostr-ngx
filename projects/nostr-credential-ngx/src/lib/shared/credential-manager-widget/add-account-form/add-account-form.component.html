@@ -9,13 +9,13 @@
     <button type="button" tabindex="4" title="read nsec from qrcode" (click)="readQrcodeUsingCamera(password)"
       class="bordered svg-button">
 
-        <nostr-svg-render name="scan-qrcode"></nostr-svg-render>
+      <nostr-svg-render name="scan-qrcode"></nostr-svg-render>
     </button>
 
     <button type="button" tabindex="4" [attr.title]="showNostrSecret ? 'hide nostr secret' : 'show nostr secret'"
       (click)="showNostrSecret = !showNostrSecret" class="bordered svg-button">
 
-        <nostr-svg-render [name]="showNostrSecret ? 'eye-off' : 'eye'"></nostr-svg-render>
+      <nostr-svg-render [name]="showNostrSecret ? 'eye-off' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="submitted">
@@ -29,21 +29,21 @@
   </div>
 
   <div [class.error]="submitted && getFormControlErrors('password')" class="floating-label password-field">
-    <input #password required name="password" tabindex="2" [maxlength]="passwordLength" formControlName="password" id="addAccountPasswordField"
-      [class.has-value]="password.value" [attr.readonly]="loading ? 'readonly' : null"
+    <input #password required name="password" tabindex="2" [maxlength]="passwordLength" formControlName="password"
+      id="addAccountPasswordField" [class.has-value]="password.value" [attr.readonly]="loading ? 'readonly' : null"
       [attr.type]="showPassword ? 'text' : 'password'" />
 
     <label for="addAccountPasswordField">Pin</label>
 
     <!-- TODO: incluir popover ao clique com explicação do porquê do pin -->
     <button title="tap for information" type="button" tabindex="6" class="bordered svg-button">
-        <nostr-svg-render name="info"></nostr-svg-render>
+      <nostr-svg-render name="info"></nostr-svg-render>
     </button>
 
     <button type="button" tabindex="7" [attr.title]="showPassword ? 'hide pin' : 'show pin'"
       (click)="showPassword = !showPassword" class="bordered svg-button">
 
-        <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
+      <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="submitted">
@@ -65,7 +65,7 @@
 
     <button *ngIf="accounts.length" type="button" tabindex="3" title="back" (click)="changeStep.next('select-account')"
       class="button secondary iconed-button">
-        <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
+      <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
       <span>
         Back
       </span>
