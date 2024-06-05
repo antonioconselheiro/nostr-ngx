@@ -9,17 +9,13 @@
     <button type="button" tabindex="4" title="read nsec from qrcode" (click)="readQrcodeUsingCamera(password)"
       class="bordered svg-button">
 
-      <div class="svg-wrapper">
         <nostr-svg-render name="scan-qrcode"></nostr-svg-render>
-      </div>
     </button>
 
     <button type="button" tabindex="4" [attr.title]="showNostrSecret ? 'hide nostr secret' : 'show nostr secret'"
       (click)="showNostrSecret = !showNostrSecret" class="bordered svg-button">
 
-      <div class="svg-wrapper">
         <nostr-svg-render [name]="showNostrSecret ? 'eye-off' : 'eye'"></nostr-svg-render>
-      </div>
     </button>
 
     <ng-container *ngIf="submitted">
@@ -41,17 +37,13 @@
 
     <!-- TODO: incluir popover ao clique com explicação do porquê do pin -->
     <button title="tap for information" type="button" tabindex="6" class="bordered svg-button">
-      <div class="svg-wrapper">
         <nostr-svg-render name="info"></nostr-svg-render>
-      </div>
     </button>
 
     <button type="button" tabindex="7" [attr.title]="showPassword ? 'hide pin' : 'show pin'"
       (click)="showPassword = !showPassword" class="bordered svg-button">
 
-      <div class="svg-wrapper">
         <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
-      </div>
     </button>
 
     <ng-container *ngIf="submitted">
@@ -62,10 +54,7 @@
 
   <div class="button-group">
     <button type="submit" tabindex="2" title="add account" class="button secondary iconed-button">
-      <div *ngIf="!loading" class="inline-icon">
-        <nostr-svg-render name="plus"></nostr-svg-render>
-      </div>
-
+      <nostr-svg-render *ngIf="!loading" class="inline-icon" name="plus"></nostr-svg-render>
       <nostr-loading *ngIf="loading"></nostr-loading>
 
       <span>
@@ -75,10 +64,7 @@
 
     <button *ngIf="accounts.length" type="button" tabindex="3" title="back" (click)="changeStep.next('select-account')"
       class="button secondary iconed-button">
-      <div class="inline-icon">
-        <nostr-svg-render name="left"></nostr-svg-render>
-      </div>
-
+        <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
       <span>
         Back
       </span>

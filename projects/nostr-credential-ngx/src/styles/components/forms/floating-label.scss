@@ -19,10 +19,8 @@
 ///   />
 ///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
 /// 
-///   <button type="button" class="bordered svg-button icon-show">
-///     <div class="svg-wrapper">
-///       <div role="img"></div>
-///     </div>
+///   <button type="button" class="bordered svg-button">
+///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// </div>
 /// ```
@@ -39,10 +37,8 @@
 ///   />
 ///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
 /// 
-///   <button type="button" class="bordered svg-button icon-show">
-///     <div class="svg-wrapper">
-///       <div role="img"></div>
-///     </div>
+///   <button type="button" class="bordered svg-button">
+///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// 
 ///   <span class="error">Nostr Secret cannot be blank</span>

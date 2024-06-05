@@ -8,10 +8,8 @@
 /// ```
 /// <header class="header-backable">
 ///   <div>
-///     <button title="back" type="button" class="icon-back svg-button">
-///       <div class="svg-wrapper">
-///         <div alt="back" role="img"></div>
-///       </div>
+///     <button title="back" type="button" class="svg-button">
+///       <nostr-svg-render name="back"></nostr-svg-render>
 ///     </button>
 ///   </div>
 ///   <div>

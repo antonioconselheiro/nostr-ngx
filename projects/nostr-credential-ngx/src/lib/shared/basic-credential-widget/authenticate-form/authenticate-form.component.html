@@ -21,9 +21,7 @@
 
     <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'"
      (click)="showPassword = !showPassword" class="bordered icon-info svg-button">
-      <div class="svg-wrapper">
-        <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
-      </div>
+      <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="showErrors()">

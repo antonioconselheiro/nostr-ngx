@@ -6,10 +6,8 @@
 ///
 /// @example
 /// ```
-/// <button title="upload image" type="button" class="icon-upload-image svg-button">
-///   <div class="svg-wrapper">
-///     <div role="img"></div>
-///   </div>
+/// <button title="upload image" type="button" class="svg-button">
+///   <nostr-svg-render name="upload-image"></nostr-svg-render>
 /// </button>
 /// ```
 ///
@@ -22,7 +20,8 @@ button.svg-button {
   align-items: center;
   cursor: pointer;
 
-  .svg-wrapper {
+  nostr-svg-render {
+    display: flex;
     border-radius: 50%;
     padding: .5rem;
 
@@ -62,12 +61,12 @@ button.svg-button {
       }
     }
 
-    &:hover .svg-wrapper {
+    &:hover nostr-svg-render {
       background-color: var(--imgButtonDefaultHover);
       transition: background-color .3s;
     }
 
-    &:active .svg-wrapper {
+    &:active nostr-svg-render {
       background-color: var(--imgButtonDefaultActive);
       transition: background-color .3s;
     }
@@ -82,9 +81,7 @@ button.svg-button {
 /// 
 /// @example
 /// ```
-/// <div class="inline-icon icon-location">
-///   <div role="img"></div>
-/// </div>
+/// <nostr-svg-render class="inline-icon" name="location"></nostr-svg-render>
 /// ```
 ///
 .inline-icon {
