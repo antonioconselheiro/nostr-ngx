@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AddAccountFormComponent } from './add-account-form.component';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
-import { TablerIconsModule } from 'angular-tabler-icons';
+import { SvgRenderModule } from '../../svg-render/svg-render.module';
+import { AddAccountFormComponent } from './add-account-form.component';
 
 @NgModule({
   declarations: [
@@ -13,7 +13,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
     CommonModule,
     ReactiveFormsModule,
     LoadingWidgetModule,
-    TablerIconsModule
+    SvgRenderModule
   ],
   exports: [
     AddAccountFormComponent

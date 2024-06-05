@@ -15,7 +15,8 @@
         "naumovs.color-highlight",
         "manishsencha.readme-preview",
         "wix.vscode-import-cost",
-        "jrjrjr.amberlight"
+        "jrjrjr.amberlight",
+        "natewallace.angular2-inline"
       ]
 		}
 	}

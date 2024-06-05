@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthenticateFormComponent } from './authenticate-form.component';
-import { LoadingWidgetModule } from '../../loading/loading-widget.module';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { ProfileWidgetModule } from '../../profile-widget/profile-widget.module';
-import { TablerIconsModule } from 'angular-tabler-icons';
+import { SvgRenderModule } from '../../svg-render/svg-render.module';
+import { AuthenticateFormComponent } from './authenticate-form.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +15,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
     ReactiveFormsModule,
     LoadingWidgetModule,
     ProfileWidgetModule,
-    TablerIconsModule
+    SvgRenderModule
   ],
   exports: [
     AuthenticateFormComponent

@@ -35,14 +35,14 @@ button.svg-button {
     }
   }
 
-  i-tabler {
+  nostr-svg-render {
     width: auto;
     height: auto;
   }
 
   &:disabled {
     > svg,
-    > i-tabler {
+    > nostr-svg-render {
       opacity: .5;
       cursor: default;
     }

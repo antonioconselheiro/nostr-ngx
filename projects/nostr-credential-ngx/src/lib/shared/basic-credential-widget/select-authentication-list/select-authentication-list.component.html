@@ -13,20 +13,20 @@
 
   <button (click)="logout(account)" title="logout" type="button" class="bordered svg-button">
     <div class="svg-wrapper">
-      <i-tabler name="logout"></i-tabler>
+      <nostr-svg-render name="logout"></nostr-svg-render>
     </div>
   </button>
 
   <button (click)="selectAccount(account)" title="enter" type="button" class="bordered icon-enter svg-button">
     <div class="svg-wrapper">
-      <i-tabler name="arrow-narrow-right"></i-tabler>
+      <nostr-svg-render name="right"></nostr-svg-render>
     </div>
   </button>
 </section>
 
 <button (click)="changeStep.next('add-account')" title="add account" type="button" class="add-account">
-  <div class="inline-icon icon-add">
-    <i-tabler name="plus"></i-tabler>
+  <div class="inline-icon">
+    <nostr-svg-render name="plus"></nostr-svg-render>
   </div>
 
   <span>Add Account</span>

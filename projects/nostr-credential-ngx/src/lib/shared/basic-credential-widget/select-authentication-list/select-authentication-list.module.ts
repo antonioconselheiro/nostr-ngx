@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SelectAuthenticationListComponent } from './select-authentication-list.component';
+import { NgModule } from '@angular/core';
 import { ProfileWidgetModule } from '../../profile-widget/profile-widget.module';
-import { TablerIconsModule } from 'angular-tabler-icons';
+import { SvgRenderModule } from '../../svg-render/svg-render.module';
+import { SelectAuthenticationListComponent } from './select-authentication-list.component';
 
 @NgModule({
   declarations: [
@@ -11,7 +11,7 @@ import { TablerIconsModule } from 'angular-tabler-icons';
   imports: [
     CommonModule,
     ProfileWidgetModule,
-    TablerIconsModule
+    SvgRenderModule
   ],
   exports: [
     SelectAuthenticationListComponent
