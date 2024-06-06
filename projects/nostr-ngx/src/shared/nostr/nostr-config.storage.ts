@@ -23,7 +23,7 @@ export class NostrConfigStorage {
       try {
         return JSON.parse(data) satisfies T;
       } catch (e) {
-        console.error('invalid JSON found in localStorage', e);
+        console.error('corrupted JSON found in localStorage', e);
         return this.defaultLocal as T;
       }
     }
@@ -62,7 +62,7 @@ export class NostrConfigStorage {
       try {
         return JSON.parse(data) satisfies T;
       } catch (e) {
-        console.error('invalid JSON found in sessionStorage', e);
+        console.error('corrupted JSON found in sessionStorage', e);
         return this.defaultSession as T;
       }
     }

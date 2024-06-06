@@ -19,13 +19,9 @@
 /// ```
 
 .unauthenticated-account {
-  padding: 0.5rem;
-}
-
-.add-account,
-.unauthenticated-account {
   display: flex;
   border: 1px solid var(--separator);
+  padding: .5rem;
   border-radius: 15px;
   align-items: center;
   margin-bottom: 1rem;

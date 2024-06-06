@@ -15,15 +15,24 @@
     <nostr-svg-render name="logout"></nostr-svg-render>
   </button>
 
-  <button (click)="selectAccount(account)" title="enter" type="button" class="bordered icon-enter svg-button">
+  <button (click)="selectAccount(account)" title="enter" type="button" class="bordered svg-button">
     <nostr-svg-render name="right"></nostr-svg-render>
   </button>
 </section>
 
-<button (click)="changeStep.next('add-account')" title="add account" type="button" class="add-account">
-  <div class="inline-icon">
-    <nostr-svg-render name="plus"></nostr-svg-render>
-  </div>
-
-  <span>Add Account</span>
-</button>
+<div class="button-group">
+  <button class="button secondary iconed-button" (click)="changeStep.next('add-account')" title="add account" type="button">
+    <nostr-svg-render class="inline-icon" name="plus"></nostr-svg-render>
+    <span>Add account</span>
+  </button>
+  
+  <button class="button secondary iconed-button" (click)="changeStep.next('add-account')" title="use nostr signer extension" type="button">
+    <nostr-svg-render class="inline-icon" name="extension"></nostr-svg-render>
+    <span>Use Signer</span>
+  </button>
+  
+  <button class="button secondary iconed-button" (click)="changeStep.next('add-account')" title="create account" type="button">
+    <nostr-svg-render class="inline-icon" name="right"></nostr-svg-render>
+    <span>Create account</span>
+  </button>
+</div>
