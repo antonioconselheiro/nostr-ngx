@@ -11,6 +11,12 @@ import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 })
 export class RelayService {
 
+  private static defaultAppRelays: TRelayMap = {};
+
+  static setDefaultApplicationRelays(relays: TRelayMap): void {
+    this.defaultAppRelays = relays;
+  }
+
   constructor(
     private guard: NostrGuard,
     private configs: NostrConfigStorage
@@ -36,6 +42,13 @@ export class RelayService {
       .filter(relay => relays[relay].read);
   }
 
+  /**
+   * Override application default relays for unauthenticated
+   * accounts and for accounts without any relay configured
+   *
+   * @param relays
+   * @param npub 
+   */
   setLocalRelays(relays: TRelayMap, npub?: TNostrPublic) {
     const local = this.configs.readLocalStorage();
 
@@ -47,25 +60,35 @@ export class RelayService {
     }
   }
 
+  /**
+   * Return relays according to user-customized settings
+   */
   getCurrentUserRelays(): Promise<TRelayMap>;
   getCurrentUserRelays(nip5: TNip05): Promise<TRelayMap>;
   getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap>;
-  getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap> {
+  async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap> {
     const local = this.configs.readLocalStorage();
     const relayFrom = local.relayFrom;
+    let relays: TRelayMap = {};
 
     if (relayFrom === 'signer') {
-      return this.getRelaysFromSigner();
+      relays = await this.getRelaysFromSigner();
     } else if (relayFrom === 'localStorage') {
-      return this.getRelaysFromStorage(local, userPublicAddress);
+      relays = await this.getRelaysFromStorage(local, userPublicAddress);
     } else if (relayFrom === 'public') {
       if (userPublicAddress) {
-        return this.getUserPublicRelays(userPublicAddress);
+        relays = await this.getUserPublicRelays(userPublicAddress);
       }
     }
 
-    return Promise.resolve({});
+    if (!Object.keys(relays).length) {
+      relays = RelayService.defaultAppRelays;
+    }
+
+    console.info('local configs', local);
+    console.info('result relays', relays);
+    return relays;
   }
 
   private getRelaysFromSigner(): Promise<TRelayMap> {

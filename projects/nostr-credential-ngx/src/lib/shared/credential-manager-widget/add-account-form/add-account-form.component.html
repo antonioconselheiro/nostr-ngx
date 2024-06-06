@@ -1,4 +1,4 @@
-<h2>Add account</h2>
+<h2 class="title">Add account</h2>
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off">
   <div [class.error]="submitted && getFormControlErrors('nsec')" class="floating-label">
     <input #nsec required name="nsec" tabindex="1" maxlength="64" formControlName="nsec" id="addAccountNsecField"

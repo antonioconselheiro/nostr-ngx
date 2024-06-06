@@ -12,6 +12,14 @@ export class ProfileApi {
   ) { }
 
   loadProfiles(npubs: Array<TNostrPublic>): Promise<NostrEvent[]> {
+    console.info('payload', [
+      {
+        kinds: [
+          Number(NostrEventKind.Metadata)
+        ],
+        authors: npubs.map(npub => String(nip19.decode(npub).data))
+      }
+    ])
     return this.nostrService.request([
       {
         kinds: [

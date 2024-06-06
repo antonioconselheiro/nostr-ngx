@@ -1,6 +1,5 @@
-// FIXME: a biblioteca não deve exportar scss sem classes, diretamente nos elementos
-h1,
-h2 {
+h1.title,
+h2.title {
   font-size: 20px;
   margin: 0;
 }

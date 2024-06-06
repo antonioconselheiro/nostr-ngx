@@ -26,7 +26,7 @@ export class ModalNostrCredentialComponent
   currentStep: AuthModalSteps | null = null;
 
   constructor(
-    private nostrSecretStatefull: AccountManagerStatefull
+    private accountManagerStatefull: AccountManagerStatefull
   ) {
     super();
   }
@@ -37,7 +37,7 @@ export class ModalNostrCredentialComponent
   }
 
   private bindAccountsSubscription(): void {
-    this.subscriptions.add(this.nostrSecretStatefull.accounts$.subscribe({
+    this.subscriptions.add(this.accountManagerStatefull.accounts$.subscribe({
       next: accounts => this.accounts = accounts
     }));
   }
