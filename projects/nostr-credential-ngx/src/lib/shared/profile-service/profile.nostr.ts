@@ -5,21 +5,13 @@ import { nip19, NostrEvent } from 'nostr-tools';
 @Injectable({
   providedIn: 'root'
 })
-export class ProfileApi {
+export class ProfileNostr {
 
   constructor(
     private nostrService: NostrService
   ) { }
 
   loadProfiles(npubs: Array<TNostrPublic>): Promise<NostrEvent[]> {
-    console.info('payload', [
-      {
-        kinds: [
-          Number(NostrEventKind.Metadata)
-        ],
-        authors: npubs.map(npub => String(nip19.decode(npub).data))
-      }
-    ])
     return this.nostrService.request([
       {
         kinds: [

@@ -25,16 +25,14 @@
     </button>
 
     <ng-container *ngIf="showErrors()">
-      <span *ngIf="getFormControlErrorStatus('required')" class="error">Include a password to improve your privacity</span>
+      <span *ngIf="getFormControlErrorStatus('required')" class="error">Password is required</span>
       <span *ngIf="getFormControlErrorStatus('invalid')" class="error">Invalid password, nsec could not be open</span>
     </ng-container>
   </div>
 
   <div class="button-group">
     <button type="submit" tabindex="2" title="authenticate" class="action-button button secondary iconed-button">
-      <div *ngIf="!loading" class="inline-icon icon-unlock">
-        <div role="img"></div>
-      </div>
+      <nostr-svg-render *ngIf="!loading" class="inline-icon" name="unlock"></nostr-svg-render>
 
       <nostr-loading *ngIf="loading"></nostr-loading>
 
@@ -45,9 +43,7 @@
 
     <button (click)="changeStep.next('select-account')" type="button" tabindex="3" title="back"
       class="action-button button secondary iconed-button">
-      <div class="inline-icon icon-back">
-        <div role="img"></div>
-      </div>
+      <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
 
       <span>
         Back

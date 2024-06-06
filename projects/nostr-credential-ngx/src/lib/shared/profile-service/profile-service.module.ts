@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ProfileApi } from './profile.api';
+import { ProfileNostr } from './profile.nostr';
 import { ProfileCache } from './profile.cache';
 import { ProfileConverter } from './profile.converter';
 import { AccountConverter } from './account.converter';
@@ -13,7 +13,7 @@ import { AuthenticatedProfileObservable } from './authenticated-profile.observab
     CommonModule
   ],
   providers: [
-    ProfileApi,
+    ProfileNostr,
     ProfileCache,
     ProfileProxy,
     AccountConverter,

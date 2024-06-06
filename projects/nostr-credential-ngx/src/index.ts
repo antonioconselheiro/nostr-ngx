@@ -11,7 +11,7 @@ export * from './lib/shared/profile-service/account-manager.statefull';
 export * from './lib/shared/profile-service/profile-service.module';
 export * from './lib/shared/profile-service/authenticated-profile.observable';
 export * from './lib/shared/profile-service/profile.cache';
-export * from './lib/shared/profile-service/profile.api';
+export * from './lib/shared/profile-service/profile.nostr';
 export * from './lib/shared/profile-service/profile-metadata.interface';
 export * from './lib/shared/profile-widget/profile-picture/profile-picture.component';
 export * from './lib/shared/profile-widget/profile-widget.module';

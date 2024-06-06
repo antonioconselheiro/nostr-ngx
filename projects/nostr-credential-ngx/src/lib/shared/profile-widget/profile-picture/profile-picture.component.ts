@@ -4,8 +4,7 @@ import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.inter
 
 @Component({
   selector: 'nostr-profile-picture',
-  templateUrl: './profile-picture.component.html',
-  styleUrl: './profile-picture.component.scss'
+  templateUrl: './profile-picture.component.html'
 })
 export class ProfilePictureComponent {
 

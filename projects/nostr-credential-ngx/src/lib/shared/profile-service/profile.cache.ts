@@ -77,7 +77,7 @@ export class ProfileCache {
   }
 
   private chooseNewer(updatedProfile: IProfile, indexedProfile: IProfile | undefined): IProfile {
-    if (!indexedProfile || indexedProfile.load) {
+    if (!indexedProfile || !indexedProfile.load) {
       return updatedProfile;
     }
 

@@ -67,14 +67,18 @@ export class AddAccountFormComponent {
     event.stopPropagation();
     event.preventDefault();
 
+    if (this.loading) {
+      return Promise.resolve();
+    }
+
     this.submitted = true;
     if (!this.accountForm.valid) {
-      return;
+      return Promise.resolve();
     }
 
     const { password, nsec } = this.accountForm.getRawValue() as { password: string, nsec: TNostrSecret };
     if (!nsec || !password) {
-      return;
+      return Promise.resolve();
     }
 
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);

@@ -4,7 +4,7 @@ import { Event } from 'nostr-tools';
 import { IProfile } from "../../domain/profile.interface";
 import { IUnauthenticatedUser } from "../../domain/unauthenticated-user.interface";
 import { NostrSigner } from "./nostr.signer";
-import { ProfileApi } from "./profile.api";
+import { ProfileNostr } from "./profile.nostr";
 import { ProfileCache } from "./profile.cache";
 import { AccountManagerStatefull } from "./account-manager.statefull";
 
@@ -26,7 +26,7 @@ export class ProfileProxy {
 
   constructor(
     private nostrSigner: NostrSigner,
-    private profileApi: ProfileApi,
+    private profileApi: ProfileNostr,
     private accountManagerStatefull: AccountManagerStatefull,
     private profileCache: ProfileCache,
     private nostrConverter: NostrConverter
@@ -67,7 +67,6 @@ export class ProfileProxy {
 
   async loadAccount(nsec: TNostrSecret, password: string): Promise<IUnauthenticatedUser | null> {
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
-
     const profile = await this.load(user.npub);
     const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
     const account = this.accountManagerStatefull.addAccount(profile, ncrypted);
@@ -84,7 +83,7 @@ export class ProfileProxy {
 
   async loadProfile(npub: TNostrPublic): Promise<IProfile> {
     return this.loadProfiles([npub])
-      .then(npubs => Promise.resolve(npubs[0]));
+      .then(profiles => Promise.resolve(profiles[0]));
   }
   
   private async forceProfileReload(npubs: Array<TNostrPublic>): Promise<Array<IProfile>> {
