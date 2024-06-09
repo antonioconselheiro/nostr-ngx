@@ -9,23 +9,23 @@ import { SvgRecord } from './svg.record';
 export class SvgRenderComponent implements OnInit {
   static record = SvgRecord;
 
-  static add(name: string, svg: string): void {
+  static add(name: keyof typeof SvgRecord, svg: string): void {
     this.record[name] = svg;
   }
   
   @Input()
-  set name(name: string) {
+  set name(name: keyof typeof SvgRecord) {
     this.interceptedName = name;
     if (this.elementRef.nativeElement) {
       this.elementRef.nativeElement.innerHTML = SvgRenderComponent.record[name];
     }
   }
 
-  get name(): string {
+  get name(): keyof typeof SvgRecord {
     return this.interceptedName;
   }
 
-  private interceptedName = '';
+  private interceptedName!: keyof typeof SvgRecord;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>

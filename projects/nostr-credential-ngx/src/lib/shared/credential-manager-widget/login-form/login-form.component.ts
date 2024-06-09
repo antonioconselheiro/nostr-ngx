@@ -5,10 +5,11 @@ import { IProfile } from '../../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
+import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 import { NostrSigner } from '../../profile-service/nostr.signer';
 import { ProfileProxy } from '../../profile-service/profile.proxy';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
+import { ncryptsecValidatorFactory } from '../../nostr-validators/ncryptsec.validator-fn';
 
 @Component({
   selector: 'nostr-login-form',
@@ -17,14 +18,14 @@ import { AccountManagerStatefull } from '../../profile-service/account-manager.s
 })
 export class LoginFormComponent {
 
-  @Input()
-  accounts: IUnauthenticatedUser[] = [];
-
   loading = false;
   submitted = false;
 
   showNostrSecret = false;
   showPassword = false;
+
+  @Input()
+  accounts: IUnauthenticatedUser[] = [];
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -34,15 +35,26 @@ export class LoginFormComponent {
 
   readonly passwordLength = 32;
 
+  //  FIXME: verificar a forma não depreciada de como deve ser feita
+  //  a inclusão de validators que se aplicam a mais de um campo
   accountForm = this.fb.group({
-    nsec: ['', [
+    nostrSecret: ['', [
       Validators.required.bind(this),
       NostrValidators.nostrSecret
     ]],
 
+    saveNcryptsecLocalStorage: [ true ],
+
     password: ['', [
       Validators.required.bind(this)
-    ]]
+    ]],
+
+    saveNostrSecretSessionStorage: [ false ]
+  }, {
+    validators: [
+      //  TODO: representar validação no formulário, incluir mensagem de erro
+      ncryptsecValidatorFactory()
+    ]
   });
 
   constructor(
@@ -54,11 +66,11 @@ export class LoginFormComponent {
     private accountManagerService: AccountManagerStatefull
   ) { }
 
-  getFormControlErrors(fieldName: 'nsec' | 'password'): ValidationErrors | null {
+  getFormControlErrors(fieldName: 'nostrSecret' | 'password'): ValidationErrors | null {
     return this.accountForm.controls[fieldName].errors;
   }
 
-  getFormControlErrorStatus(fieldName: 'nsec' | 'password', error: string): boolean {
+  getFormControlErrorStatus(fieldName: 'nostrSecret' | 'password', error: string): boolean {
     const errors = this.accountForm.controls[fieldName].errors || {};
     return errors[error] || false;
   }
@@ -76,13 +88,13 @@ export class LoginFormComponent {
       return Promise.resolve();
     }
 
-    const { password, nsec } = this.accountForm.getRawValue() as { password: string, nsec: TNostrSecret };
-    if (!nsec || !password) {
+    const { password, nostrSecret } = this.accountForm.getRawValue() as { password: string, nostrSecret: TNostrSecret };
+    if (!nostrSecret || !password) {
       return Promise.resolve();
     }
 
-    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
-    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
+    const user = this.nostrConverter.convertNostrSecretToPublic(nostrSecret);
+    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nostrSecret);
 
     this.loading = true;
     this.profileProxy
@@ -91,14 +103,9 @@ export class LoginFormComponent {
       .finally(() => this.loading = false);
   }
 
-  readQrcodeUsingCamera(passwordEl: HTMLInputElement): void {
-    this.asyncReadQrcodeUsingCamera()
-      .then(() => passwordEl.focus());
-  }
-
   async asyncReadQrcodeUsingCamera(): Promise<void> {
-    const nsec = await this.camera$.readQrCode();
-    this.accountForm.patchValue({ nsec });
+    const nostrSecret = await this.camera$.readQrCode();
+    this.accountForm.patchValue({ nostrSecret });
     return Promise.resolve();
   }
 
@@ -114,7 +121,7 @@ export class LoginFormComponent {
       }
 
     } else {
-      this.accountForm.controls['nsec'].setErrors({
+      this.accountForm.controls['nostrSecret'].setErrors({
         nostrSecretNotFound: true
       });
     }

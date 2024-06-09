@@ -13,15 +13,15 @@
 </section>
 
 <form [formGroup]="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
-  <div [class.error]="showErrors()" class="floating-label">
+  <div [class.error]="showErrors()" class="floatingLabel">
     <input #password name="password" tabindex="1" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
-      [class.has-value]="password.value" [attr.type]="showPassword ? 'text' : 'password'" />
+      [class.hasValue]="password.value" [attr.type]="showPassword ? 'text' : 'password'" />
 
     <label for="authenticatePasswordField">Password</label>
 
     <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'"
-     (click)="showPassword = !showPassword" class="bordered icon-info svg-button">
-      <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
+     (click)="showPassword = !showPassword" class="bordered svgButton">
+      <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="showErrors()">
@@ -31,8 +31,8 @@
   </div>
 
   <div class="button-group">
-    <button type="submit" tabindex="2" title="authenticate" class="action-button button secondary iconed-button">
-      <nostr-svg-render *ngIf="!loading" class="inline-icon" name="unlock"></nostr-svg-render>
+    <button type="submit" tabindex="2" title="authenticate" class="action-button button secondary iconedButton">
+      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
 
       <nostr-loading *ngIf="loading"></nostr-loading>
 
@@ -42,8 +42,8 @@
     </button>
 
     <button (click)="changeStep.next('select-account')" type="button" tabindex="3" title="back"
-      class="action-button button secondary iconed-button">
-      <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
+      class="action-button button secondary iconedButton">
+      <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
       <span>
         Back

@@ -5,11 +5,11 @@
 /// You can show form erros.
 /// 
 /// @group Components
-/// @class floating-label
+/// @class floatingLabel
 /// 
 /// @example
 /// ```
-/// <div class="floating-label">
+/// <div class="floatingLabel">
 ///   <input
 ///     required
 ///     type="password"
@@ -19,7 +19,7 @@
 ///   />
 ///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
 /// 
-///   <button type="button" class="bordered svg-button">
+///   <button type="button" class="bordered svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// </div>
@@ -27,7 +27,7 @@
 ///
 /// @example
 /// ```
-/// <div class="floating-label error">
+/// <div class="floatingLabel error">
 ///   <input
 ///     required
 ///     type="password"
@@ -37,7 +37,7 @@
 ///   />
 ///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
 /// 
-///   <button type="button" class="bordered svg-button">
+///   <button type="button" class="bordered svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// 
@@ -45,7 +45,7 @@
 /// </div>
 /// ```
 
-.floating-label {
+.floatingLabel {
   display: flex;
   align-items: center;
   position: relative;
@@ -96,11 +96,15 @@
     border: 0;
 
     &:focus + label,
-    &.has-value + label {
+    &.hasValue + label {
       top: 4px;
       left: 20px;
       font-size: 13px;
       color: var(--contrast);
     }
+  }
+
+  .svgButton {
+    margin-right: 1rem;
   }
 }

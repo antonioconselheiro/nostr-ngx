@@ -1,10 +1,11 @@
-[type=radio],
-[type=checkbox] {
+[type=radio].nostrRadio,
+[type=checkbox].nostrCheck {
   cursor: pointer;
   display: inline-block;
   border: 2px solid var(--lowContrast);
   width: 22px;
   height: 22px;
+  margin: 0 12px;
 
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></svg>');
   background-repeat: no-repeat;
@@ -18,8 +19,6 @@
     height: 19px;
     display: block;
     border-radius: 50%;
-    transition-duration: .2s;
-    transition-property: box-shadow;
   }
 
   &:hover:before {
@@ -50,4 +49,27 @@
       box-shadow: 0 0 0 10px var(--imgButtonPrimaryActive);
     }
   }
+}
+
+///
+/// This is a container to vertically centralize the label of your checkbox or radio button.
+/// 
+/// @group Components
+/// @class nostrRadioWrapper
+/// @class nostrCheckWrapper
+/// 
+/// @example
+/// ```
+/// <div class="nostrCheckWrapper">
+///   <input class="nostrCheck" id="saveNostrSecret" type="checkbox" />
+///   <label for="saveNostrSecret">Save your nostr secret encrypted in this browser?</label>
+/// </div>
+/// ```
+///
+div.nostrRadioWrapper,
+div.nostrCheckWrapper {
+  display: flex;
+  align-items: flex-end;
+  margin-top: 1.5rem;
+  margin-bottom: 1.75rem;
 }

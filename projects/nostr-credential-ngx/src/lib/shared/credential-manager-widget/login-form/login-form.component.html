@@ -1,70 +1,58 @@
 <h2 class="title">Login</h2>
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off">
-  <div [class.error]="submitted && getFormControlErrors('nsec')" class="floating-label">
-    <input #nsec required name="nsec" tabindex="1" maxlength="64" formControlName="nsec" id="addAccountNsecField"
-      [class.has-value]="nsec.value" [attr.readonly]="loading ? 'readonly' : null"
+  <div [class.error]="submitted && getFormControlErrors('nostrSecret')" class="floatingLabel">
+    <input #nostrSecret required name="nostrSecret" tabindex="11" maxlength="64" formControlName="nostrSecret"
+      id="addAccountNsecField" [class.hasValue]="nostrSecret.value" [attr.readonly]="loading ? 'readonly' : null"
       [attr.type]="showNostrSecret ? 'text' : 'password'" />
     <label for="addAccountNsecField">Nostr Secret (nsec)</label>
 
-    <button type="button" tabindex="4" title="read nsec from qrcode" (click)="readQrcodeUsingCamera(password)"
-      class="bordered svg-button">
+    <button type="button" tabindex="17" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
+      class="bordered svgButton">
 
-      <nostr-svg-render name="scan-qrcode"></nostr-svg-render>
+      <nostr-svg-render name="scanQrcode"></nostr-svg-render>
     </button>
 
-    <button type="button" tabindex="4" [attr.title]="showNostrSecret ? 'hide nostr secret' : 'show nostr secret'"
-      (click)="showNostrSecret = !showNostrSecret" class="bordered svg-button">
+    <button type="button" tabindex="18" [attr.title]="showNostrSecret ? 'hide nostr secret' : 'show nostr secret'"
+      (click)="showNostrSecret = !showNostrSecret" class="bordered svgButton">
 
-      <nostr-svg-render [name]="showNostrSecret ? 'eye-off' : 'eye'"></nostr-svg-render>
+      <nostr-svg-render [name]="showNostrSecret ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="submitted">
-      <span *ngIf="getFormControlErrorStatus('nsec', 'required')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'required')" class="error">
         Nostr Secret cannot be blank
       </span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrPublicGivenInstead')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'invalidNostrPublicGivenInstead')" class="error">
         Nostr Public given instead Nostr Secret
       </span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrSecret')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'invalidNostrSecret')" class="error">
         Invalid Nostr Secret
       </span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'nostrSecretNotFound')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'nostrSecretNotFound')" class="error">
         Could not found this account in current relay pool
       </span>
     </ng-container>
   </div>
 
-  <div class="checkbox">
-    <input id="saveNostrSecret" type="checkbox" />
-    <label for="saveNostrSecret">Save this nostr secret encrypted in this browser</label>
+  <div class="nostrCheckWrapper">
+    <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
+      tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" />
+    <label for="saveNostrSecretEncrypted">Save nostr secret (nsec) encrypted in this browser?</label>
   </div>
 
-  <div class="radio">
-    <input id="example1" name="radiotest" type="radio" />
-    <label for="example1">Save this nostr secret encrypted in this browser</label>
-  </div>
+  <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
+    class="floatingLabel passwordField">
 
-  <div class="radio">
-    <input id="example2" name="radiotest" type="radio" />
-    <label for="example2">Save this nostr secret encrypted in this browser</label>
-  </div>
-
-  <div [class.error]="submitted && getFormControlErrors('password')" class="floating-label password-field">
-    <input #password required name="password" tabindex="2" [maxlength]="passwordLength" formControlName="password"
-      id="addAccountPasswordField" [class.has-value]="password.value" [attr.readonly]="loading ? 'readonly' : null"
+    <input #password required name="password" tabindex="13" [maxlength]="passwordLength" formControlName="password"
+      id="addAccountPasswordField" [class.hasValue]="password.value" [attr.readonly]="loading ? 'readonly' : null"
       [attr.type]="showPassword ? 'text' : 'password'" />
 
     <label for="addAccountPasswordField">Password</label>
 
-    <!-- TODO: incluir popover ao clique com explicação do porquê do password -->
-    <button title="tap for information" type="button" tabindex="6" class="bordered svg-button">
-      <nostr-svg-render name="info"></nostr-svg-render>
-    </button>
+    <button type="button" tabindex="19" [attr.title]="showPassword ? 'hide password' : 'show password'"
+      (click)="showPassword = !showPassword" class="bordered svgButton">
 
-    <button type="button" tabindex="7" [attr.title]="showPassword ? 'hide password' : 'show password'"
-      (click)="showPassword = !showPassword" class="bordered svg-button">
-
-      <nostr-svg-render [name]="showPassword ? 'eye-off' : 'eye'"></nostr-svg-render>
+      <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="submitted">
@@ -74,19 +62,25 @@
     </ng-container>
   </div>
 
+  <div class="nostrCheckWrapper">
+    <input class="nostrCheck" tabindex="14" id="saveNostrSecretInSession" type="checkbox" />
+    <label for="saveNostrSecretInSession">Save nostr secret (nsec) in this session</label>
+  </div>
+
   <div class="button-group">
-    <button type="submit" tabindex="2" title="add account" class="button secondary iconed-button">
-      <nostr-svg-render *ngIf="!loading" class="inline-icon" name="plus"></nostr-svg-render>
+    <button type="submit" tabindex="15" title="login" class="button secondary iconedButton">
+      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="plus"></nostr-svg-render>
       <nostr-loading *ngIf="loading"></nostr-loading>
 
       <span>
-        Add account
+        Login
       </span>
     </button>
 
-    <button *ngIf="accounts.length" type="button" tabindex="3" title="back" (click)="changeStep.next('select-account')"
-      class="button secondary iconed-button">
-      <nostr-svg-render class="inline-icon" name="left"></nostr-svg-render>
+    <button *ngIf="accounts.length" type="button" tabindex="16" title="back" (click)="changeStep.next('select-account')"
+      class="button secondary iconedButton">
+      <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
       <span>
         Back
       </span>

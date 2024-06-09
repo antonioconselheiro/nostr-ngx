@@ -2,16 +2,16 @@
 /// clickable svg
 ///
 /// @group Components
-/// @class button.svg-button
+/// @class button.svgButton
 ///
 /// @example
 /// ```
-/// <button title="upload image" type="button" class="svg-button">
+/// <button title="upload image" type="button" class="svgButton">
 ///   <nostr-svg-render name="upload-image"></nostr-svg-render>
 /// </button>
 /// ```
 ///
-button.svg-button {
+button.svgButton {
   min-height: 17px;
   max-height: 33px;
   border-radius: 50%;
@@ -77,14 +77,14 @@ button.svg-button {
 /// svg as inline icon
 ///
 /// @group Components
-/// @class .inline-icon
+/// @class .inlineIcon
 /// 
 /// @example
 /// ```
-/// <nostr-svg-render class="inline-icon" name="location"></nostr-svg-render>
+/// <nostr-svg-render class="inlineIcon" name="location"></nostr-svg-render>
 /// ```
 ///
-.inline-icon {
+.inlineIcon {
   display: inline-flex;
   height: 20px;
   width: 20px;
