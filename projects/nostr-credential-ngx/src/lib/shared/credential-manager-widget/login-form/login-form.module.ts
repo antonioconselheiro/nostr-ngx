@@ -3,11 +3,11 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { SvgRenderModule } from '../../svg-render/svg-render.module';
-import { AddAccountFormComponent } from './add-account-form.component';
+import { LoginFormComponent } from './login-form.component';
 
 @NgModule({
   declarations: [
-    AddAccountFormComponent
+    LoginFormComponent
   ],
   imports: [
     CommonModule,
@@ -16,7 +16,7 @@ import { AddAccountFormComponent } from './add-account-form.component';
     SvgRenderModule
   ],
   exports: [
-    AddAccountFormComponent
+    LoginFormComponent
   ]
 })
-export class AddAccountFormModule { }
+export class LoginFormModule { }

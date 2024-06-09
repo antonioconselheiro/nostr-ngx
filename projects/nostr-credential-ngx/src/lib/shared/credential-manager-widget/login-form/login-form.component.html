@@ -1,4 +1,4 @@
-<h2 class="title">Add account</h2>
+<h2 class="title">Login</h2>
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off">
   <div [class.error]="submitted && getFormControlErrors('nsec')" class="floating-label">
     <input #nsec required name="nsec" tabindex="1" maxlength="64" formControlName="nsec" id="addAccountNsecField"
@@ -19,13 +19,34 @@
     </button>
 
     <ng-container *ngIf="submitted">
-      <span *ngIf="getFormControlErrorStatus('nsec', 'required')" class="error">Nostr Secret cannot be blank</span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrPublicGivenInstead')" class="error">Nostr Public given
-        instead Nostr Secret</span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrSecret')" class="error">Invalid Nostr Secret</span>
-      <span *ngIf="getFormControlErrorStatus('nsec', 'nostrSecretNotFound')" class="error">Could not found this account
-        in current relay pool</span>
+      <span *ngIf="getFormControlErrorStatus('nsec', 'required')" class="error">
+        Nostr Secret cannot be blank
+      </span>
+      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrPublicGivenInstead')" class="error">
+        Nostr Public given instead Nostr Secret
+      </span>
+      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNostrSecret')" class="error">
+        Invalid Nostr Secret
+      </span>
+      <span *ngIf="getFormControlErrorStatus('nsec', 'nostrSecretNotFound')" class="error">
+        Could not found this account in current relay pool
+      </span>
     </ng-container>
+  </div>
+
+  <div class="checkbox">
+    <input id="saveNostrSecret" type="checkbox" />
+    <label for="saveNostrSecret">Save this nostr secret encrypted in this browser</label>
+  </div>
+
+  <div class="radio">
+    <input id="example1" name="radiotest" type="radio" />
+    <label for="example1">Save this nostr secret encrypted in this browser</label>
+  </div>
+
+  <div class="radio">
+    <input id="example2" name="radiotest" type="radio" />
+    <label for="example2">Save this nostr secret encrypted in this browser</label>
   </div>
 
   <div [class.error]="submitted && getFormControlErrors('password')" class="floating-label password-field">

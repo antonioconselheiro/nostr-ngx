@@ -1,1 +1,1 @@
-export type AuthModalSteps = 'add-account' | 'select-account' | 'authenticate';
+export type AuthModalSteps = 'login' | 'select-account' | 'authenticate' | 'create-account';

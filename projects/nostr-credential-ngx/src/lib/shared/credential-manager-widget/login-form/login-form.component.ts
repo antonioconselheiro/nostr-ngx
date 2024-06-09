@@ -11,11 +11,11 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
-  selector: 'nostr-add-account-form',
-  templateUrl: './add-account-form.component.html',
-  styleUrl: './add-account-form.component.scss'
+  selector: 'nostr-login-form',
+  templateUrl: './login-form.component.html',
+  styleUrl: './login-form.component.scss'
 })
-export class AddAccountFormComponent {
+export class LoginFormComponent {
 
   @Input()
   accounts: IUnauthenticatedUser[] = [];
@@ -32,7 +32,7 @@ export class AddAccountFormComponent {
   @Output()
   selected = new EventEmitter<IUnauthenticatedUser>();
 
-  readonly passwordLength = 8;
+  readonly passwordLength = 32;
 
   accountForm = this.fb.group({
     nsec: ['', [

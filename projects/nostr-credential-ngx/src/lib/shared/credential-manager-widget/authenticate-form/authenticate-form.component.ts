@@ -26,7 +26,7 @@ export class AuthenticateFormComponent {
   showPassword = false;
   submitted = false;
   loading = false;
-  readonly passwordLength = 8;
+  readonly passwordLength = 32;
 
   authenticateForm = this.fb.group({
     password: ['', [
