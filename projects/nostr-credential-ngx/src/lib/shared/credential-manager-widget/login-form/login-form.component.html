@@ -37,7 +37,7 @@
   <div class="nostrCheckWrapper">
     <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
       tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" />
-    <label for="saveNostrSecretEncrypted">Save nostr secret (nsec) encrypted in this browser?</label>
+    <label for="saveNostrSecretEncrypted">Save nsec encrypted to easy login later</label>
   </div>
 
   <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
@@ -57,14 +57,14 @@
 
     <ng-container *ngIf="submitted">
       <span *ngIf="getFormControlErrorStatus('password', 'required')" class="error">
-        Include a password to improve your privacity
+        Password is required
       </span>
     </ng-container>
   </div>
 
   <div class="nostrCheckWrapper">
     <input class="nostrCheck" tabindex="14" id="saveNostrSecretInSession" type="checkbox" />
-    <label for="saveNostrSecretInSession">Save nostr secret (nsec) in this session</label>
+    <label for="saveNostrSecretInSession">Save nsec in browser session</label>
   </div>
 
   <div class="button-group">
