@@ -13,14 +13,6 @@
 /// ```
 /// <button class="secondary button">Click me</button>
 /// ```
-/// 
-/// @example
-/// ```
-/// <button class="secondary button">
-///   <div class=""></div>
-///   <span>Click me</span>
-/// </button>
-/// ```
 ///
 button.button {
   border-radius: 50px;
@@ -60,19 +52,19 @@ button.button {
 /// Group of buttons, side by side
 ///
 /// @group Components
-/// @class button-group
+/// @class buttonGroup
 ///
 /// @example
 /// ```
-/// <div class="button-group">
+/// <div class="buttonGroup">
 ///   <button class="button">Click me</button>
 ///   <button class="secondary button">Click me</button>
 /// </div>
 /// ```
 ///
-.button-group > button,
-.button-group > nostr-svg-render,
-.button-group > svg {
+.buttonGroup > button,
+.buttonGroup > nostr-svg-render,
+.buttonGroup > svg {
   float: left;
   margin: 0 1rem 1rem 0;
 }

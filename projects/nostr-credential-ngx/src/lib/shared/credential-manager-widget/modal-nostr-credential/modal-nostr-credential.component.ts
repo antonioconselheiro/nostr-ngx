@@ -50,7 +50,7 @@ export class ModalNostrCredentialComponent
 
   private setInitialScreen(): void {
     if (!this.currentStep) {
-      this.currentStep = this.accounts.length ? 'select-account' : 'login';
+      this.currentStep = this.accounts.length ? 'selectAccount' : 'login';
     }
   }
 

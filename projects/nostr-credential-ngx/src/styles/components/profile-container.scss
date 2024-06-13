@@ -5,7 +5,7 @@
 //  limita o scss ao html do template
 .profile-container {
 
-  .user-info,
+  .userInfo,
   .additional-information {
     padding: 0 1rem;
   }
@@ -16,10 +16,10 @@
     padding: 1rem;
   }
 
-  .user-info {
+  .userInfo {
     height: 2.5rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: spaceBetween;
     flex-direction: column;
     margin-top: 2rem;
   }
@@ -27,7 +27,7 @@
   .edit-profile-container {
     display: flex;
     height: 35px;
-    justify-content: space-between;
+    justify-content: spaceBetween;
 
     img.profile {
       min-width: 135px;

@@ -1,15 +1,15 @@
 <h2 class="title">Select account</h2>
-<section *ngFor="let account of accounts" class="unauthenticated-account">
+<section *ngFor="let account of accounts" class="unauthenticatedAccount">
   <nostr-profile-picture [account]="account"></nostr-profile-picture>
-  <div class="user-info">
-    <span class="user-name">
+  <div class="userInfo">
+    <span class="userName">
       {{account.displayName}}
-      <span *ngIf="account.nip05valid" class="user-verified"></span>
+      <span *ngIf="account.nip05valid" class="userVerified"></span>
     </span>
-    <span *ngIf="account.nip05" class="user-nip5">{{account.nip05}}</span>
+    <span *ngIf="account.nip05" class="userNip5">{{account.nip05}}</span>
   </div>
 
-  <div class="space-between"></div>
+  <div class="spaceBetween"></div>
 
   <button (click)="logout(account)" title="logout" type="button" class="bordered svgButton">
     <nostr-svg-render name="logout"></nostr-svg-render>
@@ -20,10 +20,10 @@
   </button>
 </section>
 
-<div class="button-group">
+<div class="buttonGroup">
   <button class="button secondary iconedButton" (click)="changeStep.next('login')" title="add account" type="button">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
-    <span>Other account</span>
+    <span>Add existing</span>
   </button>
   
   <button class="button secondary iconedButton" (click)="changeStep.next('login')" title="use nostr signer extension" type="button">
@@ -33,6 +33,6 @@
   
   <button class="button secondary iconedButton" (click)="changeStep.next('login')" title="create account" type="button">
     <nostr-svg-render class="inlineIcon" name="plus"></nostr-svg-render>
-    <span>New account</span>
+    <span>Create</span>
   </button>
 </div>

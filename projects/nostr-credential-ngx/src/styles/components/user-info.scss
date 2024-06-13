@@ -2,35 +2,35 @@
 /// container with user name, nip5 and if nip5 is valid
 ///
 /// @group Components
-/// @class .user-info
+/// @class .userInfo
 ///
 /// @example
 /// ```
-///  <div class="user-info">
-///    <span class="user-name">
+///  <div class="userInfo">
+///    <span class="userName">
 ///      António Vicente Mendes Maciel
-///      <span class="user-verified"></span>
+///      <span class="userVerified"></span>
 ///    </span>
-///    <span class="user-nip5">@anarcanudos</span>
+///    <span class="userNip5">@anarcanudos</span>
 ///  </div>
 /// ```
 ///
-.user-info {
-  .user-name {
+.userInfo {
+  .userName {
     color: var(--contrast);
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   
-    .user-verified {
+    .userVerified {
       display: inline-block;
       position: relative;
       top: 3px;
     }
   }
   
-  .user-nip5 {
+  .userNip5 {
     color: var(--lowContrast);
     white-space: nowrap;
     overflow: hidden;

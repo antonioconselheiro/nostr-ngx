@@ -37,7 +37,7 @@
   <div class="nostrCheckWrapper">
     <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
       tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" />
-    <label for="saveNostrSecretEncrypted">Save nsec encrypted to easy login later</label>
+    <label for="saveNostrSecretEncrypted">Remember account (encrypted, require password)</label>
   </div>
 
   <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
@@ -67,7 +67,7 @@
     <label for="saveNostrSecretInSession">Save nsec in browser session</label>
   </div>
 
-  <div class="button-group">
+  <div class="buttonGroup">
     <button type="submit" tabindex="15" title="login" class="button secondary iconedButton">
       <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="plus"></nostr-svg-render>
       <nostr-loading *ngIf="loading"></nostr-loading>
@@ -77,7 +77,7 @@
       </span>
     </button>
 
-    <button *ngIf="accounts.length" type="button" tabindex="16" title="back" (click)="changeStep.next('select-account')"
+    <button *ngIf="accounts.length" type="button" tabindex="16" title="back" (click)="changeStep.next('selectAccount')"
       class="button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 

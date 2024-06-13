@@ -2,20 +2,20 @@
 /// show that nip5 is valid
 ///
 /// @group Components
-/// @class .user-verified
+/// @class .userVerified
 ///
 /// @example
 /// ```
-///  <div class="user-info">
-///    <span class="user-name">
+///  <div class="userInfo">
+///    <span class="userName">
 ///      {{profile.display_name || profile.name}}
-///      <span *ngIf="profile.nip05valid" class="user-verified"></span>
+///      <span *ngIf="profile.nip05valid" class="userVerified"></span>
 ///    </span>
-///    <span *ngIf="profile.nip05" class="user-nip5">{{profile.nip05}}</span>
+///    <span *ngIf="profile.nip05" class="userNip5">{{profile.nip05}}</span>
 ///  </div>
 /// ```
 ///
-.user-verified {
+.userVerified {
   mask-image: url('/assets/profile/verified.svg');
   height: 17px;
   width: 17px;

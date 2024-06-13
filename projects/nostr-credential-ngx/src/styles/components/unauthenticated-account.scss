@@ -2,23 +2,23 @@
 /// shows unauthenticated account for authentication
 ///
 /// @group Components
-/// @class .unauthenticated-account
+/// @class .unauthenticatedAccount
 /// 
 /// @example
 /// ```
-/// <section class="unauthenticated-account">
+/// <section class="unauthenticatedAccount">
 ///   <img title="profile picture" alt="profile picture" class="profile" src="/assets/profile/default-profile.png" />
-///   <div class="user-info">
-///     <span class="user-name">
+///   <div class="userInfo">
+///     <span class="userName">
 ///       António Vicente Mendes Maciel
-///       <span class="user-verified"></span>
+///       <span class="userVerified"></span>
 ///     </span>
-///     <span class="user-nip5">@anarcanudos</span>
+///     <span class="userNip5">@anarcanudos</span>
 ///   </div>
 /// </section>
 /// ```
 
-.unauthenticated-account {
+.unauthenticatedAccount {
   display: flex;
   border: 1px solid var(--separator);
   padding: .5rem;
@@ -30,12 +30,12 @@
     background-color: rgba(255, 255, 255, 0.03);
   }
 
-  .user-info {
+  .userInfo {
     display: flex;
     flex-direction: column;
   }
 
-  .space-between {
+  .spaceBetween {
     flex: 1 1 0;
   }
 

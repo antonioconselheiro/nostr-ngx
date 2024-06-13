@@ -114,7 +114,7 @@ export class LoginFormComponent {
       this.accountForm.reset();
       const unauthenticatedAccount = this.accountManagerService.addAccount(profile, ncryptsec);
       if (!unauthenticatedAccount) {
-        this.changeStep.next('select-account');
+        this.changeStep.next('selectAccount');
       } else {
         this.selected.next(unauthenticatedAccount);
         this.changeStep.next('authenticate');

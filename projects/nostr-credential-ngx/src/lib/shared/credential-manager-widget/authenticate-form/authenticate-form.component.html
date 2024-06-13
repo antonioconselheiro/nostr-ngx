@@ -1,14 +1,14 @@
 <h2 class="title">Authenticate</h2>
 <p>Insert the password to open the Nostr Secret and authenticate</p>
 
-<section *ngIf="account" class="unauthenticated-account">
+<section *ngIf="account" class="unauthenticatedAccount">
   <nostr-profile-picture [account]="account"></nostr-profile-picture>
-  <div class="user-info">
-    <span class="user-name">
+  <div class="userInfo">
+    <span class="userName">
       {{account.displayName}}
-      <span *ngIf="account.nip05valid" class="user-verified"></span>
+      <span *ngIf="account.nip05valid" class="userVerified"></span>
     </span>
-    <span *ngIf="account.nip05" class="user-nip5">{{account.nip05}}</span>
+    <span *ngIf="account.nip05" class="userNip5">{{account.nip05}}</span>
   </div>
 </section>
 
@@ -30,8 +30,8 @@
     </ng-container>
   </div>
 
-  <div class="button-group">
-    <button type="submit" tabindex="2" title="authenticate" class="action-button button secondary iconedButton">
+  <div class="buttonGroup">
+    <button type="submit" tabindex="2" title="authenticate" class="actionButton button secondary iconedButton">
       <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
 
       <nostr-loading *ngIf="loading"></nostr-loading>
@@ -41,8 +41,8 @@
       </span>
     </button>
 
-    <button (click)="changeStep.next('select-account')" type="button" tabindex="3" title="back"
-      class="action-button button secondary iconedButton">
+    <button (click)="changeStep.next('selectAccount')" type="button" tabindex="3" title="back"
+      class="actionButton button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
       <span>

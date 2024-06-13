@@ -2,11 +2,11 @@
 /// When header get a back button
 ///
 /// @group Components
-/// @class header-backable
+/// @class headerBackable
 ///
 /// @example
 /// ```
-/// <header class="header-backable">
+/// <header class="headerBackable">
 ///   <div>
 ///     <button title="back" type="button" class="svgButton">
 ///       <nostr-svg-render name="back"></nostr-svg-render>
@@ -18,7 +18,7 @@
 /// </header>
 /// ```
 ///
-.header-backable {
+.headerBackable {
   display: flex;
 
   > div:first-child {
