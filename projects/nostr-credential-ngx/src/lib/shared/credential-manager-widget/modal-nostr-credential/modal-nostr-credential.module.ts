@@ -5,7 +5,7 @@ import { SelectAuthenticationListModule } from '../select-authentication-list/se
 import { AuthenticateFormModule } from '../authenticate-form/authenticate-form.module';
 import { LoginFormModule } from '../login-form/login-form.module';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
-import { CreateAccountFormModule } from '../create-account-form/create-account-form.module';
+import { RegisterAccountFormModule } from '../register-account/register-account.module';
 
 @NgModule({
   declarations: [
@@ -16,7 +16,7 @@ import { CreateAccountFormModule } from '../create-account-form/create-account-f
     LoginFormModule,
     AuthenticateFormModule,
     LoadingWidgetModule,
-    CreateAccountFormModule,
+    RegisterAccountFormModule,
     SelectAuthenticationListModule
   ],
   exports: [
