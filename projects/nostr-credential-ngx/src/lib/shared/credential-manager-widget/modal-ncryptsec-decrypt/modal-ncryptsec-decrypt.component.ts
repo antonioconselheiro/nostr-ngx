@@ -5,8 +5,7 @@ import { Subject } from 'rxjs';
 
 @Component({
   selector: 'nostr-modal-ncryptsec-decrypt',
-  templateUrl: './modal-ncryptsec-decrypt.component.html',
-  styleUrl: './modal-ncryptsec-decrypt.component.scss'
+  templateUrl: './modal-ncryptsec-decrypt.component.html'
 })
 export class ModalNcryptsecDecryptComponent extends ModalableDirective<TNcryptsec, TNostrSecret> {
   response = new Subject<void | TNostrSecret>;

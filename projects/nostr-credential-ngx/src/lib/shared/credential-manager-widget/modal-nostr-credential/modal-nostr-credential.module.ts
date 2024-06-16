@@ -6,6 +6,7 @@ import { AuthenticateFormModule } from '../authenticate-form/authenticate-form.m
 import { LoginFormModule } from '../login-form/login-form.module';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { RegisterAccountFormModule } from '../register-account/register-account.module';
+import { CreateNostrSecretFormModule } from '../create-nostr-secret/create-nostr-secret.module';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,9 @@ import { RegisterAccountFormModule } from '../register-account/register-account.
     AuthenticateFormModule,
     LoadingWidgetModule,
     RegisterAccountFormModule,
-    SelectAuthenticationListModule
+    SelectAuthenticationListModule,
+
+    CreateNostrSecretFormModule
   ],
   exports: [
     ModalNostrCredentialComponent

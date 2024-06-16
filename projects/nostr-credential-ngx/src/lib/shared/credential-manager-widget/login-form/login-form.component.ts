@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
@@ -9,12 +9,12 @@ import { AccountManagerStatefull } from '../../profile-service/account-manager.s
 import { NostrSigner } from '../../profile-service/nostr.signer';
 import { ProfileProxy } from '../../profile-service/profile.proxy';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { ncryptsecValidatorFactory } from '../../nostr-validators/ncryptsec.validator-fn';
+import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
+import { TLoginFormFields } from './login-form-fields.type';
 
 @Component({
   selector: 'nostr-login-form',
-  templateUrl: './login-form.component.html',
-  styleUrl: './login-form.component.scss'
+  templateUrl: './login-form.component.html'
 })
 export class LoginFormComponent {
 
@@ -35,9 +35,13 @@ export class LoginFormComponent {
 
   readonly passwordLength = 32;
 
-  //  FIXME: verificar a forma não depreciada de como deve ser feita
-  //  a inclusão de validators que se aplicam a mais de um campo
-  accountForm = this.fb.group({
+  formOptions: AbstractControlOptions = {
+    validators: [
+      requiredPasswordIfNcryptsecableValidatorFactory()
+    ]
+  };
+
+  accountForm = this.fb.group<{ [key in TLoginFormFields]: unknown }>({
     nostrSecret: ['', [
       Validators.required.bind(this),
       NostrValidators.nostrSecret
@@ -45,17 +49,8 @@ export class LoginFormComponent {
 
     saveNcryptsecLocalStorage: [ true ],
 
-    password: ['', [
-      Validators.required.bind(this)
-    ]],
-
-    saveNostrSecretSessionStorage: [ false ]
-  }, {
-    validators: [
-      //  TODO: representar validação no formulário, incluir mensagem de erro
-      ncryptsecValidatorFactory()
-    ]
-  });
+    password: ['']
+  }, this.formOptions);
 
   constructor(
     private fb: FormBuilder,
@@ -66,11 +61,11 @@ export class LoginFormComponent {
     private accountManagerService: AccountManagerStatefull
   ) { }
 
-  getFormControlErrors(fieldName: 'nostrSecret' | 'password'): ValidationErrors | null {
+  getFormControlErrors(fieldName: TLoginFormFields): ValidationErrors | null {
     return this.accountForm.controls[fieldName].errors;
   }
 
-  getFormControlErrorStatus(fieldName: 'nostrSecret' | 'password', error: string): boolean {
+  getFormControlErrorStatus(fieldName: TLoginFormFields, error: string): boolean {
     const errors = this.accountForm.controls[fieldName].errors || {};
     return errors[error] || false;
   }

@@ -1,6 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-export function ncryptsecValidatorFactory(): ValidatorFn {
+export function requiredPasswordIfNcryptsecableValidatorFactory(): ValidatorFn {
   return (formGroup: AbstractControl): ValidationErrors | null => {
     const saveNcryptsecLocalStorage = formGroup.get('saveNcryptsecLocalStorage');
     const password = formGroup.get('password');
