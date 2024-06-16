@@ -7,6 +7,7 @@ import { LoginFormModule } from '../login-form/login-form.module';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { RegisterAccountFormModule } from '../register-account/register-account.module';
 import { CreateNostrSecretFormModule } from '../create-nostr-secret/create-nostr-secret.module';
+import { RelayManagerModule } from '../relay-manager/relay-manager.module';
 
 @NgModule({
   declarations: [
@@ -19,8 +20,8 @@ import { CreateNostrSecretFormModule } from '../create-nostr-secret/create-nostr
     LoadingWidgetModule,
     RegisterAccountFormModule,
     SelectAuthenticationListModule,
-
-    CreateNostrSecretFormModule
+    CreateNostrSecretFormModule,
+    RelayManagerModule
   ],
   exports: [
     ModalNostrCredentialComponent

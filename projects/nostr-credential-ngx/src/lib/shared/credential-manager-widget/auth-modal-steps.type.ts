@@ -1,1 +1,1 @@
-export type AuthModalSteps = 'login' | 'selectAccount' | 'authenticate' | 'createAccount';
+export type AuthModalSteps = 'login' | 'selectAccount' | 'authenticate' | 'createNostrSecret' | 'relayManager' | 'registerAccount';

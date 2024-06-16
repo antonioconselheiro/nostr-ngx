@@ -63,21 +63,21 @@
   </div>
 
   <div class="buttonGroup">
-    <button type="submit" tabindex="14" title="login" class="button secondary iconedButton">
-      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="right"></nostr-svg-render>
-      <nostr-loading *ngIf="loading"></nostr-loading>
-
-      <span>
-        Login
-      </span>
-    </button>
-
-    <button *ngIf="accounts.length" type="button" tabindex="15" title="back" (click)="changeStep.next('selectAccount')"
+    <button *ngIf="accounts.length" type="button" tabindex="14" title="back" (click)="changeStep.next('selectAccount')"
       class="button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
       <span>
         Back
+      </span>
+    </button>
+
+    <button type="submit" tabindex="15" title="login" class="button iconedButton">
+      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="right"></nostr-svg-render>
+      <nostr-loading *ngIf="loading"></nostr-loading>
+
+      <span>
+        Login
       </span>
     </button>
   </div>

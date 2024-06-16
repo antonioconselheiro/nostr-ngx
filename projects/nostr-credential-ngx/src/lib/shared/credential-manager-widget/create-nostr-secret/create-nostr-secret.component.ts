@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { TCreateNostrSecret } from './create-nostr-secret-fields.type';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-create-nostr-secret',
@@ -12,14 +13,15 @@ export class CreateNostrSecretComponent implements OnInit {
 
   showNostrSecret = true;
   showPassword = false;
+  showRepeatPassword = false;
   submitted = false;
+
+  qrcode = '';
 
   generateNostrSecretForm = this.fb.group({
     nostrSecret: ['', [
       Validators.required.bind(this)
     ]],
-
-    nostrPublic: [''],
 
     password: ['', [
       Validators.required.bind(this)
@@ -30,6 +32,9 @@ export class CreateNostrSecretComponent implements OnInit {
     authenticate: [ true ]
   });
 
+  @Output()
+  changeStep = new EventEmitter<AuthModalSteps>();
+
   constructor(
     private fb: FormBuilder
   ) { }
@@ -39,16 +44,20 @@ export class CreateNostrSecretComponent implements OnInit {
   }
 
   getFormControlErrors(fieldName: TCreateNostrSecret): ValidationErrors | null {    
-    return this.generateNostrSecretForm.controls[fieldName].errors;
+    return (this.generateNostrSecretForm.controls  as any )[fieldName].errors;
   }
 
   getFormControlErrorStatus(fieldName: TCreateNostrSecret, error: string): boolean {
-    const errors = this.generateNostrSecretForm.controls[fieldName].errors || {};
+    const errors = (this.generateNostrSecretForm.controls as any)[fieldName].errors || {};
     return errors[error] || false;
   }
 
   showErrors(fieldName: TCreateNostrSecret): boolean {
-    return this.submitted && !!this.generateNostrSecretForm.controls[fieldName].errors;
+    return this.submitted && !!(this.generateNostrSecretForm.controls as any)[fieldName].errors;
+  }
+
+  downloadQrcode(): void {
+    
   }
 
   onSubmit(): void {
