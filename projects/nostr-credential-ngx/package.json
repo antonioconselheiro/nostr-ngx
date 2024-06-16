@@ -7,10 +7,10 @@
     "nostr-tools": "^2.7.0"
   },
   "optionalDependencies": {
+    "qrcode": "^1.5.3",
     "@belomonte/async-modal-ngx": "^0.1.0"
   },
   "dependencies": {
-    "qrcode": "^1.5.3",
     "tslib": "^2.3.0"
   },
   "sideEffects": false,
