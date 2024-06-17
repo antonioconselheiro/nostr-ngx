@@ -88,7 +88,7 @@ export class LoginFormComponent {
       return Promise.resolve();
     }
 
-    const user = this.nostrConverter.convertNostrSecretToPublic(nostrSecret);
+    const user = this.nostrConverter.convertNsecToNpub(nostrSecret);
     const ncrypted = this.nostrSigner.encryptNsec(password, nostrSecret);
 
     this.loading = true;

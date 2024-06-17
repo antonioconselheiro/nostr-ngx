@@ -29,7 +29,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   }
 
   authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
-    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
+    const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.nostrConfigStorage.clearSessionStorage();
 
     if (saveNostrSecretInSessionStorage) {
@@ -41,7 +41,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
 
   authenticateAccount(account: IUnauthenticatedUser, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
     const nsec = this.accountConverter.decryptAccount(account, password);
-    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
+    const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.nostrConfigStorage.clearSessionStorage();
     this.nostrConfigStorage.patchSessionStorage({ ncryptsec: account.ncryptsec });
 
@@ -54,7 +54,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
 
   authenticateEncryptedEncode(ncryptsec: TNcryptsec, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
     const nsec = this.nostrConverter.decryptNcryptsec(ncryptsec, password);
-    const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
+    const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.nostrConfigStorage.clearSessionStorage();
     this.nostrConfigStorage.patchSessionStorage({ ncryptsec });
 

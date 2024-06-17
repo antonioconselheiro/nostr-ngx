@@ -1,9 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { generateSecretKey, nip19 } from 'nostr-tools';
-import { toCanvas } from 'qrcode';
 import { FileManagerService } from '../../file-manager/file-manager.service';
 import { NostrSigner } from '../../profile-service/nostr.signer';
+import { QrcodeCredentialService } from '../../qrcode-credential/qrcode-credential.service';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
@@ -21,7 +21,7 @@ export class CreateNsecComponent implements OnInit {
   generateNsecForm = this.fb.group({
     nsec: [nip19.nsecEncode(generateSecretKey())],
 
-    qrcodeTitle: ['my nsec']
+    qrcodeTitle: ['my nostr account']
   });
 
   @Output()
@@ -30,6 +30,7 @@ export class CreateNsecComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private mostrSigner: NostrSigner,
+    private qrcodeCredentialService: QrcodeCredentialService,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -44,28 +45,14 @@ export class CreateNsecComponent implements OnInit {
   }
 
   renderQrcode(): void {
-    const raw = this.generateNsecForm.getRawValue();
-    const canvas = document.createElement('canvas');
-    const nsec = raw.nsec || '';
+    const { nsec, qrcodeTitle } = this.generateNsecForm.getRawValue();
+    if (!nsec) {
+      return;
+    }
 
-    canvas.setAttribute('height', '300px');
-    canvas.setAttribute('width', '300px');
-
-    toCanvas(canvas, nsec, { margin: 2 }, error => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const ctx = canvas.getContext('2d');
-      if (ctx && raw.qrcodeTitle) {
-        ctx.fillStyle = '#000';
-        ctx.font = '15px "Segoe UI", Roboto, "Noto Sans", Helvetica, Arial, sans-serif';
-        ctx.fillText(raw.qrcodeTitle, 17, 15); 
-      }
-
-      setTimeout(() => this.nsecQRCode = canvas.toDataURL("image/png"));
-    });
+    this.qrcodeCredentialService
+      .nsecQRCode(nsec, qrcodeTitle)
+      .then(qrcode => this.nsecQRCode = qrcode);
   }
 
   copyNsec(): void {
@@ -80,7 +67,7 @@ export class CreateNsecComponent implements OnInit {
   }
 
   private generateFileName(title?: string | null): string {
-    let fileName = `nsec qrcode.png`;
+    let fileName = `nsec qrcode - ${new Date().getTime()}.png`;
     if (title) {
       fileName = `nsec qrcode - ${title.replace(/[,<>:"/\\|?*]/g, '')} - ${new Date().getTime()}.png`;
     }

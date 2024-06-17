@@ -10,7 +10,7 @@ import * as nip49 from 'nostr-tools/nip49';
 })
 export class NostrConverter {
 
-  convertNostrSecretToPublic(nostrSecret: TNostrSecret): { npub: TNostrPublic, pubhex: string } {
+  convertNsecToNpub(nostrSecret: TNostrSecret): { npub: TNostrPublic, pubhex: string } {
     const { data } = nip19.decode(nostrSecret);
     const pubhex = getPublicKey(data);
 
