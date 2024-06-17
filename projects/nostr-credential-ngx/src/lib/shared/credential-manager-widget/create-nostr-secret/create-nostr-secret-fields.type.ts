@@ -1,1 +1,1 @@
-export type TCreateNostrSecret = 'nostrSecret' | 'password' | 'confirmPassword' | 'qrcodeName';
+export type TCreateNostrSecretFields = 'nostrSecret' | 'qrcodeName';
