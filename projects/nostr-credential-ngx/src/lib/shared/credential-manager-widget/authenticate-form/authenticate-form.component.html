@@ -15,7 +15,7 @@
 <form [formGroup]="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
   <div [class.error]="showErrors()" class="floatingLabel">
     <input #password name="password" tabindex="1" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
-      [class.hasValue]="password.value" [attr.type]="showPassword ? 'text' : 'password'" />
+      [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
 
     <label for="authenticatePasswordField">Password</label>
 

@@ -96,7 +96,7 @@
     border: 0;
 
     &:focus + label,
-    &.hasValue + label {
+    &:not(:placeholder-shown) + label {
       top: 4px;
       left: 20px;
       font-size: 13px;

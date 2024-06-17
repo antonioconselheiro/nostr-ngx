@@ -1,9 +1,8 @@
 <h2 class="title">Login</h2>
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off">
   <div [class.error]="submitted && getFormControlErrors('nostrSecret')" class="floatingLabel">
-    <input #nostrSecret required name="nostrSecret" tabindex="11" maxlength="64" formControlName="nostrSecret"
-      id="addAccountNsecField" [class.hasValue]="nostrSecret.value" [attr.readonly]="loading ? 'readonly' : null"
-      [attr.type]="showNostrSecret ? 'text' : 'password'" />
+    <input #nostrSecret required name="nostrSecret" tabindex="11" maxlength="64" formControlName="nostrSecret" placeholder=" "
+      id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showNostrSecret ? 'text' : 'password'" />
     <label for="addAccountNsecField">Nostr Secret (nsec)</label>
 
     <button type="button" tabindex="17" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
@@ -36,16 +35,15 @@
 
   <div class="nostrCheckWrapper">
     <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
-      tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" />
+      tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
     <label for="saveNostrSecretEncrypted">Remember account (encrypted, require password)</label>
   </div>
 
   <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
     class="floatingLabel passwordField">
 
-    <input #password required name="password" tabindex="13" [maxlength]="passwordLength" formControlName="password"
-      id="addAccountPasswordField" [class.hasValue]="password.value" [attr.readonly]="loading ? 'readonly' : null"
-      [attr.type]="showPassword ? 'text' : 'password'" />
+    <input #password required name="password" tabindex="13" [maxlength]="passwordLength" formControlName="password" placeholder=" "
+      id="addAccountPasswordField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showPassword ? 'text' : 'password'" />
 
     <label for="addAccountPasswordField">Password</label>
 

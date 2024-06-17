@@ -3,6 +3,9 @@ import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { TCreateNostrSecret } from './create-nostr-secret-fields.type';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { generateSecretKey, nip19 } from 'nostr-tools';
+import { FileManagerService } from '../../file-manager/file-manager.service';
+import { TNcryptsec } from '@belomonte/nostr-ngx';
+import * as nip49 from 'nostr-tools/nip49';
 
 @Component({
   selector: 'nostr-create-nostr-secret',
@@ -18,6 +21,7 @@ export class CreateNostrSecretComponent implements OnInit {
   showConfirmPassword = false;
   submitted = false;
 
+  ncryptsec?: TNcryptsec;
   qrcode = '';
 
   generateNostrSecretForm = this.fb.group({
@@ -38,7 +42,8 @@ export class CreateNostrSecretComponent implements OnInit {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private fileManagerService: FileManagerService
   ) { }
 
   ngOnInit(): void {
@@ -63,11 +68,24 @@ export class CreateNostrSecretComponent implements OnInit {
     return this.submitted && !!this.generateNostrSecretForm.controls[fieldName].errors;
   }
 
-  downloadQrcode(): void {
+  updateNcryptsec(password: string): void {
+    const { nostrSecret } = this.generateNostrSecretForm.getRawValue();
+    const decoded = nip19.decode(nostrSecret || '');
+    const bytes = decoded.data as Uint8Array; 
+
+    this.ncryptsec = nip49.encrypt(bytes, password) as TNcryptsec;
+  }
+
+  renderQRCode(): void {
     
   }
 
   onSubmit(): void {
 
+  }
+
+  downloadQrcode(): void {
+    this.generateNostrSecretForm.getRawValue();
+    //this.fileManagerService.save();
   }
 }
