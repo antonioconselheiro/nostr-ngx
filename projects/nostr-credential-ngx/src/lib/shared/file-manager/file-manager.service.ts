@@ -29,8 +29,18 @@ export class FileManagerService {
     });
   }
 
-  save(base64File: Blob, name: string): void {
-    const url = URL.createObjectURL(base64File);
+  private base64ToBlob(base64File: string): Blob {
+    const [,, type,, encoded] = Array.from(base64File.match(/(data:)([^ ]+)(;base64,)([^ ]+)/) || []);
+    const binary = base64.decode(encoded);
+    const array = [];
+    for (let i = 0; i < binary.length; i++) {
+      array.push(binary[i]);
+    }
+    return new Blob([new Uint8Array(array)], { type: type });
+  }
+
+  save(base64File: string, name: string): void {
+    const url = URL.createObjectURL(this.base64ToBlob(base64File));
     const a = document.createElement('a');
     document.body.appendChild(a);
 

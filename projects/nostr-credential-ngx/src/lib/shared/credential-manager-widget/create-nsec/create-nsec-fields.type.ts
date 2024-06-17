@@ -1,1 +1,1 @@
-export type TCreateNsecFields = 'nsec' | 'qrcodeName';
+export type TCreateNsecFields = 'nsec' | 'qrcodeTitle';

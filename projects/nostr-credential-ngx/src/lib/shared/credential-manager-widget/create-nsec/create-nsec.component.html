@@ -3,33 +3,46 @@
 <form [formGroup]="generateNsecForm" (submit)="onSubmit()" novalidate autocomplete="off">
   <ul>
     <li>
-      nsec can't be changed.
+      Nsec can't be changed.
     </li>
     <li>
-      It gives complete access to account.
+      It gives complete access to this account.
     </li>
     <li>
       If you lost it, your account will be lost forever.
     </li>
   </ul>
 
-  <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
+  <div class="floatingLabel">
     <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField"
-      readonly [attr.type]="showNsec ? 'text' : 'password'" placeholder=" " />
+      readonly type="text" placeholder=" " tabindex="10" />
     <label for="generateNsecField">nsec</label>
 
-    <button (click)="generateNsec()" type="button" tabindex="10" title="generate new nsec"
+    <button (click)="copyNsec()" type="button" tabindex="11" title="copy nsec"
+      class="bordered svgButton">
+      <nostr-svg-render name="copy"></nostr-svg-render>
+    </button>
+
+    <button (click)="generateNsec()" type="button" tabindex="13" title="generate new nsec"
       class="bordered svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
-
-    <button type="button" tabindex="18" [attr.title]="showNsec ? 'hide nostr secret' : 'show nostr secret'"
-      (click)="showNsec = !showNsec" class="bordered svgButton">
-      <nostr-svg-render [name]="showNsec ? 'eyeOff' : 'eye'"></nostr-svg-render>
-    </button>
   </div>
 
+  <div class="floatingLabel">
+    <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle" id="generateNsecQRCodeTitleField"
+      readonly type="text" placeholder=" " tabindex="12" />
+    <label for="generateNsecQRCodeTitleField">QRCode Title</label>
+  </div>
 
+  <span class="infoNsecCautions">
+    This qrcode contains your nsec,<br />
+    but it's recommended to store it encrypted
+  </span>
+
+  <div>
+    <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode />
+  </div>
 
   <div class="buttonGroup">
     <button (click)="changeStep.next('selectAccount')" type="button" tabindex="3" title="back"
@@ -50,12 +63,12 @@
       </span>
     </button>
 
-    <button (click)="changeStep.next('relayManager')" type="submit" tabindex="3" title="next"
+    <button (click)="changeStep.next('encryptNsec')" type="submit" tabindex="3" title="next"
       class="actionButton button iconedButton" disabled>
       <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 
       <span>
-        Next
+        Encrypt
       </span>
     </button>
   </div>

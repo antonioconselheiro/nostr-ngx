@@ -4,14 +4,15 @@
   "peerDependencies": {
     "@angular/common": "^17.3.0",
     "@angular/core": "^17.3.0",
-    "nostr-tools": "^2.7.0"
-  },
-  "optionalDependencies": {
+    "@belomonte/async-modal-ngx": "^0.1.0",
     "qrcode": "^1.5.3",
-    "@belomonte/async-modal-ngx": "^0.1.0"
+    "nostr-tools": "^2.7.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5"
   },
   "sideEffects": false,
   "exports": {
