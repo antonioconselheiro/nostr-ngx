@@ -40,8 +40,8 @@
   </div>
 
   <div class="floatingLabel">
-    <input #qrcodeName name="qrcodeName" tabindex="12" formControlName="qrcodeName"
-      id="encryptdNsecQrcodeNameField" (keyup)="renderQRCode()" type="text" placeholder=" " />
+    <input #qrcodeName name="qrcodeName" tabindex="12" formControlName="qrcodeName" id="encryptdNsecQrcodeNameField"
+      (keyup)="renderQRCode()" type="text" placeholder=" " />
 
     <label for="encryptdNsecQrcodeNameField">QRCode Title</label>
   </div>
@@ -50,5 +50,43 @@
 
   <div>
     <img *ngIf="qrcode" class="qrcode" [src]="qrcode" #qrcode />
+  </div>
+
+  <div class="buttonGroup">
+    <button (click)="changeStep.next('selectAccount')" type="button" tabindex="13" title="back"
+      class="actionButton button secondary iconedButton">
+      <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+      <span>
+        Back
+      </span>
+    </button>
+
+    <button (click)="downloadQrcode()" type="button" tabindex="14" title="download"
+      class="actionButton button secondary iconedButton">
+      <nostr-svg-render class="inlineIcon" name="download"></nostr-svg-render>
+
+      <span>
+        Download
+      </span>
+    </button>
+
+    <button (click)="changeStep.next('relayManager')" type="button" tabindex="14" title="download"
+      class="actionButton button secondary iconedButton">
+      <nostr-svg-render class="inlineIcon" name="download"></nostr-svg-render>
+
+      <span>
+        Skip
+      </span>
+    </button>
+
+    <button (click)="changeStep.next('relayManager')" type="button" tabindex="15" title="next"
+      class="actionButton button iconedButton">
+      <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
+
+      <span>
+        Next
+      </span>
+    </button>
   </div>
 </form>

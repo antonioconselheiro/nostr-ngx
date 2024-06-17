@@ -1,6 +1,6 @@
 <h2 class="title">Create account</h2>
 
-<form [formGroup]="generateNsecForm" (submit)="onSubmit()" novalidate autocomplete="off">
+<form [formGroup]="generateNsecForm" novalidate autocomplete="off">
   <ul>
     <li>
       Nsec can't be changed.
@@ -23,7 +23,7 @@
       <nostr-svg-render name="copy"></nostr-svg-render>
     </button>
 
-    <button (click)="generateNsec()" type="button" tabindex="13" title="generate new nsec"
+    <button (click)="generateNsec()" type="button" tabindex="16" title="generate new nsec"
       class="bordered svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
@@ -31,7 +31,7 @@
 
   <div class="floatingLabel">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle" id="generateNsecQRCodeTitleField"
-      type="text" placeholder=" " tabindex="12" />
+      type="text" placeholder=" " tabindex="12" listenTypingComplete (typingCompleted)="renderQrcode()" />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
@@ -45,7 +45,7 @@
   </div>
 
   <div class="buttonGroup">
-    <button (click)="changeStep.next('selectAccount')" type="button" tabindex="3" title="back"
+    <button (click)="changeStep.next('selectAccount')" type="button" tabindex="13" title="back"
       class="actionButton button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
@@ -54,8 +54,8 @@
       </span>
     </button>
 
-    <button (click)="downloadQrcode()" type="button" tabindex="3" title="download"
-      class="actionButton button iconedButton">
+    <button (click)="downloadQrcode()" type="button" tabindex="14" title="download"
+      class="actionButton button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="download"></nostr-svg-render>
 
       <span>
@@ -63,8 +63,8 @@
       </span>
     </button>
 
-    <button (click)="changeStep.next('encryptNsec')" type="submit" tabindex="3" title="next"
-      class="actionButton button iconedButton" disabled>
+    <button (click)="changeStep.next('encryptNsec')" type="button" tabindex="15" title="next"
+      class="actionButton button iconedButton">
       <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 
       <span>

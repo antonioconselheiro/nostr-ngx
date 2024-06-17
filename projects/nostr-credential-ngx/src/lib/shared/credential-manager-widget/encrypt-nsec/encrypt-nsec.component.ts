@@ -5,6 +5,7 @@ import { FileManagerService } from '../../file-manager/file-manager.service';
 import { NostrSigner } from '../../profile-service/nostr.signer';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { TEncryptNsecFields } from './encrypt-nsec-fields.type';
+import { QrcodeCredentialService } from '../../qrcode-credential/qrcode-credential.service';
 
 @Component({
   selector: 'nostr-encrypt-nsec',
@@ -41,6 +42,7 @@ export class EncryptNsecComponent {
   constructor(
     private fb: FormBuilder,
     private nostrSigner: NostrSigner,
+    private qrcodeCredentialService: QrcodeCredentialService,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -61,6 +63,13 @@ export class EncryptNsecComponent {
 
   showErrors(fieldName: TEncryptNsecFields): boolean {
     return this.submitted && !!this.encryptedNsecForm.controls[fieldName].errors;
+  }
+
+  downloadQrcode(): void {
+    if (this.ncryptsec) {
+      const qrcodeTitle = this.encryptedNsecForm.get('qrcodeTitle')?.value;
+      this.fileManagerService.save(this.ncryptsec, this.qrcodeCredentialService.generateFileName(qrcodeTitle));
+    }
   }
 
   renderQRCode(): void {
