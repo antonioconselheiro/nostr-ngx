@@ -1,12 +1,12 @@
 <h2 class="title">Create account</h2>
 
-<form [formGroup]="generateNostrSecretForm" (submit)="onSubmit()" novalidate autocomplete="off">
+<form [formGroup]="encryptedNsecForm" (submit)="onSubmit()" novalidate autocomplete="off">
   <div class="floatingLabel">
     <input #password name="password" tabindex="11" [maxlength]="passwordLength" formControlName="password"
-      (keyup)="updateNcryptsec(password.value)" (change)="renderQRCode()" id="encryptNostrSecretPasswordField"
-      [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
+      listenTypingComplete (typingCompleted)="updateNcryptsec(password.value)" (change)="renderQRCode()"
+      id="encryptdNsecPasswordField" [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
 
-    <label for="encryptNostrSecretPasswordField">Password</label>
+    <label for="encryptdNsecPasswordField">Password</label>
 
     <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'"
       (click)="showPassword = !showPassword" class="bordered svgButton">
@@ -22,10 +22,10 @@
 
   <div class="floatingLabel">
     <input #confirmPassword name="confirmPassword" tabindex="12" [maxlength]="passwordLength"
-      formControlName="confirmPassword" id="encryptNostrSecretRepeatPasswordField"
+      formControlName="confirmPassword" id="encryptdNsecRepeatPasswordField"
       [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
 
-    <label for="encryptNostrSecretRepeatPasswordField">Confirm password</label>
+    <label for="encryptdNsecRepeatPasswordField">Confirm password</label>
 
     <button type="button" tabindex="4" [attr.title]="showConfirmPassword ? 'hide password' : 'show password'"
       (click)="showConfirmPassword = !showConfirmPassword" class="bordered svgButton">
@@ -41,9 +41,9 @@
 
   <div class="floatingLabel">
     <input #qrcodeName name="qrcodeName" tabindex="12" formControlName="qrcodeName"
-      id="encryptNostrSecretQrcodeNameField" (keyup)="renderQRCode()" type="text" placeholder=" " />
+      id="encryptdNsecQrcodeNameField" (keyup)="renderQRCode()" type="text" placeholder=" " />
 
-    <label for="encryptNostrSecretQrcodeNameField">QRCode Title</label>
+    <label for="encryptdNsecQrcodeNameField">QRCode Title</label>
   </div>
 
   Save this qrcode, it contains your Nostr secret encrypted with your password.

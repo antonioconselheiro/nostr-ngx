@@ -68,7 +68,7 @@ export class ProfileProxy {
   async loadAccount(nsec: TNostrSecret, password: string): Promise<IUnauthenticatedUser | null> {
     const user = this.nostrConverter.convertNostrSecretToPublic(nsec);
     const profile = await this.load(user.npub);
-    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nsec);
+    const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
     const account = this.accountManagerStatefull.addAccount(profile, ncrypted);
 
     return Promise.resolve(account);

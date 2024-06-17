@@ -6,8 +6,10 @@ import { AuthenticateFormModule } from '../authenticate-form/authenticate-form.m
 import { LoginFormModule } from '../login-form/login-form.module';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
 import { RegisterAccountFormModule } from '../register-account/register-account.module';
-import { CreateNostrSecretFormModule } from '../create-nostr-secret/create-nostr-secret.module';
+import { CreateNsecFormModule } from '../create-nsec/create-nsec.module';
 import { RelayManagerModule } from '../relay-manager/relay-manager.module';
+import { EncryptNsecModule } from '../encrypt-nsec/encrypt-nsec.module';
+import { DownloadSignerModule } from '../download-signer/download-signer.module';
 
 @NgModule({
   declarations: [
@@ -20,8 +22,10 @@ import { RelayManagerModule } from '../relay-manager/relay-manager.module';
     LoadingWidgetModule,
     RegisterAccountFormModule,
     SelectAuthenticationListModule,
-    CreateNostrSecretFormModule,
-    RelayManagerModule
+    CreateNsecFormModule,
+    EncryptNsecModule,
+    RelayManagerModule,
+    DownloadSignerModule
   ],
   exports: [
     ModalNostrCredentialComponent

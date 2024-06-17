@@ -11,22 +11,22 @@ import * as nip49 from 'nostr-tools/nip49';
 })
 export class NostrSigner {
 
-  private static inMemoryNostrSecret?: Uint8Array;
+  private static inMemoryNsec?: Uint8Array;
 
   constructor(
     private nostrConfigStorage: NostrConfigStorage
   ) { }
 
-  login(nostrSecret: TNostrSecret): void {
-    const { data } = nip19.decode(nostrSecret);
-    NostrSigner.inMemoryNostrSecret = data as Uint8Array;
+  login(nsec: TNostrSecret): void {
+    const { data } = nip19.decode(nsec);
+    NostrSigner.inMemoryNsec = data as Uint8Array;
   }
 
-  getEncryptedNostrSecret(password: string): TNcryptsec | null;
-  getEncryptedNostrSecret(password: string, nsec: TNostrSecret): TNcryptsec; 
-  getEncryptedNostrSecret(password: string, nsec?: TNostrSecret): TNcryptsec | null {
+  encryptNsec(password: string): TNcryptsec | null;
+  encryptNsec(password: string, nsec: TNostrSecret): TNcryptsec; 
+  encryptNsec(password: string, nsec?: TNostrSecret): TNcryptsec | null {
     if (nsec) {
-      return this.encryptNostrSecret(password, nsec);
+      return this.generateNcryptsec(password, nsec);
     }
 
     const sessionConfig = this.nostrConfigStorage.readSessionStorage();
@@ -35,19 +35,19 @@ export class NostrSigner {
       return null;
     }
 
-    if (NostrSigner.inMemoryNostrSecret) {
-      return this.encryptNostrSecret(password, NostrSigner.inMemoryNostrSecret);
+    if (NostrSigner.inMemoryNsec) {
+      return this.generateNcryptsec(password, NostrSigner.inMemoryNsec);
     }
 
     const session = this.nostrConfigStorage.readSessionStorage();
     if (session.sessionFrom === 'sessionStorage' && session.nsec) {
-      return this.encryptNostrSecret(password, session.nsec);
+      return this.generateNcryptsec(password, session.nsec);
     }
 
     return null;
   }
 
-  private encryptNostrSecret(password: string, nsec: TNostrSecret | Uint8Array): TNcryptsec {
+  private generateNcryptsec(password: string, nsec: TNostrSecret | Uint8Array): TNcryptsec {
     if (typeof nsec === 'string') {
       const decoded = nip19.decode(nsec);
       const bytes = decoded.data as Uint8Array; 
@@ -81,8 +81,8 @@ export class NostrSigner {
   }
 
   private signWithClient(event: EventTemplate): Promise<NostrEvent> {
-    if (NostrSigner.inMemoryNostrSecret) {
-      return Promise.resolve(finalizeEvent(event, NostrSigner.inMemoryNostrSecret));
+    if (NostrSigner.inMemoryNsec) {
+      return Promise.resolve(finalizeEvent(event, NostrSigner.inMemoryNsec));
     }
 
     const session = this.nostrConfigStorage.readSessionStorage();

@@ -89,7 +89,7 @@ export class LoginFormComponent {
     }
 
     const user = this.nostrConverter.convertNostrSecretToPublic(nostrSecret);
-    const ncrypted = this.nostrSigner.getEncryptedNostrSecret(password, nostrSecret);
+    const ncrypted = this.nostrSigner.encryptNsec(password, nostrSecret);
 
     this.loading = true;
     this.profileProxy

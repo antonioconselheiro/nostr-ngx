@@ -26,12 +26,12 @@
     <span>Add existing</span>
   </button>
   
-  <button class="button secondary iconedButton" (click)="changeStep.next('login')" title="use nostr signer extension" type="button">
+  <button class="button secondary iconedButton" (click)="changeStep.next('downloadSigner')" title="use nostr signer extension" type="button">
     <nostr-svg-render class="inlineIcon" name="extension"></nostr-svg-render>
     <span>Use signer</span>
   </button>
   
-  <button class="button secondary iconedButton" (click)="changeStep.next('createNostrSecret')" title="create account" type="button">
+  <button class="button secondary iconedButton" (click)="changeStep.next('createNsec')" title="create account" type="button">
     <nostr-svg-render class="inlineIcon" name="plus"></nostr-svg-render>
     <span>Create</span>
   </button>

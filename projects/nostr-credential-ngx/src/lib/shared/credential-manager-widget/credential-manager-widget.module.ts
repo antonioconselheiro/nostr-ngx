@@ -5,12 +5,14 @@ import { ModalNostrCredentialModule } from './modal-nostr-credential/modal-nostr
 import { CredentialHandlerComponent } from './credential-handler/credential-handler.component';
 import { CredentialHandlerService } from './credential-handler.service';
 import { SvgRenderModule } from '../svg-render/svg-render.module';
+import { NostrModule } from '@belomonte/nostr-ngx';
 
 @NgModule({
   imports: [
     CommonModule,
     AsyncModalModule,
     SvgRenderModule,
+    NostrModule,
     ModalNostrCredentialModule
   ],
   exports: [

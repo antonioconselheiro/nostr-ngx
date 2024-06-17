@@ -1,6 +1,6 @@
 <h2 class="title">Create account</h2>
 
-<form [formGroup]="generateNostrSecretForm" (submit)="onSubmit()" novalidate autocomplete="off">
+<form [formGroup]="generateNsecForm" (submit)="onSubmit()" novalidate autocomplete="off">
   <ul>
     <li>
       nsec can't be changed.
@@ -13,19 +13,19 @@
     </li>
   </ul>
 
-  <div [class.error]="submitted && getFormControlErrors('nostrSecret')" class="floatingLabel">
-    <input #nostrSecret name="nostrSecret" maxlength="64" formControlName="nostrSecret" id="generateNostrSecretField"
-      readonly [attr.type]="showNostrSecret ? 'text' : 'password'" placeholder=" " />
-    <label for="generateNostrSecretField">nsec</label>
+  <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
+    <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField"
+      readonly [attr.type]="showNsec ? 'text' : 'password'" placeholder=" " />
+    <label for="generateNsecField">nsec</label>
 
-    <button (click)="generateNostrSecret()" type="button" tabindex="10" title="generate new nsec"
+    <button (click)="generateNsec()" type="button" tabindex="10" title="generate new nsec"
       class="bordered svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
 
-    <button type="button" tabindex="18" [attr.title]="showNostrSecret ? 'hide nostr secret' : 'show nostr secret'"
-      (click)="showNostrSecret = !showNostrSecret" class="bordered svgButton">
-      <nostr-svg-render [name]="showNostrSecret ? 'eyeOff' : 'eye'"></nostr-svg-render>
+    <button type="button" tabindex="18" [attr.title]="showNsec ? 'hide nostr secret' : 'show nostr secret'"
+      (click)="showNsec = !showNsec" class="bordered svgButton">
+      <nostr-svg-render [name]="showNsec ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
   </div>
 
