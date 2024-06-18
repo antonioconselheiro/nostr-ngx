@@ -17,7 +17,7 @@
 ///     maxlength="64"
 ///     formControlName="nsec"
 ///   />
-///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
+///   <label for="authModalNsecField">nsec</label>
 /// 
 ///   <button type="button" class="bordered svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
@@ -35,13 +35,13 @@
 ///     maxlength="64"
 ///     formControlName="nsec"
 ///   />
-///   <label for="authModalNsecField">Nostr Secret (nsec)</label>
+///   <label for="authModalNsecField">nsec</label>
 /// 
 ///   <button type="button" class="bordered svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// 
-///   <span class="error">Nostr Secret cannot be blank</span>
+///   <span class="error">nsec is required</span>
 /// </div>
 /// ```
 

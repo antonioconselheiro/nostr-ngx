@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControlOptions, FormBuilder, Validators } from '@angular/forms';
 import { TNcryptsec } from '@belomonte/nostr-ngx';
-import { FileManagerService } from '../../../file-manager/file-manager.service';
+import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { TChoosePasswordFields } from './choose-password-fields.type';
-import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
 
 @Component({
   selector: 'nostr-choose-password',
@@ -23,21 +22,24 @@ export class ChoosePasswordComponent {
   ncryptsec?: TNcryptsec | null;
   qrcode = '';
 
-  //  TODO: verificar se o password e confirmPassword combinam
-  //  TODO: verificar se este password é capaz de encriptar e decriptar um ncryptsec
+  formOptions: AbstractControlOptions = {
+    validators: [
+      NostrValidators.confirmPassword()
+    ]
+  };
+
   encryptedNsecForm = this.fb.group({
 
     displayName: ['', [
-      Validators.required.bind(this)
+      Validators.required
     ]],
 
     password: ['', [
-      Validators.required.bind(this)
+      Validators.required,
+      NostrValidators.passwordEncrytable()
     ]],
 
-    confirmPassword: ['', [
-      Validators.required.bind(this)
-    ]]
+    confirmPassword: ['']
   });
 
   @Output()
@@ -45,9 +47,7 @@ export class ChoosePasswordComponent {
 
   constructor(
     private fb: FormBuilder,
-    private nostrSigner: NostrSigner,
-    private qrcodeCredentialService: QrcodeCredentialService,
-    private fileManagerService: FileManagerService
+    private nostrSigner: NostrSigner
   ) { }
 
   updateNcryptsec(password: string): void {
@@ -55,27 +55,30 @@ export class ChoosePasswordComponent {
     this.ncryptsec = ncryptsec;
   }
 
-  getFormControlErrors(fieldName: TChoosePasswordFields): ValidationErrors | null {    
-    return this.encryptedNsecForm.controls[fieldName].errors;
+  getFormErrorStatus(errorName: string): boolean {
+    return this.encryptedNsecForm.errors?.[errorName] || false;
   }
 
-  getFormControlErrorStatus(fieldName: TChoosePasswordFields, error: string): boolean {
+  getFormControlErrorStatus(fieldName: TChoosePasswordFields, errorName: string): boolean {
     const errors = this.encryptedNsecForm.controls[fieldName].errors || {};
-    return errors[error] || false;
+    return errors[errorName] || false;
   }
 
   showErrors(fieldName: TChoosePasswordFields): boolean {
     return this.submitted && !!this.encryptedNsecForm.controls[fieldName].errors;
   }
 
-  downloadQrcode(): void {
-    if (this.ncryptsec) {
-      const qrcodeTitle = this.encryptedNsecForm.get('qrcodeTitle')?.value;
-      this.fileManagerService.save(this.ncryptsec, this.qrcodeCredentialService.generateFileName(qrcodeTitle));
-    }
+  showErrorsConfirmPassword(): boolean {
+    return this.submitted &&
+      this.encryptedNsecForm.errors &&
+      this.encryptedNsecForm.errors['confirmPasswordRequired'] && 
+      this.encryptedNsecForm.errors['confirmPasswordInvalid'];
   }
 
   onSubmit(): void {
-
+    this.submitted = true;
+    if (this.encryptedNsecForm.valid) {
+      this.changeStep.next('createNsecAndNcryptsec');
+    }
   }
 }
