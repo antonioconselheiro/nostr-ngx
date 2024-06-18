@@ -4,11 +4,11 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
-  selector: 'nostr-select-authentication-list',
-  templateUrl: './select-authentication-list.component.html',
-  styleUrl: './select-authentication-list.component.scss'
+  selector: 'nostr-select-account',
+  templateUrl: './select-account.component.html',
+  styleUrl: './select-account.component.scss'
 })
-export class SelectAuthenticationListComponent {
+export class SelectAccountComponent {
 
   @Input()
   accounts: IUnauthenticatedUser[] = [];

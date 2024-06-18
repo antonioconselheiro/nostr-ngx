@@ -20,8 +20,8 @@ export * from './lib/shared/credential-manager-widget/auth-modal-arguments.inter
 export * from './lib/shared/credential-manager-widget/auth-modal-steps.type';
 export * from './lib/shared/credential-manager-widget/authenticate-form/authenticate-form.module';
 export * from './lib/shared/credential-manager-widget/authenticate-form/authenticate-form.component';
-export * from './lib/shared/credential-manager-widget/select-authentication-list/select-authentication-list.module';
-export * from './lib/shared/credential-manager-widget/select-authentication-list/select-authentication-list.component';
+export * from './lib/shared/credential-manager-widget/select-account/select-account.module';
+export * from './lib/shared/credential-manager-widget/select-account/select-account.component';
 export * from './lib/shared/credential-manager-widget/modal-nostr-credential/modal-nostr-credential.module';
 export * from './lib/shared/credential-manager-widget/modal-nostr-credential/modal-nostr-credential.component';
 export * from './lib/shared/credential-manager-widget/login-form/login-form.module';

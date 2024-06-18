@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { generateSecretKey, nip19 } from 'nostr-tools';
-import { FileManagerService } from '../../file-manager/file-manager.service';
-import { NostrSigner } from '../../profile-service/nostr.signer';
-import { QrcodeCredentialService } from '../../qrcode-credential/qrcode-credential.service';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { FileManagerService } from '../../../file-manager/file-manager.service';
+import { NostrSigner } from '../../../profile-service/nostr.signer';
+import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-create-nsec',

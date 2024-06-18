@@ -1,18 +1,18 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { TNcryptsec } from '@belomonte/nostr-ngx';
-import { FileManagerService } from '../../file-manager/file-manager.service';
-import { NostrSigner } from '../../profile-service/nostr.signer';
-import { AuthModalSteps } from '../auth-modal-steps.type';
-import { TEncryptNsecFields } from './encrypt-nsec-fields.type';
-import { QrcodeCredentialService } from '../../qrcode-credential/qrcode-credential.service';
+import { FileManagerService } from '../../../file-manager/file-manager.service';
+import { NostrSigner } from '../../../profile-service/nostr.signer';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TChoosePasswordFields } from './choose-password-fields.type';
+import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
 
 @Component({
-  selector: 'nostr-encrypt-nsec',
-  templateUrl: './encrypt-nsec.component.html',
-  styleUrl: './encrypt-nsec.component.scss'
+  selector: 'nostr-choose-password',
+  templateUrl: './choose-password.component.html',
+  styleUrl: './choose-password.component.scss'
 })
-export class EncryptNsecComponent {
+export class ChoosePasswordComponent {
 
   readonly passwordLength = 32;
 
@@ -23,7 +23,13 @@ export class EncryptNsecComponent {
   ncryptsec?: TNcryptsec | null;
   qrcode = '';
 
+  //  TODO: verificar se o password e confirmPassword combinam
+  //  TODO: verificar se este password é capaz de encriptar e decriptar um ncryptsec
   encryptedNsecForm = this.fb.group({
+
+    displayName: ['', [
+      Validators.required.bind(this)
+    ]],
 
     password: ['', [
       Validators.required.bind(this)
@@ -31,9 +37,7 @@ export class EncryptNsecComponent {
 
     confirmPassword: ['', [
       Validators.required.bind(this)
-    ]],
-
-    qrcodeName: ['']
+    ]]
   });
 
   @Output()
@@ -46,22 +50,21 @@ export class EncryptNsecComponent {
     private fileManagerService: FileManagerService
   ) { }
 
-
   updateNcryptsec(password: string): void {
     const ncryptsec = this.nostrSigner.encryptNsec(password);
     this.ncryptsec = ncryptsec;
   }
 
-  getFormControlErrors(fieldName: TEncryptNsecFields): ValidationErrors | null {    
+  getFormControlErrors(fieldName: TChoosePasswordFields): ValidationErrors | null {    
     return this.encryptedNsecForm.controls[fieldName].errors;
   }
 
-  getFormControlErrorStatus(fieldName: TEncryptNsecFields, error: string): boolean {
+  getFormControlErrorStatus(fieldName: TChoosePasswordFields, error: string): boolean {
     const errors = this.encryptedNsecForm.controls[fieldName].errors || {};
     return errors[error] || false;
   }
 
-  showErrors(fieldName: TEncryptNsecFields): boolean {
+  showErrors(fieldName: TChoosePasswordFields): boolean {
     return this.submitted && !!this.encryptedNsecForm.controls[fieldName].errors;
   }
 
@@ -70,10 +73,6 @@ export class EncryptNsecComponent {
       const qrcodeTitle = this.encryptedNsecForm.get('qrcodeTitle')?.value;
       this.fileManagerService.save(this.ncryptsec, this.qrcodeCredentialService.generateFileName(qrcodeTitle));
     }
-  }
-
-  renderQRCode(): void {
-    
   }
 
   onSubmit(): void {

@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalNostrCredentialComponent } from './modal-nostr-credential.component';
-import { SelectAuthenticationListModule } from '../select-authentication-list/select-authentication-list.module';
+import { SelectAccountModule } from '../select-account/select-account.module';
 import { AuthenticateFormModule } from '../authenticate-form/authenticate-form.module';
 import { LoginFormModule } from '../login-form/login-form.module';
 import { LoadingWidgetModule } from '../../loading/loading-widget.module';
-import { RegisterAccountFormModule } from '../register-account/register-account.module';
-import { CreateNsecFormModule } from '../create-nsec/create-nsec.module';
-import { RelayManagerModule } from '../relay-manager/relay-manager.module';
-import { EncryptNsecModule } from '../encrypt-nsec/encrypt-nsec.module';
+import { RegisterAccountFormModule } from '../signup/register-account/register-account.module';
+import { CreateNsecFormModule } from '../signup/create-nsec/create-nsec.module';
+import { RelayManagerModule } from '../signup/relay-manager/relay-manager.module';
+import { ChoosePasswordModule } from '../signup/choose-password/choose-password.module';
 import { DownloadSignerModule } from '../download-signer/download-signer.module';
+import { CreateNsecAndNcryptsecModule } from '../signup/create-nsec-and-ncryptsec/create-nsec-and-ncryptsec.module';
 
 @NgModule({
   declarations: [
@@ -21,9 +22,10 @@ import { DownloadSignerModule } from '../download-signer/download-signer.module'
     AuthenticateFormModule,
     LoadingWidgetModule,
     RegisterAccountFormModule,
-    SelectAuthenticationListModule,
+    SelectAccountModule,
     CreateNsecFormModule,
-    EncryptNsecModule,
+    CreateNsecAndNcryptsecModule,
+    ChoosePasswordModule,
     RelayManagerModule,
     DownloadSignerModule
   ],

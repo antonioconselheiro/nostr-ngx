@@ -44,7 +44,6 @@ export class ModalNostrCredentialComponent
 
   onChangeStep(step: AuthModalSteps): void {
     // let a tick to the screen click effect
-    // eslint-disable-next-line ban/ban
     setTimeout(() => this.currentStep = step);
   }
 

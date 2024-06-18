@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-register-account',
