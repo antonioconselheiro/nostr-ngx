@@ -40,7 +40,7 @@ export class ChoosePasswordComponent {
     ]],
 
     confirmPassword: ['']
-  });
+  }, this.formOptions);
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -70,9 +70,10 @@ export class ChoosePasswordComponent {
 
   showErrorsConfirmPassword(): boolean {
     return this.submitted &&
-      this.encryptedNsecForm.errors &&
-      this.encryptedNsecForm.errors['confirmPasswordRequired'] && 
-      this.encryptedNsecForm.errors['confirmPasswordInvalid'];
+      this.encryptedNsecForm.errors && (
+        this.encryptedNsecForm.errors['confirmPasswordRequired'] || 
+        this.encryptedNsecForm.errors['confirmPasswordInvalid']
+      );
   }
 
   onSubmit(): void {

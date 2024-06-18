@@ -35,11 +35,6 @@
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
-  <span class="infoNsecCautions">
-    This qrcode contains your nsec,<br />
-    but it's recommended to store it encrypted
-  </span>
-
   <div>
     <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode />
   </div>
