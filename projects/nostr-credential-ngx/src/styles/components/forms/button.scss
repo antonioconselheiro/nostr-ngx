@@ -65,14 +65,30 @@ button.button {
 /// @example
 /// ```
 /// <div class="buttonGroup">
-///   <button class="button">Click me</button>
 ///   <button class="secondary button">Click me</button>
+///   <button class="button">Click me</button>
 /// </div>
 /// ```
 ///
-.buttonGroup > button,
-.buttonGroup > nostr-svg-render,
-.buttonGroup > svg {
-  float: left;
-  margin: 0 1rem 1rem 0;
+.buttonGroup {
+  display: flex;
+
+  > button,
+  > nostr-svg-render,
+  > svg {
+    float: left;
+    margin: 0 1rem 1rem 0;
+
+    &:nth-last-child(1 of .secondary) {
+      margin-right: auto;
+    }
+
+    &:not(.secondary):first-child {
+      margin-left: auto;
+    }
+
+    &:not(.secondary):last-child {
+      margin-right: 0;
+    }
+  }
 }
