@@ -7,6 +7,7 @@ import { CredentialHandlerService } from './credential-handler.service';
 import { SvgRenderModule } from '../svg-render/svg-render.module';
 import { NostrModule } from '@belomonte/nostr-ngx';
 import { QrcodeCredentialModule } from '../qrcode-credential/qrcode-credential.module';
+import { CredentialStorageModule } from './credential-storage/credential-storage.module';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { QrcodeCredentialModule } from '../qrcode-credential/qrcode-credential.m
     AsyncModalModule,
     SvgRenderModule,
     NostrModule,
+    CredentialStorageModule,
     ModalNostrCredentialModule,
     QrcodeCredentialModule
   ],

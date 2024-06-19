@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { NostrConfigStorage } from './nostr-config.storage';
 import { TNip05 } from '../../domain/nip05.type';
+import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TRelayMap } from '../../domain/relay-map.type';
+import { ConfigsLocalStorage } from './configs-local.storage';
 import { NostrGuard } from './nostr.guard';
-import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class RelayService {
 
   constructor(
     private guard: NostrGuard,
-    private configs: NostrConfigStorage
+    private configs: ConfigsLocalStorage
   ) { }
 
   filterWritableRelays(relays: TRelayMap | string[]): string[] {
@@ -50,7 +50,7 @@ export class RelayService {
    * @param npub 
    */
   setLocalRelays(relays: TRelayMap, npub?: TNostrPublic) {
-    const local = this.configs.readLocalStorage();
+    const local = this.configs.read();
 
     if (npub) {
       local.userRelays = local.userRelays || {};
@@ -68,7 +68,7 @@ export class RelayService {
   getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMap>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap>;
   async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMap> {
-    const local = this.configs.readLocalStorage();
+    const local = this.configs.read();
     const relayFrom = local.relayFrom;
     let relays: TRelayMap = {};
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { NostrConfigStorage, NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { INostrCredentialSessionConfig } from '../../domain/nostr-credential-session-config.interface';
 import { IProfile } from '../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
 import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
 
@@ -16,9 +16,9 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     private profileProxy: ProfileProxy,
     private accountConverter: AccountConverter,
     private nostrConverter: NostrConverter,
-    private nostrConfigStorage: NostrConfigStorage
+    private sessionConfigs: ProfileSessionStorage
   ) {
-    const session = nostrConfigStorage.readSessionStorage<INostrCredentialSessionConfig>();
+    const session = sessionConfigs.read();
     const profile = session.sessionFrom === 'sessionStorage' && session.nsec && session.profile || null;
 
     super(profile)
@@ -30,10 +30,10 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
 
   authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
-    this.nostrConfigStorage.clearSessionStorage();
+    this.sessionConfigs.clear();
 
     if (saveNostrSecretInSessionStorage) {
-      this.nostrConfigStorage.patchSessionStorage({ nsec });
+      this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
@@ -42,11 +42,11 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   authenticateAccount(account: IUnauthenticatedUser, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
     const nsec = this.accountConverter.decryptAccount(account, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
-    this.nostrConfigStorage.clearSessionStorage();
-    this.nostrConfigStorage.patchSessionStorage({ ncryptsec: account.ncryptsec });
+    this.sessionConfigs.clear();
+    this.sessionConfigs.patch({ ncryptsec: account.ncryptsec });
 
     if (saveNostrSecretInSessionStorage) {
-      this.nostrConfigStorage.patchSessionStorage({ nsec });
+      this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
@@ -55,11 +55,11 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   authenticateEncryptedEncode(ncryptsec: TNcryptsec, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
     const nsec = this.nostrConverter.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
-    this.nostrConfigStorage.clearSessionStorage();
-    this.nostrConfigStorage.patchSessionStorage({ ncryptsec });
+    this.sessionConfigs.clear();
+    this.sessionConfigs.patch({ ncryptsec });
 
     if (saveNostrSecretInSessionStorage) {
-      this.nostrConfigStorage.patchSessionStorage({ nsec });
+      this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
@@ -69,7 +69,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     return this.profileProxy
       .load(npub)
       .then(profile => {
-        this.nostrConfigStorage.patchSessionStorage<INostrCredentialSessionConfig>({ profile });
+        this.sessionConfigs.patch({ profile });
         this.next(profile);
 
         return Promise.resolve(profile);

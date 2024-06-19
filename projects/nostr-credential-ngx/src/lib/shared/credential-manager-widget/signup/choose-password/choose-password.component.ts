@@ -29,14 +29,12 @@ export class ChoosePasswordComponent {
   };
 
   encryptedNsecForm = this.fb.group({
-
     displayName: ['', [
       Validators.required
     ]],
 
     password: ['', [
-      Validators.required,
-      NostrValidators.passwordEncrytable()
+      Validators.required
     ]],
 
     confirmPassword: ['']

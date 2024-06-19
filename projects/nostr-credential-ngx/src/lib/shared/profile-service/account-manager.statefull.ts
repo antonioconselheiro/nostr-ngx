@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
-import { AccountConverter } from './account.converter';
+import { TNcryptsec } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { IProfile } from '../../domain/profile.interface';
-import { NostrConfigStorage, TNcryptsec } from '@belomonte/nostr-ngx';
 import { INostrCredentialLocalConfig } from '../../domain/nostr-credential-local-config.interface';
+import { IProfile } from '../../domain/profile.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
+import { AccountConverter } from './account.converter';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountManagerStatefull {
 
-  private accounts = this.nostrConfigStorage.readLocalStorage<INostrCredentialLocalConfig>().accounts || {};
+  private accounts = this.accountsLocalStorage.read().accounts || {};
   private accountsSubject = new BehaviorSubject<IUnauthenticatedUser[]>(Object.values(this.accounts));
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
     private accountConverter: AccountConverter,
-    private nostrConfigStorage: NostrConfigStorage
+    private accountsLocalStorage: AccountsLocalStorage
   ) { }
 
   addAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser | null {
@@ -36,7 +37,7 @@ export class AccountManagerStatefull {
   }
 
   private update(): void {
-    this.nostrConfigStorage.patchLocalStorage<INostrCredentialLocalConfig>({ accounts: this.accounts });
+    this.accountsLocalStorage.patch({ accounts: this.accounts });
     this.accountsSubject.next(Object.values(this.accounts));
   }
 }

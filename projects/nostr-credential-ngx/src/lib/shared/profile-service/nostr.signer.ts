@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NoCredentialsFoundError, NostrConfigStorage, SignerNotFoundError, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
+import { ConfigsSessionStorage, NoCredentialsFoundError, SignerNotFoundError, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { EventTemplate, finalizeEvent, nip19, NostrEvent } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 
@@ -14,7 +14,7 @@ export class NostrSigner {
   private static inMemoryNsec?: Uint8Array;
 
   constructor(
-    private nostrConfigStorage: NostrConfigStorage
+    private sessionConfigs: ConfigsSessionStorage
   ) { }
 
   login(nsec: TNostrSecret): void {
@@ -29,7 +29,7 @@ export class NostrSigner {
       return this.generateNcryptsec(password, nsec);
     }
 
-    const sessionConfig = this.nostrConfigStorage.readSessionStorage();
+    const sessionConfig = this.sessionConfigs.read();
     if (sessionConfig.sessionFrom === 'signer') {
       //  maybe should write a NIP suggestin to include a way to get a ncryptsec from extension 
       return null;
@@ -39,7 +39,7 @@ export class NostrSigner {
       return this.generateNcryptsec(password, NostrSigner.inMemoryNsec);
     }
 
-    const session = this.nostrConfigStorage.readSessionStorage();
+    const session = this.sessionConfigs.read();
     if (session.sessionFrom === 'sessionStorage' && session.nsec) {
       return this.generateNcryptsec(password, session.nsec);
     }
@@ -63,7 +63,7 @@ export class NostrSigner {
   }
 
   signEvent(event: EventTemplate): Promise<NostrEvent> {
-    const sessionConfig = this.nostrConfigStorage.readSessionStorage();
+    const sessionConfig = this.sessionConfigs.read();
 
     if (sessionConfig.sessionFrom === 'signer') {
       return this.signWithSigner(event);
@@ -85,7 +85,7 @@ export class NostrSigner {
       return Promise.resolve(finalizeEvent(event, NostrSigner.inMemoryNsec));
     }
 
-    const session = this.nostrConfigStorage.readSessionStorage();
+    const session = this.sessionConfigs.read();
     if (session.sessionFrom === 'sessionStorage' && session.nsec) {
       const { data } = nip19.decode(session.nsec);
       return Promise.resolve(finalizeEvent(event, data as Uint8Array));
