@@ -11,7 +11,7 @@ import { AuthModalSteps } from '../../auth-modal-steps.type';
   templateUrl: './create-nsec.component.html',
   styleUrl: './create-nsec.component.scss'
 })
-export class CreateNsecComponent implements OnInit, AfterViewInit {
+export class CreateNsecComponent implements OnInit {
 
   showNsec = true;
   submitted = false;
@@ -27,9 +27,6 @@ export class CreateNsecComponent implements OnInit, AfterViewInit {
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
-  @ViewChild('qrcodeTitle')
-  qrcodeTitleField?: ElementRef<HTMLInputElement>;
-
   constructor(
     private fb: FormBuilder,
     private mostrSigner: NostrSigner,
@@ -40,17 +37,6 @@ export class CreateNsecComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.renderQrcode();
     this.login();
-  }
-
-  ngAfterViewInit(): void {
-    const el = this.qrcodeTitleField?.nativeElement;
-
-    if (el) {
-      const value = el.value;
-      el.focus();
-      el.selectionStart = 0;
-      el.selectionEnd = value.length;
-    }
   }
 
   generateNsec(): void {

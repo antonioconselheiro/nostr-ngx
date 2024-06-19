@@ -1,6 +1,12 @@
 <h2 class="title">Create account</h2>
 
 <form [formGroup]="generateNsecForm" novalidate autocomplete="off">
+  <div class="floatingLabel">
+    <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle" id="generateNsecQRCodeTitleField"
+      type="text" placeholder=" " tabindex="10" listenTypingComplete (typingCompleted)="renderQrcode()" autofocus />
+    <label for="generateNsecQRCodeTitleField">QRCode Title</label>
+  </div>
+
   <ul>
     <li>
       Nsec can't be changed.
@@ -15,10 +21,10 @@
 
   <div class="floatingLabel">
     <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField"
-      readonly type="text" placeholder=" " tabindex="10" />
+      readonly type="text" placeholder=" " tabindex="11" />
     <label for="generateNsecField">nsec</label>
 
-    <button (click)="copyNsec()" type="button" tabindex="11" title="copy nsec"
+    <button (click)="copyNsec()" type="button" tabindex="12" title="copy nsec"
       class="bordered svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>
     </button>
@@ -27,12 +33,6 @@
       class="bordered svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
-  </div>
-
-  <div class="floatingLabel">
-    <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle" id="generateNsecQRCodeTitleField"
-      type="text" placeholder=" " tabindex="12" listenTypingComplete (typingCompleted)="renderQrcode()" />
-    <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
   <div>

@@ -5,6 +5,7 @@ import { SvgRenderModule } from '../../../svg-render/svg-render.module';
 import { FileManagerModule } from '../../../file-manager/file-manager.module';
 import { TypingCompleteDirective } from '../../../typing-complete/typing-complete.directive';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AutofocusDirective } from '../../../autofocus/autofocus.directive';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     SvgRenderModule,
     FileManagerModule,
 
-    TypingCompleteDirective
+    TypingCompleteDirective,
+    AutofocusDirective
   ],
   exports: [
     ChoosePasswordComponent
