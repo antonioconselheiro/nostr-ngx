@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthenticatedProfileObservable } from '../../profile-service/authenticated-profile.observable';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({

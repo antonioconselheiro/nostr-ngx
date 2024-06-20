@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccountsLocalStorage } from './accounts-local.storage';
 import { ProfileSessionStorage } from './profile-session.storage';
-import { CredentialManagerStateStorage } from './credential-manager-state.storage';
 
 @NgModule({
   imports: [
@@ -10,8 +9,7 @@ import { CredentialManagerStateStorage } from './credential-manager-state.storag
   ],
   providers: [
     AccountsLocalStorage,
-    ProfileSessionStorage,
-    CredentialManagerStateStorage
+    ProfileSessionStorage
   ]
 })
 export class CredentialStorageModule { }

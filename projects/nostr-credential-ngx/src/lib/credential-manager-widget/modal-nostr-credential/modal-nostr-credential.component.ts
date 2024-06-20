@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProfile } from '../../../domain/profile.interface';
+import { IProfile } from '../../domain/profile.interface';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
@@ -23,6 +23,10 @@ export class ModalNostrCredentialComponent
   accounts: IUnauthenticatedUser[] = [];
 
   authenticatingAccount: IUnauthenticatedUser | null = null;
+  creatingAccount: {
+    displayName: string;
+    password: string;
+  } | null = null;
   currentStep: AuthModalSteps | null = null;
 
   constructor(

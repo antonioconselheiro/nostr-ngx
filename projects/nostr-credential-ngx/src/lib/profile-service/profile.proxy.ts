@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { NostrConverter, TNostrPublic, TNostrSecret } from "@belomonte/nostr-ngx";
 import { Event } from 'nostr-tools';
-import { IProfile } from "../../domain/profile.interface";
-import { IUnauthenticatedUser } from "../../domain/unauthenticated-user.interface";
+import { IProfile } from "../domain/profile.interface";
+import { IUnauthenticatedUser } from "../domain/unauthenticated-user.interface";
 import { NostrSigner } from "./nostr.signer";
 import { ProfileNostr } from "./profile.nostr";
 import { ProfileCache } from "./profile.cache";

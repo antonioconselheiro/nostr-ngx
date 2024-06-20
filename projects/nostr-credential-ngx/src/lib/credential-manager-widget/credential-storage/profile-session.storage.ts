@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { INostrCredentialSessionConfig } from '../../../domain/nostr-credential-session-config.interface';
+import { IProfileSessionConfig } from './profile-session-config.interface';
 import { AbstractStorage } from '@belomonte/nostr-ngx';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProfileSessionStorage extends AbstractStorage<INostrCredentialSessionConfig> {
+export class ProfileSessionStorage extends AbstractStorage<IProfileSessionConfig> {
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: INostrCredentialSessionConfig = {
+  protected default: IProfileSessionConfig = {
     sessionFrom: 'none'
   };
 

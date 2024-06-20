@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AbstractStorage } from '@belomonte/nostr-ngx';
-import { INostrCredentialLocalConfig } from '../../../domain/nostr-credential-local-config.interface';
+import { IAccountsLocalConfig } from './accounts-local-config.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AccountsLocalStorage extends AbstractStorage<INostrCredentialLocalConfig> {
+export class AccountsLocalStorage extends AbstractStorage<IAccountsLocalConfig> {
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: INostrCredentialLocalConfig = {
+  protected default: IAccountsLocalConfig = {
     relayFrom: 'none'
   };
 

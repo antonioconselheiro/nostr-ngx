@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {  TNostrPublic } from '@belomonte/nostr-ngx';
 import { Event, nip19 } from 'nostr-tools';
-import { IProfile } from '../../domain/profile.interface';
+import { IProfile } from '../domain/profile.interface';
 import { IProfileMetadata } from './profile-metadata.interface';
 
 @Injectable({

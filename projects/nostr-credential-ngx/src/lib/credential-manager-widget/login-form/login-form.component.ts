@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
-import { IProfile } from '../../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../../../domain/unauthenticated-user.interface';
+import { IProfile } from '../../domain/profile.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';

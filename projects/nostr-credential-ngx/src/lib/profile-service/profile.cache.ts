@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NostrConverter, NostrEventKind, TNostrPublic } from "@belomonte/nostr-ngx";
 import { Event } from 'nostr-tools';
-import { IProfile } from "../../domain/profile.interface";
+import { IProfile } from "../domain/profile.interface";
 import { ProfileConverter } from "./profile.converter";
 
 @Injectable({

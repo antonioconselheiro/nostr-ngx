@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { IProfile } from '../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IProfile } from '../domain/profile.interface';
+import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
 import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
 import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
