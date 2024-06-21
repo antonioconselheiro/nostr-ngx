@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticatedProfileObservable } from '../../profile-service/authenticated-profile.observable';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -9,7 +9,7 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
   templateUrl: './authenticate-form.component.html',
   styleUrl: './authenticate-form.component.scss'
 })
-export class AuthenticateFormComponent implements AfterViewInit {
+export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   @Input()
   account: IUnauthenticatedUser | null = null;
@@ -28,19 +28,31 @@ export class AuthenticateFormComponent implements AfterViewInit {
   loading = false;
   readonly passwordLength = 32;
 
-  authenticateForm = this.fb.group({
-    password: ['', [
-      Validators.required.bind(this),
-    ]]
-  });
+  authenticateForm!: FormGroup<{
+    password: FormControl<string | null>;
+  }>;
 
   constructor(
     private fb: FormBuilder,
     private profiles$: AuthenticatedProfileObservable
   ) { }
 
+  ngOnInit(): void {
+    this.initForm();
+  }
+
   ngAfterViewInit(): void {
     this.passwordField?.nativeElement?.focus();
+  }
+
+  private initForm(): void {
+    const authenticateForm = this.fb.group({
+      password: ['', [
+        Validators.required.bind(this),
+      ]]
+    });
+
+    this.authenticateForm = authenticateForm;
   }
 
   getFormControlErrorStatus(error: string): boolean {

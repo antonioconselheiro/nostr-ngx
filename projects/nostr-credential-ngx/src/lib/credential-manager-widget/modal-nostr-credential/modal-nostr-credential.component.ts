@@ -6,6 +6,7 @@ import { Subject, Subscription } from 'rxjs';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
+import { ICreatingAccount } from '../../domain/creating-account.interface';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',
@@ -17,16 +18,13 @@ export class ModalNostrCredentialComponent
   implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription();
-  response = new Subject<void | IProfile | null>();
+  response = new Subject<IProfile | null | void>();
 
   auth: IProfile | null = null;
   accounts: IUnauthenticatedUser[] = [];
 
   authenticatingAccount: IUnauthenticatedUser | null = null;
-  creatingAccount: {
-    displayName: string;
-    password: string;
-  } | null = null;
+  creatingAccount: ICreatingAccount | null = null;
   currentStep: AuthModalSteps | null = null;
 
   constructor(

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AbstractControlOptions, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../domain/profile.interface';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
@@ -16,7 +16,7 @@ import { TLoginFormFields } from './login-form-fields.type';
   selector: 'nostr-login-form',
   templateUrl: './login-form.component.html'
 })
-export class LoginFormComponent {
+export class LoginFormComponent implements OnInit {
 
   loading = false;
   submitted = false;
@@ -41,16 +41,11 @@ export class LoginFormComponent {
     ]
   };
 
-  accountForm = this.fb.group<{ [key in TLoginFormFields]: unknown }>({
-    nostrSecret: ['', [
-      Validators.required.bind(this),
-      NostrValidators.nostrSecret
-    ]],
-
-    saveNcryptsecLocalStorage: [ true ],
-
-    password: ['']
-  }, this.formOptions);
+  accountForm!: FormGroup<{
+    nostrSecret: FormControl<string | null>;
+    saveNcryptsecLocalStorage: FormControl<boolean | null>;
+    password: FormControl<string | null>;
+  }>;
 
   constructor(
     private fb: FormBuilder,
@@ -60,6 +55,23 @@ export class LoginFormComponent {
     private nostrConverter: NostrConverter,
     private accountManagerService: AccountManagerStatefull
   ) { }
+
+  ngOnInit(): void {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.accountForm = this.fb.group({
+      nostrSecret: ['', [
+        Validators.required.bind(this),
+        NostrValidators.nostrSecret
+      ]],
+
+      saveNcryptsecLocalStorage: [true],
+
+      password: ['']
+    }, this.formOptions);
+  }
 
   getFormControlErrors(fieldName: TLoginFormFields): ValidationErrors | null {
     return this.accountForm.controls[fieldName].errors;

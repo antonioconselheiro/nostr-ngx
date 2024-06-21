@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ConfigsSessionStorage, NoCredentialsFoundError, SignerNotFoundError, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
-import { EventTemplate, finalizeEvent, nip19, NostrEvent } from 'nostr-tools';
+import { EventTemplate, finalizeEvent, generateSecretKey, nip19, NostrEvent } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 
 /**
@@ -20,6 +20,10 @@ export class NostrSigner {
   login(nsec: TNostrSecret): void {
     const { data } = nip19.decode(nsec);
     NostrSigner.inMemoryNsec = data as Uint8Array;
+  }
+
+  generateNsec(): TNostrSecret {
+    return nip19.nsecEncode(generateSecretKey());
   }
 
   encryptNsec(password: string): TNcryptsec | null;

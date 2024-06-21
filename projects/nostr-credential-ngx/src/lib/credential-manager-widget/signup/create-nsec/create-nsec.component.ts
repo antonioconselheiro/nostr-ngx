@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { generateSecretKey, nip19 } from 'nostr-tools';
 import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TNostrSecret } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-create-nsec',
@@ -18,29 +19,37 @@ export class CreateNsecComponent implements OnInit {
 
   nsecQRCode = '';
 
-  generateNsecForm = this.fb.group({
-    nsec: [nip19.nsecEncode(generateSecretKey())],
-
-    qrcodeTitle: ['my nostr account']
-  });
+  generateNsecForm!: FormGroup<{
+    qrcodeTitle: FormControl<string | null>;
+    nsec: FormControl<TNostrSecret | null>;
+  }>;
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
   constructor(
     private fb: FormBuilder,
-    private mostrSigner: NostrSigner,
+    private nostrSigner: NostrSigner,
     private qrcodeCredentialService: QrcodeCredentialService,
     private fileManagerService: FileManagerService
   ) { }
 
   ngOnInit(): void {
+    this.initForm();
+  }
+
+  private initForm(): void {
+    this.generateNsecForm = this.fb.group({
+      qrcodeTitle: ['my nostr account'],
+      nsec: [this.nostrSigner.generateNsec()]
+    });
+
     this.renderQrcode();
     this.login();
   }
 
   generateNsec(): void {
-    const nsec = nip19.nsecEncode(generateSecretKey());
+    const nsec = this.nostrSigner.generateNsec();
     this.generateNsecForm.patchValue({ nsec });
     this.renderQrcode();
     this.login();
@@ -71,7 +80,7 @@ export class CreateNsecComponent implements OnInit {
   login(): void {
     const { nsec } = this.generateNsecForm.getRawValue();
     if (this.generateNsecForm.valid && nsec) {
-      this.mostrSigner.login(nsec);
+      this.nostrSigner.login(nsec);
     }
   }
 }
