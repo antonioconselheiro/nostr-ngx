@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
-import { generateSecretKey, nip19 } from 'nostr-tools';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
 import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
-import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
+import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
@@ -24,7 +23,7 @@ export class CreateNsecAndNcryptsecComponent {
   showNsec = true;
   submitted = false;
 
-  nsecQRCode = '';
+  ncryptsecQRCode = '';
 
   generateNcryptsecForm!: FormGroup<{
     qrcodeTitle: FormControl<string | null | undefined>;
@@ -34,8 +33,7 @@ export class CreateNsecAndNcryptsecComponent {
 
   constructor(
     private fb: FormBuilder,
-    private mostrSigner: NostrSigner,
-    private qrcodeCredentialService: QrcodeCredentialService,
+    private qrcodeService: QrcodeService,
     private nostrSigner: NostrSigner,
     private fileManagerService: FileManagerService
   ) { }
@@ -46,7 +44,7 @@ export class CreateNsecAndNcryptsecComponent {
 
   private initForm(): void {
     const password = this.creatingAccount?.password || '';
-    const nsec = this.mostrSigner.generateNsec();
+    const nsec = this.nostrSigner.generateNsec();
     const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
 
     this.generateNcryptsecForm = this.fb.group({
@@ -61,7 +59,7 @@ export class CreateNsecAndNcryptsecComponent {
 
   generateNsec(): void {
     const password = this.creatingAccount?.password || '';
-    const nsec = nip19.nsecEncode(generateSecretKey());
+    const nsec = this.nostrSigner.generateNsec();
     const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
 
     this.generateNcryptsecForm.patchValue({ nsec, ncryptsec });
@@ -70,14 +68,14 @@ export class CreateNsecAndNcryptsecComponent {
   }
 
   renderQrcode(): void {
-    const { nsec, qrcodeTitle } = this.generateNcryptsecForm.getRawValue();
-    if (!nsec) {
+    const { ncryptsec, qrcodeTitle } = this.generateNcryptsecForm.getRawValue();
+    if (!ncryptsec) {
       return;
     }
 
-    this.qrcodeCredentialService
-      .nsecQRCode(nsec, qrcodeTitle)
-      .then(qrcode => this.nsecQRCode = qrcode);
+    this.qrcodeService
+      .qrcodefy(ncryptsec, qrcodeTitle)
+      .then(qrcode => this.ncryptsecQRCode = qrcode);
   }
 
   copyNsec(): void {
@@ -86,15 +84,22 @@ export class CreateNsecAndNcryptsecComponent {
     navigator.clipboard.writeText(nsec);
   }
 
+  copyNcryptsec(): void {
+    const raw = this.generateNcryptsecForm.getRawValue();
+    const ncryptsec = raw.ncryptsec || '';
+    navigator.clipboard.writeText(ncryptsec);
+  }
+
   downloadQrcode(): void {
     const qrcodeTitle = this.generateNcryptsecForm.get('qrcodeTitle')?.value;
-    this.fileManagerService.save(this.nsecQRCode, this.qrcodeCredentialService.generateFileName(qrcodeTitle));
+    const filename = this.qrcodeService.generateFileName(`ncryptsec qrcode - ${qrcodeTitle}`);
+    this.fileManagerService.save(this.ncryptsecQRCode, filename);
   }
 
   login(): void {
     const { nsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec) {
-      this.mostrSigner.login(nsec);
+      this.nostrSigner.login(nsec);
     }
   }
 }

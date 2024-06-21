@@ -6,6 +6,9 @@ import { AfterViewInit, Directive, ElementRef, EventEmitter, HostListener, Input
 })
 export class AutofocusDirective implements AfterViewInit {
 
+  @Input()
+  selectValue = true;
+
   constructor(
     private el: ElementRef<HTMLInputElement>
   ) { }
@@ -14,10 +17,13 @@ export class AutofocusDirective implements AfterViewInit {
     const el = this.el?.nativeElement;
 
     if (el) {
-      const value = el.value;
       el.focus();
-      el.selectionStart = 0;
-      el.selectionEnd = value.length;
+
+      if (this.selectValue) {
+        const value = el.value;
+        el.selectionStart = 0;
+        el.selectionEnd = value.length;
+      }
     }
   }
 }

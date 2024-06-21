@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QrcodeCredentialService } from './qrcode-credential.service';
+import { QrcodeService } from './qrcode.service';
 
 @NgModule({
   imports: [
     CommonModule
   ],
   providers: [
-    QrcodeCredentialService
+    QrcodeService
   ]
 })
-export class QrcodeCredentialModule { }
+export class QrcodeServiceModule { }

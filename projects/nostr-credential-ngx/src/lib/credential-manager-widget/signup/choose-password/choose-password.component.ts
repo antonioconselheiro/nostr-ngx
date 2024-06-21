@@ -5,6 +5,7 @@ import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { TChoosePasswordFields } from './choose-password-fields.type';
+import { ICreatingAccount } from '../../../domain/creating-account.interface';
 
 @Component({
   selector: 'nostr-choose-password',
@@ -36,6 +37,9 @@ export class ChoosePasswordComponent implements OnInit {
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
+
+  @Output()
+  validSubmit = new EventEmitter<ICreatingAccount>();
 
   constructor(
     private fb: FormBuilder,
@@ -89,6 +93,8 @@ export class ChoosePasswordComponent implements OnInit {
   onSubmit(): void {
     this.submitted = true;
     if (this.encryptedNsecForm.valid) {
+      const raw = this.encryptedNsecForm.getRawValue();
+      this.validSubmit.next(raw)
       this.changeStep.next('createNsecAndNcryptsec');
     }
   }

@@ -1,4 +1,4 @@
 export interface ICreatingAccount {
-  displayName?: string;
-  password?: string;
+  displayName?: string | null;
+  password?: string | null;
 }

@@ -30,7 +30,7 @@
     </ng-container>
   </div>
 
-  <div class="buttonGroup">
+  <footer class="buttonGroup">
     <button type="submit" tabindex="2" title="authenticate" class="actionButton button secondary iconedButton">
       <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
       <nostr-loading *ngIf="loading"></nostr-loading>
@@ -48,5 +48,5 @@
         Back
       </span>
     </button>
-  </div>
+  </footer>
 </form>

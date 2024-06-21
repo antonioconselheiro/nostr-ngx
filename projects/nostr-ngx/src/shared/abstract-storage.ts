@@ -26,12 +26,12 @@ export abstract class AbstractStorage<T extends object> {
     this.setItem(JSON.stringify(configs));
   }
 
-  update(updater: (configs: T) => T) {
+  update(updater: (configs: T) => T): void {
     const local = this.read();
     this.save(updater(local));
   }
 
-  async asyncUpdate(updater: (configs: T) => Promise<T>) {
+  async asyncUpdate(updater: (configs: T) => Promise<T>): Promise<void> {
     const local = this.read();
     const updatedLocal = await updater(local);
     this.save(updatedLocal);

@@ -1,11 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { generateSecretKey, nip19 } from 'nostr-tools';
+import { TNostrSecret } from '@belomonte/nostr-ngx';
 import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
-import { QrcodeCredentialService } from '../../../qrcode-credential/qrcode-credential.service';
+import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
-import { TNostrSecret } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-create-nsec',
@@ -30,7 +29,7 @@ export class CreateNsecComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private nostrSigner: NostrSigner,
-    private qrcodeCredentialService: QrcodeCredentialService,
+    private qrcodeService: QrcodeService,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -61,8 +60,8 @@ export class CreateNsecComponent implements OnInit {
       return;
     }
 
-    this.qrcodeCredentialService
-      .nsecQRCode(nsec, qrcodeTitle)
+    this.qrcodeService
+      .qrcodefy(nsec, qrcodeTitle)
       .then(qrcode => this.nsecQRCode = qrcode);
   }
 
@@ -74,7 +73,8 @@ export class CreateNsecComponent implements OnInit {
 
   downloadQrcode(): void {
     const qrcodeTitle = this.generateNsecForm.get('qrcodeTitle')?.value;
-    this.fileManagerService.save(this.nsecQRCode, this.qrcodeCredentialService.generateFileName(qrcodeTitle));
+    const filename = this.qrcodeService.generateFileName(`nsec qrcode - ${qrcodeTitle}`);
+    this.fileManagerService.save(this.nsecQRCode, filename);
   }
 
   login(): void {

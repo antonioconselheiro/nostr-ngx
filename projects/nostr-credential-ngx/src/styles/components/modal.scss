@@ -1,0 +1,40 @@
+.modal {
+  margin: 0 auto;
+  display: block;
+  width: 600px;
+  background-color: var(--base);
+  border-radius: var(--modalBorderRadius);
+
+  header {
+    padding: .75rem;
+    display: flex;
+    align-items: center;
+
+    h1 {
+      margin-left: 1rem;
+    }
+  }
+
+  > modal-outlet {
+    display: flex;
+    max-height: calc(100vh - 100px);
+    overflow: auto;
+    padding: 1rem;
+
+    h2 {
+      flex: 0 0 23px;
+    }
+
+    form {
+      position: relative;
+      flex: 1 1 100%;
+      overflow: auto;
+      max-height: calc(100vh - 165px);
+
+      ~ footer.buttonGroup {
+        background-color: var(--base);
+        flex: 0 0 56px;
+      }
+    }
+  }
+}

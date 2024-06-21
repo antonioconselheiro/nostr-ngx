@@ -39,7 +39,7 @@
     <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode />
   </div>
 
-  <div class="buttonGroup">
+  <footer class="buttonGroup">
     <button (click)="changeStep.next('selectAccount')" type="button" tabindex="13" title="back"
       class="actionButton button secondary iconedButton">
       <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
@@ -66,5 +66,5 @@
         Next
       </span>
     </button>
-  </div>
+  </footer>
 </form>
