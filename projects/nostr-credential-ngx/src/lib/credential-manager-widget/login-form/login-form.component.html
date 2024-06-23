@@ -1,17 +1,17 @@
 <h2 class="title">Login</h2>
-<form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off">
+<form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off" id="accountForm">
   <div [class.error]="submitted && getFormControlErrors('nostrSecret')" class="floatingLabel">
-    <input #nostrSecret required name="nostrSecret" tabindex="11" maxlength="64" formControlName="nostrSecret" placeholder=" "
+    <input #nostrSecret required name="nostrSecret" maxlength="64" formControlName="nostrSecret" placeholder=" "
       id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showNostrSecret ? 'text' : 'password'" />
     <label for="addAccountNsecField">nsec</label>
 
-    <button type="button" tabindex="17" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
+    <button type="button" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
       class="bordered svgButton">
 
       <nostr-svg-render name="scanQrcode"></nostr-svg-render>
     </button>
 
-    <button type="button" tabindex="18" [attr.title]="showNostrSecret ? 'hide nsec' : 'show nsec'"
+    <button type="button" [attr.title]="showNostrSecret ? 'hide nsec' : 'show nsec'"
       (click)="showNostrSecret = !showNostrSecret" class="bordered svgButton">
 
       <nostr-svg-render [name]="showNostrSecret ? 'eyeOff' : 'eye'"></nostr-svg-render>
@@ -35,19 +35,19 @@
 
   <div class="nostrCheckWrapper">
     <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
-      tabindex="12" class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
+     class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
     <label for="saveNostrSecretEncrypted">Remember account (encrypted, require password)</label>
   </div>
 
   <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
     class="floatingLabel passwordField">
 
-    <input #password required name="password" tabindex="13" [maxlength]="passwordLength" formControlName="password" placeholder=" "
+    <input #password required name="password" [maxlength]="passwordLength" formControlName="password" placeholder=" "
       id="addAccountPasswordField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showPassword ? 'text' : 'password'" />
 
     <label for="addAccountPasswordField">Password</label>
 
-    <button type="button" tabindex="19" [attr.title]="showPassword ? 'hide password' : 'show password'"
+    <button type="button" [attr.title]="showPassword ? 'hide password' : 'show password'"
       (click)="showPassword = !showPassword" class="bordered svgButton">
 
       <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
@@ -59,24 +59,24 @@
       </span>
     </ng-container>
   </div>
-
-  <footer class="buttonGroup">
-    <button *ngIf="accounts.length" type="button" tabindex="14" title="back" (click)="changeStep.next('selectAccount')"
-      class="button secondary iconedButton">
-      <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
-
-      <span>
-        Back
-      </span>
-    </button>
-
-    <button type="submit" tabindex="15" title="login" class="button iconedButton">
-      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="right"></nostr-svg-render>
-      <nostr-loading *ngIf="loading"></nostr-loading>
-
-      <span>
-        Login
-      </span>
-    </button>
-  </footer>
 </form>
+
+<footer class="buttonGroup">
+  <button *ngIf="accounts.length" type="button" title="back" (click)="changeStep.next('selectAccount')"
+    class="button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+    <span>
+      Back
+    </span>
+  </button>
+
+  <button type="submit" title="login" class="button iconedButton" form="accountForm">
+    <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="right"></nostr-svg-render>
+    <nostr-loading *ngIf="loading"></nostr-loading>
+
+    <span>
+      Login
+    </span>
+  </button>
+</footer>

@@ -2,34 +2,37 @@
 
 <form [formGroup]="generateNcryptsecForm" id="generateNcryptsecForm" novalidate autocomplete="off">
   <div class="floatingLabel">
-    <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle" id="generateNsecQRCodeTitleField"
-      type="text" placeholder=" " tabindex="10" listenTypingComplete (typingCompleted)="renderQrcode()" />
+    <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
+      id="generateNsecQRCodeTitleField" type="text" placeholder=" " listenTypingComplete
+      (typingCompleted)="renderQrcode()" />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
   <div class="floatingLabel">
-    <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField"
-      readonly type="text" placeholder=" " tabindex="11" />
+    <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField" readonly
+      [attr.type]="showNsec ? 'text' : 'password'" placeholder=" " />
     <label for="generateNsecField">nsec</label>
 
-    <button (click)="copyNsec()" type="button" tabindex="12" title="copy nsec"
-      class="bordered svgButton">
+    <button type="button" [attr.title]="showNsec ? 'hide nsec' : 'show nsec'"
+      (click)="showNsec = !showNsec" class="bordered svgButton">
+      <nostr-svg-render [name]="showNsec ? 'eyeOff' : 'eye'"></nostr-svg-render>
+    </button>
+
+    <button (click)="copyNsec()" type="button" title="copy nsec" class="bordered svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>
     </button>
 
-    <button (click)="generateNsec()" type="button" tabindex="16" title="generate new nsec"
-      class="bordered svgButton">
+    <button (click)="generateNsec()" type="button" title="generate new nsec" class="bordered svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
   </div>
 
   <div class="floatingLabel">
-    <input #ncryptsec name="ncryptsec" maxlength="64" formControlName="ncryptsec" id="ncryptsecField"
-      readonly type="text" placeholder=" " tabindex="11" />
+    <input #ncryptsec name="ncryptsec" maxlength="64" formControlName="ncryptsec" id="ncryptsecField" readonly
+      type="text" placeholder=" " />
     <label for="ncryptsecField">ncryptsec</label>
 
-    <button (click)="copyNcryptsec()" type="button" tabindex="12" title="copy ncryptsec"
-      class="bordered svgButton">
+    <button (click)="copyNcryptsec()" type="button" title="copy ncryptsec" class="bordered svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>
     </button>
   </div>
@@ -40,7 +43,7 @@
 </form>
 
 <footer class="buttonGroup">
-  <button (click)="changeStep.next('selectAccount')" type="button" tabindex="13" title="back"
+  <button (click)="changeStep.next('selectAccount')" type="button" title="back"
     class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
@@ -49,7 +52,7 @@
     </span>
   </button>
 
-  <button (click)="downloadQrcode()" type="button" tabindex="14" title="download"
+  <button (click)="downloadQrcode()" type="button" title="download"
     class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="download"></nostr-svg-render>
 
@@ -58,7 +61,7 @@
     </span>
   </button>
 
-  <button (click)="changeStep.next('relayManager')" type="button" tabindex="15" title="next"
+  <button (click)="changeStep.next('relayManager')" type="button" title="next"
     class="actionButton button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 

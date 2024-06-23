@@ -21,19 +21,13 @@
     overflow: auto;
     padding: 1rem;
 
-    h2 {
-      flex: 0 0 23px;
-    }
-
     form {
       position: relative;
-      flex: 1 1 100%;
       overflow: auto;
       max-height: calc(100vh - 165px);
 
       ~ footer.buttonGroup {
         background-color: var(--base);
-        flex: 0 0 56px;
       }
     }
   }

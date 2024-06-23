@@ -12,14 +12,14 @@
   </div>
 </section>
 
-<form [formGroup]="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
+<form [formGroup]="authenticateForm" id="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
   <div [class.error]="showErrors()" class="floatingLabel">
-    <input #password name="password" tabindex="1" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
+    <input #password name="password" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
       [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
 
     <label for="authenticatePasswordField">Password</label>
 
-    <button type="button" tabindex="4" [attr.title]="showPassword ? 'hide password' : 'show password'"
+    <button type="button" [attr.title]="showPassword ? 'hide password' : 'show password'"
      (click)="showPassword = !showPassword" class="bordered svgButton">
       <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
@@ -29,24 +29,24 @@
       <span *ngIf="getFormControlErrorStatus('invalid')" class="error">Invalid password, nsec could not be open</span>
     </ng-container>
   </div>
-
-  <footer class="buttonGroup">
-    <button type="submit" tabindex="2" title="authenticate" class="actionButton button secondary iconedButton">
-      <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
-      <nostr-loading *ngIf="loading"></nostr-loading>
-
-      <span>
-        Authenticate
-      </span>
-    </button>
-
-    <button (click)="changeStep.next('selectAccount')" type="button" tabindex="3" title="back"
-      class="actionButton button secondary iconedButton">
-      <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
-
-      <span>
-        Back
-      </span>
-    </button>
-  </footer>
 </form>
+
+<footer class="buttonGroup">
+  <button type="submit" title="authenticate" class="actionButton button secondary iconedButton" form="authenticateForm">
+    <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
+    <nostr-loading *ngIf="loading"></nostr-loading>
+
+    <span>
+      Authenticate
+    </span>
+  </button>
+
+  <button (click)="changeStep.next('selectAccount')" type="button" title="back"
+    class="actionButton button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+    <span>
+      Back
+    </span>
+  </button>
+</footer>

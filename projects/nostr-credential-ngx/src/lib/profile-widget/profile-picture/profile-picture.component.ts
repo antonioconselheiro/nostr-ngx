@@ -11,9 +11,6 @@ export class ProfilePictureComponent {
   static defaultPicture = '/assets/profile/default-profile.png'; 
 
   @Input()
-  tabindex?: number;
-
-  @Input()
   profile: IProfilePicture | null = null;
 
   @Input()

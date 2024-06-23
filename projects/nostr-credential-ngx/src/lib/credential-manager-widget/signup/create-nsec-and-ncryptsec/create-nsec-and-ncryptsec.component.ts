@@ -20,7 +20,7 @@ export class CreateNsecAndNcryptsecComponent {
   @Input()
   creatingAccount: ICreatingAccount | null = null;
 
-  showNsec = true;
+  showNsec = false;
   submitted = false;
 
   ncryptsecQRCode = '';
@@ -50,7 +50,7 @@ export class CreateNsecAndNcryptsecComponent {
     this.generateNcryptsecForm = this.fb.group({
       qrcodeTitle: [this.creatingAccount?.displayName],
       nsec: [nsec],
-      ncryptsec: [ncryptsec],
+      ncryptsec: [ncryptsec]
     });
 
     this.renderQrcode();
