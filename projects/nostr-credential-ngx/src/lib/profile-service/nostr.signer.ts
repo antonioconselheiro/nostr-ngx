@@ -5,6 +5,8 @@ import * as nip49 from 'nostr-tools/nip49';
 
 /**
  * Sign Nostr Event according to user authentication settings
+ * 
+ * TODO: test it with NIP-55
  */
 @Injectable({
   providedIn: 'root'
