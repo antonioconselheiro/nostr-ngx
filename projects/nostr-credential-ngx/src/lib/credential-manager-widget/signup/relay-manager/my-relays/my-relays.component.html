@@ -1,1 +1,80 @@
-<p>my-relays works!</p>
+<h2 class="title">Relay Manager</h2>
+<h3 class="title">Relays are independent nostr servers, choose where do you wanna post.</h3>
+
+<form [formGroup]="myRelaysForm" id="generateNcryptsecForm" novalidate autocomplete="off">
+  <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
+  <div class="floatingLabel">
+    <select name="relaysFrom" formControlName="relaysFrom" id="myRelaysRelaysFrom">
+      <option value="public">Publically</option>
+      <option value="localStorage">In browser</option>
+      <option value="signer">Signer Extension</option>
+    </select>
+
+    <label for="myRelaysRelaysFrom">Use relays from</label>
+  </div>
+
+  <ul>
+    <li>wss://nos.lol (cache)</li>
+  </ul>
+
+  <div class="floatingLabel">
+    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" />
+    <label for="myRelaysNewRelay">New relay</label>
+
+    <button type="button" title="connect" class="bordered svgButton">
+      <nostr-svg-render name="plugConnected"></nostr-svg-render>
+    </button>
+  </div>
+
+  <ul>
+    <li>wss://nos.lol (cache)</li>
+  </ul>
+
+  <div class="floatingLabel">
+    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewCacheRelay" />
+    <label for="myRelaysNewCacheRelay">New cache relay</label>
+
+    <button type="button" title="connect" class="bordered svgButton">
+      <nostr-svg-render name="plugConnected"></nostr-svg-render>
+    </button>
+  </div>
+</form>
+
+<footer class="buttonGroup">
+  <button (click)="changeStep.next('selectAccount')" type="button" title="back"
+    class="actionButton button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+    <span>
+      Cancel
+    </span>
+  </button>
+
+  <button type="button" title="download"
+    class="actionButton button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="search"></nostr-svg-render>
+
+    <span>
+      Search Relays
+    </span>
+  </button>
+  
+
+  <!--
+  TODO: se não houver nenhum relay configurado:
+  deve haver um botão "Use default", como primary, ele deve preencher os
+  relays com um conjunto de relays definidso como padrão para a aplicação.
+  O botão "save" não deve ser exibido
+
+  se houver relays configurados:
+  o botão use default deve se tornar secondary e o botão para salvar deve estar como primary ao lado
+  -->
+  <button (click)="changeStep.next('registerAccount')" type="button" title="next"
+    class="actionButton button iconedButton" form="generateNcryptsecForm">
+    <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
+
+    <span>
+      Save
+    </span>
+  </button>
+</footer>
