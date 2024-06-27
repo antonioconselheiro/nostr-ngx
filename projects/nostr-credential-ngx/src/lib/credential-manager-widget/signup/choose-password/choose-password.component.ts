@@ -3,7 +3,7 @@ import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators
 import { TNcryptsec } from '@belomonte/nostr-ngx';
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
-import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TAuthModalSteps } from '../../auth-modal-steps.type';
 import { TChoosePasswordFields } from './choose-password-fields.type';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
 
@@ -36,7 +36,7 @@ export class ChoosePasswordComponent implements OnInit {
   }>;
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
   validSubmit = new EventEmitter<ICreatingAccount>();

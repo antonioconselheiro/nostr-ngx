@@ -1,1 +1,1 @@
-export type AuthModalSteps = 'login' | 'selectAccount' | 'authenticate' | 'choosePassword' | 'createNsec' | 'createNsecAndNcryptsec' | 'relayManager' | 'registerAccount' | 'downloadSigner';
+export type TAuthModalSteps = 'login' | 'selectAccount' | 'authenticate' | 'choosePassword' | 'createNsec' | 'createNsecAndNcryptsec' | 'relayManager' | 'registerAccount' | 'downloadSigner';

@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AuthModalSteps } from '../../../auth-modal-steps.type';
+import { TAuthModalSteps } from '../../../auth-modal-steps.type';
 import { NostrSigner } from '../../../../profile-service/nostr.signer';
+import { TRelayManagerSteps } from '../relay-manager-steps.type';
 
 @Component({
   selector: 'nostr-my-relays',
@@ -11,7 +12,10 @@ import { NostrSigner } from '../../../../profile-service/nostr.signer';
 export class MyRelaysComponent {
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
+
+  @Output()
+  changeRelayStep = new EventEmitter<TRelayManagerSteps>();
 
   myRelaysForm!: FormGroup<{
     relaysFrom: FormControl<string | null>;
@@ -29,7 +33,7 @@ export class MyRelaysComponent {
 
   private initForm(): void {
     this.myRelaysForm = this.fb.group({
-      relaysFrom: [''],
+      relaysFrom: ['public'],
       newRelay: ['']
     });
   }

@@ -4,7 +4,7 @@ import { TNostrSecret } from '@belomonte/nostr-ngx';
 import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
-import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TAuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-create-nsec',
@@ -24,7 +24,7 @@ export class CreateNsecComponent implements OnInit {
   }>;
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 
   constructor(
     private fb: FormBuilder,

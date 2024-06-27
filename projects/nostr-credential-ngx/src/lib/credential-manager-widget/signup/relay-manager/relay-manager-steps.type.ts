@@ -1,0 +1,1 @@
+export type TRelayManagerSteps = 'myRelays' | 'relaySearch' | 'relayDetails';

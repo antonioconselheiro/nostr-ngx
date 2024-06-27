@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TAuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-register-account',
@@ -7,5 +7,5 @@ import { AuthModalSteps } from '../../auth-modal-steps.type';
 })
 export class RegisterAccountComponent {
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 }

@@ -19,7 +19,7 @@ export class QrcodeService {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.setAttribute('height', '420px');
+    canvas.setAttribute('height', '430px');
     canvas.setAttribute('width', '420px');
 
     if (ctx) {

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { TRelayManagerSteps } from './relay-manager-steps.type';
+import { TAuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-relay-manager',
@@ -7,5 +8,7 @@ import { AuthModalSteps } from '../../auth-modal-steps.type';
 })
 export class RelayManagerComponent {
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
+
+  currentStep: TRelayManagerSteps = 'myRelays';
 }

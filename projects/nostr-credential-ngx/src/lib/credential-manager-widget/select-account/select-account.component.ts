@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
 @Component({
@@ -14,7 +14,7 @@ export class SelectAccountComponent {
   accounts: IUnauthenticatedUser[] = [];
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
   selected = new EventEmitter<IUnauthenticatedUser>();

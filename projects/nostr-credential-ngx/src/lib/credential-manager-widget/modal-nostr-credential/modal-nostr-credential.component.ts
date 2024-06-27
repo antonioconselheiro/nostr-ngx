@@ -4,7 +4,7 @@ import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
 
@@ -25,7 +25,7 @@ export class ModalNostrCredentialComponent
 
   authenticatingAccount: IUnauthenticatedUser | null = null;
   creatingAccount: ICreatingAccount | null = null;
-  currentStep: AuthModalSteps | null = null;
+  currentStep: TAuthModalSteps | null = null;
 
   constructor(
     private accountManagerStatefull: AccountManagerStatefull
@@ -44,7 +44,7 @@ export class ModalNostrCredentialComponent
     }));
   }
 
-  onChangeStep(step: AuthModalSteps): void {
+  onChangeStep(step: TAuthModalSteps): void {
     // let a tick to the screen click effect
     setTimeout(() => this.currentStep = step);
   }

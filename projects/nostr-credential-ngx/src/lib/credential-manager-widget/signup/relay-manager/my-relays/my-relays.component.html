@@ -1,5 +1,6 @@
 <h2 class="title">Relay Manager</h2>
-<h3 class="title">Relays are independent nostr servers, choose where do you wanna post.</h3>
+<h3 class="title">Relays are independent nostr servers.</h3>
+<h3 class="title">Choose more than one relay makes you cool.</h3>
 
 <form [formGroup]="myRelaysForm" id="generateNcryptsecForm" novalidate autocomplete="off">
   <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
@@ -7,19 +8,34 @@
     <select name="relaysFrom" formControlName="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
       <option value="public">Publically</option>
       <option value="localStorage">In browser</option>
+      <!-- TODO: analisar qual será o fluxo para quando esta opção é selecionada  -->
       <option value="signer">Signer Extension</option>
     </select>
 
     <label for="myRelaysRelaysFrom">Use relays from</label>
   </div>
 
-  <ul>
-    <li>wss://nos.lol (cache)</li>
-  </ul>
+  <p>Click connect to add relays.</p>
+
+  <table>
+    <tr>
+      <td>wss://nos.lol (cache)</td>
+      <td>o</td>
+    </tr>
+  </table>
 
   <div class="floatingLabel">
     <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" placeholder=" " />
     <label for="myRelaysNewRelay">New relay</label>
+
+    <button type="button" title="connect" class="bordered svgButton">
+      <nostr-svg-render name="plugConnected"></nostr-svg-render>
+    </button>
+  </div>
+
+  <div class="floatingLabel">
+    <input type="text" name="newCacheRelay" formControlName="newCacheRelay" id="myRelaysNewCacheRelay" placeholder=" " />
+    <label for="myRelaysNewCacheRelay">New cache relay</label>
 
     <button type="button" title="connect" class="bordered svgButton">
       <nostr-svg-render name="plugConnected"></nostr-svg-render>

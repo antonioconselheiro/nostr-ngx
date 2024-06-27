@@ -8,7 +8,7 @@ import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 import { NostrSigner } from '../../profile-service/nostr.signer';
 import { ProfileProxy } from '../../profile-service/profile.proxy';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 import { TLoginFormFields } from './login-form-fields.type';
 
@@ -28,7 +28,7 @@ export class LoginFormComponent implements OnInit {
   accounts: IUnauthenticatedUser[] = [];
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
   selected = new EventEmitter<IUnauthenticatedUser>();

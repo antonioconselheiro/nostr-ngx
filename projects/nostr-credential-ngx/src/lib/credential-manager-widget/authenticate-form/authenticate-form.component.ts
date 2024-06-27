@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticatedProfileObservable } from '../../profile-service/authenticated-profile.observable';
 import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
-import { AuthModalSteps } from '../auth-modal-steps.type';
+import { TAuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-authenticate-form',
@@ -15,7 +15,7 @@ export class AuthenticateFormComponent implements OnInit, AfterViewInit {
   account: IUnauthenticatedUser | null = null;
 
   @Output()
-  changeStep = new EventEmitter<AuthModalSteps>();
+  changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
   close = new EventEmitter<void>();
