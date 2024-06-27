@@ -44,7 +44,6 @@
 ///   <span class="error">nsec is required</span>
 /// </div>
 /// ```
-
 .floatingLabel {
   display: flex;
   align-items: center;
@@ -88,7 +87,7 @@
     width: 100%;
     padding: 10px;
     border-radius: 15px;
-    background-color: var(--base);
+    background-color: transparent;
     color: var(--contrast);
     outline: none;
     margin-top: 1rem;
@@ -96,25 +95,46 @@
     box-sizing: border-box;
     border: 0;
 
-    &:focus + label,
-    &:not(:placeholder-shown) + label {
+    &:focus+label,
+    &:not(:placeholder-shown)+label {
       top: 4px;
       left: 20px;
       font-size: 13px;
       color: var(--contrast);
     }
 
-    option:checked,
-    option:hover {
-      box-shadow: 0 0 10px 100px var(--primary) inset;
+    &:focus+label {
+      color: var(--primary);
     }
   }
 
-  select:after {
+  select {
+    appearance: none;
+
+    option {
+      background-color: var(--base);
+    }
+  }
+
+  &:has(> select):after {
     content: '';
     width: 22.5px;
     height: 22.5px;
-    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path></g></svg>');
+    background-color: var(--lowContrast);
+    mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="currentColor" stroke-width="1" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3.543 9.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path></g></svg>');
+    display: block;
+    position: absolute;
+    right: 1rem;
+    pointer-events: none;
+  }
+
+  &:focus-within {
+    border-color: transparent;
+    box-shadow: 0 0 0 2px inset var(--primary);
+
+    &:has(> select):after {
+      background-color: var(--primary);
+    }
   }
 
   .svgButton {

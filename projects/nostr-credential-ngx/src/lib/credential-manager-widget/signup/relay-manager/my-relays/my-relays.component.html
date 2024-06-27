@@ -4,7 +4,7 @@
 <form [formGroup]="myRelaysForm" id="generateNcryptsecForm" novalidate autocomplete="off">
   <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
   <div class="floatingLabel">
-    <select name="relaysFrom" formControlName="relaysFrom" id="myRelaysRelaysFrom">
+    <select name="relaysFrom" formControlName="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
       <option value="public">Publically</option>
       <option value="localStorage">In browser</option>
       <option value="signer">Signer Extension</option>
@@ -18,7 +18,7 @@
   </ul>
 
   <div class="floatingLabel">
-    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" />
+    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" placeholder=" " />
     <label for="myRelaysNewRelay">New relay</label>
 
     <button type="button" title="connect" class="bordered svgButton">
@@ -26,18 +26,6 @@
     </button>
   </div>
 
-  <ul>
-    <li>wss://nos.lol (cache)</li>
-  </ul>
-
-  <div class="floatingLabel">
-    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewCacheRelay" />
-    <label for="myRelaysNewCacheRelay">New cache relay</label>
-
-    <button type="button" title="connect" class="bordered svgButton">
-      <nostr-svg-render name="plugConnected"></nostr-svg-render>
-    </button>
-  </div>
 </form>
 
 <footer class="buttonGroup">

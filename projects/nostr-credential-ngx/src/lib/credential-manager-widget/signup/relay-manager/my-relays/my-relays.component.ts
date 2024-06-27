@@ -15,6 +15,7 @@ export class MyRelaysComponent {
 
   myRelaysForm!: FormGroup<{
     relaysFrom: FormControl<string | null>;
+    newRelay: FormControl<string | null>;
   }>;
 
   constructor(
@@ -28,7 +29,8 @@ export class MyRelaysComponent {
 
   private initForm(): void {
     this.myRelaysForm = this.fb.group({
-      relaysFrom: ['']
+      relaysFrom: [''],
+      newRelay: ['']
     });
   }
 }

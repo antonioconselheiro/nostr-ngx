@@ -50,7 +50,8 @@ button.svgButton {
   &:not([disabled]) {
 
     &:hover,
-    &:active {
+    &:active,
+    &:focus {
       &.bordered {
         border: 1px solid var(--primary); 
       }
