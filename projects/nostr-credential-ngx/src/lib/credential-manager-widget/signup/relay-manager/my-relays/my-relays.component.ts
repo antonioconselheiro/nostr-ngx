@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { NostrSigner } from '@belomonte/nostr-credential-ngx';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
+import { NostrSigner } from '../../../../profile-service/nostr.signer';
 
 @Component({
   selector: 'nostr-my-relays',

@@ -83,7 +83,8 @@
     color: var(--lowContrast);
   }
 
-  input {
+  input,
+  select {
     width: 100%;
     padding: 10px;
     border-radius: 15px;
@@ -102,6 +103,18 @@
       font-size: 13px;
       color: var(--contrast);
     }
+
+    option:checked,
+    option:hover {
+      box-shadow: 0 0 10px 100px var(--primary) inset;
+    }
+  }
+
+  select:after {
+    content: '';
+    width: 22.5px;
+    height: 22.5px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" aria-hidden="true"><g><path d="M3.543 8.96l1.414-1.42L12 14.59l7.043-7.05 1.414 1.42L12 17.41 3.543 8.96z"></path></g></svg>');
   }
 
   .svgButton {
