@@ -95,12 +95,19 @@
     box-sizing: border-box;
     border: 0;
 
-    &:focus+label,
-    &:not(:placeholder-shown)+label {
-      top: 4px;
-      left: 20px;
-      font-size: 13px;
-      color: var(--contrast);
+    &:not(select):focus,
+    &:not(select):not(:placeholder-shown),
+    &:has(> option:checked) {
+      + label {
+        top: 4px;
+        left: 20px;
+        font-size: 13px;
+        color: var(--contrast);
+      }
+
+      &:focus + label {
+        color: var(--primary);
+      }
     }
 
     &:focus+label {
