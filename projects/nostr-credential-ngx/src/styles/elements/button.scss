@@ -1,8 +1,10 @@
-// FIXME: a biblioteca não deve exportar scss sem classes, diretamente nos elementos
+//  FIXME: a biblioteca não deve exportar scss sem classes, diretamente nos elementos
+//  FIXME: o botão para remover relay usa apenas essas implementações, portanto deve ter uma classe independente
 button {
   border: 0;
   background-color: transparent;
   -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 
   &:hover,
   &:active,

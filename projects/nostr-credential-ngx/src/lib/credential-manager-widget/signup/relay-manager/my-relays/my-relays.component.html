@@ -12,32 +12,40 @@
       <option value="signer">Signer Extension</option>
     </select>
 
-    <label for="myRelaysRelaysFrom">Use relays from</label>
+    <label for="myRelaysRelaysFrom">Save relays</label>
   </div>
 
   <p>Click connect to add relays.</p>
 
-  <table>
-    <tr>
-      <td>wss://nos.lol (cache)</td>
-      <td>o</td>
-    </tr>
-  </table>
+  <ul class="relayList">
+    <li *ngFor="let relay of listRelays()" class="connected">
+      <a>{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
+      <button (click)="removeRelay(relay.relay)" type="button">✕</button>
+    </li>
+  </ul>
 
   <div class="floatingLabel">
-    <input type="text" name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" placeholder=" " />
+    <input type="text" #myRelaysNewRelay name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" placeholder=" " />
     <label for="myRelaysNewRelay">New relay</label>
 
-    <button type="button" title="connect" class="bordered svgButton">
+    <button type="button" title="info" class="bordered svgButton">
+      <nostr-svg-render name="info"></nostr-svg-render>
+    </button>
+
+    <button type="button" (click)="connect(myRelaysNewRelay.value)" title="connect" class="bordered svgButton">
       <nostr-svg-render name="plugConnected"></nostr-svg-render>
     </button>
   </div>
 
   <div class="floatingLabel">
-    <input type="text" name="newCacheRelay" formControlName="newCacheRelay" id="myRelaysNewCacheRelay" placeholder=" " />
+    <input type="text" #myRelaysNewCacheRelay name="newCacheRelay" formControlName="newCacheRelay" id="myRelaysNewCacheRelay" placeholder=" " />
     <label for="myRelaysNewCacheRelay">New cache relay</label>
 
-    <button type="button" title="connect" class="bordered svgButton">
+    <button type="button" title="info" class="bordered svgButton">
+      <nostr-svg-render name="info"></nostr-svg-render>
+    </button>
+
+    <button type="button" (click)="connectCache(myRelaysNewCacheRelay.value)" title="connect" class="bordered svgButton">
       <nostr-svg-render name="plugConnected"></nostr-svg-render>
     </button>
   </div>

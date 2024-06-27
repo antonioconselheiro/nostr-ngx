@@ -11,4 +11,6 @@ export class RelayManagerComponent {
   changeStep = new EventEmitter<TAuthModalSteps>();
 
   currentStep: TRelayManagerSteps = 'myRelays';
+
+  relayDetail?: string;
 }
