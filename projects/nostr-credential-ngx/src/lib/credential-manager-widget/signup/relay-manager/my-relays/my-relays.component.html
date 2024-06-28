@@ -2,10 +2,32 @@
 <h3 class="title">Relays are independent nostr servers.</h3>
 <h3 class="title">Choose more than one relay makes you cool.</h3>
 
-<form [formGroup]="myRelaysForm" id="generateNcryptsecForm" novalidate autocomplete="off">
+<form novalidate autocomplete="off">
   <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
+  <ul class="relayList">
+    <li *ngFor="let relay of listRelays()" class="connected">
+      <a>{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
+      <button (click)="removeRelay(relay.relay)" type="button">✕</button>
+    </li>
+  </ul>
+
   <div class="floatingLabel">
-    <select name="relaysFrom" formControlName="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
+    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
+    <label for="myRelaysNewRelay">{{relayWritable ? 'New publishable relay' : 'New readonly relay'}}</label>
+
+    <button type="button" [attr.title]="relayWritable ? 'set as readonly' : 'set as writable'"
+      (click)="relayWritable = !relayWritable" class="bordered svgButton">
+
+      <nostr-svg-render [name]="relayWritable ? 'readonly' : 'writable'"></nostr-svg-render>
+    </button>
+
+    <button type="button" (click)="connect(myRelaysNewRelay.value)" title="connect" class="bordered svgButton">
+      <nostr-svg-render name="plugConnected"></nostr-svg-render>
+    </button>
+  </div>
+
+  <div class="floatingLabel">
+    <select #myRelaysRelaysFrom name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
       <option value="public">Publically</option>
       <option value="localStorage">In browser</option>
       <!-- TODO: analisar qual será o fluxo para quando esta opção é selecionada  -->
@@ -15,39 +37,16 @@
     <label for="myRelaysRelaysFrom">Save relays</label>
   </div>
 
-  <p>Click connect to add relays.</p>
-
-  <ul class="relayList">
-    <li *ngFor="let relay of listRelays()" class="connected">
-      <a>{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
-      <button (click)="removeRelay(relay.relay)" type="button">✕</button>
-    </li>
-  </ul>
-
-  <div class="floatingLabel">
-    <input type="text" #myRelaysNewRelay name="newRelay" formControlName="newRelay" id="myRelaysNewRelay" placeholder=" " />
-    <label for="myRelaysNewRelay">New relay</label>
-
-    <button type="button" title="info" class="bordered svgButton">
-      <nostr-svg-render name="info"></nostr-svg-render>
-    </button>
-
-    <button type="button" (click)="connect(myRelaysNewRelay.value)" title="connect" class="bordered svgButton">
-      <nostr-svg-render name="plugConnected"></nostr-svg-render>
-    </button>
-  </div>
-
-  <div class="floatingLabel">
-    <input type="text" #myRelaysNewCacheRelay name="newCacheRelay" formControlName="newCacheRelay" id="myRelaysNewCacheRelay" placeholder=" " />
-    <label for="myRelaysNewCacheRelay">New cache relay</label>
-
-    <button type="button" title="info" class="bordered svgButton">
-      <nostr-svg-render name="info"></nostr-svg-render>
-    </button>
-
-    <button type="button" (click)="connectCache(myRelaysNewCacheRelay.value)" title="connect" class="bordered svgButton">
-      <nostr-svg-render name="plugConnected"></nostr-svg-render>
-    </button>
+  <div>
+    <p *ngIf="myRelaysRelaysFrom.value === 'public'">
+      <strong>Publically</strong>: saves your relays inside your choosen relays
+    </p>
+    <p *ngIf="myRelaysRelaysFrom.value === 'localStorage'">
+      <strong>In browser</strong>: save your relays in this browser
+    </p>
+    <p *ngIf="myRelaysRelaysFrom.value === 'signer'">
+      <strong>Signer Extension</strong>: don't save relays, use relays from nostr signer extension
+    </p>
   </div>
 
 </form>
@@ -62,7 +61,7 @@
     </span>
   </button>
 
-  <button type="button" title="download"
+  <button type="button" title="search relays"
     class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="search"></nostr-svg-render>
 
