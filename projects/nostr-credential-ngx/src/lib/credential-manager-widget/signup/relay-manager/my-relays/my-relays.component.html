@@ -4,34 +4,46 @@
 
 <form novalidate autocomplete="off">
   <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
-  <ul *ngIf="relaysFrom !== 'signer'" class="relayList">
+
+  <div class="floatingLabel">
+    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
+    <label for="myRelaysNewRelay">{{relayWritable ? 'New publishable relay' : 'New readonly relay'}}</label>
+  </div>
+
+  <ul class="relayList">
     <li *ngFor="let relay of listRelays()" class="connected">
       <a>{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
       <button (click)="removeRelay(relay.relay)" type="button">✕</button>
     </li>
   </ul>
 
-  <div *ngIf="relaysFrom !== 'signer'" class="floatingLabel">
-    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
-    <label for="myRelaysNewRelay">{{relayWritable ? 'New publishable relay' : 'New readonly relay'}}</label>
+  <div class="buttonGroup">
+    <label role="button" for="relayWritable" (click)="relayWritable = !relayWritable"
+      [attr.title]="relayWritable ? 'set as readonly' : 'set as writable'"
+      class="actionButton button secondary iconedButton">
+      <input type="checkbox" name="relayWritable" />
+      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'writable' : 'readonly'"></nostr-svg-render>
 
-    <button type="button" [attr.title]="relayWritable ? 'set as readonly' : 'set as writable'"
-      (click)="relayWritable = !relayWritable" class="bordered svgButton">
+      <span>
+        {{relayWritable ? 'Set as readonly' : 'Set as writable'}}
+      </span>
+    </label>
 
-      <nostr-svg-render [name]="relayWritable ? 'readonly' : 'writable'"></nostr-svg-render>
+    <button type="button" (click)="connect(myRelaysNewRelay.value); myRelaysNewRelay.value = '';" title="connect"
+      class="actionButton button iconedButton">
+      <nostr-svg-render class="inlineIcon" name="plugConnected"></nostr-svg-render>
+
+      <span>
+        Connect
+      </span>
     </button>
-
-    <button type="button" (click)="connect(myRelaysNewRelay.value); myRelaysNewRelay.value = '';" title="connect" class="bordered svgButton">
-      <nostr-svg-render name="plugConnected"></nostr-svg-render>
-    </button>
+    <!--- TODO: incluir mensagem de erro no campo se connect for clicado com ele vazio -->
   </div>
 
   <div class="floatingLabel">
     <select [(ngModel)]="relaysFrom" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
       <option value="public">Publically</option>
       <option value="localStorage">In browser</option>
-      <!-- TODO: analisar qual será o fluxo para quando esta opção é selecionada  -->
-      <option value="signer">Signer Extension</option>
     </select>
 
     <label for="myRelaysRelaysFrom">Save relays</label>
@@ -44,11 +56,7 @@
     <p *ngIf="relaysFrom === 'localStorage'">
       <strong>In browser</strong>: save your relays in this browser
     </p>
-    <p *ngIf="relaysFrom === 'signer'">
-      <strong>Signer Extension</strong>: don't save relays, use relays from nostr signer extension
-    </p>
   </div>
-
 </form>
 
 <footer class="buttonGroup">
@@ -56,32 +64,30 @@
     class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
-    <span>
+    <span *ngIf="!listRelays().length">
       Cancel
     </span>
   </button>
 
-  <button type="button" title="search relays"
-    class="actionButton button secondary iconedButton">
+  <button type="button" title="search relays" class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="search"></nostr-svg-render>
 
     <span>
       Search Relays
     </span>
   </button>
-  
 
-  <!--
-  TODO: se não houver nenhum relay configurado:
-  deve haver um botão "Use default", como primary, ele deve preencher os
-  relays com um conjunto de relays definidso como padrão para a aplicação.
-  O botão "save" não deve ser exibido
-
-  se houver relays configurados:
-  o botão use default deve se tornar secondary e o botão para salvar deve estar como primary ao lado
-  -->
   <button (click)="changeStep.next('registerAccount')" type="button" title="save"
-    class="actionButton button iconedButton" form="generateNcryptsecForm">
+    [class.secondary]="listRelays().length" class="actionButton button iconedButton" form="generateNcryptsecForm">
+    <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
+
+    <span>
+      Use default
+    </span>
+  </button>
+
+  <button (click)="changeStep.next('registerAccount')" *ngIf="listRelays().length" type="button"
+    title="save" class="actionButton button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 
     <span>

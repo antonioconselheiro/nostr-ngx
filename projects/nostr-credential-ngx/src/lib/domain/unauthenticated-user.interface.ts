@@ -1,4 +1,5 @@
 import { TNcryptsec, TNostrPublic, TNip05 } from "@belomonte/nostr-ngx";
+import { RelayRecord } from "nostr-tools/relay";
 
 export interface IUnauthenticatedUser {
   npub: TNostrPublic;
@@ -12,4 +13,5 @@ export interface IUnauthenticatedUser {
   picture: string;
   nip05?: TNip05;
   nip05valid?: boolean;
+  relays?: RelayRecord;
 }
