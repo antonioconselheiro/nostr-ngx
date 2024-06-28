@@ -1,3 +1,15 @@
-<nostr-my-relays *ngIf="currentStep === 'myRelays'" (changeStep)="changeStep.next($event)"></nostr-my-relays>
-<nostr-relay-detail *ngIf="currentStep === 'relaySearch'" (changeStep)="changeStep.next($event)"></nostr-relay-detail>
-<nostr-relay-search *ngIf="currentStep === 'relayDetails' && relayDetail" (changeStep)="changeStep.next($event)"></nostr-relay-search>
+<nostr-my-relays
+  *ngIf="currentStep === 'myRelays'"
+  (relayDetail)="showRelayDetail($event)"
+  (changeStep)="changeStep.next($event)"
+></nostr-my-relays>
+<nostr-relay-search
+  *ngIf="currentStep === 'relaySearch'"
+  (relayDetail)="showRelayDetail($event)"
+  (changeStep)="changeStep.next($event)"
+></nostr-relay-search>
+<nostr-relay-detail
+  *ngIf="currentStep === 'relayDetails' && relayDetail"
+  (changeStep)="changeStep.next($event)"
+  [relayDetail]="relayDetail"
+></nostr-relay-detail>

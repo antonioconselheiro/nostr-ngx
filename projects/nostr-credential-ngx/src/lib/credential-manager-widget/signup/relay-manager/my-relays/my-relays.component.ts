@@ -17,6 +17,9 @@ export class MyRelaysComponent {
   @Output()
   changeRelayStep = new EventEmitter<TRelayManagerSteps>();
 
+  @Output()
+  relayDetail = new EventEmitter<string>();
+
   choosingRelays: TRelayMap = {};
   relaysFrom = 'public';
   relayWritable = true;

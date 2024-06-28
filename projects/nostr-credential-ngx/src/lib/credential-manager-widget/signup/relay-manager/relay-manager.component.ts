@@ -13,4 +13,9 @@ export class RelayManagerComponent {
   currentStep: TRelayManagerSteps = 'myRelays';
 
   relayDetail?: string;
+
+  showRelayDetail(relay: string): void {
+    this.relayDetail = relay;
+    this.currentStep = 'relayDetails';
+  }
 }

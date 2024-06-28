@@ -8,9 +8,13 @@ import { TRelayManagerSteps } from '../relay-manager-steps.type';
   styleUrl: './relay-search.component.scss'
 })
 export class RelaySearchComponent {
+
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
   changeRelayStep = new EventEmitter<TRelayManagerSteps>();
+
+  @Output()
+  relayDetail = new EventEmitter<string>();
 }
