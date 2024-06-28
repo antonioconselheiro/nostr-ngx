@@ -22,7 +22,7 @@
       [attr.title]="relayWritable ? 'set as readonly' : 'set as writable'"
       class="actionButton button secondary iconedButton">
       <input type="checkbox" name="relayWritable" />
-      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'writable' : 'readonly'"></nostr-svg-render>
+      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'readonly' : 'writable'"></nostr-svg-render>
 
       <span>
         {{relayWritable ? 'Set as readonly' : 'Set as writable'}}
@@ -50,6 +50,7 @@
   </div>
 
   <div>
+    <!-- TODO: NIP-65? -->
     <p *ngIf="relaysFrom === 'public'">
       <strong>Publically</strong>: saves your relays inside your choosen relays
     </p>

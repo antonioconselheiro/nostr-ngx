@@ -11,5 +11,5 @@
 <nostr-relay-detail
   *ngIf="currentStep === 'relayDetails' && relayDetail"
   (changeStep)="changeStep.next($event)"
-  [relayDetail]="relayDetail"
+  [relay]="relayDetail"
 ></nostr-relay-detail>

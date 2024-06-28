@@ -17,7 +17,7 @@ export class RelayDetailComponent implements OnInit {
   changeRelayStep = new EventEmitter<TRelayManagerSteps>();
 
   @Input()
-  relayDetail!: string;
+  relay!: string;
 
   loadedDetails: IRelayDetail | null = null;
 
@@ -26,11 +26,18 @@ export class RelayDetailComponent implements OnInit {
   }
 
   private load(): void {
-    fetch(this.relayDetail.replace(/^ws/, 'http'), {
+    fetch(this.relay.replace(/^ws/, 'http'), {
       headers: {
         Accept: 'application/nostr+json'
       }
     }).then(res => res.json())
       .then(details => this.loadedDetails = details);
+  }
+
+  getNipLink(nip: number): string {
+    const minTwoCharsNumber = 10;
+    const zerofilled = nip < minTwoCharsNumber ? '0' + nip : String(nip); 
+
+    return `https://github.com/nostr-protocol/nips/blob/master/${zerofilled}.md`;
   }
 }

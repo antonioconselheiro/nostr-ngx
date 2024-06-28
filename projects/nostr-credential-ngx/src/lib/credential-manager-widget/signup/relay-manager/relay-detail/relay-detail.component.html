@@ -1,3 +1,89 @@
-<h2>Relay Detail</h2>
-<h3>{{relayDetail}}</h3>
-NIP-11, NIP-65
+<h2 class="title">Relay Detail</h2>
+<h3 class="title">{{relay}}</h3>
+
+<ng-container *ngIf="loadedDetails">
+  <h4 class="title">General</h4>
+  <div>
+    <strong>Name:</strong>
+    <img *ngIf="loadedDetails.icon" [src]="loadedDetails.icon">
+    <span>{{loadedDetails.name}}</span>
+  </div>
+
+  <div *ngIf="loadedDetails.description">
+    <strong>Descriptions</strong>
+    <span>{{loadedDetails.description}}</span>
+  </div>
+
+  <ul *ngIf="loadedDetails.supported_nips.length">
+    <li *ngFor="let nip of loadedDetails.supported_nips">
+      <a target="_BLANK" href="getNipLink(nip)">NIP-{{nip}}</a>
+    </li>
+  </ul>
+
+  <h4 class="title">Payment</h4>
+  <div *ngIf="loadedDetails.limitation?.payment_required">
+    <strong>Paid?</strong>
+    <span>
+      {{loadedDetails.limitation?.payment_required ? 'yes' : 'no'}}
+    </span>
+  </div>
+
+  <!-- TODO: montar estrutura de planos apresentada pelo relay em loadedDetails.fees -->
+  {{loadedDetails.fees}}
+
+  <div *ngIf="loadedDetails.payments_url">
+    <strong>Payment URL:</strong>
+    <span>
+      {{loadedDetails.payments_url}}
+    </span>
+  </div>
+  
+  <h4 class="title">Contact</h4>
+  <!--
+    TODO: render contact public account
+    {{loadedDetails.contact}}
+  -->
+  {{loadedDetails.contact}}
+  
+  <h4 class="title">Software</h4>
+  <div *ngIf="loadedDetails.software">
+    <strong>Software:</strong>
+    <!-- TODO: check if "software" is url or ssh git and create a hyperlink -->
+    <span>
+      {{loadedDetails.software}}
+    </span>
+  </div>
+  <div *ngIf="loadedDetails.version">
+    <strong>Version:</strong>
+    <span>
+      {{loadedDetails.version}}
+    </span>
+  </div>
+  
+  <h4 class="title">Publication limitation</h4>
+  <div *ngIf="loadedDetails.limitation?.max_content_length">
+    <strong>Note max length:</strong>
+    <span>
+      {{loadedDetails.limitation?.max_content_length}}
+    </span>
+  </div>
+  <div *ngIf="loadedDetails.limitation?.created_at_lower_limit">
+    <strong>Older note:</strong>
+    <span>
+      {{loadedDetails.limitation?.created_at_lower_limit}}
+    </span>
+  </div>
+  <div *ngIf="loadedDetails.limitation?.max_event_tags">
+    <strong>Max of hashtags per note:</strong>
+    <span>
+      {{loadedDetails.limitation?.max_event_tags}}
+    </span>
+  </div>
+  <h4 class="title">Other Limitations</h4>
+
+  <!-- TODO: read more about NIP-42 (auth_required) -->
+  Requires Auth: {{loadedDetails.limitation?.auth_required}} 
+  Event max length: {{loadedDetails.limitation?.max_message_length}}
+  Restricted Write: {{loadedDetails.limitation?.restricted_writes}}
+</ng-container>
+<!--TODO: incluir loading para ser exibido enquanto os detalhes não carregam-->
