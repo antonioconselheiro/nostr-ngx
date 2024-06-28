@@ -2,9 +2,9 @@ export abstract class AbstractStorage<T extends object> {
 
   protected abstract default: T;
 
-  abstract getItem(): string | null;
+  protected abstract getItem(): string | null;
 
-  abstract setItem(serializedObject: string): void;
+  protected abstract setItem(serializedObject: string): void;
 
   abstract clear(): void;
 

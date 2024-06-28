@@ -6,6 +6,7 @@ import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
+import { AccountsLocalStorage } from '../../credential-storage/accounts-local.storage';
 
 @Component({
   selector: 'nostr-create-nsec-and-ncryptsec',
@@ -18,7 +19,7 @@ export class CreateNsecAndNcryptsecComponent {
   changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Input()
-  creatingAccount: ICreatingAccount | null = null;
+  creatingAccount!: ICreatingAccount;
 
   showNsec = false;
   submitted = false;
@@ -35,6 +36,7 @@ export class CreateNsecAndNcryptsecComponent {
     private fb: FormBuilder,
     private qrcodeService: QrcodeService,
     private nostrSigner: NostrSigner,
+    private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -48,7 +50,7 @@ export class CreateNsecAndNcryptsecComponent {
     const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
 
     this.generateNcryptsecForm = this.fb.group({
-      qrcodeTitle: [this.creatingAccount?.displayName],
+      qrcodeTitle: [this.creatingAccount.displayName],
       nsec: [nsec],
       ncryptsec: [ncryptsec]
     });
@@ -100,6 +102,14 @@ export class CreateNsecAndNcryptsecComponent {
     const { nsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec) {
       this.nostrSigner.login(nsec);
+    }
+  }
+
+  finalize(): void {
+    const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
+    if (this.generateNcryptsecForm.valid && nsec && ncryptsec && this.creatingAccount.displayName) {
+      this.accountsLocalStorage.addNewAccount(nsec, ncryptsec, this.creatingAccount.displayName);
+      this.changeStep.next('relayManager');
     }
   }
 }

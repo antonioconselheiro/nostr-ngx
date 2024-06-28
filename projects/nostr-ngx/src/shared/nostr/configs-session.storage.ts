@@ -13,11 +13,11 @@ export class ConfigsSessionStorage extends AbstractStorage<INostrSessionConfig> 
     sessionFrom: 'none'
   };
 
-  override getItem(): string | null {
+  protected getItem(): string | null {
     return sessionStorage.getItem(this.NOSTR_STORAGE_KEY);
   }
 
-  override setItem(serializedObject: string): void {
+  protected setItem(serializedObject: string): void {
     sessionStorage.setItem(this.NOSTR_STORAGE_KEY, serializedObject);
   }
 

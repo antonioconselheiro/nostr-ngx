@@ -13,11 +13,11 @@ export class ConfigsLocalStorage extends AbstractStorage<INostrLocalConfig> {
     relayFrom: 'none'
   };
 
-  override getItem(): string | null {
+  protected getItem(): string | null {
     return localStorage.getItem(this.NOSTR_STORAGE_KEY);
   }
 
-  override setItem(serializedObject: string): void {
+  protected setItem(serializedObject: string): void {
     localStorage.setItem(this.NOSTR_STORAGE_KEY, serializedObject);
   }
 

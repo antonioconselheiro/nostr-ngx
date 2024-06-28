@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AbstractStorage } from '@belomonte/nostr-ngx';
+import { AbstractStorage, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IAccountsLocalConfig } from './accounts-local-config.interface';
+import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { getPublicKey, nip19 } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -13,15 +15,39 @@ export class AccountsLocalStorage extends AbstractStorage<IAccountsLocalConfig> 
     relayFrom: 'none'
   };
 
-  override getItem(): string | null {
+  protected getItem(): string | null {
     return localStorage.getItem(this.NOSTR_STORAGE_KEY);
   }
 
-  override setItem(serializedObject: string): void {
+  protected setItem(serializedObject: string): void {
     localStorage.setItem(this.NOSTR_STORAGE_KEY, serializedObject);
   }
 
   override clear(): void {
     delete localStorage[this.NOSTR_STORAGE_KEY];
+  }
+
+  addNewAccount(nsec: TNostrSecret, ncryptsec: TNcryptsec, displayName: string): void {
+    const { data } = nip19.decode(nsec);
+    const pubHex = getPublicKey(data);
+    const npub = nip19.npubEncode(pubHex);
+    const account: IUnauthenticatedUser = {
+      displayName,
+      ncryptsec,
+      npub,
+      picture: ''
+    }
+
+    this.addAccount(account);
+  }
+
+  addAccount(account: IUnauthenticatedUser): void {
+    let { accounts } = this.read();
+    if (!accounts) {
+      accounts = {};
+    }
+
+    accounts[account.npub] = account;
+    this.patch({ accounts });
   }
 }
