@@ -83,12 +83,14 @@ export class CreateNsecAndNcryptsecComponent {
   copyNsec(): void {
     const raw = this.generateNcryptsecForm.getRawValue();
     const nsec = raw.nsec || '';
+    //  FIXME: validar se não vou precisar de permissões especiais para fazer isso dentro de um app android
     navigator.clipboard.writeText(nsec);
   }
 
   copyNcryptsec(): void {
     const raw = this.generateNcryptsecForm.getRawValue();
     const ncryptsec = raw.ncryptsec || '';
+    //  FIXME: validar se não vou precisar de permissões especiais para fazer isso dentro de um app android
     navigator.clipboard.writeText(ncryptsec);
   }
 

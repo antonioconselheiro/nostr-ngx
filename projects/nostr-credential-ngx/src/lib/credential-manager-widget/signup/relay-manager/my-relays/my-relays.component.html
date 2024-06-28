@@ -4,14 +4,14 @@
 
 <form novalidate autocomplete="off">
   <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
-  <ul class="relayList">
+  <ul *ngIf="relaysFrom !== 'signer'" class="relayList">
     <li *ngFor="let relay of listRelays()" class="connected">
       <a>{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
       <button (click)="removeRelay(relay.relay)" type="button">✕</button>
     </li>
   </ul>
 
-  <div class="floatingLabel">
+  <div *ngIf="relaysFrom !== 'signer'" class="floatingLabel">
     <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
     <label for="myRelaysNewRelay">{{relayWritable ? 'New publishable relay' : 'New readonly relay'}}</label>
 
@@ -21,13 +21,13 @@
       <nostr-svg-render [name]="relayWritable ? 'readonly' : 'writable'"></nostr-svg-render>
     </button>
 
-    <button type="button" (click)="connect(myRelaysNewRelay.value)" title="connect" class="bordered svgButton">
+    <button type="button" (click)="connect(myRelaysNewRelay.value); myRelaysNewRelay.value = '';" title="connect" class="bordered svgButton">
       <nostr-svg-render name="plugConnected"></nostr-svg-render>
     </button>
   </div>
 
   <div class="floatingLabel">
-    <select #myRelaysRelaysFrom name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
+    <select [(ngModel)]="relaysFrom" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
       <option value="public">Publically</option>
       <option value="localStorage">In browser</option>
       <!-- TODO: analisar qual será o fluxo para quando esta opção é selecionada  -->
@@ -38,13 +38,13 @@
   </div>
 
   <div>
-    <p *ngIf="myRelaysRelaysFrom.value === 'public'">
+    <p *ngIf="relaysFrom === 'public'">
       <strong>Publically</strong>: saves your relays inside your choosen relays
     </p>
-    <p *ngIf="myRelaysRelaysFrom.value === 'localStorage'">
+    <p *ngIf="relaysFrom === 'localStorage'">
       <strong>In browser</strong>: save your relays in this browser
     </p>
-    <p *ngIf="myRelaysRelaysFrom.value === 'signer'">
+    <p *ngIf="relaysFrom === 'signer'">
       <strong>Signer Extension</strong>: don't save relays, use relays from nostr signer extension
     </p>
   </div>
@@ -52,7 +52,7 @@
 </form>
 
 <footer class="buttonGroup">
-  <button (click)="changeStep.next('selectAccount')" type="button" title="back"
+  <button (click)="changeStep.next('selectAccount')" type="button" title="cancel"
     class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
@@ -80,7 +80,7 @@
   se houver relays configurados:
   o botão use default deve se tornar secondary e o botão para salvar deve estar como primary ao lado
   -->
-  <button (click)="changeStep.next('registerAccount')" type="button" title="next"
+  <button (click)="changeStep.next('registerAccount')" type="button" title="save"
     class="actionButton button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 
