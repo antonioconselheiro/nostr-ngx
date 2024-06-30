@@ -73,14 +73,14 @@
       </a>
     </div>
 
-    <section *ngIf="loadedDetails.pubkey" class="unauthenticatedAccount accountContainer">
-      <nostr-profile-picture [profile]="loadedAccountContact"></nostr-profile-picture>
+    <section *ngIf="loadedContactProfile" class="unauthenticatedAccount accountContainer">
+      <nostr-profile-picture [profile]="loadedContactProfile"></nostr-profile-picture>
       <div class="userInfo">
         <span class="userName">
-          {{loadedAccountContact?.display_name}}
-          <span *ngIf="loadedAccountContact.nip05valid" class="userVerified"></span>
+          {{loadedContactProfile.display_name}}
+          <span *ngIf="loadedContactProfile.nip05valid" class="userVerified"></span>
         </span>
-        <span *ngIf="loadedAccountContact.nip05" class="userNip5">{{loadedAccountContact.nip05}}</span>
+        <span *ngIf="loadedContactProfile.nip05" class="userNip5">{{loadedContactProfile.nip05}}</span>
       </div>
     </section>
   </fieldset>

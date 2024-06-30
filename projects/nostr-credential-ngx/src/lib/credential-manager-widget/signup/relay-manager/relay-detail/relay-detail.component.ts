@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { IProfile } from '../../../../domain/profile.interface';
+import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { IRelayDetail } from './relay-detail.interface';
-import { NostrEventKind, NostrService } from '@belomonte/nostr-ngx';
-import { NostrEvent } from 'nostr-tools';
-import { IProfilePicture } from '@belomonte/nostr-credential-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -23,16 +22,14 @@ export class RelayDetailComponent implements OnInit {
 
   loadedDetails: IRelayDetail | null = null;
 
-  /**
-   * FIXME: usar interface de perfil
-   */
-  loadedAccountContact: any | null = null;
+  loadedContactProfile: IProfile | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
   numberFormat = '1.0-0';
 
   constructor(
-    private nostrService: NostrService
+    private profileProxy: ProfileProxy
+
   ) {}
 
   ngOnInit(): void {
@@ -56,18 +53,9 @@ export class RelayDetailComponent implements OnInit {
 
   private loadContactAccount(details: IRelayDetail): void {
     if (details.pubkey) {
-      //  TODO: preciso reescrever esta requisição de forma que ela fique no cache
-      this.nostrService.request([
-        {
-          authors: [ details.pubkey ],
-          kinds: [ NostrEventKind.Metadata ],
-          limit: 1
-        }
-      ], [
-        this.relay
-      ]).then(data => {
-        this.loadedAccountContact = JSON.parse(data[0].content) || null;
-      });
+      this.profileProxy
+        .loadFromPublicHexa(details.pubkey, [this.relay])
+        .then(profile => this.loadedContactProfile = profile)
     }
   }
 
