@@ -6,6 +6,7 @@ import { MyRelaysComponent } from './my-relays/my-relays.component';
 import { RelayDetailComponent } from './relay-detail/relay-detail.component';
 import { RelayManagerComponent } from './relay-manager.component';
 import { RelaySearchComponent } from './relay-search/relay-search.component';
+import { LoadingWidgetModule } from '../../../loading/loading-widget.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { RelaySearchComponent } from './relay-search/relay-search.component';
     CommonModule,
     SvgRenderModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    LoadingWidgetModule
   ],
   exports: [
     RelayManagerComponent

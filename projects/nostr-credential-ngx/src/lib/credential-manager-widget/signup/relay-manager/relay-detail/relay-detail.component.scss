@@ -1,0 +1,27 @@
+.nipList {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.relayIcon {
+  max-width: 50%;
+  max-height: 70px;
+  float: right;
+}
+
+fieldset {
+  margin: 1rem 0;
+  display: block;
+  border-radius: 7px;
+  border-color: var(--separator);
+
+  > div {
+    margin: .5rem 0;
+  
+    > strong {
+      display: inline-block;
+      margin-right: .5rem;
+    }
+  }
+}

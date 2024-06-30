@@ -10,6 +10,6 @@
 ></nostr-relay-search>
 <nostr-relay-detail
   *ngIf="currentStep === 'relayDetails' && relayDetail"
-  (changeStep)="changeStep.next($event)"
+  (back)="backFromDetail()"
   [relay]="relayDetail"
 ></nostr-relay-detail>

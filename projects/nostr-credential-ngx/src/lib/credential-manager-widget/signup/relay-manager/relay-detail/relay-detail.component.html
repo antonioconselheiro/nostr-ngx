@@ -1,89 +1,149 @@
 <h2 class="title">Relay Detail</h2>
-<h3 class="title">{{relay}}</h3>
+
+<nostr-loading *ngIf="!loadedDetails"></nostr-loading>
 
 <ng-container *ngIf="loadedDetails">
-  <h4 class="title">General</h4>
-  <div>
-    <strong>Name:</strong>
-    <img *ngIf="loadedDetails.icon" [src]="loadedDetails.icon">
-    <span>{{loadedDetails.name}}</span>
-  </div>
+  <fieldset>
+    <legend>General</legend>
 
-  <div *ngIf="loadedDetails.description">
-    <strong>Descriptions</strong>
-    <span>{{loadedDetails.description}}</span>
-  </div>
+    <div>
+      <strong>Name:</strong>
+      <img class="relayIcon" *ngIf="loadedDetails.icon" [src]="loadedDetails.icon" />
+      <span>{{loadedDetails.name}}</span>
+    </div>
 
-  <ul *ngIf="loadedDetails.supported_nips.length">
-    <li *ngFor="let nip of loadedDetails.supported_nips">
-      <a target="_BLANK" href="getNipLink(nip)">NIP-{{nip}}</a>
-    </li>
-  </ul>
+    <div>
+      <strong>Relay:</strong>
+      <span>{{relay}}</span>
+    </div>
 
-  <h4 class="title">Payment</h4>
-  <div *ngIf="loadedDetails.limitation?.payment_required">
-    <strong>Paid?</strong>
-    <span>
-      {{loadedDetails.limitation?.payment_required ? 'yes' : 'no'}}
-    </span>
-  </div>
+    <div *ngIf="loadedDetails.description">
+      <strong>Descriptions:</strong>
+      <div>{{loadedDetails.description}}</div>
+    </div>
 
-  <!-- TODO: montar estrutura de planos apresentada pelo relay em loadedDetails.fees -->
-  {{loadedDetails.fees}}
+    <ng-container *ngIf="showSupportedNips(loadedDetails)">
+      <strong>Supported NIPs:</strong>
+      <ul class="nipList" *ngIf="loadedDetails.supported_nips.length">
+        <li *ngFor="let nip of loadedDetails.supported_nips">
+          <a target="_BLANK" [href]="getNipLink(nip)">NIP-{{nip}}</a>
+        </li>
+      </ul>
+    </ng-container>
+  </fieldset>
 
-  <div *ngIf="loadedDetails.payments_url">
-    <strong>Payment URL:</strong>
-    <span>
-      {{loadedDetails.payments_url}}
-    </span>
-  </div>
-  
-  <h4 class="title">Contact</h4>
-  <!--
-    TODO: render contact public account
-    {{loadedDetails.contact}}
-  -->
-  {{loadedDetails.contact}}
-  
-  <h4 class="title">Software</h4>
-  <div *ngIf="loadedDetails.software">
-    <strong>Software:</strong>
-    <!-- TODO: check if "software" is url or ssh git and create a hyperlink -->
-    <span>
-      {{loadedDetails.software}}
-    </span>
-  </div>
-  <div *ngIf="loadedDetails.version">
-    <strong>Version:</strong>
-    <span>
-      {{loadedDetails.version}}
-    </span>
-  </div>
-  
-  <h4 class="title">Publication limitation</h4>
-  <div *ngIf="loadedDetails.limitation?.max_content_length">
-    <strong>Note max length:</strong>
-    <span>
-      {{loadedDetails.limitation?.max_content_length}}
-    </span>
-  </div>
-  <div *ngIf="loadedDetails.limitation?.created_at_lower_limit">
-    <strong>Older note:</strong>
-    <span>
-      {{loadedDetails.limitation?.created_at_lower_limit}}
-    </span>
-  </div>
-  <div *ngIf="loadedDetails.limitation?.max_event_tags">
-    <strong>Max of hashtags per note:</strong>
-    <span>
-      {{loadedDetails.limitation?.max_event_tags}}
-    </span>
-  </div>
-  <h4 class="title">Other Limitations</h4>
+  <fieldset>
+    <legend>Payment</legend>
 
-  <!-- TODO: read more about NIP-42 (auth_required) -->
-  Requires Auth: {{loadedDetails.limitation?.auth_required}} 
-  Event max length: {{loadedDetails.limitation?.max_message_length}}
-  Restricted Write: {{loadedDetails.limitation?.restricted_writes}}
+    <div>
+      <strong>Paid?</strong>
+      <span>
+        {{loadedDetails.limitation?.payment_required ? 'yes' : 'no'}}
+      </span>
+    </div>
+
+    <!-- TODO: montar estrutura de planos apresentada pelo relay em loadedDetails.fees -->
+    {{loadedDetails.fees}}
+
+    <div *ngIf="loadedDetails.payments_url">
+      <strong>Payment URL:</strong>
+      <a [href]="loadedDetails.payments_url" target="_BLANK">
+        {{loadedDetails.payments_url}}
+      </a>
+    </div>
+  </fieldset>
+
+  <fieldset *ngIf="showContact(loadedDetails)">
+    <legend>Contact</legend>
+
+    <!--
+      TODO: render contact public account
+      {{loadedDetails.contact}}
+    -->
+    <div *ngIf="contactIsEmail(loadedDetails)">
+      <strong>E-mail</strong>
+      <a [href]="'mailto:'+loadedDetails.contact">
+        {{loadedDetails.contact}}
+      </a>
+    </div>
+  </fieldset>
+
+  <fieldset *ngIf="showSoftware(loadedDetails)">
+    <legend>Software</legend>
+
+    <div *ngIf="loadedDetails.software">
+      <strong>Software:</strong>
+
+      <span *ngIf="softwareIsName(loadedDetails)">
+        {{loadedDetails.software}}
+      </span>
+      <a *ngIf="softwareHasLink(loadedDetails)" [href]="softwareHasLink(loadedDetails)"
+        target="_BLANK">{{loadedDetails.software.trim()}}</a>
+    </div>
+    <div *ngIf="loadedDetails.version">
+      <strong>Version:</strong>
+      <span>
+        {{loadedDetails.version}}
+      </span>
+    </div>
+  </fieldset>
+
+  <fieldset *ngIf="showPublicationLimitations(loadedDetails)">
+    <legend>Publication limitation</legend>
+
+    <div *ngIf="loadedDetails.limitation?.max_content_length">
+      <strong>Note max length:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_content_length}}
+      </span>
+    </div>
+    <div *ngIf="loadedDetails.limitation?.created_at_lower_limit">
+      <strong>Older note:</strong>
+      <span>
+        {{loadedDetails.limitation?.created_at_lower_limit}}
+      </span>
+    </div>
+    <div *ngIf="loadedDetails.limitation?.max_event_tags">
+      <strong>Max of hashtags per note:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_event_tags}}
+      </span>
+    </div>
+    <div *ngIf="loadedDetails.limitation?.max_message_length">
+      <strong>Event max length:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_message_length}}
+      </span>
+    </div>
+  </fieldset>
+
+  <fieldset *ngIf="showOtherLimitations(loadedDetails)">
+    <legend>Other Limitations</legend>
+
+    <!-- TODO: read more about NIP-42 (auth_required) -->
+    <div *ngIf="loadedDetails.limitation?.auth_required">
+      <strong>Authentication Required:</strong>
+      <span>
+        {{loadedDetails.limitation?.auth_required ? 'yes' : 'no'}}
+      </span>
+    </div>
+
+    <div *ngIf="loadedDetails.limitation?.restricted_writes">
+      <strong>Restricted Writes:</strong>
+      <span>
+        {{loadedDetails.limitation?.restricted_writes ? 'yes' : 'no'}}
+      </span>
+    </div>
+  </fieldset>
 </ng-container>
-<!--TODO: incluir loading para ser exibido enquanto os detalhes não carregam-->
+
+<footer class="buttonGroup">
+  <button (click)="back.next()" type="button" title="back"
+    class="actionButton button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+    <span>
+      Back
+    </span>
+  </button>
+</footer>

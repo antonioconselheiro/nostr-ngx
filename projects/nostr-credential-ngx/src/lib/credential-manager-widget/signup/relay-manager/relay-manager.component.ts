@@ -7,6 +7,7 @@ import { TAuthModalSteps } from '../../auth-modal-steps.type';
   templateUrl: './relay-manager.component.html'
 })
 export class RelayManagerComponent {
+
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
 
@@ -14,8 +15,27 @@ export class RelayManagerComponent {
 
   relayDetail?: string;
 
+  /**
+   * which screen we are before come to detail?
+   * this will help back button
+   */
+  backFromDetailOrigin?: TRelayManagerSteps;
+
+  /**
+   * TODO: tlvz esse parâmetro precise ficar centralizado
+   * no serviço que controla o pool de relays
+   */
+  choosenRelays: string[] = [];
+
   showRelayDetail(relay: string): void {
     this.relayDetail = relay;
+    this.backFromDetailOrigin = this.currentStep;
     this.currentStep = 'relayDetails';
+  }
+
+  backFromDetail(): void {
+    if (this.backFromDetailOrigin) {
+      this.currentStep = this.backFromDetailOrigin;
+    }
   }
 }
