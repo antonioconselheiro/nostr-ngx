@@ -13,7 +13,7 @@
     </div>
 
     <div>
-      <strong>Relay:</strong>
+      <strong>Websocket:</strong>
       <span>{{relay}}</span>
     </div>
 
@@ -26,7 +26,7 @@
       <strong>Supported NIPs:</strong>
       <ul class="nipList" *ngIf="loadedDetails.supported_nips.length">
         <li *ngFor="let nip of loadedDetails.supported_nips">
-          <a target="_BLANK" [href]="getNipLink(nip)">NIP-{{nip}}</a>
+          <a target="_BLANK" [href]="getNipLink(nip)">NIP-{{nip|number:'2.0-0'}}</a>
         </li>
       </ul>
     </ng-container>
@@ -43,7 +43,6 @@
     </div>
 
     <!-- TODO: montar estrutura de planos apresentada pelo relay em loadedDetails.fees -->
-    {{loadedDetails.fees}}
 
     <div *ngIf="loadedDetails.payments_url">
       <strong>Payment URL:</strong>
@@ -61,11 +60,29 @@
       {{loadedDetails.contact}}
     -->
     <div *ngIf="contactIsEmail(loadedDetails)">
-      <strong>E-mail</strong>
+      <strong>E-mail:</strong>
       <a [href]="'mailto:'+loadedDetails.contact">
         {{loadedDetails.contact}}
       </a>
     </div>
+
+    <div *ngIf="contactIsWebSite(loadedDetails)">
+      <strong>Website:</strong>
+      <a [href]="loadedDetails.contact" target="_BLANK">
+        {{loadedDetails.contact}}
+      </a>
+    </div>
+
+    <section *ngIf="loadedDetails.pubkey" class="unauthenticatedAccount accountContainer">
+      <nostr-profile-picture [profile]="loadedAccountContact"></nostr-profile-picture>
+      <div class="userInfo">
+        <span class="userName">
+          {{loadedAccountContact?.display_name}}
+          <span *ngIf="loadedAccountContact.nip05valid" class="userVerified"></span>
+        </span>
+        <span *ngIf="loadedAccountContact.nip05" class="userNip5">{{loadedAccountContact.nip05}}</span>
+      </div>
+    </section>
   </fieldset>
 
   <fieldset *ngIf="showSoftware(loadedDetails)">
@@ -97,22 +114,35 @@
         {{loadedDetails.limitation?.max_content_length}}
       </span>
     </div>
-    <div *ngIf="loadedDetails.limitation?.created_at_lower_limit">
+    <!--
+      TODO: não tenho certeza de como devo exibir formatado created_at_lower_limit e created_at_upper_limit,
+      a documentação do nostr sobre estas propriedades não é clara o suficiente, preciso analisar a
+      implementação de outros clients
+    -->
+    <div *ngIf="false && loadedDetails.limitation?.created_at_lower_limit">
       <strong>Older note:</strong>
       <span>
-        {{loadedDetails.limitation?.created_at_lower_limit}}
+        <!-- TODO: preciso centralizar o formato de data na internacionalização, quando for fazê-la -->
+        {{loadedDetails.limitation?.created_at_lower_limit | date:'dd/MM/yyyy HH:mm'}}
+      </span>
+    </div>
+    <div *ngIf="false && loadedDetails.limitation?.created_at_upper_limit">
+      <strong>Newer note:</strong>
+      <span>
+        <!-- TODO: preciso centralizar o formato de data na internacionalização, quando for fazê-la -->
+        {{loadedDetails.limitation?.created_at_upper_limit | date:'dd/MM/yyyy HH:mm'}}
       </span>
     </div>
     <div *ngIf="loadedDetails.limitation?.max_event_tags">
       <strong>Max of hashtags per note:</strong>
       <span>
-        {{loadedDetails.limitation?.max_event_tags}}
+        {{loadedDetails.limitation?.max_event_tags | number:numberFormat}}
       </span>
     </div>
     <div *ngIf="loadedDetails.limitation?.max_message_length">
       <strong>Event max length:</strong>
       <span>
-        {{loadedDetails.limitation?.max_message_length}}
+        {{loadedDetails.limitation?.max_message_length | number:numberFormat}}
       </span>
     </div>
   </fieldset>
@@ -134,6 +164,28 @@
         {{loadedDetails.limitation?.restricted_writes ? 'yes' : 'no'}}
       </span>
     </div>
+
+    <div *ngIf="loadedDetails.limitation?.max_limit">
+      <strong>Max results in search:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_limit | number:numberFormat}}
+      </span>
+    </div>
+
+    <div *ngIf="loadedDetails.limitation?.max_subscriptions">
+      <strong>Max subscriptions per websocket connection:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_subscriptions | number:numberFormat}}
+      </span>
+    </div>
+
+    <div *ngIf="loadedDetails.limitation?.max_filters">
+      <strong>Max event filters subscribe in the same connection:</strong>
+      <span>
+        {{loadedDetails.limitation?.max_filters | number:numberFormat}}
+      </span>
+    </div>
+
   </fieldset>
 </ng-container>
 

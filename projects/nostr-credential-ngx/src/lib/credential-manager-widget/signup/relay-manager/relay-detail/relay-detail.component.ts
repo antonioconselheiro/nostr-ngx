@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { IRelayDetail } from './relay-detail.interface';
+import { NostrEventKind, NostrService } from '@belomonte/nostr-ngx';
+import { NostrEvent } from 'nostr-tools';
+import { IProfilePicture } from '@belomonte/nostr-credential-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -20,6 +23,18 @@ export class RelayDetailComponent implements OnInit {
 
   loadedDetails: IRelayDetail | null = null;
 
+  /**
+   * FIXME: usar interface de perfil
+   */
+  loadedAccountContact: any | null = null;
+
+  // TODO: formatação dos números precisa ser revista na internacionalização
+  numberFormat = '1.0-0';
+
+  constructor(
+    private nostrService: NostrService
+  ) {}
+
   ngOnInit(): void {
     this.load();
   }
@@ -30,7 +45,30 @@ export class RelayDetailComponent implements OnInit {
         Accept: 'application/nostr+json'
       }
     }).then(res => res.json())
-      .then(details => {this.loadedDetails = details; console.info(this.relay, 'details', details);});
+      .then(details => this.onLoad(details));
+  }
+
+  private onLoad(details: IRelayDetail): void {
+    this.loadedDetails = details;
+    console.info(this.relay, 'details', details);
+    this.loadContactAccount(details);
+  }
+
+  private loadContactAccount(details: IRelayDetail): void {
+    if (details.pubkey) {
+      //  TODO: preciso reescrever esta requisição de forma que ela fique no cache
+      this.nostrService.request([
+        {
+          authors: [ details.pubkey ],
+          kinds: [ NostrEventKind.Metadata ],
+          limit: 1
+        }
+      ], [
+        this.relay
+      ]).then(data => {
+        this.loadedAccountContact = JSON.parse(data[0].content) || null;
+      });
+    }
   }
 
   getNipLink(nip: number): string {
@@ -45,7 +83,7 @@ export class RelayDetailComponent implements OnInit {
   }
 
   showContact(loadedDetails: IRelayDetail): boolean {
-    return loadedDetails.contact && true || false;
+    return (loadedDetails.contact || loadedDetails.pubkey) && true || false;
   }
 
   showSoftware(loadedDetails: IRelayDetail): boolean {
@@ -98,8 +136,8 @@ export class RelayDetailComponent implements OnInit {
     return isEmail.test(loadedDetails.contact);
   }
 
-  contactIsHexadecimal(loadedDetails: IRelayDetail): boolean {
-    const isHexadecimal = /^[a-f0-9]+$/;
-    return isHexadecimal.test(loadedDetails.contact);
+  contactIsWebSite(loadedDetails: IRelayDetail): boolean {
+    const isWebSite = /^[^@ ]+\.[^ ]+$/;
+    return isWebSite.test(loadedDetails.contact);
   }
 }
