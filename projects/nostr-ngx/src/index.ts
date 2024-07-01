@@ -16,7 +16,7 @@ export * from './shared/nostr/nostr.guard';
 export * from './shared/nostr/nostr.module';
 export * from './shared/nostr/nostr.service';
 export * from './shared/nostr/nostr.converter';
-export * from './shared/nostr/relay.service';
+export * from './shared/nostr/configs-local.storage';
 export * from './shared/nostr/signer-not-found.error';
 
 export interface WindowNostr {

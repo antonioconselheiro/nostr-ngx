@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Event, Filter, NostrEvent, SimplePool } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { TRelayMap } from '../../domain/relay-map.type';
-import { RelayService } from './relay.service';
+import { PoolStatefull } from './pool.statefull';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +10,14 @@ import { RelayService } from './relay.service';
 export class NostrService {
 
   constructor(
-    private relayService: RelayService
+    private poolStatefull: PoolStatefull
   ) { }
 
   async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
     const pool = new SimplePool();
     const events = new Array<NostrEvent>();
-    relays = relays || await this.relayService.getCurrentUserRelays();
-    const relayList = this.relayService.filterReadableRelays(relays);
+    relays = relays || await this.poolStatefull.getCurrentUserRelays();
+    const relayList = this.poolStatefull.filterReadableRelays(relays);
     console.debug('relays:', relayList)
 
     return new Promise(resolve => {
@@ -44,10 +44,10 @@ export class NostrService {
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
 
-    this.relayService
+    this.poolStatefull
       .getCurrentUserRelays()
       .then(overrideRelays => {
-        const relayList = this.relayService.filterReadableRelays(relays || overrideRelays);
+        const relayList = this.poolStatefull.filterReadableRelays(relays || overrideRelays);
         const poolSubscription = pool.subscribeMany(
           relayList, filters, {
           onevent: event => subject.next(event),
@@ -66,8 +66,8 @@ export class NostrService {
   }
 
   async publish(event: Event, relays?: TRelayMap | string[]): Promise<void> {
-    relays = relays || await this.relayService.getCurrentUserRelays();
-    const relayList = this.relayService.filterWritableRelays(relays);
+    relays = relays || await this.poolStatefull.getCurrentUserRelays();
+    const relayList = this.poolStatefull.filterWritableRelays(relays);
 
     return Promise.all(
       new SimplePool().publish(relayList, event)

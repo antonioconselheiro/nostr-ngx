@@ -9,9 +9,10 @@ import { NostrGuard } from './nostr.guard';
 @Injectable({
   providedIn: 'root'
 })
-export class RelayService {
+export class PoolStatefull {
 
   private static defaultAppRelays: TRelayMap = {};
+  private static currentPool: TRelayMap = {};
 
   static setDefaultApplicationRelays(relays: TRelayMap): void {
     this.defaultAppRelays = relays;
@@ -21,6 +22,34 @@ export class RelayService {
     private guard: NostrGuard,
     private configs: ConfigsLocalStorage
   ) { }
+
+  removeAllRelays(): void {
+    PoolStatefull.currentPool = {};
+  }
+
+  connectRelay(...relays: string[]): void {
+    relays.forEach(relay => {
+      PoolStatefull.currentPool[relay] = {
+        read: true,
+        write: true
+      }
+    });
+  }
+
+  connectCacheRelay(...relays: string[]): void {
+    relays.forEach(relay => {
+      PoolStatefull.currentPool[relay] = {
+        read: true,
+        write: false
+      }
+    });
+  }
+
+  removeRelay(...relays: string[]): void {
+    relays.forEach(relay => {
+      delete PoolStatefull.currentPool[relay];
+    });
+  }
 
   filterWritableRelays(relays: TRelayMap | string[]): string[] {
     if (relays instanceof Array) {
@@ -83,7 +112,7 @@ export class RelayService {
     }
 
     if (!Object.keys(relays).length) {
-      relays = RelayService.defaultAppRelays;
+      relays = PoolStatefull.defaultAppRelays;
     }
 
     console.info('local configs', local);
