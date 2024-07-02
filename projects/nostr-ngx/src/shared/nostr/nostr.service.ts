@@ -18,10 +18,10 @@ export class NostrService {
     const events = new Array<NostrEvent>();
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
     const relayList = this.poolStatefull.filterReadableRelays(relays);
-    console.debug('relays:', relayList)
+    console.debug('requesting in relays:', relayList, 'filters: ', filters);
 
     return new Promise(resolve => {
-      const poolSubscription = pool.subscribeMany(
+      const subscription = pool.subscribeMany(
         relayList, filters, {
         onevent: event => {
           console.debug('[onevent]', event)
@@ -32,7 +32,7 @@ export class NostrService {
         },
         oneose(): void {
           console.debug('[eose]', events);
-          poolSubscription.close();
+          subscription.close();
           resolve(events);
         }
       });
