@@ -1,24 +1,9 @@
-# NostrCredentialNgx
+> Mateus 5
+>
+> ⁴³ Ouvistes que foi dito: Amarás o teu próximo, e odiarás o teu inimigo. ⁴⁴ Eu, porém, vos digo: Amai a vossos inimigos, bendizei os que vos maldizem, fazei bem aos que vos odeiam, e orai pelos que vos maltratam e vos perseguem; para que sejais filhos do vosso Pai que está nos céus, ⁴⁵ porque faz que o seu sol se levante sobre maus e bons, e a chuva desça sobre justos e injustos.
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.0.
+# nostr-credential-ngx
+To use with `nostr-ngx` and `nostr-tools`
 
-## Code scaffolding
-
-Run `ng generate component component-name --project nostr-credential-ngx` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project nostr-credential-ngx`.
-> Note: Don't forget to add `--project nostr-credential-ngx` or else it will be added to the default project in your `angular.json` file. 
-
-## Build
-
-Run `ng build nostr-credential-ngx` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Publishing
-
-After building your library with `ng build nostr-credential-ngx`, go to the dist folder `cd dist/nostr-credential-ngx` and run `npm publish`.
-
-## Running unit tests
-
-Run `ng test nostr-credential-ngx` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Release
+not released yet
