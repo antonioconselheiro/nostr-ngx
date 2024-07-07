@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Event, Filter, NostrEvent, SimplePool } from 'nostr-tools';
+import { Event, Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { TRelayMap } from '../../domain/relay-map.type';
 import { PoolStatefull } from './pool.statefull';
 
+/**
+ * Interacts with pool relays, request data, subscribe filters and publish content
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +17,7 @@ export class NostrService {
   ) { }
 
   async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
-    const pool = new SimplePool();
+    const pool = PoolStatefull.currentPool;
     const events = new Array<NostrEvent>();
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
     const relayList = this.poolStatefull.filterReadableRelays(relays);
@@ -24,8 +27,8 @@ export class NostrService {
       const subscription = pool.subscribeMany(
         relayList, filters, {
         onevent: event => {
-          console.debug('[onevent]', event)
-          events.push(event)
+          console.debug('[onevent]', event);
+          events.push(event);
         },
         onclose(reasons): void {
           console.debug('[onclose]', reasons);
@@ -40,7 +43,7 @@ export class NostrService {
   }
 
   observable(filters: Filter[], relays?: TRelayMap | string[]): Observable<Event> {
-    const pool = new SimplePool();
+    const pool = PoolStatefull.currentPool;
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
 
@@ -66,11 +69,14 @@ export class NostrService {
   }
 
   async publish(event: Event, relays?: TRelayMap | string[]): Promise<void> {
+    const pool = PoolStatefull.currentPool;
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
     const relayList = this.poolStatefull.filterWritableRelays(relays);
 
+    // TODO: pode ser útil tratar individualmente os retornos, de forma a identificar
+    //  quais relays concluiram corretamente e quais responderam com erro e qual erro
     return Promise.all(
-      new SimplePool().publish(relayList, event)
+      pool.publish(relayList, event)
     ).then(() => Promise.resolve());
   }
 }

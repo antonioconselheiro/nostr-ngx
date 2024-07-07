@@ -4,3 +4,4 @@ nostr-credential-ngx
 [ ] Quando um perfil não for encontrado em um relay, a autenticação não deve ser impedida, pelo contrário, deve se dar meios de continuar sem os detalhes de perfil
 [ ] Incluir meio de se cadastrar
 [ ] Verificar se variável --baseHover está inclusa
+[ ] Validar relays que dependem de autenticação para serem conectados

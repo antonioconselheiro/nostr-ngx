@@ -1,18 +1,30 @@
 import { Injectable } from '@angular/core';
+import { SimplePool } from 'nostr-tools';
+import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { TNip05 } from '../../domain/nip05.type';
 import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TRelayMap } from '../../domain/relay-map.type';
 import { ConfigsLocalStorage } from './configs-local.storage';
 import { NostrGuard } from './nostr.guard';
+import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 
+/**
+ * Centralize relays information and status
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class PoolStatefull {
 
+  static currentPool = new SimplePool();
+
   private static defaultAppRelays: TRelayMap = {};
-  private static currentPool: TRelayMap = {};
+
+  /**
+   * TODO: loaod nip11 data to details property
+   */
+  private static relayMetadata: Record<string, IRelayMetadata> = {};
 
   static setDefaultApplicationRelays(relays: TRelayMap): void {
     this.defaultAppRelays = relays;
@@ -23,32 +35,52 @@ export class PoolStatefull {
     private configs: ConfigsLocalStorage
   ) { }
 
-  removeAllRelays(): void {
-    PoolStatefull.currentPool = {};
-  }
-
   connectRelay(...relays: string[]): void {
-    relays.forEach(relay => {
-      PoolStatefull.currentPool[relay] = {
-        read: true,
-        write: true
-      }
-    });
+    this.connectRelays(relays, false);
   }
 
   connectCacheRelay(...relays: string[]): void {
+    this.connectRelays(relays, true);
+  }
+
+  /**
+   * Avoid to request relay nip11 twice, this service
+   * will load relay details except if is already loaded
+   */
+  connectRelayWithLoadedDetails(relay: string, relayDetails: RelayInformation, isCache = false): void {
+    const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
+      writeable: !isCache,
+      details: relayDetails
+    };
+
+    PoolStatefull.currentPool.ensureRelay(relay)
+      .then(conn => relayMetadata.conn = conn);
+  }
+
+  private connectRelays(relays: string[], isCache: boolean): void {
     relays.forEach(relay => {
-      PoolStatefull.currentPool[relay] = {
-        read: true,
-        write: false
-      }
+      const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
+        writeable: !isCache
+      };
+
+      PoolStatefull.currentPool.ensureRelay(relay)
+        .then(conn => relayMetadata.conn = conn);
+
+      fetchRelayInformation(relay)
+        .then(details => relayMetadata.details = details);
     });
   }
 
-  removeRelay(...relays: string[]): void {
+  disconnectRelay(...relays: string[]): void {
     relays.forEach(relay => {
-      delete PoolStatefull.currentPool[relay];
+      delete PoolStatefull.relayMetadata[relay];
     });
+    PoolStatefull.currentPool.close(relays);
+  }
+
+  disconnectAllRelays(): void {
+    PoolStatefull.currentPool.close(Object.keys(PoolStatefull.relayMetadata));
+    PoolStatefull.relayMetadata = {};
   }
 
   filterWritableRelays(relays: TRelayMap | string[]): string[] {
@@ -83,6 +115,8 @@ export class PoolStatefull {
 
     if (npub) {
       local.userRelays = local.userRelays || {};
+
+      //  FIXME: devo associar os relays aos account, se não o usuário não terá como deletar seus relays
       local.userRelays[npub] = relays;
     } else {
       local.commonRelays = relays;

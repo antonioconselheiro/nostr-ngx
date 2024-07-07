@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IProfile } from '../../../../domain/profile.interface';
 import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
-import { IRelayDetail } from './relay-detail.interface';
+import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -20,7 +20,7 @@ export class RelayDetailComponent implements OnInit {
   @Input()
   relay!: string;
 
-  loadedDetails: IRelayDetail | null = null;
+  loadedDetails: RelayInformation | null = null;
 
   loadedContactProfile: IProfile | null = null;
 
@@ -29,7 +29,6 @@ export class RelayDetailComponent implements OnInit {
 
   constructor(
     private profileProxy: ProfileProxy
-
   ) {}
 
   ngOnInit(): void {
@@ -37,21 +36,16 @@ export class RelayDetailComponent implements OnInit {
   }
 
   private load(): void {
-    fetch(this.relay.replace(/^ws/, 'http'), {
-      headers: {
-        Accept: 'application/nostr+json'
-      }
-    }).then(res => res.json())
-      .then(details => this.onLoad(details));
+    fetchRelayInformation(this.relay).then(details => this.onLoad(details));
   }
 
-  private onLoad(details: IRelayDetail): void {
+  private onLoad(details: RelayInformation): void {
     this.loadedDetails = details;
     console.info(this.relay, 'details', details);
     this.loadContactAccount(details);
   }
 
-  private loadContactAccount(details: IRelayDetail): void {
+  private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
       this.profileProxy
         .loadFromPublicHexa(details.pubkey, [this.relay])
@@ -66,19 +60,19 @@ export class RelayDetailComponent implements OnInit {
     return `https://github.com/nostr-protocol/nips/blob/master/${zerofilled}.md`;
   }
 
-  showSupportedNips(loadedDetails: IRelayDetail): boolean {
+  showSupportedNips(loadedDetails: RelayInformation): boolean {
     return loadedDetails.supported_nips?.length && true || false;
   }
 
-  showContact(loadedDetails: IRelayDetail): boolean {
+  showContact(loadedDetails: RelayInformation): boolean {
     return (loadedDetails.contact || loadedDetails.pubkey) && true || false;
   }
 
-  showSoftware(loadedDetails: IRelayDetail): boolean {
+  showSoftware(loadedDetails: RelayInformation): boolean {
     return (loadedDetails.software || loadedDetails.version) && true || false;
   }
 
-  showPublicationLimitations(loadedDetails: IRelayDetail): boolean {
+  showPublicationLimitations(loadedDetails: RelayInformation & { limitation?: { created_at_lower_limit?: number } }): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -89,7 +83,7 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.max_message_length) && true || false;
   }
 
-  showOtherLimitations(loadedDetails: IRelayDetail): boolean {
+  showOtherLimitations(loadedDetails: RelayInformation & { limitation?: { restricted_writes?: boolean } }): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -98,12 +92,12 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.restricted_writes) && true || false;
   }
 
-  softwareIsName(loadedDetails: IRelayDetail): boolean {
+  softwareIsName(loadedDetails: RelayInformation): boolean {
     const isUrl = /(https?:\/\/)|(^git\@)/;
     return !isUrl.test(loadedDetails.software);
   }
 
-  softwareHasLink(loadedDetails: IRelayDetail): string | null {
+  softwareHasLink(loadedDetails: RelayInformation): string | null {
     const isHttp = /^https?:\/\//;
     const isGitSsh = /^git@[^ ]+\:[^ ]+.git$/;
     const isGitHttp = /^git\+/;
@@ -119,12 +113,12 @@ export class RelayDetailComponent implements OnInit {
     return null;
   }
 
-  contactIsEmail(loadedDetails: IRelayDetail): boolean {
+  contactIsEmail(loadedDetails: RelayInformation): boolean {
     const isEmail = /^[^ ]+@[^ ]+\.[^ ]+$/;
     return isEmail.test(loadedDetails.contact);
   }
 
-  contactIsWebSite(loadedDetails: IRelayDetail): boolean {
+  contactIsWebSite(loadedDetails: RelayInformation): boolean {
     const isWebSite = /^[^@ ]+\.[^ ]+$/;
     return isWebSite.test(loadedDetails.contact);
   }
