@@ -8,6 +8,8 @@ export * from './domain/nostr-public.type';
 export * from './domain/nostr-secret.type';
 export * from './domain/nostr-session-config.interface';
 export * from './domain/relay-map.type';
+export * from './domain/relay-information.interface';
+
 export * from './shared/nostr/no-credentials-found.error';
 export * from './shared/nostr/configs-local.storage';
 export * from './shared/nostr/configs-session.storage';

@@ -3,6 +3,7 @@ import { IProfile } from '../../../../domain/profile.interface';
 import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
+import { RelayInformationTemp } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -20,7 +21,7 @@ export class RelayDetailComponent implements OnInit {
   @Input()
   relay!: string;
 
-  loadedDetails: RelayInformation | null = null;
+  loadedDetails: RelayInformation & RelayInformationTemp | null = null;
 
   loadedContactProfile: IProfile | null = null;
 
@@ -29,23 +30,24 @@ export class RelayDetailComponent implements OnInit {
 
   constructor(
     private profileProxy: ProfileProxy
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.load();
   }
 
   private load(): void {
-    fetchRelayInformation(this.relay).then(details => this.onLoad(details));
+    fetchRelayInformation(this.relay)
+      .then((details) => this.onLoad(details as RelayInformation & RelayInformationTemp));
   }
 
-  private onLoad(details: RelayInformation): void {
+  private onLoad(details: RelayInformation & RelayInformationTemp): void {
     this.loadedDetails = details;
     console.info(this.relay, 'details', details);
     this.loadContactAccount(details);
   }
 
-  private loadContactAccount(details: RelayInformation): void {
+  private loadContactAccount(details: RelayInformation & RelayInformationTemp): void {
     if (details.pubkey) {
       this.profileProxy
         .loadFromPublicHexa(details.pubkey, [this.relay])
@@ -72,7 +74,7 @@ export class RelayDetailComponent implements OnInit {
     return (loadedDetails.software || loadedDetails.version) && true || false;
   }
 
-  showPublicationLimitations(loadedDetails: RelayInformation & { limitation?: { created_at_lower_limit?: number } }): boolean {
+  showPublicationLimitations(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -83,7 +85,7 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.max_message_length) && true || false;
   }
 
-  showOtherLimitations(loadedDetails: RelayInformation & { limitation?: { restricted_writes?: boolean } }): boolean {
+  showOtherLimitations(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -92,12 +94,12 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.restricted_writes) && true || false;
   }
 
-  softwareIsName(loadedDetails: RelayInformation): boolean {
+  softwareIsName(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
     const isUrl = /(https?:\/\/)|(^git\@)/;
     return !isUrl.test(loadedDetails.software);
   }
 
-  softwareHasLink(loadedDetails: RelayInformation): string | null {
+  softwareHasLink(loadedDetails: RelayInformation & RelayInformationTemp): string | null {
     const isHttp = /^https?:\/\//;
     const isGitSsh = /^git@[^ ]+\:[^ ]+.git$/;
     const isGitHttp = /^git\+/;
@@ -113,12 +115,12 @@ export class RelayDetailComponent implements OnInit {
     return null;
   }
 
-  contactIsEmail(loadedDetails: RelayInformation): boolean {
+  contactIsEmail(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
     const isEmail = /^[^ ]+@[^ ]+\.[^ ]+$/;
     return isEmail.test(loadedDetails.contact);
   }
 
-  contactIsWebSite(loadedDetails: RelayInformation): boolean {
+  contactIsWebSite(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
     const isWebSite = /^[^@ ]+\.[^ ]+$/;
     return isWebSite.test(loadedDetails.contact);
   }
