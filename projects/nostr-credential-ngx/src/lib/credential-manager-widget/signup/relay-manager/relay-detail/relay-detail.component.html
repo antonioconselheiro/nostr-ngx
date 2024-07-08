@@ -129,6 +129,7 @@
     <div *ngIf="false && loadedDetails.limitation?.created_at_upper_limit">
       <strong>Newer note:</strong>
       <span>
+        <!-- TODO: preciso descobrir se este formato é o correto para apresentar 'created_at_lower_limit' e 'created_at_upper_limit' -->
         <!-- TODO: preciso centralizar o formato de data na internacionalização, quando for fazê-la -->
         {{loadedDetails.limitation?.created_at_upper_limit | date:'dd/MM/yyyy HH:mm'}}
       </span>

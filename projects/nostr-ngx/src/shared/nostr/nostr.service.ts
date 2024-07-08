@@ -16,6 +16,9 @@ export class NostrService {
     private poolStatefull: PoolStatefull
   ) { }
 
+  async request(filters: Filter[], relays: string[]): Promise<Array<Event>>
+  async request(filters: Filter[], relays: TRelayMap): Promise<Array<Event>>
+  async request(filters: Filter[]): Promise<Array<Event>>
   async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
     const pool = PoolStatefull.currentPool;
     const events = new Array<NostrEvent>();

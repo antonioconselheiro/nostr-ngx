@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { SimplePool } from 'nostr-tools';
+import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { TNip05 } from '../../domain/nip05.type';
 import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 import { TNostrPublic } from '../../domain/nostr-public.type';
 import { TRelayMap } from '../../domain/relay-map.type';
+import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 import { ConfigsLocalStorage } from './configs-local.storage';
 import { NostrGuard } from './nostr.guard';
-import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 
 /**
  * Centralize relays information and status
@@ -17,7 +18,7 @@ import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 })
 export class PoolStatefull {
 
-  static currentPool = new SimplePool();
+  static currentPool: AbstractSimplePool = new SimplePool();
 
   private static defaultAppRelays: TRelayMap = {};
 

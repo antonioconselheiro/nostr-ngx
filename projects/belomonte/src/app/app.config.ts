@@ -1,13 +1,13 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { RelayService } from '@belomonte/nostr-ngx';
+import { PoolStatefull } from '@belomonte/nostr-ngx';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes)]
 };
 
-RelayService.setDefaultApplicationRelays({
+PoolStatefull.setDefaultApplicationRelays({
   'ws://umbrel.local:4848': { read: true, write: true },
   'wss://cache2.primal.net/v1': { read: true, write: false },
   'wss://nos.lol': { read: true, write: true },
@@ -27,5 +27,5 @@ RelayService.setDefaultApplicationRelays({
   'wss://nostr.fmt.wiz.biz': { read: true, write: true },
   'wss://relay.nostrati.com': { read: true, write: true },
   'wss://relay.nostr.com.au': { read: true, write: true },
-  'wss://soloco.nl': { read: true, write: true },
+  'wss://soloco.nl': { read: true, write: true }
 });

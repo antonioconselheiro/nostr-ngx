@@ -10,15 +10,17 @@ export * from './domain/nostr-session-config.interface';
 export * from './domain/relay-map.type';
 export * from './domain/relay-information.interface';
 
+export * from './shared/abstract-storage';
 export * from './shared/nostr/no-credentials-found.error';
 export * from './shared/nostr/configs-local.storage';
 export * from './shared/nostr/configs-session.storage';
-export * from './shared/abstract-storage';
 export * from './shared/nostr/nostr.guard';
 export * from './shared/nostr/nostr.module';
 export * from './shared/nostr/nostr.service';
 export * from './shared/nostr/nostr.converter';
 export * from './shared/nostr/signer-not-found.error';
+export * from './shared/nostr/pool.statefull';
+export * from './shared/nostr/extended-pool';
 
 export interface WindowNostr {
   getPublicKey(): Promise<string>
