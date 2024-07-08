@@ -7,7 +7,7 @@ import { normalizeURL } from 'nostr-tools/utils';
  * A derivated pool that should not be able to close relays from derivated pools,
  * but can reuse it connections.
  */
-export class DerivatedSimplePool extends SimplePool {
+export class DerivatedPool extends SimplePool {
 
   private derivatedRelays: Map<string, AbstractRelay>;
 

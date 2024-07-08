@@ -19,6 +19,6 @@ export class ProfileNostr {
         ],
         authors: npubs.map(npub => String(nip19.decode(npub).data))
       }
-    ], relays)
+    ], relays);
   }
 }

@@ -14,7 +14,7 @@ import { normalizeURL } from 'nostr-tools/utils';
  * If you don't want to connect in all inherited relays, but reuse connections,
  * you should use DerviatedSimplePool.
  */
-export class ExtendedSimplePool extends SimplePool {
+export class ExtendedPool extends SimplePool {
 
   private inheritedRelays: string[] = [];
   override readonly trustedRelayURLs!: Set<string>;

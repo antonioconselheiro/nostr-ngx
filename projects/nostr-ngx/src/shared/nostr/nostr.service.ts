@@ -16,14 +16,11 @@ export class NostrService {
     private poolStatefull: PoolStatefull
   ) { }
 
-  async request(filters: Filter[], relays: string[]): Promise<Array<Event>>
-  async request(filters: Filter[], relays: TRelayMap): Promise<Array<Event>>
-  async request(filters: Filter[]): Promise<Array<Event>>
   async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
     const pool = PoolStatefull.currentPool;
     const events = new Array<NostrEvent>();
-    relays = relays || await this.poolStatefull.getCurrentUserRelays();
-    const relayList = this.poolStatefull.filterReadableRelays(relays);
+    const requestRelays = relays || await this.poolStatefull.getCurrentUserRelays();
+    const relayList = this.poolStatefull.filterReadableRelays(requestRelays);
     console.debug('requesting in relays:', relayList, 'filters: ', filters);
 
     return new Promise(resolve => {

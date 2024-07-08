@@ -11,6 +11,11 @@ import { ConfigsLocalStorage } from './configs-local.storage';
 import { NostrGuard } from './nostr.guard';
 
 /**
+ * FIXME: talvéz a melhor saída não seja fazer um serviço para uma pool central, apesar de ter uma
+ * pool central, ela não deve ser um service singleton, por que haverão outras pools de acordo com
+ * o contexto da aplicação
+ */
+/**
  * Centralize relays information and status
  */
 @Injectable({
