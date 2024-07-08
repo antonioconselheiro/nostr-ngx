@@ -20,7 +20,8 @@ export * from './shared/nostr/nostr.service';
 export * from './shared/nostr/nostr.converter';
 export * from './shared/nostr/signer-not-found.error';
 export * from './shared/nostr/pool.statefull';
-export * from './shared/nostr/extended-pool';
+export * from './shared/nostr/extended.pool';
+export * from './shared/nostr/derivated.pool';
 
 export interface WindowNostr {
   getPublicKey(): Promise<string>
