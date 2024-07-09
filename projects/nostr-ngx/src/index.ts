@@ -7,7 +7,7 @@ export * from './domain/nostr-local-config.interface';
 export * from './domain/nostr-public.type';
 export * from './domain/nostr-secret.type';
 export * from './domain/nostr-session-config.interface';
-export * from './domain/relay-map.type';
+export * from './domain/relay-record.type';
 export * from './domain/relay-information.interface';
 
 export * from './shared/abstract-storage';

@@ -1,8 +1,8 @@
 import { RelayInformation } from 'nostr-tools/nip11';
-import { AbstractRelay } from 'nostr-tools/relay';
+import { IRelayConfig } from './relay-config.interface';
 
-export interface IRelayMetadata {
-  writeable: boolean;
-  conn?: AbstractRelay;
+export interface IRelayMetadata extends IRelayConfig {
+  url: string;
+  connectionTimeout?: number;
   details?: RelayInformation;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Event, Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { TRelayMap } from '../../domain/relay-map.type';
+import { TRelayRecord } from '../../domain/relay-record.type';
 import { PoolStatefull } from './pool.statefull';
 
 /**
@@ -16,11 +16,15 @@ export class NostrService {
     private poolStatefull: PoolStatefull
   ) { }
 
-  async request(filters: Filter[], relays?: TRelayMap | string[]): Promise<Array<Event>> {
+  request(filters: Filter[]): Promise<Array<Event>>
+  request(filters: Filter[], relays: string[]): Promise<Array<Event>>
+  request(filters: Filter[], relays: TRelayRecord): Promise<Array<Event>>
+  request(filters: Filter[], relays?: TRelayRecord | string[]): Promise<Array<Event>>;
+  async request(filters: Filter[], relays?: TRelayRecord | string[]): Promise<Array<Event>> {
     const pool = PoolStatefull.currentPool;
     const events = new Array<NostrEvent>();
-    const requestRelays = relays || await this.poolStatefull.getCurrentUserRelays();
-    const relayList = this.poolStatefull.filterReadableRelays(requestRelays);
+    relays = relays || await this.poolStatefull.getCurrentUserRelays();
+    const relayList = this.poolStatefull.filterReadableRelays(relays);
     console.debug('requesting in relays:', relayList, 'filters: ', filters);
 
     return new Promise(resolve => {
@@ -42,7 +46,11 @@ export class NostrService {
     });
   }
 
-  observable(filters: Filter[], relays?: TRelayMap | string[]): Observable<Event> {
+  observable(filters: Filter[]): Observable<Event>;
+  observable(filters: Filter[], relays?: string[]): Observable<Event>;
+  observable(filters: Filter[], relays?: TRelayRecord): Observable<Event>;
+  observable(filters: Filter[], relays?: TRelayRecord | string[]): Observable<Event>;
+  observable(filters: Filter[], relays?: TRelayRecord | string[]): Observable<Event> {
     const pool = PoolStatefull.currentPool;
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
@@ -68,7 +76,11 @@ export class NostrService {
       .pipe(takeUntil(onDestroy$));
   }
 
-  async publish(event: Event, relays?: TRelayMap | string[]): Promise<void> {
+  publish(event: Event): Promise<void>;
+  publish(event: Event, relays?: string[]): Promise<void>;
+  publish(event: Event, relays?: TRelayRecord): Promise<void>;
+  publish(event: Event, relays?: TRelayRecord | string[]): Promise<void>;
+  async publish(event: Event, relays?: TRelayRecord | string[]): Promise<void> {
     const pool = PoolStatefull.currentPool;
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
     const relayList = this.poolStatefull.filterWritableRelays(relays);

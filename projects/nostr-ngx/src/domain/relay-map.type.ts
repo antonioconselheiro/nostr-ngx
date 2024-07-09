@@ -1,1 +1,0 @@
-export type TRelayMap = { [url: string]: {read: boolean, write: boolean} };

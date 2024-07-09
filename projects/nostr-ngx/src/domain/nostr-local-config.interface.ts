@@ -1,11 +1,11 @@
-import { TRelayMap } from "./relay-map.type";
+import { TRelayRecord } from "./relay-record.type";
 
 export interface INostrLocalConfig {
   relayFrom: 'none' | 'localStorage' | 'signer' | 'public';
-  commonRelays?: TRelayMap;
+  commonRelays?: TRelayRecord;
 
   /**
    * string index is npub
    */
-  userRelays?: Record<string, TRelayMap>;
+  userRelays?: Record<string, TRelayRecord>;
 }
