@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { TRelayMap } from '@belomonte/nostr-ngx';
+import { TRelayRecord, IRelayConfig } from '@belomonte/nostr-ngx';
 import { NostrSigner } from '../../../../profile-service/nostr.signer';
 import { TAuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
@@ -20,7 +20,7 @@ export class MyRelaysComponent {
   @Output()
   relayDetail = new EventEmitter<string>();
 
-  choosingRelays: TRelayMap = {};
+  choosingRelays: TRelayRecord = {};
   relaysFrom = 'public';
   relayWritable = true;
 
@@ -28,14 +28,10 @@ export class MyRelaysComponent {
     private nostrSigner: NostrSigner
   ) { }
 
-  listRelays(): Array<{
-    relay: string;
-    read: boolean;
-    write: boolean;
-  }> {
+  listRelays(): Array<IRelayConfig> {
     return Object
       .keys(this.choosingRelays)
-      .map(relay => ({ ...this.choosingRelays[relay], relay }));
+      .map(relay => this.choosingRelays[relay]);
   }
 
   removeRelay(relay: string): void {
@@ -45,6 +41,7 @@ export class MyRelaysComponent {
   connect(relay: string): void {
     if (relay) {
       this.choosingRelays[relay] = {
+        url: relay,
         read: true,
         write: this.relayWritable
       };

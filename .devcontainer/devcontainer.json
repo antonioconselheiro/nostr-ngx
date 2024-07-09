@@ -16,7 +16,8 @@
         "manishsencha.readme-preview",
         "wix.vscode-import-cost",
         "jrjrjr.amberlight",
-        "natewallace.angular2-inline"
+        "natewallace.angular2-inline",
+        "johnpapa.angular-essentials"
       ]
 		}
 	}

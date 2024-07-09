@@ -38,7 +38,7 @@
     <div>
       <strong>Paid?</strong>
       <span>
-        {{loadedDetails.limitation?.payment_required ? 'yes' : 'no'}}
+        {{loadedDetails.limitation.payment_required ? 'yes' : 'no'}}
       </span>
     </div>
 
@@ -105,85 +105,79 @@
     </div>
   </fieldset>
 
-  <fieldset *ngIf="showPublicationLimitations(loadedDetails)">
+  <fieldset *ngIf="showPublicationLimitations(loadedDetails) && loadedDetails.limitation">
     <legend>Publication limitation</legend>
 
-    <div *ngIf="loadedDetails.limitation?.max_content_length">
+    <div *ngIf="loadedDetails.limitation.max_content_length">
       <strong>Note max length:</strong>
       <span>
-        {{loadedDetails.limitation?.max_content_length}}
+        {{loadedDetails.limitation.max_content_length}}
       </span>
     </div>
-    <!--
-      TODO: não tenho certeza de como devo exibir formatado created_at_lower_limit e created_at_upper_limit,
-      a documentação do nostr sobre estas propriedades não é clara o suficiente, preciso analisar a
-      implementação de outros clients
-    -->
-    <div *ngIf="false && loadedDetails.limitation?.created_at_lower_limit">
+    <div *ngIf="loadedDetails.limitation.created_at_lower_limit">
       <strong>Older note:</strong>
       <span>
         <!-- TODO: preciso centralizar o formato de data na internacionalização, quando for fazê-la -->
-        {{loadedDetails.limitation?.created_at_lower_limit | date:'dd/MM/yyyy HH:mm'}}
+        {{getLowerLimitTimestamp(loadedDetails) | date:'dd/MM/yyyy HH:mm'}}
       </span>
     </div>
-    <div *ngIf="false && loadedDetails.limitation?.created_at_upper_limit">
+    <div *ngIf="loadedDetails.limitation.created_at_upper_limit">
       <strong>Newer note:</strong>
       <span>
-        <!-- TODO: preciso descobrir se este formato é o correto para apresentar 'created_at_lower_limit' e 'created_at_upper_limit' -->
         <!-- TODO: preciso centralizar o formato de data na internacionalização, quando for fazê-la -->
-        {{loadedDetails.limitation?.created_at_upper_limit | date:'dd/MM/yyyy HH:mm'}}
+        {{getUpperLimitTimestamp(loadedDetails) | date:'dd/MM/yyyy HH:mm'}}
       </span>
     </div>
-    <div *ngIf="loadedDetails.limitation?.max_event_tags">
+    <div *ngIf="loadedDetails.limitation.max_event_tags">
       <strong>Max of hashtags per note:</strong>
       <span>
-        {{loadedDetails.limitation?.max_event_tags | number:numberFormat}}
+        {{loadedDetails.limitation.max_event_tags | number:numberFormat}}
       </span>
     </div>
-    <div *ngIf="loadedDetails.limitation?.max_message_length">
+    <div *ngIf="loadedDetails.limitation.max_message_length">
       <strong>Event max length:</strong>
       <span>
-        {{loadedDetails.limitation?.max_message_length | number:numberFormat}}
+        {{loadedDetails.limitation.max_message_length | number:numberFormat}}
       </span>
     </div>
   </fieldset>
 
-  <fieldset *ngIf="showOtherLimitations(loadedDetails)">
+  <fieldset *ngIf="showOtherLimitations(loadedDetails) && loadedDetails.limitation">
     <legend>Other Limitations</legend>
 
     <!-- TODO: read more about NIP-42 (auth_required) -->
-    <div *ngIf="loadedDetails.limitation?.auth_required">
+    <div *ngIf="loadedDetails.limitation.auth_required">
       <strong>Authentication Required:</strong>
       <span>
-        {{loadedDetails.limitation?.auth_required ? 'yes' : 'no'}}
+        {{loadedDetails.limitation.auth_required ? 'yes' : 'no'}}
       </span>
     </div>
 
-    <div *ngIf="loadedDetails.limitation?.restricted_writes">
+    <div *ngIf="loadedDetails.limitation.restricted_writes">
       <strong>Restricted Writes:</strong>
       <span>
-        {{loadedDetails.limitation?.restricted_writes ? 'yes' : 'no'}}
+        {{loadedDetails.limitation.restricted_writes ? 'yes' : 'no'}}
       </span>
     </div>
 
-    <div *ngIf="loadedDetails.limitation?.max_limit">
+    <div *ngIf="loadedDetails.limitation.max_limit">
       <strong>Max results in search:</strong>
       <span>
-        {{loadedDetails.limitation?.max_limit | number:numberFormat}}
+        {{loadedDetails.limitation.max_limit | number:numberFormat}}
       </span>
     </div>
 
-    <div *ngIf="loadedDetails.limitation?.max_subscriptions">
+    <div *ngIf="loadedDetails.limitation.max_subscriptions">
       <strong>Max subscriptions per websocket connection:</strong>
       <span>
-        {{loadedDetails.limitation?.max_subscriptions | number:numberFormat}}
+        {{loadedDetails.limitation.max_subscriptions | number:numberFormat}}
       </span>
     </div>
 
-    <div *ngIf="loadedDetails.limitation?.max_filters">
+    <div *ngIf="loadedDetails.limitation.max_filters">
       <strong>Max event filters subscribe in the same connection:</strong>
       <span>
-        {{loadedDetails.limitation?.max_filters | number:numberFormat}}
+        {{loadedDetails.limitation.max_filters | number:numberFormat}}
       </span>
     </div>
 

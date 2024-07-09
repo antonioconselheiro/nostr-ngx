@@ -1,11 +1,12 @@
-import { RelayInformationTemp } from "@belomonte/nostr-ngx";
+import { RelayInformation } from 'nostr-tools/nip11'
 
 export interface IRelayConfig {
+  url: string;
   read?: boolean;
   write?: boolean;
 
   /**
    * nip11 data
    */
-  metadata?: RelayInformationTemp;
+  metadata?: RelayInformation;
 }

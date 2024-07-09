@@ -124,4 +124,17 @@ export class RelayDetailComponent implements OnInit {
     const isWebSite = /^[^@ ]+\.[^ ]+$/;
     return isWebSite.test(loadedDetails.contact);
   }
+
+  getLowerLimitTimestamp(loadedDetails: RelayInformation & RelayInformationTemp): number {
+    const lowerLimit = loadedDetails.limitation.created_at_lower_limit;
+    if (!lowerLimit) {
+      return 0;
+    }
+
+    return lowerLimit * 1000;
+  }
+
+  getUpperLimitTimestamp(loadedDetails: RelayInformation & RelayInformationTemp): number {
+    return new Date().getTime() + ((loadedDetails.limitation.created_at_upper_limit || 0) * 1000);
+  }
 }

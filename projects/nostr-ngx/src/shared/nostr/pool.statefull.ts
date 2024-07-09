@@ -55,22 +55,24 @@ export class PoolStatefull {
    */
   connectRelayWithLoadedDetails(relay: string, relayDetails: RelayInformation, isCache = false): void {
     const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
-      writeable: !isCache,
+      url: relay,
+      write: !isCache,
       details: relayDetails
     };
 
     PoolStatefull.currentPool.ensureRelay(relay)
-      .then(conn => relayMetadata.conn = conn);
+      .then(conn => (relayMetadata as any).conn = conn);
   }
 
   private connectRelays(relays: string[], isCache: boolean): void {
     relays.forEach(relay => {
       const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
-        writeable: !isCache
+        url: relay,
+        write: !isCache
       };
 
       PoolStatefull.currentPool.ensureRelay(relay)
-        .then(conn => relayMetadata.conn = conn);
+        .then(conn => (relayMetadata as any).conn = conn);
 
       fetchRelayInformation(relay)
         .then(details => relayMetadata.details = details);

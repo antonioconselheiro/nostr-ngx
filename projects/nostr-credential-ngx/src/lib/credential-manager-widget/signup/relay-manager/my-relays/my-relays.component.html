@@ -12,8 +12,8 @@
 
   <ul class="relayList">
     <li *ngFor="let relay of listRelays()" class="connected">
-      <a (click)="relayDetail.next(relay.relay)">{{relay.relay}}{{!relay.write ? ' (cache)' : ''}}</a>
-      <button (click)="removeRelay(relay.relay)" type="button">✕</button>
+      <a (click)="relayDetail.next(relay.url)">{{relay.url}}{{!relay.write ? ' (cache)' : ''}}</a>
+      <button (click)="removeRelay(relay.url)" type="button">✕</button>
     </li>
   </ul>
 
