@@ -3,7 +3,7 @@
     <legend>Relay Publish</legend>
     <div>
       <label>Nostr Secret</label>
-      <input #nsec formControlName="nsec" [type]="nostrSecretHide ? 'password' : 'text'" />
+      <input #nsec name="nsec" formControlName="nsec" [type]="nostrSecretHide ? 'password' : 'text'" />
       <button (click)="nostrSecretHide = !nostrSecretHide" *ngIf="!nostrSecretHide" type="button">hide</button>
       <button (click)="nostrSecretHide = !nostrSecretHide" *ngIf="nostrSecretHide" type="button">show</button>
       <button (click)="generateNostrSecret()" type="button">generate</button>
@@ -11,12 +11,12 @@
 
     <div>
       <label>Pubkey</label>
-      <input type="text" formControlName="pubkey" readonly  />
+      <input type="text" formControlName="pubkey" name="pubkey" readonly  />
     </div>
   
     <div>
       <label>Event</label>
-      <textarea formControlName="event" #eventJson></textarea>
+      <textarea formControlName="event" name="event" #eventJson></textarea>
     </div>
   
     <div>
@@ -37,7 +37,7 @@
     <legend>Relay Read</legend>
     <div>
       <label>Filter</label>
-      <textarea formControlName="filter"></textarea>
+      <textarea name="filter" formControlName="filter"></textarea>
     </div>
   
     <div>
