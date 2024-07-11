@@ -22,4 +22,6 @@ export abstract class AbstractPool extends SimplePool {
 
     return map;
   }
+
+  abstract destroy(): void;
 }
