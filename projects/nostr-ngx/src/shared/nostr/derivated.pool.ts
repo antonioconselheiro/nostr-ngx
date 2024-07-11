@@ -1,13 +1,13 @@
-import { SimplePool } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/abstract-relay';
 import { normalizeURL } from 'nostr-tools/utils';
+import { AbstractPool } from './abstract.pool';
 
 /**
  * A derivated pool that should not be able to close relays from derivated pools,
  * but can reuse it connections.
  */
-export class DerivatedPool extends SimplePool {
+export class DerivatedPool extends AbstractPool {
 
   private derivatedRelays: Map<string, AbstractRelay>;
 
@@ -38,14 +38,6 @@ export class DerivatedPool extends SimplePool {
     }
 
     return super.ensureRelay(url, params);
-  }
-
-  private addRelay(relay: string, conn: AbstractRelay): void {
-    (this as any).relays.set(relay, conn);
-  }
-
-  private getRelays(): Map<string, AbstractRelay> {
-    return (this as any).relays;
   }
 
   override close(relays?: string[]): void {

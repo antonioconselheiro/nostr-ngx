@@ -2,6 +2,7 @@ import { SimplePool } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
+import { AbstractPool } from './abstract.pool';
 
 /**
  * A extended pool that should not be able to close relays from father pool,
@@ -14,7 +15,7 @@ import { normalizeURL } from 'nostr-tools/utils';
  * If you don't want to connect in all inherited relays, but reuse connections,
  * you should use DerviatedSimplePool.
  */
-export class ExtendedPool extends SimplePool {
+export class ExtendedPool extends AbstractPool {
 
   private inheritedRelays: string[] = [];
   override readonly trustedRelayURLs!: Set<string>;
@@ -37,18 +38,6 @@ export class ExtendedPool extends SimplePool {
         this.ensureRelay(url);
       }
     });   
-  }
-
-  private initRelays(): void {
-    (this as any).relays = new Map();
-  }
-
-  private addRelay(relay: string, conn: AbstractRelay): void {
-    (this as any).relays.set(relay, conn);
-  }
-
-  private getRelays(): Map<string, AbstractRelay> {
-    return (this as any).relays;
   }
 
   override close(relays?: string[]): void {

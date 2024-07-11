@@ -1,8 +1,9 @@
-import { Filter, NostrEvent, SimplePool } from 'nostr-tools';
+import { Filter, NostrEvent } from 'nostr-tools';
 import { SubCloser, SubscribeManyParams } from 'nostr-tools/pool';
 import { AbstractRelay } from 'nostr-tools/relay';
 import { IRelayConfig } from '../../domain/relay-config.interface';
 import { IRelayMetadata } from '../../domain/relay-metadata.interface';
+import { AbstractPool } from './abstract.pool';
 
 /**
  * -> Read/Write control - follow the read/write relay config, so, it
@@ -10,7 +11,7 @@ import { IRelayMetadata } from '../../domain/relay-metadata.interface';
  * 
  * -> Can be configured to load relay details (NIP11) on connect.
  */
-export class SmartPool extends SimplePool {
+export class SmartPool extends AbstractPool {
 
   protected relaysMetadata: Record<string, IRelayMetadata> = {};
 
