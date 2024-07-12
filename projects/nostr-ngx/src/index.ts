@@ -25,6 +25,8 @@ export * from './shared/nostr/pool.statefull';
 export * from './shared/nostr/extended.pool';
 export * from './shared/nostr/derivated.pool';
 export * from './shared/nostr/smart.pool';
+export * from './shared/nostr/observe-relay.fn';
+export * from './shared/nostr/observe-pool.fn';
 
 export interface WindowNostr {
   getPublicKey(): Promise<string>

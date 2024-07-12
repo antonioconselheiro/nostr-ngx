@@ -23,5 +23,8 @@ export abstract class AbstractPool extends SimplePool {
     return map;
   }
 
-  abstract destroy(): void;
+  destroy(): void {
+    this.getRelays().forEach(conn => conn.close());
+    this.initRelays();
+  }
 }

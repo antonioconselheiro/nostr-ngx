@@ -10,11 +10,6 @@
     </div>
   
     <div>
-      <label>Relay</label>
-      <input type="text" name="initialRelay" formControlName="initialRelay" />
-    </div>
-  
-    <div>
       <label>Pool type</label>
       <select name="poolType" formControlName="poolType" #poolType>
         <option value="simple">Simple</option>
@@ -29,6 +24,7 @@
       <label *ngIf="poolType.value === 'derivated'">Derivate from</label>
   
       <select name="poolList" formControlName="poolList">
+        <option *ngFor="let poolConfig of pools" value="poolConfig.name">{{poolConfig.name}}</option>
       </select>
     </div>
   </fieldset>
@@ -43,7 +39,22 @@
   <tbody>
     <tr>
       <td *ngFor="let pool of pools">
-        {{pool.pool.}}
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Relay</th>
+              <th>Conn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let relay of pool.status">
+              <td>{{relay.relay}}</td>
+              <td>{{relay.connected ? 'yes' : 'no'}}</td>
+            </tr>
+          </tbody>
+        </table>
+
       </td>
     </tr>
   </tbody>

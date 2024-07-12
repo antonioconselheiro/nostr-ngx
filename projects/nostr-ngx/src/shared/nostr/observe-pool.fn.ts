@@ -16,11 +16,12 @@ export function observePool(pool: AbstractSimplePool): {
 
   const subject = new Subject<void>();
   const close = pool.close.bind(pool);
+  const destroy = ((pool as any).destroy || function(){}).bind(pool);
   const ensureRelay = pool.ensureRelay.bind(pool);
 
   pool.close = (relays: string[]): void => {
-    subject.next();
     close(relays);
+    subject.next();
   };
 
   pool.ensureRelay = async (
@@ -29,6 +30,11 @@ export function observePool(pool: AbstractSimplePool): {
     const relay = await ensureRelay(url, params);
     subject.next();
     return Promise.resolve(relay);
+  };
+
+  (pool as any).destroy = () => {
+    destroy();
+    subject.next();
   };
 
   ((pool as any).relays as Array<AbstractRelay>).forEach(relay => {
