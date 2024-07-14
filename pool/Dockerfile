@@ -9,8 +9,9 @@ RUN apt install -y git build-essential libyaml-perl \
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/hoytech/strfry
+COPY ./strfry.conf /etc/strfry.conf
 
+RUN git clone https://github.com/hoytech/strfry
 WORKDIR /strfry
 
 RUN git submodule update --init
