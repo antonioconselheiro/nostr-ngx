@@ -15,10 +15,6 @@ services:
     tty: true
   relay2:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7702:7777
     volumes:
@@ -27,10 +23,6 @@ services:
     tty: true
   relay3:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7703:7777
     volumes:
@@ -39,10 +31,6 @@ services:
     tty: true
   relay4:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7704:7777
     volumes:
@@ -51,10 +39,6 @@ services:
     tty: true
   relay5:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7705:7777
     volumes:
@@ -63,10 +47,6 @@ services:
     tty: true
   relay6:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7706:7777
     volumes:
@@ -75,10 +55,6 @@ services:
     tty: true
   relay7:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7707:7777
     volumes:
@@ -87,10 +63,6 @@ services:
     tty: true
   relay8:
     image: strfry
-    container_name: strfry
-    build:
-      context: ./.
-      dockerfile: ./Dockerfile
     ports:
       - 7708:7777
     volumes:
