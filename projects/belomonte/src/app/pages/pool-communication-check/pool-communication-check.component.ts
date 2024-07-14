@@ -23,7 +23,7 @@ export class PoolCommunicationCheckComponent {
     private fb: FormBuilder
   ) { }
 
-  createSimple(name: string): void {
+  private createSimple(name: string): void {
     const pool = new SimplePool();
     const poolConfig: IPoolConfig = {
       type: 'simple',
@@ -34,7 +34,7 @@ export class PoolCommunicationCheckComponent {
     this.pools.push(poolConfig);
   }
 
-  createSmart(name: string): void {
+  private createSmart(name: string): void {
     const pool = new SmartPool();
     const poolConfig: IPoolConfig = {
       type: 'smart',
@@ -45,7 +45,7 @@ export class PoolCommunicationCheckComponent {
     this.pools.push(poolConfig);
   }
 
-  createExtended(name: string, extendsFromPool: string): void {
+  private createExtended(name: string, extendsFromPool: string): void {
     const extendsFrom = this.pools.find(pool => pool.name === extendsFromPool);
 
     if (extendsFrom) {
@@ -60,7 +60,7 @@ export class PoolCommunicationCheckComponent {
     }
   }
 
-  createDerivated(name: string, derivateFromPool: string): void {
+  private createDerivated(name: string, derivateFromPool: string): void {
     const derivateFrom = this.pools.find(pool => pool.name === derivateFromPool);
 
     if (derivateFrom) {
@@ -75,4 +75,33 @@ export class PoolCommunicationCheckComponent {
     }
   }
 
+  submitPool(): void {
+    if (this.formEventPublish.valid) {
+      const form = this.formEventPublish.getRawValue();
+      const poolType = form.poolType || '';
+      const poolName = form.name || '';
+      const fromPool = form.fromPool || '';
+
+      switch (poolType) {
+        case 'simple':
+          this.createSimple(poolName);
+          break;
+        case 'smart':
+          this.createSmart(poolName);
+          break;
+        case 'extended':
+          this.createExtended(poolName, fromPool);
+          break;
+        case 'derivated':
+          this.createDerivated(poolName, fromPool);
+          break;
+      }
+    }
+  }
+
+  addRelay(poolConfig: IPoolConfig, newRelay: string): void {
+    if (/^ws/.test(newRelay)) {
+      poolConfig.pool.ensureRelay(newRelay);
+    }
+  }
 }
