@@ -17,7 +17,8 @@
         "wix.vscode-import-cost",
         "jrjrjr.amberlight",
         "natewallace.angular2-inline",
-        "johnpapa.angular-essentials"
+        "johnpapa.angular-essentials",
+        "ms-azuretools.vscode-docker"
       ]
 		}
 	}

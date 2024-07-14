@@ -1,0 +1,99 @@
+version: '3.9'
+
+services:
+  relay1:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7701:7777
+    volumes:
+      - ./db/db1:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay2:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7702:7777
+    volumes:
+      - ./db/db2:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay3:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7703:7777
+    volumes:
+      - ./db/db3:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay4:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7704:7777
+    volumes:
+      - ./db/db4:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay5:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7705:7777
+    volumes:
+      - ./db/db5:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay6:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7706:7777
+    volumes:
+      - ./db/db6:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay7:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7707:7777
+    volumes:
+      - ./db/db7:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true
+  relay8:
+    image: strfry
+    container_name: strfry
+    build:
+      context: ./.
+      dockerfile: ./Dockerfile
+    ports:
+      - 7708:7777
+    volumes:
+      - ./db/db8:/strfry/strfry-db
+      - ./strfry.conf:/etc/strfry.conf
+    tty: true

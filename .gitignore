@@ -2,6 +2,9 @@
 .gitconfig
 .ssh
 
+# Relay database
+/pool/db
+
 # Compiled output
 /dist
 /tmp
