@@ -5,8 +5,8 @@
     "@angular/common": "^17.3.0",
     "@angular/core": "^17.3.0",
     "@belomonte/async-modal-ngx": "^0.1.0",
-    "qrcode": "^1.5.3",
-    "nostr-tools": "^2.7.0"
+    "nostr-tools": "^2.7.1",
+    "qrcode": "^1.5.3"
   },
   "dependencies": {
     "tslib": "^2.3.0"

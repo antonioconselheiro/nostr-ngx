@@ -7,7 +7,7 @@ services:
     build:
       context: ../.
       dockerfile: ./.devcontainer/Dockerfile
-    privileged: true,
+    privileged: true
     working_dir: /nostr-ngx
     ports:
       - "4203:4203"
