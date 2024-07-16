@@ -51,4 +51,13 @@ export class ExtendedPool extends AbstractPool {
 
     super.close(aditionalRelays);
   }
+
+  override destroy(): void {
+    this.getRelays().forEach((conn, url) => {
+      if (!this.inheritedRelays.includes(url)) {
+        conn.close();
+      }
+    });
+    this.initRelays();
+  }
 }

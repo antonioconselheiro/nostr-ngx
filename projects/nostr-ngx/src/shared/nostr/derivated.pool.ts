@@ -53,4 +53,14 @@ export class DerivatedPool extends AbstractPool {
 
     super.close(aditionalRelays);
   }
+
+  override destroy(): void {
+    const keys = Array.from(this.derivatedRelays.keys());
+    this.getRelays().forEach((conn, url) => {
+      if (!keys.includes(url)) {
+        conn.close();
+      }
+    });
+    this.initRelays();
+  }
 }
