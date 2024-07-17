@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Event, Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { TRelayRecord } from '../../domain/relay-record.type';
+import { TRelayMetadataRecord } from '../../domain/relay-record.type';
 import { PoolStatefull } from './pool.statefull';
 
 /**
@@ -18,9 +18,9 @@ export class NostrService {
 
   request(filters: Filter[]): Promise<Array<Event>>
   request(filters: Filter[], relays: string[]): Promise<Array<Event>>
-  request(filters: Filter[], relays: TRelayRecord): Promise<Array<Event>>
-  request(filters: Filter[], relays?: TRelayRecord | string[]): Promise<Array<Event>>;
-  async request(filters: Filter[], relays?: TRelayRecord | string[]): Promise<Array<Event>> {
+  request(filters: Filter[], relays: TRelayMetadataRecord): Promise<Array<Event>>
+  request(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Promise<Array<Event>>;
+  async request(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Promise<Array<Event>> {
     const pool = PoolStatefull.currentPool;
     const events = new Array<NostrEvent>();
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
@@ -48,9 +48,9 @@ export class NostrService {
 
   observable(filters: Filter[]): Observable<Event>;
   observable(filters: Filter[], relays?: string[]): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayRecord): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayRecord | string[]): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayRecord | string[]): Observable<Event> {
+  observable(filters: Filter[], relays?: TRelayMetadataRecord): Observable<Event>;
+  observable(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Observable<Event>;
+  observable(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Observable<Event> {
     const pool = PoolStatefull.currentPool;
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
@@ -78,9 +78,9 @@ export class NostrService {
 
   publish(event: Event): Promise<void>;
   publish(event: Event, relays?: string[]): Promise<void>;
-  publish(event: Event, relays?: TRelayRecord): Promise<void>;
-  publish(event: Event, relays?: TRelayRecord | string[]): Promise<void>;
-  async publish(event: Event, relays?: TRelayRecord | string[]): Promise<void> {
+  publish(event: Event, relays?: TRelayMetadataRecord): Promise<void>;
+  publish(event: Event, relays?: TRelayMetadataRecord | string[]): Promise<void>;
+  async publish(event: Event, relays?: TRelayMetadataRecord | string[]): Promise<void> {
     const pool = PoolStatefull.currentPool;
     relays = relays || await this.poolStatefull.getCurrentUserRelays();
     const relayList = this.poolStatefull.filterWritableRelays(relays);

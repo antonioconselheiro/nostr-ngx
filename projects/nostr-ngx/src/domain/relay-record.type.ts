@@ -1,3 +1,3 @@
-import { IRelayConfig } from './relay-config.interface';
+import { IRelayMetadata } from "./relay-metadata.interface";
 
-export type TRelayRecord = { [url: string]: IRelayConfig };
+export type TRelayMetadataRecord = { [url: string]: IRelayMetadata };

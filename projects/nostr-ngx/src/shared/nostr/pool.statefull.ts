@@ -5,7 +5,7 @@ import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { TNip05 } from '../../domain/nip05.type';
 import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
 import { TNostrPublic } from '../../domain/nostr-public.type';
-import { TRelayRecord } from '../../domain/relay-record.type';
+import { TRelayMetadataRecord } from '../../domain/relay-record.type';
 import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 import { ConfigsLocalStorage } from './configs-local.storage';
 import { NostrGuard } from './nostr.guard';
@@ -25,14 +25,14 @@ export class PoolStatefull {
 
   static currentPool: AbstractSimplePool = new SimplePool();
 
-  private static defaultAppRelays: TRelayRecord = {};
+  private static defaultAppRelays: TRelayMetadataRecord = {};
 
   /**
    * TODO: loaod nip11 data to details property
    */
   private static relayMetadata: Record<string, IRelayMetadata> = {};
 
-  static setDefaultApplicationRelays(relays: TRelayRecord): void {
+  static setDefaultApplicationRelays(relays: TRelayMetadataRecord): void {
     this.defaultAppRelays = relays;
   }
 
@@ -91,7 +91,7 @@ export class PoolStatefull {
     PoolStatefull.relayMetadata = {};
   }
 
-  filterWritableRelays(relays: TRelayRecord | string[]): string[] {
+  filterWritableRelays(relays: TRelayMetadataRecord | string[]): string[] {
     if (relays instanceof Array) {
       return relays;
     }
@@ -101,7 +101,7 @@ export class PoolStatefull {
       .filter(relay => relays[relay].write);
   }
 
-  filterReadableRelays(relays: TRelayRecord | string[]): string[] {
+  filterReadableRelays(relays: TRelayMetadataRecord | string[]): string[] {
     if (relays instanceof Array) {
       return relays;
     }
@@ -118,7 +118,7 @@ export class PoolStatefull {
    * @param relays
    * @param npub 
    */
-  setLocalRelays(relays: TRelayRecord, npub?: TNostrPublic) {
+  setLocalRelays(relays: TRelayMetadataRecord, npub?: TNostrPublic) {
     const local = this.configs.read();
 
     if (npub) {
@@ -134,14 +134,14 @@ export class PoolStatefull {
   /**
    * Return relays according to user-customized settings
    */
-  getCurrentUserRelays(): Promise<TRelayRecord>;
-  getCurrentUserRelays(nip5: TNip05): Promise<TRelayRecord>;
-  getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayRecord>;
-  getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayRecord>;
-  async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayRecord> {
+  getCurrentUserRelays(): Promise<TRelayMetadataRecord>;
+  getCurrentUserRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
+  getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
+  getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord>;
+  async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord> {
     const local = this.configs.read();
     const relayFrom = local.relayFrom;
-    let relays: TRelayRecord = {};
+    let relays: TRelayMetadataRecord = {};
 
     if (relayFrom === 'signer') {
       relays = await this.getRelaysFromSigner();
@@ -162,18 +162,26 @@ export class PoolStatefull {
     return relays;
   }
 
-  private getRelaysFromSigner(): Promise<TRelayRecord> {
+  private async getRelaysFromSigner(): Promise<TRelayMetadataRecord> {
+    const relayRecordWithMetadata: Record<string, IRelayMetadata> = {};
+
     if (window.nostr) {
-      return window.nostr.getRelays();
+      const signerRelays = await window.nostr.getRelays();
+      Object.keys(signerRelays).forEach(url => {
+        const config = signerRelays[url];
+        relayRecordWithMetadata[url] = {
+          url, ...config
+        };
+      });
     }
 
-    return Promise.resolve({});
+    return Promise.resolve(relayRecordWithMetadata);
   }
 
-  private getRelaysFromStorage(local: INostrLocalConfig): Promise<TRelayRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, nostrPublic: TNostrPublic): Promise<TRelayRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayRecord> {
+  private getRelaysFromStorage(local: INostrLocalConfig): Promise<TRelayMetadataRecord>;
+  private getRelaysFromStorage(local: INostrLocalConfig, nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
+  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMetadataRecord>;
+  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMetadataRecord> {
     if (!userPublicAddress) {
       return Promise.resolve(local.commonRelays || {});
     } else if (this.guard.isNostrPublic(userPublicAddress)) {
@@ -183,10 +191,10 @@ export class PoolStatefull {
     return Promise.resolve({});
   }
 
-  getUserPublicRelays(nip5: TNip05): Promise<TRelayRecord>;
-  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayRecord>;
-  getUserPublicRelays(userPublicAddress: string): Promise<TRelayRecord>;
-  getUserPublicRelays(userPublicAddress: string): Promise<TRelayRecord> {
+  getUserPublicRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
+  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
+  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord>;
+  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord> {
     /**
      * TODO: preciso consultar o nip5 do usuário, tlvz lá tenha uma
      * listagem de relays,

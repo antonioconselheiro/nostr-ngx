@@ -1,8 +1,14 @@
 import { RelayInformation } from 'nostr-tools/nip11';
-import { IRelayConfig } from './relay-config.interface';
 
-export interface IRelayMetadata extends IRelayConfig {
+export interface IRelayMetadata {
   url: string;
+  read?: boolean;
+  write?: boolean;
+
+  /**
+   * nip11 data
+   */
+  metadata?: RelayInformation;
   connectionTimeout?: number;
   details?: RelayInformation;
 }

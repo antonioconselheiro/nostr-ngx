@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrEventKind, NostrService, TNostrPublic, TRelayRecord } from '@belomonte/nostr-ngx';
+import { NostrEventKind, NostrService, TNostrPublic, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
 import { nip19, NostrEvent } from 'nostr-tools';
 
 @Injectable({
@@ -11,7 +11,7 @@ export class ProfileNostr {
     private nostrService: NostrService
   ) { }
 
-  loadProfiles(npubs: Array<TNostrPublic>, relays?: TRelayRecord | string[]): Promise<NostrEvent[]> {
+  loadProfiles(npubs: Array<TNostrPublic>, relays?: TRelayMetadataRecord | string[]): Promise<NostrEvent[]> {
     return this.nostrService.request([
       {
         kinds: [

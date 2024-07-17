@@ -1,4 +1,3 @@
-import { SimplePool } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';

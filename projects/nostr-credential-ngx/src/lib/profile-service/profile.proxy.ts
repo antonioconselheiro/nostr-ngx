@@ -1,12 +1,12 @@
-import { Injectable } from "@angular/core";
-import { NostrConverter, TNostrPublic, TNostrSecret, TRelayRecord } from "@belomonte/nostr-ngx";
+import { Injectable } from '@angular/core';
+import { NostrConverter, TNostrPublic, TNostrSecret, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
 import { Event } from 'nostr-tools';
-import { IProfile } from "../domain/profile.interface";
-import { IUnauthenticatedUser } from "../domain/unauthenticated-user.interface";
-import { NostrSigner } from "./nostr.signer";
-import { ProfileNostr } from "./profile.nostr";
-import { ProfileCache } from "./profile.cache";
-import { AccountManagerStatefull } from "./account-manager.statefull";
+import { IProfile } from '../domain/profile.interface';
+import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
+import { NostrSigner } from './nostr.signer';
+import { ProfileNostr } from './profile.nostr';
+import { ProfileCache } from './profile.cache';
+import { AccountManagerStatefull } from './account-manager.statefull';
 
 /**
  * Orchestrate the interaction with the profile data,
@@ -46,9 +46,9 @@ export class ProfileProxy {
     this.profileCache.cache(profiles);
   }
 
-  async load(npubs: TNostrPublic, relays?: TRelayRecord | string[]): Promise<IProfile>;
-  async load(npubs: TNostrPublic[], relays?: TRelayRecord | string[]): Promise<IProfile[]>;
-  async load(npubs: TNostrPublic[] | TNostrPublic, relays?: TRelayRecord | string[]): Promise<IProfile | IProfile[]> {
+  async load(npubs: TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile>;
+  async load(npubs: TNostrPublic[], relays?: TRelayMetadataRecord | string[]): Promise<IProfile[]>;
+  async load(npubs: TNostrPublic[] | TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile | IProfile[]> {
     if (typeof npubs === 'string') {
       const indexedProfile = ProfileCache.profiles[npubs];
       if (!indexedProfile || !indexedProfile.load) {
@@ -61,11 +61,11 @@ export class ProfileProxy {
     }
   }
 
-  loadFromPublicHexa(pubkey: string, relays?: TRelayRecord | string[]): Promise<IProfile> {
+  loadFromPublicHexa(pubkey: string, relays?: TRelayMetadataRecord | string[]): Promise<IProfile> {
     return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey), relays);
   }
 
-  async loadAccountFromCredentials(nsec: TNostrSecret, password: string, relays?: TRelayRecord | string[]): Promise<IUnauthenticatedUser | null> {
+  async loadAccountFromCredentials(nsec: TNostrSecret, password: string, relays?: TRelayMetadataRecord | string[]): Promise<IUnauthenticatedUser | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     const profile = await this.load(user.npub, relays);
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
@@ -74,19 +74,19 @@ export class ProfileProxy {
     return Promise.resolve(account);
   }
 
-  async loadProfiles(npubss: TNostrPublic[], relays?: TRelayRecord | string[]): Promise<IProfile[]> {
+  async loadProfiles(npubss: TNostrPublic[], relays?: TRelayMetadataRecord | string[]): Promise<IProfile[]> {
     const npubs = [...new Set(npubss.flat(1))];
     const notLoaded = npubs.filter(npub => !this.profileCache.isEagerLoaded(npub))
 
     return this.forceProfileReload(notLoaded, relays);
   }
 
-  async loadProfile(npub: TNostrPublic, relays?: TRelayRecord | string[]): Promise<IProfile> {
+  async loadProfile(npub: TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile> {
     return this.loadProfiles([npub], relays)
       .then(profiles => Promise.resolve(profiles[0]));
   }
   
-  private async forceProfileReload(npubs: Array<TNostrPublic>, relays?: TRelayRecord | string[]): Promise<Array<IProfile>> {
+  private async forceProfileReload(npubs: Array<TNostrPublic>, relays?: TRelayMetadataRecord | string[]): Promise<Array<IProfile>> {
     const events = await this.profileApi.loadProfiles(npubs, relays);
     this.profileCache.cache(events);
     return Promise.resolve(npubs.map(npub => this.profileCache.get(npub)));

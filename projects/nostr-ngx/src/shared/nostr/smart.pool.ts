@@ -1,9 +1,9 @@
 import { Filter, NostrEvent } from 'nostr-tools';
 import { SubCloser, SubscribeManyParams } from 'nostr-tools/pool';
 import { AbstractRelay } from 'nostr-tools/relay';
-import { IRelayConfig } from '../../domain/relay-config.interface';
 import { IRelayMetadata } from '../../domain/relay-metadata.interface';
 import { AbstractPool } from './abstract.pool';
+import { RelayInformation } from 'nostr-tools/nip11';
 
 /**
  * -> Read/Write control - follow the read/write relay config, so, it
@@ -15,7 +15,7 @@ export class SmartPool extends AbstractPool {
 
   protected relaysMetadata: Record<string, IRelayMetadata> = {};
 
-  override ensureRelay(url: string, params?: { connectionTimeout?: number; } & IRelayConfig): Promise<AbstractRelay> {
+  override ensureRelay(url: string, params?: Partial<IRelayMetadata> & { details: RelayInformation }): Promise<AbstractRelay> {
     this.relaysMetadata[url] = { url, ...params };
     return super.ensureRelay(url, params);
   }
