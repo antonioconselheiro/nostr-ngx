@@ -22,13 +22,13 @@ export class ExtendedPool extends AbstractPool {
   constructor(fatherPool: AbstractSimplePool, relays: string[]) {
     super();
     Object.assign(this, fatherPool);
-    this.initRelays();
+    this.relays = new Map();
     this.seenOn = new Map();
 
     for (let touple of (fatherPool as any as { relays: Map<string, AbstractRelay> }).relays.entries()) {
       const [ relay, conn ] = touple;
       this.inheritedRelays.push(relay);
-      this.addRelay(relay, conn);
+      this.relays.set(relay, conn);
     }
 
     relays.forEach(relay => {
@@ -40,7 +40,7 @@ export class ExtendedPool extends AbstractPool {
   }
 
   override close(relays?: string[]): void {
-    let aditionalRelays = Array.from(this.getRelays())
+    let aditionalRelays = Array.from(this.relays)
       .filter(([relay]) => !this.inheritedRelays.includes(relay))
       .map(([relay]) => relay);
 
@@ -52,11 +52,11 @@ export class ExtendedPool extends AbstractPool {
   }
 
   override destroy(): void {
-    this.getRelays().forEach((conn, url) => {
+    this.relays.forEach((conn, url) => {
       if (!this.inheritedRelays.includes(url)) {
         conn.close();
       }
     });
-    this.initRelays();
+    this.relays = new Map();
   }
 }

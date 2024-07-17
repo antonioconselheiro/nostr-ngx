@@ -27,8 +27,13 @@ export function observePool(pool: AbstractSimplePool): {
   pool.ensureRelay = async (
     url: string, params?: { connectionTimeout?: number; }
   ): Promise<AbstractRelay> => {
+    const length = (pool as any).relays.size;
     const relay = await ensureRelay(url, params);
-    subject.next();
+
+    if (length != (pool as any).relays.size) {
+      subject.next();
+    }
+
     return Promise.resolve(relay);
   };
 

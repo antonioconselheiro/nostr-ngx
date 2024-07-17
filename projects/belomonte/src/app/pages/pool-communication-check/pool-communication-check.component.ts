@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IPoolConfig } from './pool-config.interface';
 import { SimplePool } from 'nostr-tools';
-import { DerivatedPool, ExtendedPool, SmartPool } from '@belomonte/nostr-ngx';
+import { AbstractPool, DerivatedPool, ExtendedPool, observePool, SmartPool } from '@belomonte/nostr-ngx';
 import { FormBuilder } from '@angular/forms';
 
 @Component({
@@ -13,10 +13,10 @@ export class PoolCommunicationCheckComponent {
 
   pools: IPoolConfig[] = [];
 
-  formEventPublish = this.fb.group({
+  formPool = this.fb.group({
     name: [''],
     poolType: [''],
-    fromPool: ['']
+    fromPool: ['simple']
   });
 
   constructor(
@@ -30,7 +30,11 @@ export class PoolCommunicationCheckComponent {
       status: [],
       pool, name
     };
-    
+
+    observePool(pool).changes
+      .subscribe(() => poolConfig.status = Array.from(AbstractPool.prototype.listConnectionStatus.bind(pool)().entries())
+        .map(([relay, connected]) => ({ relay, connected })));
+
     this.pools.push(poolConfig);
   }
 
@@ -41,6 +45,10 @@ export class PoolCommunicationCheckComponent {
       status: [],
       pool, name
     };
+
+    observePool(pool).changes
+      .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
+        .map(([relay, connected]) => ({ relay, connected })));
 
     this.pools.push(poolConfig);
   }
@@ -55,6 +63,10 @@ export class PoolCommunicationCheckComponent {
         status: [],
         pool, name
       };
+
+      observePool(pool).changes
+        .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
+          .map(([relay, connected]) => ({ relay, connected })));
 
       this.pools.push(poolConfig);
     }
@@ -71,13 +83,19 @@ export class PoolCommunicationCheckComponent {
         pool, name
       };
 
+      observePool(pool).changes
+        .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
+          .map(([relay, connected]) => ({ relay, connected })));
+
       this.pools.push(poolConfig);
     }
   }
 
-  submitPool(): void {
-    if (this.formEventPublish.valid) {
-      const form = this.formEventPublish.getRawValue();
+  submitPool(event: SubmitEvent): void {
+    event.preventDefault();
+
+    if (this.formPool.valid) {
+      const form = this.formPool.getRawValue();
       const poolType = form.poolType || '';
       const poolName = form.name || '';
       const fromPool = form.fromPool || '';
@@ -100,6 +118,7 @@ export class PoolCommunicationCheckComponent {
   }
 
   addRelay(poolConfig: IPoolConfig, newRelay: string): void {
+    debugger;
     if (/^ws/.test(newRelay)) {
       poolConfig.pool.ensureRelay(newRelay);
     }

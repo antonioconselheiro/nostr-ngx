@@ -22,7 +22,7 @@ export class DerivatedPool extends AbstractPool {
       for (let touple of relays.entries()) {
         const [relay, conn] = touple;
         this.derivatedRelays.set(relay, conn);
-        this.addRelay(relay, conn);
+        this.relays.set(relay, conn);
       }
     });
 
@@ -33,7 +33,7 @@ export class DerivatedPool extends AbstractPool {
     url = normalizeURL(url);
     const existingConnection = this.derivatedRelays.get(url);
     if (existingConnection) {
-      this.addRelay(url, existingConnection)
+      this.relays.set(url, existingConnection);
       return Promise.resolve(existingConnection);
     }
 
@@ -43,7 +43,7 @@ export class DerivatedPool extends AbstractPool {
   override close(relays?: string[]): void {
     const derivatedRelaysList = Array.from(this.derivatedRelays).map(([relay]) => relay);
 
-    let aditionalRelays = Array.from(this.getRelays())
+    let aditionalRelays = Array.from(this.relays)
       .filter(([relay]) => !derivatedRelaysList.includes(relay))
       .map(([relay]) => relay);
 
@@ -56,11 +56,11 @@ export class DerivatedPool extends AbstractPool {
 
   override destroy(): void {
     const keys = Array.from(this.derivatedRelays.keys());
-    this.getRelays().forEach((conn, url) => {
+    this.relays.forEach((conn, url) => {
       if (!keys.includes(url)) {
         conn.close();
       }
     });
-    this.initRelays();
+    this.relays = new Map();
   }
 }
