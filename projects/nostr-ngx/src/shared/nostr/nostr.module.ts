@@ -5,7 +5,7 @@ import { NostrGuard } from './nostr.guard';
 import { NostrConverter } from './nostr.converter';
 import { ConfigsSessionStorage } from '../../storage/configs-session.storage';
 import { ConfigsLocalStorage } from '../../storage/configs-local.storage';
-import { PoolStatefull } from '../../pool/pool.statefull';
+import { MainPoolStatefull } from './main-pool.statefull';
 
 @NgModule({
   imports: [
@@ -15,7 +15,7 @@ import { PoolStatefull } from '../../pool/pool.statefull';
     NostrService,
     NostrGuard,
     NostrConverter,
-    PoolStatefull,
+    MainPoolStatefull,
     ConfigsSessionStorage,
     ConfigsLocalStorage
   ]

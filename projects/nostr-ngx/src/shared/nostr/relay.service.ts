@@ -1,36 +1,18 @@
 import { Injectable } from '@angular/core';
-import { SimplePool } from 'nostr-tools';
-import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
-import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { TNip05 } from '../domain/nip05.type';
-import { INostrLocalConfig } from '../storage/nostr-local-config.interface';
-import { TNostrPublic } from '../domain/nostr-public.type';
-import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { IRelayMetadata } from '../domain/relay-metadata.interface';
-import { ConfigsLocalStorage } from '../storage/configs-local.storage';
-import { NostrGuard } from '../shared/nostr/nostr.guard';
+import { TNip05 } from '../../domain/nip05.type';
+import { TNostrPublic } from '../../domain/nostr-public.type';
+import { TRelayMetadataRecord } from '../../domain/relay-metadata.record';
+import { INostrLocalConfig } from '../../storage/nostr-local-config.interface';
+import { IRelayMetadata } from '../../domain/relay-metadata.interface';
+import { NostrGuard } from './nostr.guard';
+import { ConfigsLocalStorage } from '../../storage/configs-local.storage';
 
-/**
- * FIXME: talvéz a melhor saída não seja fazer um serviço para uma pool central, apesar de ter uma
- * pool central, ela não deve ser um service singleton, por que haverão outras pools de acordo com
- * o contexto da aplicação
- */
-/**
- * Centralize relays information and status
- */
 @Injectable({
   providedIn: 'root'
 })
-export class PoolStatefull {
-
-  static currentPool: AbstractSimplePool = new SimplePool();
+export class RelayService {
 
   private static defaultAppRelays: TRelayMetadataRecord = {};
-
-  /**
-   * TODO: loaod nip11 data to details property
-   */
-  private static relayMetadata: Record<string, IRelayMetadata> = {};
 
   static setDefaultApplicationRelays(relays: TRelayMetadataRecord): void {
     this.defaultAppRelays = relays;
@@ -40,56 +22,6 @@ export class PoolStatefull {
     private guard: NostrGuard,
     private configs: ConfigsLocalStorage
   ) { }
-
-  connectRelay(...relays: string[]): void {
-    this.connectRelays(relays, false);
-  }
-
-  connectCacheRelay(...relays: string[]): void {
-    this.connectRelays(relays, true);
-  }
-
-  /**
-   * Avoid to request relay nip11 twice, this service
-   * will load relay details except if is already loaded
-   */
-  connectRelayWithLoadedDetails(relay: string, relayDetails: RelayInformation, isCache = false): void {
-    const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
-      url: relay,
-      write: !isCache,
-      details: relayDetails
-    };
-
-    PoolStatefull.currentPool.ensureRelay(relay)
-      .then(conn => (relayMetadata as any).conn = conn);
-  }
-
-  private connectRelays(relays: string[], isCache: boolean): void {
-    relays.forEach(relay => {
-      const relayMetadata: IRelayMetadata = PoolStatefull.relayMetadata[relay] = {
-        url: relay,
-        write: !isCache
-      };
-
-      PoolStatefull.currentPool.ensureRelay(relay)
-        .then(conn => (relayMetadata as any).conn = conn);
-
-      fetchRelayInformation(relay)
-        .then(details => relayMetadata.details = details);
-    });
-  }
-
-  disconnectRelay(...relays: string[]): void {
-    relays.forEach(relay => {
-      delete PoolStatefull.relayMetadata[relay];
-    });
-    PoolStatefull.currentPool.close(relays);
-  }
-
-  disconnectAllRelays(): void {
-    PoolStatefull.currentPool.close(Object.keys(PoolStatefull.relayMetadata));
-    PoolStatefull.relayMetadata = {};
-  }
 
   filterWritableRelays(relays: TRelayMetadataRecord | string[]): string[] {
     if (relays instanceof Array) {
@@ -154,7 +86,7 @@ export class PoolStatefull {
     }
 
     if (!Object.keys(relays).length) {
-      relays = PoolStatefull.defaultAppRelays;
+      relays = RelayService.defaultAppRelays;
     }
 
     console.info('local configs', local);

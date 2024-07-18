@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { INostrLocalConfig } from './nostr-local-config.interface';
-import { AbstractStorage } from '../abstract-storage';
+import { AbstractStorage } from './abstract-storage';
 
 @Injectable({
   providedIn: 'root'

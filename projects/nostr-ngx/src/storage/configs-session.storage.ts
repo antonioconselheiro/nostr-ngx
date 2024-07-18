@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { INostrSessionConfig } from './nostr-session-config.interface';
-import { AbstractStorage } from '../abstract-storage';
+import { AbstractStorage } from './abstract-storage';
 
 @Injectable({
   providedIn: 'root'

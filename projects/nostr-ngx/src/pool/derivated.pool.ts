@@ -13,7 +13,7 @@ export class DerivatedPool extends AbstractPool {
 
   override readonly trustedRelayURLs!: Set<string>;
 
-  constructor(pools: AbstractSimplePool[], relays: string[]) {
+  constructor(pools: AbstractSimplePool[], relays: string[] = []) {
     super();
 
     this.derivatedRelays = new Map<string, AbstractRelay>();

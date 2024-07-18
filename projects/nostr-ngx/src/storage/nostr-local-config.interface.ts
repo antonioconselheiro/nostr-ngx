@@ -1,4 +1,4 @@
-import { TRelayMetadataRecord } from "../domain/relay-metadata.record";
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
 
 export interface INostrLocalConfig {
   relayFrom: 'none' | 'localStorage' | 'signer' | 'public';

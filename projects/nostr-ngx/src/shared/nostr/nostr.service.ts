@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { Event, Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { TRelayMetadataRecord } from '../../domain/relay-metadata.record';
-import { PoolStatefull } from '../../pool/pool.statefull';
+import { MainPoolStatefull } from './main-pool.statefull';
 import { AbstractSimplePool } from 'nostr-tools/pool'
+import { RelayService } from './relay.service';
 
 /**
  * Interacts with pool relays, request data, subscribe filters and publish content
@@ -14,23 +15,17 @@ import { AbstractSimplePool } from 'nostr-tools/pool'
 export class NostrService {
 
   constructor(
-    private poolStatefull: PoolStatefull
+    private relayService: RelayService
   ) { }
 
-  request(filters: Filter[]): Promise<Array<Event>>
-  request(filters: Filter[], relays: string[]): Promise<Array<Event>>
-  request(filters: Filter[], relays: TRelayMetadataRecord): Promise<Array<Event>>
-  request(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Promise<Array<Event>>;
-  async request(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Promise<Array<Event>> {
-    const pool = PoolStatefull.currentPool;
+  async request(filters: Filter[], pool?: AbstractSimplePool): Promise<Array<Event>> {
     const events = new Array<NostrEvent>();
-    relays = relays || await this.poolStatefull.getCurrentUserRelays();
-    const relayList = this.poolStatefull.filterReadableRelays(relays);
-    console.debug('requesting in relays:', relayList, 'filters: ', filters);
+    pool = pool || MainPoolStatefull.currentPool;
+    console.debug('requesting in pool:', pool, 'filters: ', filters);
 
     return new Promise(resolve => {
       const subscription = pool.subscribeMany(
-        relayList, filters, {
+        (pool as any).relays, filters, {
         onevent: event => {
           console.debug('[onevent]', event);
           events.push(event);
@@ -47,30 +42,21 @@ export class NostrService {
     });
   }
 
-  observable(filters: Filter[]): Observable<Event>;
-  observable(filters: Filter[], relays?: string[]): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayMetadataRecord): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Observable<Event>;
-  observable(filters: Filter[], relays?: TRelayMetadataRecord | string[]): Observable<Event> {
-    const pool = PoolStatefull.currentPool;
+  observable(filters: Filter[], pool?: AbstractSimplePool): Observable<Event> {
+    pool = pool || MainPoolStatefull.currentPool;
     const subject = new Subject<Event>();
     const onDestroy$ = new Subject<void>();
 
-    this.poolStatefull
-      .getCurrentUserRelays()
-      .then(overrideRelays => {
-        const relayList = this.poolStatefull.filterReadableRelays(relays || overrideRelays);
-        const poolSubscription = pool.subscribeMany(
-          relayList, filters, {
-          onevent: event => subject.next(event),
-          oneose(): void { }
-        });
+    const poolSubscription = pool.subscribeMany(
+      (pool as any).relays, filters, {
+      onevent: event => subject.next(event),
+      oneose(): void { }
+    });
 
-        onDestroy$.subscribe(() => {
-          poolSubscription.close();
-          onDestroy$.unsubscribe();
-        });
-      });
+    onDestroy$.subscribe(() => {
+      poolSubscription.close();
+      onDestroy$.unsubscribe();
+    });
 
     return subject
       .asObservable()
@@ -82,9 +68,9 @@ export class NostrService {
   publish(event: Event, relays?: TRelayMetadataRecord): Promise<void>;
   publish(event: Event, relays?: TRelayMetadataRecord | string[]): Promise<void>;
   async publish(event: Event, relays?: TRelayMetadataRecord | string[]): Promise<void> {
-    const pool = PoolStatefull.currentPool;
-    relays = relays || await this.poolStatefull.getCurrentUserRelays();
-    const relayList = this.poolStatefull.filterWritableRelays(relays);
+    const pool = MainPoolStatefull.currentPool;
+    relays = relays || await this.relayService.getCurrentUserRelays();
+    const relayList = this.relayService.filterWritableRelays(relays);
 
     // TODO: pode ser útil tratar individualmente os retornos, de forma a identificar
     //  quais relays concluiram corretamente e quais responderam com erro e qual erro

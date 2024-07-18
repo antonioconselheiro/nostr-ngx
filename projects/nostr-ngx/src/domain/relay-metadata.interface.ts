@@ -8,6 +8,6 @@ export interface IRelayMetadata {
   /**
    * nip11 data
    */
-  metadata?: RelayInformation;
+  details?: RelayInformation;
   connectionTimeout?: number;
 }
