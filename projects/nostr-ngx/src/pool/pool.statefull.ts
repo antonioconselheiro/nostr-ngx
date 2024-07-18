@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { SimplePool } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { TNip05 } from '../../domain/nip05.type';
-import { INostrLocalConfig } from '../../domain/nostr-local-config.interface';
-import { TNostrPublic } from '../../domain/nostr-public.type';
-import { TRelayMetadataRecord } from '../../domain/relay-record.type';
-import { IRelayMetadata } from '../../domain/relay-metadata.interface';
-import { ConfigsLocalStorage } from './configs-local.storage';
-import { NostrGuard } from './nostr.guard';
+import { TNip05 } from '../domain/nip05.type';
+import { INostrLocalConfig } from '../storage/nostr-local-config.interface';
+import { TNostrPublic } from '../domain/nostr-public.type';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { IRelayMetadata } from '../domain/relay-metadata.interface';
+import { ConfigsLocalStorage } from '../storage/configs-local.storage';
+import { NostrGuard } from '../shared/nostr/nostr.guard';
 
 /**
  * FIXME: talvéz a melhor saída não seja fazer um serviço para uma pool central, apesar de ter uma

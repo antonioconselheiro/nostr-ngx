@@ -1,7 +1,7 @@
 import { Filter, NostrEvent } from 'nostr-tools';
 import { SubCloser, SubscribeManyParams } from 'nostr-tools/pool';
 import { AbstractRelay } from 'nostr-tools/relay';
-import { IRelayMetadata } from '../../domain/relay-metadata.interface';
+import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { AbstractPool } from './abstract.pool';
 import { RelayInformation } from 'nostr-tools/nip11';
 

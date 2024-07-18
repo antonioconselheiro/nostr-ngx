@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Event, Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { TRelayMetadataRecord } from '../../domain/relay-record.type';
-import { PoolStatefull } from './pool.statefull';
+import { TRelayMetadataRecord } from '../../domain/relay-metadata.record';
+import { PoolStatefull } from '../../pool/pool.statefull';
+import { AbstractSimplePool } from 'nostr-tools/pool'
 
 /**
  * Interacts with pool relays, request data, subscribe filters and publish content

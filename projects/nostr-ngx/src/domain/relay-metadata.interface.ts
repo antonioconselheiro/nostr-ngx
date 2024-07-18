@@ -10,5 +10,4 @@ export interface IRelayMetadata {
    */
   metadata?: RelayInformation;
   connectionTimeout?: number;
-  details?: RelayInformation;
 }

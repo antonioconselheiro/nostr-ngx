@@ -16,7 +16,8 @@ export class PoolCommunicationCheckComponent {
   formPool = this.fb.group({
     name: [''],
     poolType: [''],
-    fromPool: ['simple']
+    fromPool: ['simple'],
+    poolList: ['']
   });
 
   constructor(
@@ -118,7 +119,6 @@ export class PoolCommunicationCheckComponent {
   }
 
   addRelay(poolConfig: IPoolConfig, newRelay: string): void {
-    debugger;
     if (/^ws/.test(newRelay)) {
       poolConfig.pool.ensureRelay(newRelay);
     }

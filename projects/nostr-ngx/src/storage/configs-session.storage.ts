@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { INostrSessionConfig } from '../../domain/nostr-session-config.interface';
+import { INostrSessionConfig } from './nostr-session-config.interface';
 import { AbstractStorage } from '../abstract-storage';
 
 @Injectable({

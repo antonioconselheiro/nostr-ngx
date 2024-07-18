@@ -1,5 +1,5 @@
-import { TNcryptsec } from './ncryptsec.type';
-import { TNostrSecret } from './nostr-secret.type';
+import { TNcryptsec } from '../domain/ncryptsec.type';
+import { TNostrSecret } from '../domain/nostr-secret.type';
 
 export interface INostrSessionConfig {
   sessionFrom: 'none' | 'sessionStorage' | 'signer' | 'bunker' | 'memory';
