@@ -1,7 +1,7 @@
 {
   "name": "belomonte",
   "version": "0.0.0",
-  "license": "Unlicense",
+  "license": "Ungovernable",
   "scripts": {
     "start": "ng serve belomonte --host=0.0.0.0",
     "dev": "npm start",
