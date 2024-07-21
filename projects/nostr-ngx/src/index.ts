@@ -17,7 +17,7 @@ export * from './storage/nostr-session-config.interface';
 
 export * from './pool/observe-pool.fn';
 export * from './pool/observe-relay.fn';
-export * from './pool/abstract.pool';
+export * from './pool/smart.pool';
 export * from './pool/extended.pool';
 
 export * from './nostr/main-pool.statefull';

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { TNostrSecret } from '../domain/nostr-secret.type';
 import { TNcryptsec } from '../domain/ncryptsec.type';
 import { TNostrPublic } from '../domain/nostr-public.type';
+import { NIP05_REGEX } from 'nostr-tools/nip05';
 
 @Injectable({
   providedIn: 'root'
@@ -18,5 +19,9 @@ export class NostrGuard {
 
   isNcryptsec(ncryptsec: unknown): ncryptsec is TNcryptsec {
     return typeof ncryptsec === 'string' && /^ncryptsec/.test(ncryptsec);
+  }
+
+  isNip05(nip05: unknown) {
+    return typeof nip05 === 'string' && NIP05_REGEX.test(nip05);
   }
 }

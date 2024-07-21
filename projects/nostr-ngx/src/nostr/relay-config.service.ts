@@ -6,6 +6,7 @@ import { INostrLocalConfig } from '../storage/nostr-local-config.interface';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { NostrGuard } from './nostr.guard';
 import { ConfigsLocalStorage } from '../storage/configs-local.storage';
+import { queryProfile } from 'nostr-tools/nip05';
 
 @Injectable({
   providedIn: 'root'
@@ -22,26 +23,6 @@ export class RelayConfigService {
     private guard: NostrGuard,
     private configs: ConfigsLocalStorage
   ) { }
-
-  filterWritableRelays(relays: TRelayMetadataRecord | string[]): string[] {
-    if (relays instanceof Array) {
-      return relays;
-    }
-
-    return Object
-      .keys(relays)
-      .filter(relay => relays[relay].write);
-  }
-
-  filterReadableRelays(relays: TRelayMetadataRecord | string[]): string[] {
-    if (relays instanceof Array) {
-      return relays;
-    }
-
-    return Object
-      .keys(relays)
-      .filter(relay => relays[relay].read);
-  }
 
   /**
    * Override application default relays for unauthenticated
@@ -73,25 +54,26 @@ export class RelayConfigService {
   async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord> {
     const local = this.configs.read();
     const relayFrom = local.relayFrom;
-    let relays: TRelayMetadataRecord = {};
+    let relayRecord: TRelayMetadataRecord = {};
 
     if (relayFrom === 'signer') {
-      relays = await this.getRelaysFromSigner();
+      relayRecord = await this.getRelaysFromSigner();
     } else if (relayFrom === 'localStorage') {
-      relays = await this.getRelaysFromStorage(local, userPublicAddress);
+      relayRecord = await this.getRelaysFromStorage(local, userPublicAddress);
     } else if (relayFrom === 'public') {
       if (userPublicAddress) {
-        relays = await this.getUserPublicRelays(userPublicAddress);
+        const relays = await this.getUserPublicRelays(userPublicAddress);
+        relays.forEach(relay => relayRecord[relay] = { url: relay, write: true, read: true });
       }
     }
 
-    if (!Object.keys(relays).length) {
-      relays = RelayConfigService.defaultAppRelays;
+    if (!Object.keys(relayRecord).length) {
+      relayRecord = RelayConfigService.defaultAppRelays;
     }
 
     console.info('local configs', local);
-    console.info('result relays', relays);
-    return relays;
+    console.info('result relays', relayRecord);
+    return relayRecord;
   }
 
   private async getRelaysFromSigner(): Promise<TRelayMetadataRecord> {
@@ -123,16 +105,17 @@ export class RelayConfigService {
     return Promise.resolve({});
   }
 
-  getUserPublicRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
-  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
-  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord>;
-  getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord> {
-    /**
-     * TODO: preciso consultar o nip5 do usuário, tlvz lá tenha uma
-     * listagem de relays,
-     * se eu tiver o npub no lugar do nip5 eu preciso descobrir em
-     * ual relay irei buscar pela listagem de relays do usuário
-     */
-    return Promise.resolve({});
+  getUserPublicRelays(nip5: TNip05): Promise<string[]>;
+  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<string[]>;
+  getUserPublicRelays(userPublicAddress: string): Promise<string[]>;
+  getUserPublicRelays(userPublicAddress: string): Promise<string[]> {
+
+    if (this.guard.isNostrPublic(userPublicAddress)) {
+      //  TODO: pesquisar relays publicos do usuário a partir do npub
+    } else {
+      return queryProfile(userPublicAddress).then(userInfo => userInfo?.relays || []);
+    }
+
+    return Promise.resolve([]);
   }
 }
