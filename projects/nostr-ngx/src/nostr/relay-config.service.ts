@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { TNip05 } from '../../domain/nip05.type';
-import { TNostrPublic } from '../../domain/nostr-public.type';
-import { TRelayMetadataRecord } from '../../domain/relay-metadata.record';
-import { INostrLocalConfig } from '../../storage/nostr-local-config.interface';
-import { IRelayMetadata } from '../../domain/relay-metadata.interface';
+import { TNip05 } from '../domain/nip05.type';
+import { TNostrPublic } from '../domain/nostr-public.type';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { INostrLocalConfig } from '../storage/nostr-local-config.interface';
+import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { NostrGuard } from './nostr.guard';
-import { ConfigsLocalStorage } from '../../storage/configs-local.storage';
+import { ConfigsLocalStorage } from '../storage/configs-local.storage';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RelayService {
+export class RelayConfigService {
 
   private static defaultAppRelays: TRelayMetadataRecord = {};
 
@@ -86,7 +86,7 @@ export class RelayService {
     }
 
     if (!Object.keys(relays).length) {
-      relays = RelayService.defaultAppRelays;
+      relays = RelayConfigService.defaultAppRelays;
     }
 
     console.info('local configs', local);

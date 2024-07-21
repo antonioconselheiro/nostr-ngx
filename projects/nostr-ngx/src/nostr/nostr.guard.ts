@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { TNostrSecret } from '../../domain/nostr-secret.type';
-import { TNcryptsec } from '../../domain/ncryptsec.type';
-import { TNostrPublic } from '../../domain/nostr-public.type';
+import { TNostrSecret } from '../domain/nostr-secret.type';
+import { TNcryptsec } from '../domain/ncryptsec.type';
+import { TNostrPublic } from '../domain/nostr-public.type';
 
 @Injectable({
   providedIn: 'root'

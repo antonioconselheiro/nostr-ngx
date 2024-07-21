@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getPublicKey, nip19 } from 'nostr-tools';
-import { TNostrPublic } from '../../domain/nostr-public.type';
-import { TNostrSecret } from '../../domain/nostr-secret.type';
+import { TNostrPublic } from '../domain/nostr-public.type';
+import { TNostrSecret } from '../domain/nostr-secret.type';
 
 @Injectable({
   providedIn: 'root'

@@ -18,16 +18,14 @@ export * from './storage/nostr-session-config.interface';
 export * from './pool/observe-pool.fn';
 export * from './pool/observe-relay.fn';
 export * from './pool/abstract.pool';
-export * from './pool/derivated.pool';
 export * from './pool/extended.pool';
-export * from './pool/smart.pool';
 
-export * from './shared/nostr/main-pool.statefull';
-export * from './shared/nostr/nostr.converter';
-export * from './shared/nostr/nostr.guard';
-export * from './shared/nostr/nostr.module';
-export * from './shared/nostr/nostr.service';
-export * from './shared/nostr/relay.service';
+export * from './nostr/main-pool.statefull';
+export * from './nostr/nostr.converter';
+export * from './nostr/nostr.guard';
+export * from './nostr/nostr.module';
+export * from './nostr/nostr.service';
+export * from './nostr/relay-config.service';
 
 export * from './exceptions/no-credentials-found.error';
 export * from './exceptions/signer-not-found.error';
