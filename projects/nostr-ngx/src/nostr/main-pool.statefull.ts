@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { SimplePool } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { normalizeURL } from 'nostr-tools/utils';
+import { IRelayMetadata } from '../domain/relay-metadata.interface';
+import { fetchRelayInformation } from 'nostr-tools/nip11';
 
-/**
- * FIXME: talvéz a melhor saída não seja fazer um serviço para uma pool central, apesar de ter uma
- * pool central, ela não deve ser um service singleton, por que haverão outras pools de acordo com
- * o contexto da aplicação
- */
 /**
  * Centralize relays information and status
  */
@@ -16,6 +15,30 @@ import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 export class MainPoolStatefull {
 
   static currentPool: AbstractSimplePool = new SimplePool();
-  static readPool: string[] = [];
-  static writePool: string[] = [];
+  static currentRelays: TRelayMetadataRecord = {};
+
+  static getRelayMetadata(url: string): IRelayMetadata | null {
+    return this.currentRelays[normalizeURL(url)] || null;
+  }
+
+  static addRelay(relay: string, relayConfig?: IRelayMetadata): void {
+    if (!relayConfig) {
+      relayConfig = {
+        url: normalizeURL(relay),
+        read: true,
+        write: true
+      };
+    }
+
+    if (!relayConfig.details) {
+      fetchRelayInformation(relayConfig.url)
+        .then(details => relayConfig.details = details)
+        .catch(e => console.error(`failed to load nip11 relay details from ${relayConfig.url}`))
+    }
+  }
+
+  static removeRelay(relay: string): void {
+    delete this.currentRelays[normalizeURL(relay)];
+    this.currentPool.close([relay]);
+  }
 }

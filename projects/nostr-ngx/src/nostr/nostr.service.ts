@@ -27,33 +27,70 @@ export class NostrService {
     definitiveRelays?: TRelayMetadataRecord | string[]
   ): {
     definitivePool: AbstractSimplePool,
-    definitiveRelays: TRelayMetadataRecord
+    definitiveRelays: string[]
   } {
     if (definitivePool instanceof Array) {
-      const record: TRelayMetadataRecord = {};
-      definitivePool
-        .forEach(url => record[url] = { url, write: true, read: true });
-
-      return {
-        definitivePool: MainPoolStatefull.currentPool,
-        definitiveRelays: record
-      };
-    }
-
-    if (definitivePool && !(definitivePool instanceof AbstractSimplePool)) {
       return {
         definitivePool: MainPoolStatefull.currentPool,
         definitiveRelays: definitivePool
       };
-    } else if (!definitivePool) {
+    }
+
+    if (!definitivePool) {
       definitivePool = MainPoolStatefull.currentPool;
+    } else if (!(definitivePool instanceof AbstractSimplePool)) {
+      if (operation === this.READ) {
+        definitiveRelays = this.relayConfigService.filterReadableRelays(definitivePool)
+      } else {
+        definitiveRelays = this.relayConfigService.filterWritableRelays(definitivePool)
+      }
+
+      return {
+        definitivePool: MainPoolStatefull.currentPool,
+        definitiveRelays
+      };
+    }
+
+    if (!definitiveRelays) {
+      definitiveRelays = (definitivePool as any).relays as string[];
+    } else if (!(definitiveRelays instanceof Array)) {
+      if (operation === this.READ) {
+        definitiveRelays = this.relayConfigService.filterReadableRelays(definitiveRelays)
+      } else {
+        definitiveRelays = this.relayConfigService.filterWritableRelays(definitiveRelays)
+      }
     }
 
     return {
-      definitivePool, definitiveRelays: definitiveRelays ? (definitivePool as any).relays : definitiveRelays
+      definitivePool,
+      definitiveRelays
     }
   }
 
+  async request(
+    filters: Filter[]
+  ): Promise<Array<NostrEvent>>;
+  async request(
+    filters: Filter[],
+    relays: TRelayMetadataRecord | string[]
+  ): Promise<Array<NostrEvent>>;
+  async request(
+    filters: Filter[],
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool
+  ): Promise<Array<NostrEvent>>;
+  async request(
+    filters: Filter[],
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool,
+    relays: TRelayMetadataRecord | string[]
+  ): Promise<Array<NostrEvent>>;
   async request(
     filters: Filter[],
     pool?: AbstractSimplePool | TRelayMetadataRecord | string[],
@@ -83,6 +120,30 @@ export class NostrService {
   }
 
   observable(
+    filters: Filter[]
+  ): Observable<NostrEvent>;
+  observable(
+    filters: Filter[],
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool
+  ): Observable<NostrEvent>;
+  observable(
+    filters: Filter[],
+    relays: TRelayMetadataRecord | string[]
+  ): Observable<NostrEvent>;
+  observable(
+    filters: Filter[],
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool,
+    relays: TRelayMetadataRecord | string[]
+  ): Observable<NostrEvent>;
+  observable(
     filters: Filter[],
     pool?: AbstractSimplePool | TRelayMetadataRecord | string[],
     relays?: TRelayMetadataRecord | string[]
@@ -109,6 +170,30 @@ export class NostrService {
       .pipe(takeUntil(onDestroy$));
   }
 
+  async publish(
+    event: NostrEvent
+  ): Promise<void>;
+  async publish(
+    event: NostrEvent,
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool
+  ): Promise<void>;
+  async publish(
+    event: NostrEvent,
+    relays: TRelayMetadataRecord | string[]
+  ): Promise<void>;
+  async publish(
+    event: NostrEvent,
+
+    /**
+     * @defaults MainPoolStatefull.currentPool
+     */
+    pool: AbstractSimplePool,
+    relays: TRelayMetadataRecord | string[]
+  ): Promise<void>;
   async publish(
     event: NostrEvent,
     pool?: AbstractSimplePool | TRelayMetadataRecord | string[],

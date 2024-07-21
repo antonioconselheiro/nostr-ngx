@@ -15,4 +15,3 @@ export abstract class AbstractPool extends SimplePool {
     this.relays = new Map();
   }
 }
-
