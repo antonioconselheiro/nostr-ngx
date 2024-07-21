@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { NostrSecretCrypto, NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
@@ -16,6 +16,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     private profileProxy: ProfileProxy,
     private accountConverter: AccountConverter,
     private nostrConverter: NostrConverter,
+    private nostrSecretCrypto: NostrSecretCrypto,
     private sessionConfigs: ProfileSessionStorage
   ) {
     const session = sessionConfigs.read();
@@ -53,7 +54,7 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   }
 
   authenticateEncryptedEncode(ncryptsec: TNcryptsec, password: string, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
-    const nsec = this.nostrConverter.decryptNcryptsec(ncryptsec, password);
+    const nsec = this.nostrSecretCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
     this.sessionConfigs.patch({ ncryptsec });

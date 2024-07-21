@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
-import { NostrConverter, NostrEventKind, TNostrPublic } from "@belomonte/nostr-ngx";
+import { NostrConverter, TNostrPublic } from "@belomonte/nostr-ngx";
 import { Event } from 'nostr-tools';
 import { IProfile } from "../domain/profile.interface";
 import { ProfileConverter } from "./profile.converter";
+import { Metadata } from "nostr-tools/kinds";
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +60,7 @@ export class ProfileCache {
   cache(profiles: IProfile[] | Event[]): void {
     const profileList = (profiles as (IProfile | Event)[]);
     profileList
-      .filter((profile) => !('sig' in profile && profile.kind !== NostrEventKind.Metadata))
+      .filter((profile) => !('sig' in profile && profile.kind !== Metadata))
       .forEach(profile => this.cacheProfile(profile));
   }
 

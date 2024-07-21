@@ -25,6 +25,7 @@ export * from './nostr/nostr.converter';
 export * from './nostr/nostr.guard';
 export * from './nostr/nostr.module';
 export * from './nostr/nostr.service';
+export * from './nostr/nostr-secret.crypto';
 export * from './nostr/relay-config.service';
 
 export * from './exceptions/no-credentials-found.error';

@@ -3,6 +3,8 @@ import { Filter, NostrEvent } from 'nostr-tools';
 import { AbstractSimplePool } from 'nostr-tools/pool';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { MainPoolStatefull } from './main-pool.statefull';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { RelayConfigService } from './relay-config.service';
 
 /**
  * Interacts with pool relays, request data, subscribe filters and publish content
@@ -12,18 +14,38 @@ import { MainPoolStatefull } from './main-pool.statefull';
 })
 export class NostrService {
 
-  private getPoolAndRelays(definitivePool?: AbstractSimplePool | string[], definitiveRelays?: string[]): {
+  private readonly READ = 0;
+  private readonly WRITE = 1; 
+
+  constructor(
+    private relayConfigService: RelayConfigService
+  ) {}
+
+  private getPoolAndRelays(
+    operation: NostrService['READ'] | NostrService['WRITE'],
+    definitivePool?: AbstractSimplePool | TRelayMetadataRecord | string[],
+    definitiveRelays?: TRelayMetadataRecord | string[]
+  ): {
     definitivePool: AbstractSimplePool,
-    definitiveRelays: string[]
+    definitiveRelays: TRelayMetadataRecord
   } {
     if (definitivePool instanceof Array) {
+      const record: TRelayMetadataRecord = {};
+      definitivePool
+        .forEach(url => record[url] = { url, write: true, read: true });
+
+      return {
+        definitivePool: MainPoolStatefull.currentPool,
+        definitiveRelays: record
+      };
+    }
+
+    if (definitivePool && !(definitivePool instanceof AbstractSimplePool)) {
       return {
         definitivePool: MainPoolStatefull.currentPool,
         definitiveRelays: definitivePool
       };
-    }
-
-    if (!definitivePool) {
+    } else if (!definitivePool) {
       definitivePool = MainPoolStatefull.currentPool;
     }
 
@@ -32,13 +54,18 @@ export class NostrService {
     }
   }
 
-  async request(filters: Filter[], pool?: AbstractSimplePool | string[], relays?: string[]): Promise<Array<NostrEvent>> {
+  async request(
+    filters: Filter[],
+    pool?: AbstractSimplePool | TRelayMetadataRecord | string[],
+    relays?: TRelayMetadataRecord | string[]
+  ): Promise<Array<NostrEvent>> {
     const events = new Array<NostrEvent>();
-    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(pool, relays);
-    console.debug('requesting in pool:', definitivePool, 'using relays:', definitiveRelays, 'filters: ', filters);
+    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(this.READ, pool, relays);
+    const readRelays = this.relayConfigService.filterReadableRelays(definitiveRelays);
+    console.debug('requesting in pool:', definitivePool, 'using relays:', readRelays, 'filters: ', filters);
 
     return new Promise(resolve => {
-      const subscription = definitivePool.subscribeMany(definitiveRelays, filters, {
+      const subscription = definitivePool.subscribeMany(readRelays, filters, {
         onevent: event => {
           console.debug('[onevent]', event);
           events.push(event);
@@ -55,13 +82,19 @@ export class NostrService {
     });
   }
 
-  observable(filters: Filter[], pool?: AbstractSimplePool | string[], relays?: string[]): Observable<NostrEvent> {
-    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(pool, relays);
+  observable(
+    filters: Filter[],
+    pool?: AbstractSimplePool | TRelayMetadataRecord | string[],
+    relays?: TRelayMetadataRecord | string[]
+  ): Observable<NostrEvent> {
+    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(this.READ, pool, relays);
+    const readRelays = this.relayConfigService.filterReadableRelays(definitiveRelays);
     const subject = new Subject<NostrEvent>();
     const onDestroy$ = new Subject<void>();
+    console.debug('subscribing in pool:', definitivePool, 'using relays:', readRelays, 'filters: ', filters);
 
     const poolSubscription = definitivePool.subscribeMany(
-      definitiveRelays, filters, {
+      readRelays, filters, {
       onevent: event => subject.next(event),
       oneose(): void { }
     });
@@ -76,13 +109,19 @@ export class NostrService {
       .pipe(takeUntil(onDestroy$));
   }
 
-  async publish(event: NostrEvent, pool?: AbstractSimplePool | string[], relays?: string[]): Promise<void> {
-    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(pool, relays);
+  async publish(
+    event: NostrEvent,
+    pool?: AbstractSimplePool | TRelayMetadataRecord | string[],
+    relays?: TRelayMetadataRecord | string[]
+  ): Promise<void> {
+    const { definitivePool, definitiveRelays } = this.getPoolAndRelays(this.WRITE, pool, relays);
+    const writeRelays = this.relayConfigService.filterReadableRelays(definitiveRelays);
+    console.debug('publishing in pool:', definitivePool, 'using relays:', writeRelays, 'event: ', event);
 
     // TODO: pode ser útil tratar individualmente os retornos, de forma a identificar
     //  quais relays concluiram corretamente e quais responderam com erro e qual erro
     return Promise.all(
-      definitivePool.publish(definitiveRelays, event)
+      definitivePool.publish(writeRelays, event)
     ).then(() => Promise.resolve());
   }
 }
