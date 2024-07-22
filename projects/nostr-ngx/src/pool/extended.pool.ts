@@ -8,9 +8,6 @@ import { SmartPool } from './smart.pool';
  * This pool will reuse ALL active connections from a father pool and will
  * able to have it customs connections. It'll be not able to close inherited
  * relays.
- * 
- * If you don't want to connect in all inherited relays, but reuse connections,
- * you should use DerviatedSimplePool.
  */
 export class ExtendedPool extends SmartPool {
 
@@ -25,10 +22,16 @@ export class ExtendedPool extends SmartPool {
         this.relays[url] = { inherited: true, ...fatherPool.relays[url] };
         poolRelaysReference.set(url, inheritedConnection);
       }
-    }); 
+    });
   }
 
   private getFatherRelaysMap(fatherPool: SmartPool): Map<string, AbstractRelay> {
     return (fatherPool as any).pool.relays;
+  }
+
+  extend(relays: string[] = []): ExtendedPool {
+    const extended = new ExtendedPool(this);
+    relays.forEach(relay => extended.ensureRelay(relay));
+    return extended;
   }
 }

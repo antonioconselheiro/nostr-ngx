@@ -42,7 +42,7 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   }
 
   private connectPool(): void {
-    const pool = this.pool = MainPoolStatefull.currentPool.extend();
+    const pool = this.pool = new ExtendedPool(MainPoolStatefull.currentPool);
     fetchRelayInformation(this.relay)
       .then(details => {
         pool.ensureRelay(this.relay, { details });

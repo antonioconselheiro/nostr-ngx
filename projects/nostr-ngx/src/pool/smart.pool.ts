@@ -6,7 +6,6 @@ import { normalizeURL } from 'nostr-tools/utils';
 import { Observable } from 'rxjs';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { ExtendedPool } from './extended.pool';
 import { observePool } from './observe-pool.fn';
 
 /**
@@ -85,12 +84,6 @@ export class SmartPool {
   publish(event: Event): Promise<string>[] {
     const relays = this.getWritableRelays();
     return this.pool.publish(relays, event);
-  }
-
-  extend(relays: string[] = []): ExtendedPool {
-    const extended = new ExtendedPool(this);
-    relays.forEach(relay => extended.ensureRelay(relay));
-    return extended;
   }
 
   /**
