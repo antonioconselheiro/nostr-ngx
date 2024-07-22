@@ -48,9 +48,11 @@ export class RelayDetailComponent implements OnInit {
   }
 
   private loadContactAccount(details: RelayInformation & RelayInformationTemp): void {
+    //  FIXME: a pesquisa deve incluir o relay cujo os detalhes estão em análise
+    //  pelo usuário para identificar se ele deseja incluí-lo em sua pool
     if (details.pubkey) {
       this.profileProxy
-        .loadFromPublicHexa(details.pubkey, [this.relay])
+        .loadFromPublicHexa(details.pubkey)
         .then(profile => this.loadedContactProfile = profile)
     }
   }

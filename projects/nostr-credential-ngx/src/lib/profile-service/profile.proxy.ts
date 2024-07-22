@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, TNostrPublic, TNostrSecret, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
+import { NostrConverter, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { Event } from 'nostr-tools';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
-import { NostrSigner } from './nostr.signer';
-import { ProfileNostr } from './profile.nostr';
-import { ProfileCache } from './profile.cache';
 import { AccountManagerStatefull } from './account-manager.statefull';
+import { NostrSigner } from './nostr.signer';
+import { ProfileCache } from './profile.cache';
+import { ProfileNostr } from './profile.nostr';
 
 /**
  * Orchestrate the interaction with the profile data,
@@ -46,48 +46,48 @@ export class ProfileProxy {
     this.profileCache.cache(profiles);
   }
 
-  async load(npubs: TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile>;
-  async load(npubs: TNostrPublic[], relays?: TRelayMetadataRecord | string[]): Promise<IProfile[]>;
-  async load(npubs: TNostrPublic[] | TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile | IProfile[]> {
+  async load(npubs: TNostrPublic): Promise<IProfile>;
+  async load(npubs: TNostrPublic[]): Promise<IProfile[]>;
+  async load(npubs: TNostrPublic[] | TNostrPublic): Promise<IProfile | IProfile[]> {
     if (typeof npubs === 'string') {
       const indexedProfile = ProfileCache.profiles[npubs];
       if (!indexedProfile || !indexedProfile.load) {
-        return this.loadProfile(npubs, relays);
+        return this.loadProfile(npubs);
       }
 
       return Promise.resolve(indexedProfile);
     } else {
-      return this.loadProfiles(npubs, relays);
+      return this.loadProfiles(npubs);
     }
   }
 
-  loadFromPublicHexa(pubkey: string, relays?: TRelayMetadataRecord | string[]): Promise<IProfile> {
-    return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey), relays);
+  loadFromPublicHexa(pubkey: string): Promise<IProfile> {
+    return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
   }
 
-  async loadAccountFromCredentials(nsec: TNostrSecret, password: string, relays?: TRelayMetadataRecord | string[]): Promise<IUnauthenticatedUser | null> {
+  async loadAccountFromCredentials(nsec: TNostrSecret, password: string): Promise<IUnauthenticatedUser | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
-    const profile = await this.load(user.npub, relays);
+    const profile = await this.load(user.npub);
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
     const account = this.accountManagerStatefull.addAccount(profile, ncrypted);
 
     return Promise.resolve(account);
   }
 
-  async loadProfiles(npubss: TNostrPublic[], relays?: TRelayMetadataRecord | string[]): Promise<IProfile[]> {
+  async loadProfiles(npubss: TNostrPublic[]): Promise<IProfile[]> {
     const npubs = [...new Set(npubss.flat(1))];
     const notLoaded = npubs.filter(npub => !this.profileCache.isEagerLoaded(npub))
 
-    return this.forceProfileReload(notLoaded, relays);
+    return this.forceProfileReload(notLoaded);
   }
 
-  async loadProfile(npub: TNostrPublic, relays?: TRelayMetadataRecord | string[]): Promise<IProfile> {
-    return this.loadProfiles([npub], relays)
+  async loadProfile(npub: TNostrPublic): Promise<IProfile> {
+    return this.loadProfiles([npub])
       .then(profiles => Promise.resolve(profiles[0]));
   }
   
-  private async forceProfileReload(npubs: Array<TNostrPublic>, relays?: TRelayMetadataRecord | string[]): Promise<Array<IProfile>> {
-    const events = await this.profileApi.loadProfiles(npubs, relays);
+  private async forceProfileReload(npubs: Array<TNostrPublic>): Promise<Array<IProfile>> {
+    const events = await this.profileApi.loadProfiles(npubs);
     this.profileCache.cache(events);
     return Promise.resolve(npubs.map(npub => this.profileCache.get(npub)));
   }

@@ -1,6 +1,4 @@
-import { AbstractSimplePool } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/relay';
-import { normalizeURL } from 'nostr-tools/utils';
 import { SmartPool } from './smart.pool';
 
 /**
@@ -16,44 +14,21 @@ import { SmartPool } from './smart.pool';
  */
 export class ExtendedPool extends SmartPool {
 
-  private inheritedRelays: string[] = [];
-
-  constructor(fatherPool: SmartPool, relays: string[]) {
+  constructor(fatherPool: SmartPool) {
     super();
 
-    const fatherRelays = (fatherPool as any as { relays: Map<string, AbstractRelay> }).relays.entries();
-    for (let touple of fatherRelays) {
-      const [ relay, conn ] = touple;
-      this.inheritedRelays.push(relay);
-      this.relays.set(relay, conn);
-    }
-
-    relays.forEach(relay => {
-      const url = normalizeURL(relay);
-      if (!this.inheritedRelays.includes(url)) {
-        this.ensureRelay(url);
+    const featherRelaysMap = this.getFatherRelaysMap(fatherPool);
+    const poolRelaysReference = this.getPoolRelays();
+    Object.keys(fatherPool.relays).forEach(url => {
+      const inheritedConnection = featherRelaysMap.get(url);
+      if (inheritedConnection) {
+        this.relays[url] = { inherited: true, ...fatherPool.relays[url] };
+        poolRelaysReference.set(url, inheritedConnection);
       }
-    });   
+    }); 
   }
 
-  override close(relays: string[]): void {
-    let aditionalRelays = Array.from(this.relays)
-      .filter(([relay]) => !this.inheritedRelays.includes(relay))
-      .map(([relay]) => relay);
-
-    if (relays) {
-      aditionalRelays = aditionalRelays.filter(relay => relays.includes(relay));
-    }
-
-    super.close(aditionalRelays);
-  }
-
-  override destroy(): void {
-    this.relays.forEach((conn, url) => {
-      if (!this.inheritedRelays.includes(url)) {
-        conn.close();
-      }
-    });
-    this.relays = new Map();
+  private getFatherRelaysMap(fatherPool: SmartPool): Map<string, AbstractRelay> {
+    return (fatherPool as any).pool.relays;
   }
 }

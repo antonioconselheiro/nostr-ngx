@@ -1,10 +1,10 @@
-import { TRelayMetadataRecord } from '@belomonte/nostr-ngx';
 import { Event, Filter, SimplePool } from 'nostr-tools';
 import { SubCloser, SubscribeManyParams } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/abstract-relay';
-import { fetchRelayInformation } from 'nostr-tools/nip11';
+import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { normalizeURL } from 'nostr-tools/utils';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
 import { ExtendedPool } from './extended.pool';
 
 /**
@@ -14,8 +14,14 @@ import { ExtendedPool } from './extended.pool';
  */
 export class SmartPool {
 
+  /**
+   * Stores nip11 relay information loaded, this avoid
+   * to request again for information from the same relay 
+   */
+  private static relaysDetails: Record<string, RelayInformation> = {};
+
+  protected pool = new SimplePool();
   relays: TRelayMetadataRecord = {};
-  pool = new SimplePool();
   trustedRelayURLs = this.pool.trustedRelayURLs;
 
   ensureRelay(url: string, params?: IRelayMetadata): Promise<AbstractRelay> {
@@ -28,9 +34,16 @@ export class SmartPool {
     }
 
     if (!params.details) {
-      fetchRelayInformation(params.url)
-        .then(details => params.details = details)
-        .catch(e => console.error(`failed to load nip11 relay details from ${params.url}`, e))
+      if (SmartPool.relaysDetails[params.url]) {
+        params.details = SmartPool.relaysDetails[params.url];
+      } else {
+        fetchRelayInformation(params.url)
+          .then(details => {
+            params.details = details;
+            SmartPool.relaysDetails[params.url] = details;
+          })
+          .catch(e => console.error(`failed to load nip11 relay details from ${params.url}`, e))
+      }
     }
 
     this.relays[params.url] = params;
@@ -62,16 +75,10 @@ export class SmartPool {
     return this.pool.publish(relays, event);
   }
 
-  close(relays: string[]): void {
-    relays.map(normalizeURL).forEach(relay => {
-      delete this.relays[relay];
-    });
-
-    return this.pool.close(relays);
-  }
-
   extend(relays: string[] = []): ExtendedPool {
-    return new ExtendedPool(this, relays);
+    const extended = new ExtendedPool(this);
+    relays.forEach(relay => extended.ensureRelay(relay));
+    return extended;
   }
 
   private getReadableRelays(): string[] {
@@ -82,6 +89,10 @@ export class SmartPool {
     return Object.keys(this.relays).filter(relay => this.relays[relay].write);
   }
 
+  protected getPoolRelays(): Map<string, AbstractRelay> {
+    return (this.pool as any).relays;
+  }
+
   listConnectionStatus(): Map<string, boolean> {
     const map = new Map<string, boolean>();
     (this.pool as any).relays
@@ -90,8 +101,30 @@ export class SmartPool {
     return map;
   }
 
+  close(relays: string[]): void {
+    const toClose: string[] = [];
+    relays.map(normalizeURL).forEach(relay => {
+      const details = this.relays[relay];
+      delete this.relays[relay];
+
+      if (!details.inherited) {
+        toClose.push(relay);
+      }
+    });
+
+    return this.pool.close(toClose);
+  }
+
   destroy(): void {
-    (this.pool as any).relays.forEach((conn: AbstractRelay) => conn.close());
+    const toDestroy: string[] = [];
+    Object.keys(this.relays).forEach(relay => {
+      if (!this.relays[relay].inherited) {
+        toDestroy.push(relay);
+      }
+    });
+
+    this.pool.close(toDestroy);
     (this.pool as any).relays = new Map();
+    this.relays = {};
   }
 }

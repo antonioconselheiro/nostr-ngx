@@ -10,4 +10,9 @@ export interface IRelayMetadata {
    */
   details?: RelayInformation;
   connectionTimeout?: number;
+
+  /**
+   * smart pool will not close inherited relays
+   */
+  inherited?: boolean;
 }
