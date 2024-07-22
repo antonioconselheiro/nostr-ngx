@@ -15,8 +15,7 @@ export class PoolCommunicationCheckComponent {
   formPool = this.fb.group({
     name: [''],
     poolType: ['smart'],
-    fromPool: [''],
-    poolList: ['']
+    fromPool: ['']
   });
 
   constructor(

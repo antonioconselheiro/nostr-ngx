@@ -12,19 +12,16 @@
     <div>
       <label>Pool type</label>
       <select name="poolType" formControlName="poolType" #poolType>
-        <option value="simple">Simple</option>
         <option value="smart">Smart</option>
         <option value="extended">Extended</option>
-        <option value="derivated">Derivated</option>
       </select>
     </div>
   
-    <div *ngIf="poolType.value === 'extended' || poolType.value === 'derivated'">
-      <label *ngIf="poolType.value === 'extended'">Extend from</label>
-      <label *ngIf="poolType.value === 'derivated'">Derivate from</label>
+    <div *ngIf="poolType.value === 'extended'">
+      <label>Extend from</label>
   
-      <select name="poolList" formControlName="poolList">
-        <option *ngFor="let poolConfig of pools" value="poolConfig.name">{{poolConfig.name}}</option>
+      <select name="fromPool" formControlName="fromPool">
+        <option *ngFor="let poolConfig of pools" [value]="poolConfig.name">{{poolConfig.name}}</option>
       </select>
     </div>
 
@@ -55,7 +52,7 @@
               <td>{{relay.connected ? 'yes' : 'no'}}</td>
             </tr>
             <tr>
-              <td><input type="text" placeholder="wss://relay" #newRelay /></td>
+              <td><input type="text" placeholder="wss://relay" #newRelay (keyup.enter)="addRelay(pool, newRelay.value); newRelay.value=''" /></td>
               <td><button type="button" (click)="addRelay(pool, newRelay.value); newRelay.value=''">Add</button></td>
             </tr>
           </tbody>
