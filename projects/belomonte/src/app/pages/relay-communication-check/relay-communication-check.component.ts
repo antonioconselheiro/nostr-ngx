@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { NostrService } from '@belomonte/nostr-ngx';
+import { NostrService, SmartPool } from '@belomonte/nostr-ngx';
 import { Event, EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip19, NostrEvent } from 'nostr-tools';
 import { Subscription } from 'rxjs';
 
@@ -10,8 +10,10 @@ import { Subscription } from 'rxjs';
   styleUrl: './relay-communication-check.component.scss'
 })
 export class RelayCommunicationCheckComponent {
-  listening: Subscription | null = null;
 
+  pool = new SmartPool([ 'ws://umbrel.local:4848' ]);
+
+  listening: Subscription | null = null;
   listedEvents: Array<NostrEvent> = [];
 
   templateMetadata: EventTemplate = {
@@ -163,7 +165,7 @@ export class RelayCommunicationCheckComponent {
     const { filter } = this.formRelayFilter.getRawValue();
     if (filter) {
       this.nostrService
-        .request(JSON.parse(filter), [ 'ws://umbrel.local:4848' ])
+        .request(JSON.parse(filter), this.pool)
         .then(events => this.listedEvents = [ ...this.listedEvents, ...events ]);
     }
   }
@@ -172,7 +174,7 @@ export class RelayCommunicationCheckComponent {
     const { filter } = this.formRelayFilter.getRawValue();
     if (filter) {
       this.listening = this.nostrService
-        .observable(JSON.parse(filter), [ 'ws://umbrel.local:4848' ])
+        .observable(JSON.parse(filter), this.pool)
         .subscribe(event => this.listedEvents.push(event));
     }
   }
@@ -180,7 +182,7 @@ export class RelayCommunicationCheckComponent {
   publish(): void {
     const { event } = this.formEventPublish.getRawValue();
     if (event) {
-      this.nostrService.publish(JSON.parse(event), [ 'ws://umbrel.local:4848' ]);
+      this.nostrService.publish(JSON.parse(event), this.pool);
     }
   }
 }

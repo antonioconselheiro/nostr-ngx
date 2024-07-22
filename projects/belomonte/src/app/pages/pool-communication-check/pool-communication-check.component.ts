@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { IPoolConfig } from './pool-config.interface';
-import { SimplePool } from 'nostr-tools';
-import { AbstractPool, DerivatedPool, ExtendedPool, observePool, SmartPool } from '@belomonte/nostr-ngx';
 import { FormBuilder } from '@angular/forms';
+import { ExtendedPool, SmartPool } from '@belomonte/nostr-ngx';
+import { IPoolConfig } from './pool-config.interface';
 
 @Component({
   selector: 'app-pool-communication-check',
@@ -15,29 +14,14 @@ export class PoolCommunicationCheckComponent {
 
   formPool = this.fb.group({
     name: [''],
-    poolType: [''],
-    fromPool: ['simple'],
+    poolType: ['smart'],
+    fromPool: [''],
     poolList: ['']
   });
 
   constructor(
     private fb: FormBuilder
   ) { }
-
-  private createSimple(name: string): void {
-    const pool = new SimplePool();
-    const poolConfig: IPoolConfig = {
-      type: 'simple',
-      status: [],
-      pool, name
-    };
-
-    observePool(pool).changes
-      .subscribe(() => poolConfig.status = Array.from(AbstractPool.prototype.listConnectionStatus.bind(pool)().entries())
-        .map(([relay, connected]) => ({ relay, connected })));
-
-    this.pools.push(poolConfig);
-  }
 
   private createSmart(name: string): void {
     const pool = new SmartPool();
@@ -47,7 +31,7 @@ export class PoolCommunicationCheckComponent {
       pool, name
     };
 
-    observePool(pool).changes
+    pool.observeConnection()
       .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
         .map(([relay, connected]) => ({ relay, connected })));
 
@@ -58,33 +42,14 @@ export class PoolCommunicationCheckComponent {
     const extendsFrom = this.pools.find(pool => pool.name === extendsFromPool);
 
     if (extendsFrom) {
-      const pool = new ExtendedPool(extendsFrom.pool, []);
+      const pool = new ExtendedPool(extendsFrom.pool);
       const poolConfig: IPoolConfig = {
         type: 'extended',
         status: [],
         pool, name
       };
 
-      observePool(pool).changes
-        .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
-          .map(([relay, connected]) => ({ relay, connected })));
-
-      this.pools.push(poolConfig);
-    }
-  }
-
-  private createDerivated(name: string, derivateFromPool: string): void {
-    const derivateFrom = this.pools.find(pool => pool.name === derivateFromPool);
-
-    if (derivateFrom) {
-      const pool = new DerivatedPool([derivateFrom.pool], []);
-      const poolConfig: IPoolConfig = {
-        type: 'derivated',
-        status: [],
-        pool, name
-      };
-
-      observePool(pool).changes
+      pool.observeConnection()
         .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
           .map(([relay, connected]) => ({ relay, connected })));
 
@@ -102,17 +67,11 @@ export class PoolCommunicationCheckComponent {
       const fromPool = form.fromPool || '';
 
       switch (poolType) {
-        case 'simple':
-          this.createSimple(poolName);
-          break;
         case 'smart':
           this.createSmart(poolName);
           break;
         case 'extended':
           this.createExtended(poolName, fromPool);
-          break;
-        case 'derivated':
-          this.createDerivated(poolName, fromPool);
           break;
       }
     }

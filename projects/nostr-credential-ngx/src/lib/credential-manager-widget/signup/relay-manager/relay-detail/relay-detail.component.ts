@@ -41,19 +41,16 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
     this.disconnectPool();
   }
 
-  private connectPool(): Promise<void> {
+  private connectPool(): void {
     const pool = this.pool = MainPoolStatefull.currentPool.extend();
-    return fetchRelayInformation(this.relay)
-      .then((details) => {
+    fetchRelayInformation(this.relay)
+      .then(details => {
         pool.ensureRelay(this.relay, { details });
         this.onLoad(details, pool);
-        return Promise.resolve();
       })
       .catch(e => {
         console.error(e);
         pool.ensureRelay(this.relay);
-
-        return Promise.resolve();
       });
   }
 
@@ -67,16 +64,13 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   private onLoad(details: RelayInformation, pool: ExtendedPool): void {
     this.loadedDetails = details;
     console.info(this.relay, 'details', details);
-    this.loadContactAccount(details);
+    this.loadContactAccount(details, pool);
   }
 
-  private loadContactAccount(details: RelayInformation): void {
-    //  FIXME: a pesquisa deve incluir o relay cujo os detalhes estão em análise
-    //  pelo usuário para identificar se ele deseja incluí-lo em sua pool
-
+  private loadContactAccount(details: RelayInformation, pool: ExtendedPool): void {
     if (details.pubkey) {
       this.profileProxy
-        .loadFromPublicHexa(details.pubkey)
+        .loadFromPublicHexa(details.pubkey, pool)
         .then(profile => this.loadedContactProfile = profile)
     }
   }

@@ -14,8 +14,8 @@ import { SmartPool } from './smart.pool';
  */
 export class ExtendedPool extends SmartPool {
 
-  constructor(fatherPool: SmartPool) {
-    super();
+  constructor(fatherPool: SmartPool, relays: string[] = []) {
+    super(relays);
 
     const featherRelaysMap = this.getFatherRelaysMap(fatherPool);
     const poolRelaysReference = this.getPoolRelays();

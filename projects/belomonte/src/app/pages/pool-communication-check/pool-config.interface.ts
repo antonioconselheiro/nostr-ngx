@@ -1,8 +1,8 @@
-import { AbstractSimplePool } from 'nostr-tools/pool';
+import { SmartPool } from '@belomonte/nostr-ngx';
 
 export interface IPoolConfig {
   name: string;
-  type: 'simple' | 'smart' | 'extended' | 'derivated';
-  pool: AbstractSimplePool;
+  type: 'smart' | 'extended';
+  pool: SmartPool;
   status: Array<{ relay: string, connected: boolean }>;
 }

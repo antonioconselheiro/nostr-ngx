@@ -3,9 +3,11 @@ import { SubCloser, SubscribeManyParams } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/abstract-relay';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { normalizeURL } from 'nostr-tools/utils';
+import { Observable } from 'rxjs';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
 import { ExtendedPool } from './extended.pool';
+import { observePool } from './observe-pool.fn';
 
 /**
  * SmartPool is a facade to nostr-tools SimplePool,
@@ -23,6 +25,10 @@ export class SmartPool {
   protected pool = new SimplePool();
   relays: TRelayMetadataRecord = {};
   trustedRelayURLs = this.pool.trustedRelayURLs;
+
+  constructor(relays: string[] = []) {
+    relays.forEach(relay => this.ensureRelay(relay));
+  }
 
   ensureRelay(url: string, params?: Omit<IRelayMetadata, 'url'>): Promise<AbstractRelay> {
     let metadata: IRelayMetadata;
@@ -85,6 +91,13 @@ export class SmartPool {
     const extended = new ExtendedPool(this);
     relays.forEach(relay => extended.ensureRelay(relay));
     return extended;
+  }
+
+  /**
+   * on add relay, on close relay and when relay changes it connection status
+   */
+  observeConnection(): Observable<void> {
+    return observePool(this.pool).changes;
   }
 
   private getReadableRelays(): string[] {
