@@ -5,7 +5,7 @@ import { SmartPool } from './smart.pool';
  * A extended pool that should not be able to close relays from father pool,
  * but can use it's connections.
  * 
- * This pool will reuse ALL ACTIVE CONNECTIONS from a father pool and will
+ * This pool will reuse ALL active connections from a father pool and will
  * able to have it customs connections. It'll be not able to close inherited
  * relays.
  * 

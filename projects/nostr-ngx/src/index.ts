@@ -6,7 +6,6 @@ export * from './domain/nip05.type';
 export * from './domain/nostr-public.type';
 export * from './domain/nostr-secret.type';
 export * from './domain/relay-metadata.interface';
-export * from './domain/relay-information.interface';
 export * from './domain/relay-metadata.record';
 
 export * from './storage/abstract-storage';

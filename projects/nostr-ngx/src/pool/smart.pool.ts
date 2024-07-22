@@ -18,35 +18,41 @@ export class SmartPool {
    * Stores nip11 relay information loaded, this avoid
    * to request again for information from the same relay 
    */
-  private static relaysDetails: Record<string, RelayInformation> = {};
+  private static relaysDetails: Record<string, RelayInformation | undefined> = {};
 
   protected pool = new SimplePool();
   relays: TRelayMetadataRecord = {};
   trustedRelayURLs = this.pool.trustedRelayURLs;
 
-  ensureRelay(url: string, params?: IRelayMetadata): Promise<AbstractRelay> {
+  ensureRelay(url: string, params?: Omit<IRelayMetadata, 'url'>): Promise<AbstractRelay> {
+    let metadata: IRelayMetadata;
     if (!params) {
-      params = {
+      metadata = {
         url: normalizeURL(url),
         read: true,
         write: true
       };
+    } else {
+      metadata = {
+        url: normalizeURL(url),
+        ...params
+      };
     }
 
-    if (!params.details) {
-      if (SmartPool.relaysDetails[params.url]) {
-        params.details = SmartPool.relaysDetails[params.url];
+    if (!metadata.details) {
+      if (SmartPool.relaysDetails[metadata.url]) {
+        metadata.details = SmartPool.relaysDetails[metadata.url];
       } else {
-        fetchRelayInformation(params.url)
+        fetchRelayInformation(metadata.url)
           .then(details => {
-            params.details = details;
-            SmartPool.relaysDetails[params.url] = details;
+            metadata.details = details;
+            SmartPool.relaysDetails[metadata.url] = details;
           })
-          .catch(e => console.error(`failed to load nip11 relay details from ${params.url}`, e))
+          .catch(e => console.error(`failed to load nip11 relay details from ${metadata.url}`, e))
       }
     }
 
-    this.relays[params.url] = params;
+    this.relays[metadata.url] = metadata;
     return this.pool.ensureRelay(url, params);
   }
 

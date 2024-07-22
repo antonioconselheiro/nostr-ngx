@@ -1,16 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { IProfile } from '../../../../domain/profile.interface';
 import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { RelayInformationTemp } from '@belomonte/nostr-ngx';
+import { ExtendedPool, MainPoolStatefull } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
   templateUrl: './relay-detail.component.html',
   styleUrl: './relay-detail.component.scss'
 })
-export class RelayDetailComponent implements OnInit {
+export class RelayDetailComponent implements OnInit, OnDestroy {
 
   @Output()
   back = new EventEmitter<void>();
@@ -21,8 +21,9 @@ export class RelayDetailComponent implements OnInit {
   @Input()
   relay!: string;
 
-  loadedDetails: RelayInformation & RelayInformationTemp | null = null;
+  pool?: ExtendedPool;
 
+  loadedDetails: RelayInformation | null = null;
   loadedContactProfile: IProfile | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
@@ -33,23 +34,46 @@ export class RelayDetailComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.load();
+    this.connectPool();
   }
 
-  private load(): void {
-    fetchRelayInformation(this.relay)
-      .then((details) => this.onLoad(details as RelayInformation & RelayInformationTemp));
+  ngOnDestroy(): void {
+    this.disconnectPool();
   }
 
-  private onLoad(details: RelayInformation & RelayInformationTemp): void {
+  private connectPool(): Promise<void> {
+    const pool = this.pool = MainPoolStatefull.currentPool.extend();
+    return fetchRelayInformation(this.relay)
+      .then((details) => {
+        pool.ensureRelay(this.relay, { details });
+        this.onLoad(details, pool);
+        return Promise.resolve();
+      })
+      .catch(e => {
+        console.error(e);
+        pool.ensureRelay(this.relay);
+
+        return Promise.resolve();
+      });
+  }
+
+  private disconnectPool(): void {
+    if (this.pool) {
+      this.pool.destroy();
+      delete this.pool;
+    }
+  }
+
+  private onLoad(details: RelayInformation, pool: ExtendedPool): void {
     this.loadedDetails = details;
     console.info(this.relay, 'details', details);
     this.loadContactAccount(details);
   }
 
-  private loadContactAccount(details: RelayInformation & RelayInformationTemp): void {
+  private loadContactAccount(details: RelayInformation): void {
     //  FIXME: a pesquisa deve incluir o relay cujo os detalhes estão em análise
     //  pelo usuário para identificar se ele deseja incluí-lo em sua pool
+
     if (details.pubkey) {
       this.profileProxy
         .loadFromPublicHexa(details.pubkey)
@@ -76,7 +100,7 @@ export class RelayDetailComponent implements OnInit {
     return (loadedDetails.software || loadedDetails.version) && true || false;
   }
 
-  showPublicationLimitations(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
+  showPublicationLimitations(loadedDetails: RelayInformation): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -87,7 +111,7 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.max_message_length) && true || false;
   }
 
-  showOtherLimitations(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
+  showOtherLimitations(loadedDetails: RelayInformation): boolean {
     if (!loadedDetails.limitation) {
       return false;
     }
@@ -96,12 +120,12 @@ export class RelayDetailComponent implements OnInit {
       loadedDetails.limitation.restricted_writes) && true || false;
   }
 
-  softwareIsName(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
+  softwareIsName(loadedDetails: RelayInformation): boolean {
     const isUrl = /(https?:\/\/)|(^git\@)/;
     return !isUrl.test(loadedDetails.software);
   }
 
-  softwareHasLink(loadedDetails: RelayInformation & RelayInformationTemp): string | null {
+  softwareHasLink(loadedDetails: RelayInformation): string | null {
     const isHttp = /^https?:\/\//;
     const isGitSsh = /^git@[^ ]+\:[^ ]+.git$/;
     const isGitHttp = /^git\+/;
@@ -117,18 +141,18 @@ export class RelayDetailComponent implements OnInit {
     return null;
   }
 
-  contactIsEmail(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
+  contactIsEmail(loadedDetails: RelayInformation): boolean {
     const isEmail = /^[^ ]+@[^ ]+\.[^ ]+$/;
     return isEmail.test(loadedDetails.contact);
   }
 
-  contactIsWebSite(loadedDetails: RelayInformation & RelayInformationTemp): boolean {
+  contactIsWebSite(loadedDetails: RelayInformation): boolean {
     const isWebSite = /^[^@ ]+\.[^ ]+$/;
     return isWebSite.test(loadedDetails.contact);
   }
 
-  getLowerLimitTimestamp(loadedDetails: RelayInformation & RelayInformationTemp): number {
-    const lowerLimit = loadedDetails.limitation.created_at_lower_limit;
+  getLowerLimitTimestamp(loadedDetails: RelayInformation): number {
+    const lowerLimit = loadedDetails.limitation?.created_at_lower_limit;
     if (!lowerLimit) {
       return 0;
     }
@@ -136,7 +160,7 @@ export class RelayDetailComponent implements OnInit {
     return lowerLimit * 1000;
   }
 
-  getUpperLimitTimestamp(loadedDetails: RelayInformation & RelayInformationTemp): number {
-    return new Date().getTime() + ((loadedDetails.limitation.created_at_upper_limit || 0) * 1000);
+  getUpperLimitTimestamp(loadedDetails: RelayInformation): number {
+    return new Date().getTime() + ((loadedDetails.limitation?.created_at_upper_limit || 0) * 1000);
   }
 }

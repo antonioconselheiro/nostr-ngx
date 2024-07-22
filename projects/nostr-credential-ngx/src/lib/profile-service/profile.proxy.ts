@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { NostrConverter, SmartPool, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { Event } from 'nostr-tools';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
@@ -61,8 +61,8 @@ export class ProfileProxy {
     }
   }
 
-  loadFromPublicHexa(pubkey: string): Promise<IProfile> {
-    return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
+  loadFromPublicHexa(pubkey: string, pool?: SmartPool): Promise<IProfile> {
+    return this.loadProfile(this.nostrConverter.castPubkeyToNostrPublic(pubkey), pool);
   }
 
   async loadAccountFromCredentials(nsec: TNostrSecret, password: string): Promise<IUnauthenticatedUser | null> {
@@ -74,20 +74,20 @@ export class ProfileProxy {
     return Promise.resolve(account);
   }
 
-  async loadProfiles(npubss: TNostrPublic[]): Promise<IProfile[]> {
+  async loadProfiles(npubss: TNostrPublic[], pool?: SmartPool): Promise<IProfile[]> {
     const npubs = [...new Set(npubss.flat(1))];
     const notLoaded = npubs.filter(npub => !this.profileCache.isEagerLoaded(npub))
 
-    return this.forceProfileReload(notLoaded);
+    return this.forceProfileReload(notLoaded, pool);
   }
 
-  async loadProfile(npub: TNostrPublic): Promise<IProfile> {
-    return this.loadProfiles([npub])
+  async loadProfile(npub: TNostrPublic, pool?: SmartPool): Promise<IProfile> {
+    return this.loadProfiles([npub], pool)
       .then(profiles => Promise.resolve(profiles[0]));
   }
   
-  private async forceProfileReload(npubs: Array<TNostrPublic>): Promise<Array<IProfile>> {
-    const events = await this.profileApi.loadProfiles(npubs);
+  private async forceProfileReload(npubs: Array<TNostrPublic>, pool?: SmartPool): Promise<Array<IProfile>> {
+    const events = await this.profileApi.loadProfiles(npubs, pool);
     this.profileCache.cache(events);
     return Promise.resolve(npubs.map(npub => this.profileCache.get(npub)));
   }
