@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NostrAuthCheckModule } from './pages/nostr-auth-check/nostr-auth-check.module';
-import { RelayCommunicationCheckModule } from './pages/relay-communication-check/relay-communication-check.module';
-import { PoolCommunicationCheckModule } from './pages/pool-communication-check/pool-communication-check.module';
+import { PoolInteractModule } from './pages/pool-interact/pool-interact.module';
+import { PoolConfigModule } from './pages/pool-config/pool-config.module';
 
 @Component({
   selector: 'app-root',
@@ -12,8 +12,8 @@ import { PoolCommunicationCheckModule } from './pages/pool-communication-check/p
     CommonModule,
     RouterModule,
     NostrAuthCheckModule,
-    RelayCommunicationCheckModule,
-    PoolCommunicationCheckModule
+    PoolInteractModule,
+    PoolConfigModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

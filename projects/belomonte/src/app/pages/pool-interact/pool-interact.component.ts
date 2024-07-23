@@ -5,11 +5,11 @@ import { Event, EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, n
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-relay-communication-check',
-  templateUrl: './relay-communication-check.component.html',
-  styleUrl: './relay-communication-check.component.scss'
+  selector: 'app-pool-interact',
+  templateUrl: './pool-interact.component.html',
+  styleUrl: './pool-interact.component.scss'
 })
-export class RelayCommunicationCheckComponent {
+export class PoolInteractComponent {
 
   pool = new SmartPool([ 'ws://umbrel.local:4848' ]);
 

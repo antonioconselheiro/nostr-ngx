@@ -4,11 +4,11 @@ import { ExtendedPool, SmartPool } from '@belomonte/nostr-ngx';
 import { IPoolConfig } from './pool-config.interface';
 
 @Component({
-  selector: 'app-pool-communication-check',
-  templateUrl: './pool-communication-check.component.html',
-  styleUrl: './pool-communication-check.component.scss'
+  selector: 'app-pool-config',
+  templateUrl: './pool-config.component.html',
+  styleUrl: './pool-config.component.scss'
 })
-export class PoolCommunicationCheckComponent {
+export class PoolConfigComponent {
 
   pools: IPoolConfig[] = [];
 
@@ -26,13 +26,12 @@ export class PoolCommunicationCheckComponent {
     const pool = new SmartPool();
     const poolConfig: IPoolConfig = {
       type: 'smart',
-      status: [],
+      status: this.castPoolStatusToArray(pool),
       pool, name
     };
 
     pool.observeConnection()
-      .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
-        .map(([relay, connected]) => ({ relay, connected })));
+      .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool));
 
     this.pools.push(poolConfig);
   }
@@ -44,16 +43,20 @@ export class PoolCommunicationCheckComponent {
       const pool = new ExtendedPool(extendsFrom.pool);
       const poolConfig: IPoolConfig = {
         type: 'extended',
-        status: [],
+        status: this.castPoolStatusToArray(pool),
         pool, name
       };
 
       pool.observeConnection()
-        .subscribe(() => poolConfig.status = Array.from(pool.listConnectionStatus().entries())
-          .map(([relay, connected]) => ({ relay, connected })));
+        .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool));
 
       this.pools.push(poolConfig);
     }
+  }
+
+  private castPoolStatusToArray(pool: SmartPool): Array<{ relay: string, connected: boolean }> {
+    return Array.from(pool.listConnectionStatus().entries())
+      .map(([relay, connected]) => ({ relay, connected }));
   }
 
   submitPool(event: SubmitEvent): void {
@@ -73,6 +76,8 @@ export class PoolCommunicationCheckComponent {
           this.createExtended(poolName, fromPool);
           break;
       }
+
+      this.formPool.reset();
     }
   }
 

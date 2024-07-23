@@ -1,19 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PoolCommunicationCheckComponent } from './pool-communication-check.component';
+import { PoolInteractComponent } from './pool-interact.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NostrModule } from '@belomonte/nostr-ngx';
 
 @NgModule({
   declarations: [
-    PoolCommunicationCheckComponent
+    PoolInteractComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    NostrModule,
     FormsModule
-  ],
-  exports: [
-    PoolCommunicationCheckComponent
   ]
 })
-export class PoolCommunicationCheckModule { }
+export class PoolInteractModule { }

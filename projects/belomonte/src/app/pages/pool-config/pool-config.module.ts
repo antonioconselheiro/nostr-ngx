@@ -1,18 +1,19 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RelayCommunicationCheckComponent } from './relay-communication-check.component';
+import { PoolConfigComponent } from './pool-config.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NostrModule } from '@belomonte/nostr-ngx';
 
 @NgModule({
   declarations: [
-    RelayCommunicationCheckComponent
+    PoolConfigComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NostrModule,
     FormsModule
+  ],
+  exports: [
+    PoolConfigComponent
   ]
 })
-export class RelayCommunicationCheckModule { }
+export class PoolConfigModule { }
