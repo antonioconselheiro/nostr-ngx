@@ -2,10 +2,11 @@ FROM node:20
 
 RUN npm install typescript @angular/cli sass sassdoc -g
 
+# Including tar to build beta packages
 # Including jq to filter json
 RUN apt update
-RUN apt install -y jq
-RUN apt-get clean
+RUN apt install -y jq tar
+RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install docker and docker-compose

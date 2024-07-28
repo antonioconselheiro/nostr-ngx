@@ -5,7 +5,7 @@
   "scripts": {
     "start": "ng serve belomonte --host=0.0.0.0",
     "dev": "npm start",
-    "build": "npm run build:nostr && npm run build:credential",
+    "build": "sh ./build.sh",
     "build:nostr": "npm -C projects/nostr-ngx run build",
     "build:credential": "npm -C projects/nostr-credential-ngx run build",
     "pool": "docker-compose -f pool/docker-compose.yml up"
