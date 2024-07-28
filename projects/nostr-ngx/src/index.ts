@@ -8,6 +8,8 @@ export * from './domain/nostr-secret.type';
 export * from './domain/relay-metadata.interface';
 export * from './domain/relay-metadata.record';
 
+export * from './domain/nostr-event-kind';
+
 export * from './storage/abstract-storage';
 export * from './storage/configs-local.storage';
 export * from './storage/configs-session.storage';
