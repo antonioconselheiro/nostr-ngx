@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { SmartPool } from '../pool/smart.pool';
-import { MainPoolStatefull } from './main-pool.statefull';
+import { MainPool } from './main.pool';
 
 /**
  * Interacts with pool relays, request data, subscribe filters and publish content
@@ -11,6 +11,10 @@ import { MainPoolStatefull } from './main-pool.statefull';
   providedIn: 'root'
 })
 export class NostrService {
+
+  constructor(
+    private pool: MainPool
+  ) {}
 
   async request(
     filters: Filter[],
@@ -21,7 +25,7 @@ export class NostrService {
     pool?: SmartPool
   ): Promise<Array<NostrEvent>> {
     const events = new Array<NostrEvent>();
-    pool = pool || MainPoolStatefull.currentPool;
+    pool = pool || this.pool;
     console.debug('requesting in pool:', pool, 'filters: ', filters);
 
     return new Promise(resolve => {
@@ -50,7 +54,7 @@ export class NostrService {
      */
     pool?: SmartPool
   ): Observable<NostrEvent> {
-    pool = pool || MainPoolStatefull.currentPool;
+    pool = pool || this.pool;
     const subject = new Subject<NostrEvent>();
     const onDestroy$ = new Subject<void>();
     console.debug('subscribing in pool:', pool, 'filters: ', filters);
@@ -79,7 +83,7 @@ export class NostrService {
      */
     pool?: SmartPool
   ): Promise<void> {
-    pool = pool || MainPoolStatefull.currentPool;
+    pool = pool || this.pool;
     console.debug('publishing in pool:', pool, 'event: ', event);
 
     // TODO: pode ser útil tratar individualmente os retornos, de forma a identificar

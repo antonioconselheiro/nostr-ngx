@@ -19,7 +19,7 @@ export * from './pool/observe-relay.fn';
 export * from './pool/smart.pool';
 export * from './pool/extended.pool';
 
-export * from './nostr/main-pool.statefull';
+export * from './nostr/main.pool';
 export * from './nostr/nostr.converter';
 export * from './nostr/nostr.guard';
 export * from './nostr/nostr.module';

@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ExtendedPool, SmartPool } from '@belomonte/nostr-ngx';
 import { IPoolConfig } from './pool-config.interface';
+import { globalPoolsStatefull } from '../../global-pools.statefull';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-pool-config',
   templateUrl: './pool-config.component.html',
   styleUrl: './pool-config.component.scss'
 })
-export class PoolConfigComponent {
+export class PoolConfigComponent implements OnInit, OnDestroy {
 
   pools: IPoolConfig[] = [];
+  subscriptions = new Subscription();
 
   formPool = this.fb.group({
     name: [''],
@@ -22,6 +25,35 @@ export class PoolConfigComponent {
     private fb: FormBuilder
   ) { }
 
+  ngOnInit(): void {
+    this.loadPoolsFromGlobalStatefull();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+
+  private unsubscribe(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private loadPoolsFromGlobalStatefull(): void {
+    Object.keys(globalPoolsStatefull.pools).forEach(name => {
+      const pool = globalPoolsStatefull.pools[name];
+      const poolConfig: IPoolConfig = {
+        name,
+        pool,
+        status: this.castPoolStatusToArray(pool),
+        type: pool instanceof ExtendedPool ? 'extended' : 'smart'
+      }
+
+      this.pools.push(poolConfig);
+
+      this.subscriptions.add(pool.observeConnection()
+        .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
+    });
+  }
+
   private createSmart(name: string): void {
     const pool = new SmartPool();
     const poolConfig: IPoolConfig = {
@@ -30,10 +62,11 @@ export class PoolConfigComponent {
       pool, name
     };
 
-    pool.observeConnection()
-      .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool));
+    this.subscriptions.add(pool.observeConnection()
+      .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
 
     this.pools.push(poolConfig);
+    globalPoolsStatefull.pools[name] = pool;
   }
 
   private createExtended(name: string, extendsFromPool: string): void {
@@ -47,10 +80,11 @@ export class PoolConfigComponent {
         pool, name
       };
 
-      pool.observeConnection()
-        .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool));
+      this.subscriptions.add(pool.observeConnection()
+        .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
 
       this.pools.push(poolConfig);
+      globalPoolsStatefull.pools[name] = pool;
     }
   }
 

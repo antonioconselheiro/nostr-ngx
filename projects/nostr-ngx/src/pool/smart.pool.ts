@@ -1,4 +1,4 @@
-import { Event, Filter, SimplePool } from 'nostr-tools';
+import { Event, Filter } from 'nostr-tools';
 import { SubCloser, SubscribeManyParams } from 'nostr-tools/abstract-pool';
 import { AbstractRelay } from 'nostr-tools/abstract-relay';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
@@ -6,6 +6,7 @@ import { normalizeURL } from 'nostr-tools/utils';
 import { Observable } from 'rxjs';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { ExtendablePool } from './extendable.pool';
 import { observePool } from './observe-pool.fn';
 
 /**
@@ -21,7 +22,7 @@ export class SmartPool {
    */
   private static relaysDetails: Record<string, RelayInformation | undefined> = {};
 
-  protected pool = new SimplePool();
+  protected pool: ExtendablePool = new ExtendablePool();
   relays: TRelayMetadataRecord = {};
   trustedRelayURLs = this.pool.trustedRelayURLs;
 
@@ -102,12 +103,12 @@ export class SmartPool {
   }
 
   protected getPoolRelays(): Map<string, AbstractRelay> {
-    return (this.pool as any).relays;
+    return this.pool.getRelays();
   }
 
   listConnectionStatus(): Map<string, boolean> {
     const map = new Map<string, boolean>();
-    (this.pool as any).relays
+    this.pool.getRelays()
       .forEach((relay: AbstractRelay, url: string) => map.set(url, relay.connected));
 
     return map;
@@ -136,7 +137,7 @@ export class SmartPool {
     });
 
     this.pool.close(toDestroy);
-    (this.pool as any).relays = new Map();
+    this.pool.resetRelays();
     this.relays = {};
   }
 }
