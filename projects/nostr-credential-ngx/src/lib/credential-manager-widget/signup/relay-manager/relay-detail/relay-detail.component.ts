@@ -3,7 +3,7 @@ import { IProfile } from '../../../../domain/profile.interface';
 import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { ExtendedPool, MainPoolStatefull } from '@belomonte/nostr-ngx';
+import { ExtendedPool, MainPool } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -30,6 +30,7 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   numberFormat = '1.0-0';
 
   constructor(
+    private mainPool: MainPool,
     private profileProxy: ProfileProxy
   ) { }
 
@@ -42,7 +43,7 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   }
 
   private connectPool(): void {
-    const pool = this.pool = new ExtendedPool(MainPoolStatefull.currentPool);
+    const pool = this.pool = new ExtendedPool(this.mainPool);
     fetchRelayInformation(this.relay)
       .then(details => {
         pool.ensureRelay(this.relay, { details });

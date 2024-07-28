@@ -1,7 +1,3 @@
 import { SmartPool } from '@belomonte/nostr-ngx';
 
-export const globalPoolsStatefull: {
-  pools: Record<string, SmartPool>;
-} = {
-  pools: {}
-}
+export const globalPoolsStatefull: Record<string, SmartPool> = {};

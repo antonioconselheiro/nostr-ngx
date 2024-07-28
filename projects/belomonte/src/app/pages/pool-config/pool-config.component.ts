@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { ExtendedPool, SmartPool } from '@belomonte/nostr-ngx';
+import { ExtendedPool, MainPool, SmartPool } from '@belomonte/nostr-ngx';
 import { IPoolConfig } from './pool-config.interface';
 import { globalPoolsStatefull } from '../../global-pools.statefull';
 import { Subscription } from 'rxjs';
@@ -22,7 +22,8 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
   });
 
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private mainPool: MainPool
   ) { }
 
   ngOnInit(): void {
@@ -38,20 +39,25 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
   }
 
   private loadPoolsFromGlobalStatefull(): void {
-    Object.keys(globalPoolsStatefull.pools).forEach(name => {
-      const pool = globalPoolsStatefull.pools[name];
-      const poolConfig: IPoolConfig = {
-        name,
-        pool,
-        status: this.castPoolStatusToArray(pool),
-        type: pool instanceof ExtendedPool ? 'extended' : 'smart'
-      }
-
-      this.pools.push(poolConfig);
-
-      this.subscriptions.add(pool.observeConnection()
-        .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
+    this.loadPool('main pool', this.mainPool);
+    Object.keys(globalPoolsStatefull).forEach(name => {
+      const pool = globalPoolsStatefull[name];
+      this.loadPool(name, pool);
     });
+  }
+
+  private loadPool(name: string, pool: SmartPool): void {
+    const poolConfig: IPoolConfig = {
+      name,
+      pool,
+      status: this.castPoolStatusToArray(pool),
+      type: pool instanceof ExtendedPool ? 'extended' : 'smart'
+    };
+
+    this.pools.push(poolConfig);
+
+    this.subscriptions.add(pool.observeConnection()
+      .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
   }
 
   private createSmart(name: string): void {
@@ -66,7 +72,7 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
       .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
 
     this.pools.push(poolConfig);
-    globalPoolsStatefull.pools[name] = pool;
+    globalPoolsStatefull[name] = pool;
   }
 
   private createExtended(name: string, extendsFromPool: string): void {
@@ -84,7 +90,7 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
         .subscribe(() => poolConfig.status = this.castPoolStatusToArray(pool)));
 
       this.pools.push(poolConfig);
-      globalPoolsStatefull.pools[name] = pool;
+      globalPoolsStatefull[name] = pool;
     }
   }
 

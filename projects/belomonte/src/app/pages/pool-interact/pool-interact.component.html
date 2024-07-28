@@ -1,6 +1,16 @@
+<form>
+  <fieldset>
+    <legend>Choose a pool</legend>
+
+    <select [(ngModel)]="choosenPool" [ngModelOptions]="{standalone: true}">
+      <option [value]="pool" *ngFor="let pool of poolsOptions">{{pool}}</option>
+    </select>
+  </fieldset>
+</form>
+
 <form [formGroup]="formEventPublish">
   <fieldset>
-    <legend>Relay Publish</legend>
+    <legend>Write on Pool</legend>
     <div>
       <label>Nostr Secret</label>
       <input #nsec name="nsec" formControlName="nsec" [type]="nostrSecretHide ? 'password' : 'text'" />
@@ -34,7 +44,7 @@
 
 <form [formGroup]="formRelayFilter">
   <fieldset>
-    <legend>Relay Read</legend>
+    <legend>Read from Pool</legend>
     <div>
       <label>Filter</label>
       <textarea name="filter" formControlName="filter"></textarea>

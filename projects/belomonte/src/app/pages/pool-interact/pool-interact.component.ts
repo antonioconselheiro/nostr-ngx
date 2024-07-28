@@ -1,30 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { NostrService, SmartPool } from '@belomonte/nostr-ngx';
+import { MainPool, NostrEventKind, NostrService, SmartPool } from '@belomonte/nostr-ngx';
 import { Event, EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip19, NostrEvent } from 'nostr-tools';
 import { Subscription } from 'rxjs';
+import { globalPoolsStatefull } from '../../global-pools.statefull';
 
 @Component({
   selector: 'app-pool-interact',
   templateUrl: './pool-interact.component.html',
   styleUrl: './pool-interact.component.scss'
 })
-export class PoolInteractComponent {
+export class PoolInteractComponent implements OnInit {
 
-  pool = new SmartPool([ 'ws://umbrel.local:4848' ]);
+  poolRecord: Record<string, SmartPool> = { 'main pool': this.pool, ...globalPoolsStatefull };
+  poolsOptions = ['main pool'].concat(Object.keys(globalPoolsStatefull));
+  choosenPool = 'main pool';
 
   listening: Subscription | null = null;
   listedEvents: Array<NostrEvent> = [];
 
   templateMetadata: EventTemplate = {
-    kind: 0,
+    kind: NostrEventKind.Metadata,
     created_at: Math.floor(new Date().getTime() / 1000),
     content: "{\"name\":\"António Vicente\"}",
     tags: []
   };
 
   templateText: EventTemplate = {
-    kind: 1,
+    kind: NostrEventKind.ShortTextNote,
     created_at: Math.floor(new Date().getTime() / 1000),
     tags: [
       ["t", "hashtag"]
@@ -33,7 +36,7 @@ export class PoolInteractComponent {
   };
 
   templateUserStatuses: EventTemplate = {
-    kind: 30315,
+    kind: NostrEventKind.UserStatuses,
     created_at: Math.floor(new Date().getTime() / 1000),
     tags: [
       ["d", "general"],
@@ -43,21 +46,21 @@ export class PoolInteractComponent {
   };
 
   templateReact: EventTemplate = {
-    kind: 7,
+    kind: NostrEventKind.Reaction,
     created_at: Math.floor(new Date().getTime() / 1000),
     tags: [],
     content: "+"
   };
 
   templateRepost: EventTemplate = {
-    kind: 6,
+    kind: NostrEventKind.Repost,
     created_at: Math.floor(new Date().getTime() / 1000),
     content: "#hashtag",
     tags: []
   };
 
   templateDelete: EventTemplate = {
-    kind: 5,
+    kind: NostrEventKind.EventDeletion,
     created_at: Math.floor(new Date().getTime() / 1000),
     tags: [],
     content: "deleting posts"
@@ -67,7 +70,7 @@ export class PoolInteractComponent {
     {
       ids: [],
       authors: [],
-      kinds: [30315],
+      kinds: [NostrEventKind.UserStatuses],
       "#d": ["general"],
       since: Math.floor(new Date().getTime() / 1000) - (60 * 60 * 24),
       until: Math.floor(new Date().getTime() / 1000) + (60 * 60 * 24),
@@ -87,10 +90,20 @@ export class PoolInteractComponent {
 
   nostrSecretHide = true;
 
+  pools: Record<string, SmartPool> = {};
+
   constructor(
     private fb: FormBuilder,
+    private pool: MainPool,
     private nostrService: NostrService
   ) { }
+
+  ngOnInit(): void {
+    this.pools = {
+      'main pool': this.pool,
+      ...globalPoolsStatefull
+    }
+  }
 
   getPubkey(nsec: string): string {
     const { data } = nip19.decode(nsec);
@@ -100,7 +113,7 @@ export class PoolInteractComponent {
   generateNostrSecret(): void {
     const nsec = nip19.nsecEncode(generateSecretKey());
     this.formEventPublish.patchValue({
-      nsec: nsec,
+      nsec,
       pubkey: this.getPubkey(nsec)
     });
   }
@@ -164,8 +177,9 @@ export class PoolInteractComponent {
   request(): void {
     const { filter } = this.formRelayFilter.getRawValue();
     if (filter) {
+
       this.nostrService
-        .request(JSON.parse(filter), this.pool)
+        .request(JSON.parse(filter), this.poolRecord[this.choosenPool])
         .then(events => this.listedEvents = [ ...this.listedEvents, ...events ]);
     }
   }
@@ -174,7 +188,7 @@ export class PoolInteractComponent {
     const { filter } = this.formRelayFilter.getRawValue();
     if (filter) {
       this.listening = this.nostrService
-        .observable(JSON.parse(filter), this.pool)
+        .observable(JSON.parse(filter), this.poolRecord[this.choosenPool])
         .subscribe(event => this.listedEvents.push(event));
     }
   }
@@ -182,7 +196,7 @@ export class PoolInteractComponent {
   publish(): void {
     const { event } = this.formEventPublish.getRawValue();
     if (event) {
-      this.nostrService.publish(JSON.parse(event), this.pool);
+      this.nostrService.publish(JSON.parse(event), this.poolRecord[this.choosenPool]);
     }
   }
 }
