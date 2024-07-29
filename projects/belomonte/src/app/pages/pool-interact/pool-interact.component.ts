@@ -176,8 +176,8 @@ export class PoolInteractComponent implements OnInit {
 
   request(): void {
     const { filter } = this.formRelayFilter.getRawValue();
+    
     if (filter) {
-
       this.nostrService
         .request(JSON.parse(filter), this.poolRecord[this.choosenPool])
         .then(events => this.listedEvents = [ ...this.listedEvents, ...events ]);
@@ -186,6 +186,7 @@ export class PoolInteractComponent implements OnInit {
 
   listen(): void {
     const { filter } = this.formRelayFilter.getRawValue();
+
     if (filter) {
       this.listening = this.nostrService
         .observable(JSON.parse(filter), this.poolRecord[this.choosenPool])
@@ -195,6 +196,7 @@ export class PoolInteractComponent implements OnInit {
 
   publish(): void {
     const { event } = this.formEventPublish.getRawValue();
+
     if (event) {
       this.nostrService.publish(JSON.parse(event), this.poolRecord[this.choosenPool]);
     }

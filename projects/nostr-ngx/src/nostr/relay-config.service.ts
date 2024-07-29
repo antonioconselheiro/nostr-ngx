@@ -15,8 +15,11 @@ export class RelayConfigService {
 
   private static defaultAppRelays: TRelayMetadataRecord = {};
 
-  static setDefaultApplicationRelays(relays: TRelayMetadataRecord): void {
-    this.defaultAppRelays = relays;
+  static setDefaultApplicationRelays(relays: { [url: string]: Omit<IRelayMetadata, 'url'> }): void {
+    this.defaultAppRelays = {};
+    Object.keys(relays).forEach(url => {
+      this.defaultAppRelays[url] = { url, ...relays[url] };
+    });
   }
 
   constructor(

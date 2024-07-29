@@ -11,6 +11,7 @@ import { RelayManagerModule } from '../signup/relay-manager/relay-manager.module
 import { ChoosePasswordModule } from '../signup/choose-password/choose-password.module';
 import { DownloadSignerModule } from '../download-signer/download-signer.module';
 import { CreateNsecAndNcryptsecModule } from '../signup/create-nsec-and-ncryptsec/create-nsec-and-ncryptsec.module';
+import { SearchRelaysModule } from '../signup/search-relays/search-relays.module';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { CreateNsecAndNcryptsecModule } from '../signup/create-nsec-and-ncryptse
     CreateNsecAndNcryptsecModule,
     ChoosePasswordModule,
     RelayManagerModule,
-    DownloadSignerModule
+    DownloadSignerModule,
+    SearchRelaysModule
   ],
   exports: [
     ModalNostrCredentialComponent
