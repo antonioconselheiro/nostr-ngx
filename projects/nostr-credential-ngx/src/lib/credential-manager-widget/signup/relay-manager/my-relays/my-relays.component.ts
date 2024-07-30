@@ -83,18 +83,33 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     this.mainPool.close([relay]);
   }
 
-  connect(relay: string): void {
-    if (!this.relayWritable && !this.relayReadable) {
-      this.newRelayError = 'never';
-    } else if (relay) {
-      this.mainPool.ensureRelay(relay, {
-        read: this.relayReadable,
-        write: this.relayWritable
-      });
-      this.newRelayError = null;
-    } else {
-      this.newRelayError = 'required';
+  onPasteRelays(event: ClipboardEvent): void {
+    const clipboardData = event.clipboardData;
+    if (clipboardData) {
+      const relays = clipboardData.getData('text');
+      if (/[\n;,]/.test(relays)) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        relays.split(/[,;\n]/).map(relay => this.connect(relay.trim()));
+      }
     }
+  }
+
+  connect(relay: string): void {
+    if (!relay) {
+      this.newRelayError = 'required';
+      return;
+    } else if (!this.relayWritable && !this.relayReadable) {
+      this.newRelayError = 'never';
+      return;
+    }
+
+    this.newRelayError = null;
+    this.mainPool.ensureRelay(relay, {
+      read: this.relayReadable,
+      write: this.relayWritable
+    });
   }
 
   disconnectAll(): void {

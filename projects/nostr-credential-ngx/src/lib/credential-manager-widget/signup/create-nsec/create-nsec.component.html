@@ -3,20 +3,15 @@
 <form [formGroup]="generateNsecForm" novalidate autocomplete="off">
   <div class="floatingLabel">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
-      id="generateNsecQRCodeTitleField" type="text" placeholder=" " listenTypingComplete
+      id="generateNsecQRCodeTitleField" type="text" placeholder=" " listenTypingComplete 
       (typingCompleted)="renderQrcode()" autofocus />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
   <div class="floatingLabel">
     <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField" readonly
-      [attr.type]="showNsec ? 'text' : 'password'" placeholder=" " />
+      type="password" placeholder=" " />
     <label for="generateNsecField">nsec</label>
-
-    <button type="button" [attr.title]="showNsec ? 'hide nsec' : 'show nsec'" (click)="showNsec = !showNsec"
-      class="svgButton">
-      <nostr-svg-render [name]="showNsec ? 'eyeOff' : 'eye'"></nostr-svg-render>
-    </button>
 
     <button (click)="copyNsec()" type="button" title="copy nsec" class="svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>

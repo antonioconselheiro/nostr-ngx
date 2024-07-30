@@ -13,7 +13,6 @@ import { TAuthModalSteps } from '../../auth-modal-steps.type';
 })
 export class CreateNsecComponent implements OnInit {
 
-  showNsec = true;
   submitted = false;
 
   nsecQRCode = '';

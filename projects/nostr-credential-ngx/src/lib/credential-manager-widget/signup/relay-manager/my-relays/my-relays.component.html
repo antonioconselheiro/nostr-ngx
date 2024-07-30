@@ -3,21 +3,19 @@
 <h3 class="title">You can paste a relay list in the field below.</h3>
 
 <form novalidate autocomplete="off">
-  <!-- TODO: o usuário deve ser capaz de colar uma lista de relays -->
-
   <div [class.error]="newRelayError" class="floatingLabel">
-    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
+    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" />
     <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
 
     <label role="button" type="button" [class.active]="relayWritable" class="svgButton" for="newRelayRelayWritable"
       [attr.title]="relayWritable ? 'writeable relay' : 'don\'t write'">
-      <input type="checkbox" [(ngModel)]="relayWritable" name="relayWritable" id="newRelayRelayWritable" [value]="true" />
+      <input type="checkbox" [(ngModel)]="relayWritable" name="relayWritable" id="newRelayRelayWritable" [value]="true" (change)="newRelayError = null" />
       <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'writable' : 'writableOff'"></nostr-svg-render>
     </label>
   
     <label role="button" type="button" [class.active]="relayReadable" class="svgButton" for="newRelayRelayReadable"
       [attr.title]="relayReadable ? 'readable relay' : 'don\'t read'">
-      <input type="checkbox" [(ngModel)]="relayReadable" name="relayReadable" id="newRelayRelayReadable" [value]="true" />
+      <input type="checkbox" [(ngModel)]="relayReadable" name="relayReadable" id="newRelayRelayReadable" [value]="true" (change)="newRelayError = null" />
       <nostr-svg-render class="inlineIcon" [name]="relayReadable ? 'eyeglass' : 'eyeglassOff'"></nostr-svg-render>
     </label>
 
@@ -28,14 +26,14 @@
   <ul class="relayList">
     <li *ngFor="let relay of listRelays()" class="connected">
       <a (click)="relayDetail.next(relay.url)">{{relay.url}}{{relay.write ? '' : ' (cache)'}}</a>
-      <button (click)="removeRelay(relay.url)" type="button">✕</button>
+      <button class="borderless" (click)="removeRelay(relay.url)" type="button">✕</button>
     </li>
   </ul>
 
   <div class="buttonGroup">
     <button type="button" (click)="disconnectAll()" title="connect"
       class="button iconedButton secondary">
-      <nostr-svg-render class="inlineIcon" name="plugConnected"></nostr-svg-render>
+      <nostr-svg-render class="inlineIcon" name="plugConnectedX"></nostr-svg-render>
 
       <span>
         Disconnect all
@@ -92,7 +90,7 @@
     <nostr-svg-render class="inlineIcon" name="search"></nostr-svg-render>
 
     <span>
-      Search Relays
+      Search
     </span>
   </button>
 
