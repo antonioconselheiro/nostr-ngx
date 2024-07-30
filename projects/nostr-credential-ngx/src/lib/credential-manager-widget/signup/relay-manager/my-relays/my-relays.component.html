@@ -7,27 +7,37 @@
 
   <div class="floatingLabel">
     <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " />
-    <label for="myRelaysNewRelay">{{relayWritable ? 'New publishable relay' : 'New readonly relay'}}</label>
+    <label for="myRelaysNewRelay">New relay</label>
+
+    <label role="button" type="button" class="svgButton" for="relayWritable"
+      [attr.title]="relayWritable ? 'writeable relay' : 'don\'t write'">
+      <input type="checkbox" name="relayWritable" [value]="true" (change)="relayWritable = $event.returnValue" />
+      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'writable' : 'writableOff'"></nostr-svg-render>
+    </label>
+  
+    <label role="button" type="button" class="svgButton" for="relayReadable"
+      [attr.title]="relayReadable ? 'readable relay' : 'don\'t read'">
+      <input type="checkbox" name="relayReadable" [value]="true" (change)="relayReadable = $event.returnValue" />
+      <nostr-svg-render class="inlineIcon" [name]="relayReadable ? 'eyeglass' : 'eyeglassOff'"></nostr-svg-render>
+    </label>
   </div>
 
   <ul class="relayList">
     <li *ngFor="let relay of listRelays()" class="connected">
-      <a (click)="relayDetail.next(relay.url)">{{relay.url}}{{!relay.write ? ' (cache)' : ''}}</a>
+      <a (click)="relayDetail.next(relay.url)">{{relay.url}}{{relay.write ? '' : ' (cache)'}}</a>
       <button (click)="removeRelay(relay.url)" type="button">✕</button>
     </li>
   </ul>
 
   <div class="buttonGroup">
-    <label role="button" for="relayWritable" (click)="relayWritable = !relayWritable"
-      [attr.title]="relayWritable ? 'set as readonly' : 'set as writable'"
-      class="actionButton button secondary iconedButton">
-      <input type="checkbox" name="relayWritable" />
-      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'readonly' : 'writable'"></nostr-svg-render>
+    <button type="button" (click)="disconnectAll()" title="connect"
+      class="actionButton button iconedButton secondary">
+      <nostr-svg-render class="inlineIcon" name="plugConnected"></nostr-svg-render>
 
       <span>
-        {{relayWritable ? 'Set as readonly' : 'Set as writable'}}
+        Disconnect all
       </span>
-    </label>
+    </button>
 
     <button type="button" (click)="connect(myRelaysNewRelay.value); myRelaysNewRelay.value = '';" title="connect"
       class="actionButton button iconedButton">
@@ -37,7 +47,8 @@
         Connect
       </span>
     </button>
-    <!--- TODO: incluir mensagem de erro no campo se connect for clicado com ele vazio -->
+    <!-- TODO: incluir mensagem de erro no campo se connect for clicado com ele vazio -->
+    <!-- TODO: incluir mensagem de erro quando write e read estiverem como off -->
   </div>
 
   <div class="floatingLabel">
@@ -50,7 +61,10 @@
   </div>
 
   <div>
-    <!-- TODO: NIP-65? -->
+    <!--
+      TODO: NIP-65:
+      https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
+    -->
     <p *ngIf="relaysFrom === 'public'">
       <strong>Publically</strong>: saves your relays inside your choosen relays
     </p>
@@ -70,7 +84,8 @@
     </span>
   </button>
 
-  <button type="button" title="search relays" class="actionButton button secondary iconedButton">
+  <button (click)="changeRelayStep.next('relaySearch')" type="button" title="search relays"
+    class="actionButton button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="search"></nostr-svg-render>
 
     <span>

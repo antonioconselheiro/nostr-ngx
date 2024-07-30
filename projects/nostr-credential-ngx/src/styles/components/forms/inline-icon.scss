@@ -1,0 +1,25 @@
+///
+/// svg as inline icon
+///
+/// @group Components
+/// @class .inlineIcon
+/// 
+/// @example
+/// ```
+/// <nostr-svg-render class="inlineIcon" name="location"></nostr-svg-render>
+/// ```
+///
+.inlineIcon {
+  display: inline-flex;
+  height: 20px;
+  width: 20px;
+
+  svg {
+    height: 20px;
+    width: 20px;
+    color: var(--lowContrast);
+    display: inline-block;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+}

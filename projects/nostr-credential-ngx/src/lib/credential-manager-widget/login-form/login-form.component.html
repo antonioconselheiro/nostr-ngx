@@ -6,13 +6,13 @@
     <label for="addAccountNsecField">nsec</label>
 
     <button type="button" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
-      class="bordered svgButton">
+      class="svgButton">
 
       <nostr-svg-render name="scanQrcode"></nostr-svg-render>
     </button>
 
     <button type="button" [attr.title]="showNostrSecret ? 'hide nsec' : 'show nsec'"
-      (click)="showNostrSecret = !showNostrSecret" class="bordered svgButton">
+      (click)="showNostrSecret = !showNostrSecret" class="svgButton">
 
       <nostr-svg-render [name]="showNostrSecret ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
@@ -33,10 +33,10 @@
     </ng-container>
   </div>
 
-  <div class="nostrCheckWrapper">
+  <div class="checkbox">
     <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
-     class="nostrCheck" id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
-    <label for="saveNostrSecretEncrypted">Remember account (encrypted, require password)</label>
+      id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
+    <label for="saveNostrSecretEncrypted">Remember account (save encrypted)</label>
   </div>
 
   <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
@@ -48,7 +48,7 @@
     <label for="addAccountPasswordField">Password</label>
 
     <button type="button" [attr.title]="showPassword ? 'hide password' : 'show password'"
-      (click)="showPassword = !showPassword" class="bordered svgButton">
+      (click)="showPassword = !showPassword" class="svgButton">
 
       <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>

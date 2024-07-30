@@ -11,6 +11,7 @@
 /// </button>
 /// ```
 ///
+label[role=button].svgButton,
 button.svgButton {
   min-height: 17px;
   max-height: 33px;
@@ -18,7 +19,16 @@ button.svgButton {
   padding: 0;
   display: flex;
   align-items: center;
+  border: 1px solid var(--separator);
   cursor: pointer;
+
+  > input[type="checkbox"],
+  > input[type="radio"] {
+    width: 0px;
+    height: 0px;
+    margin: 0;
+    padding: 0;
+  }
 
   nostr-svg-render {
     display: flex;
@@ -51,8 +61,9 @@ button.svgButton {
 
     &:hover,
     &:active,
-    &:focus {
-      &.bordered {
+    &:focus,
+    .active {
+      :not(.borderless) {
         border: 1px solid var(--primary); 
       }
 
@@ -67,35 +78,13 @@ button.svgButton {
       transition: background-color .3s;
     }
 
-    &:active nostr-svg-render {
-      background-color: var(--imgButtonDefaultActive);
-      transition: background-color .3s;
+    &:active,
+    &.active {
+      nostr-svg-render {
+        background-color: var(--imgButtonDefaultActive);
+        transition: background-color .3s;
+      }
     }
   }
 }
 
-///
-/// svg as inline icon
-///
-/// @group Components
-/// @class .inlineIcon
-/// 
-/// @example
-/// ```
-/// <nostr-svg-render class="inlineIcon" name="location"></nostr-svg-render>
-/// ```
-///
-.inlineIcon {
-  display: inline-flex;
-  height: 20px;
-  width: 20px;
-
-  svg {
-    height: 20px;
-    width: 20px;
-    color: var(--lowContrast);
-    display: inline-block;
-    mask-repeat: no-repeat;
-    mask-size: contain;
-  }
-}

@@ -1,15 +1,16 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { IRelayMetadata, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { IRelayMetadata, MainPool, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
 import { NostrSigner } from '../../../../profile-service/nostr.signer';
 import { TAuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'nostr-my-relays',
   templateUrl: './my-relays.component.html',
   styleUrl: './my-relays.component.scss'
 })
-export class MyRelaysComponent {
+export class MyRelaysComponent implements OnInit, OnDestroy {
 
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
@@ -20,31 +21,65 @@ export class MyRelaysComponent {
   @Output()
   relayDetail = new EventEmitter<string>();
 
-  choosingRelays: TRelayMetadataRecord = {};
+  connectionStatus = new Map<string, boolean>();
+  choosenRelays: TRelayMetadataRecord = {};
+
   relaysFrom = 'public';
   relayWritable = true;
+  relayReadable = true;
+
+  private subscriptions = new Subscription();
 
   constructor(
+    private mainPool: MainPool,
     private nostrSigner: NostrSigner
   ) { }
 
+  ngOnInit(): void {
+    this.mainPoolSubscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+  
+  private unsubscribe(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private mainPoolSubscribe(): void {
+    const subscription = this.mainPool
+      .observeConnection()
+      .subscribe(() => this.updateConnectionStatus());
+
+    this.subscriptions.add(subscription);
+  }
+
+  private updateConnectionStatus(): void {
+    this.choosenRelays = this.mainPool.relays;
+    this.connectionStatus = this.mainPool.listConnectionStatus();
+  }
+
   listRelays(): Array<IRelayMetadata> {
     return Object
-      .keys(this.choosingRelays)
-      .map(relay => this.choosingRelays[relay]);
+      .keys(this.choosenRelays)
+      .map(relay => this.choosenRelays[relay]);
   }
 
   removeRelay(relay: string): void {
-    delete this.choosingRelays[relay];
+    this.mainPool.close([relay]);
   }
 
   connect(relay: string): void {
     if (relay) {
-      this.choosingRelays[relay] = {
-        url: relay,
-        read: true,
+      this.mainPool.ensureRelay(relay, {
+        read: this.relayReadable,
         write: this.relayWritable
-      };
+      });
     }
+  }
+
+  disconnectAll(): void {
+    this.mainPool.destroy();
   }
 }

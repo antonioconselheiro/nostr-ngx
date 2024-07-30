@@ -26,15 +26,15 @@
     <label for="generateNsecField">nsec</label>
 
     <button type="button" [attr.title]="showNsec ? 'hide nsec' : 'show nsec'" (click)="showNsec = !showNsec"
-      class="bordered svgButton">
+      class="svgButton">
       <nostr-svg-render [name]="showNsec ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
-    <button (click)="copyNsec()" type="button" title="copy nsec" class="bordered svgButton">
+    <button (click)="copyNsec()" type="button" title="copy nsec" class="svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>
     </button>
 
-    <button (click)="generateNsec()" type="button" title="generate new nsec" class="bordered svgButton">
+    <button (click)="generateNsec()" type="button" title="generate new nsec" class="svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
   </div>

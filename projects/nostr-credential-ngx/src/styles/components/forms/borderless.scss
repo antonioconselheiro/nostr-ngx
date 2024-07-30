@@ -1,7 +1,7 @@
 //  FIXME: a biblioteca não deve exportar scss sem classes, diretamente nos elementos
 //  FIXME: o botão para remover relay usa apenas essas implementações, portanto deve ter uma classe independente
-button,
-label[role=button] {
+button.borderless,
+label[role=button].borderless {
   border: 0;
   background-color: transparent;
   -webkit-tap-highlight-color: transparent;
@@ -11,15 +11,5 @@ label[role=button] {
   &:active,
   &:focus {
     outline: none;
-  }
-
-  nostr-loading {
-    max-width: 22px;
-    max-height: 22px;
-  }
-
-  nostr-loading ~ span,
-  .inlineIcon ~ span {
-    margin-left: .5rem;
   }
 }

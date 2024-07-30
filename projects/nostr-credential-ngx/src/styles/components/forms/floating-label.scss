@@ -19,7 +19,7 @@
 ///   />
 ///   <label for="authModalNsecField">nsec</label>
 /// 
-///   <button type="button" class="bordered svgButton">
+///   <button type="button" class="svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// </div>
@@ -37,7 +37,7 @@
 ///   />
 ///   <label for="authModalNsecField">nsec</label>
 /// 
-///   <button type="button" class="bordered svgButton">
+///   <button type="button" class="svgButton">
 ///     <nostr-svg-render name="eye"></nostr-svg-render>
 ///   </button>
 /// 
@@ -58,7 +58,7 @@
   &.error {
     border: 1px solid var(--error);
 
-    label {
+    label:first-of-type {
       color: var(--error);
     }
 
@@ -72,7 +72,7 @@
     }
   }
 
-  label {
+  label:first-of-type {
     position: absolute;
     font-size: 18px;
     top: 20px;
@@ -98,14 +98,14 @@
     &:not(select):focus,
     &:not(select):not(:placeholder-shown),
     &:has(> option:checked) {
-      + label {
+      + label:first-of-type {
         top: 4px;
         left: 20px;
         font-size: 13px;
         color: var(--contrast);
       }
 
-      &:focus + label {
+      &:focus + label:first-of-type {
         color: var(--primary);
       }
     }

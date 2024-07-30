@@ -20,7 +20,7 @@
     <label for="authenticatePasswordField">Password</label>
 
     <button type="button" [attr.title]="showPassword ? 'hide password' : 'show password'"
-     (click)="showPassword = !showPassword" class="bordered svgButton">
+     (click)="showPassword = !showPassword" class="svgButton">
       <nostr-svg-render [name]="showPassword ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 

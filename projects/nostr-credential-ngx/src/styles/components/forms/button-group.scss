@@ -1,0 +1,37 @@
+///
+/// Group of buttons, side by side
+///
+/// @group Components
+/// @class buttonGroup
+///
+/// @example
+/// ```
+/// <div class="buttonGroup">
+///   <button class="secondary button">Click me</button>
+///   <button class="button">Click me</button>
+/// </div>
+/// ```
+///
+.buttonGroup {
+  display: flex;
+
+  > button,
+  > label[role=button],
+  > nostr-svg-render,
+  > svg {
+    float: left;
+    margin: 0 1rem 1rem 0;
+
+    &:nth-last-child(1 of .secondary) {
+      margin-right: auto;
+    }
+
+    &:not(.secondary):first-child {
+      margin-left: auto;
+    }
+
+    &:not(.secondary):last-child {
+      margin-right: 0;
+    }
+  }
+}

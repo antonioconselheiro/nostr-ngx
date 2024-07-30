@@ -115,6 +115,7 @@ export class RelayConfigService {
 
     if (this.guard.isNostrPublic(userPublicAddress)) {
       //  TODO: pesquisar relays publicos do usuário a partir do npub
+      //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
     } else {
       return queryProfile(userPublicAddress).then(userInfo => userInfo?.relays || []);
     }

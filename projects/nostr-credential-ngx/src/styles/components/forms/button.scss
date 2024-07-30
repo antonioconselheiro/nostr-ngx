@@ -24,13 +24,16 @@ button.button {
   cursor: pointer;
   font-weight: bold;
   font-size: 19px;
+  border: 1px solid var(--separator);
 
   &:hover,
-  &:active {
+  &:active,
+  &.active {
     background-color: var(--primaryHover);
   }
 
-  > input[type="checkbox"] {
+  > input[type="checkbox"],
+  > input[type="radio"] {
     width: 0px;
     height: 0px;
     margin: 0;
@@ -47,7 +50,8 @@ button.button {
     color: var(--contrast);
 
     &:hover,
-    &:active {
+    &:active,
+    &.active {
       background-color: var(--baseHover);
     }
 
@@ -65,42 +69,14 @@ button.button {
       padding-right: 1rem;
     }
   }
-}
 
-///
-/// Group of buttons, side by side
-///
-/// @group Components
-/// @class buttonGroup
-///
-/// @example
-/// ```
-/// <div class="buttonGroup">
-///   <button class="secondary button">Click me</button>
-///   <button class="button">Click me</button>
-/// </div>
-/// ```
-///
-.buttonGroup {
-  display: flex;
+  nostr-loading {
+    max-width: 22px;
+    max-height: 22px;
+  }
 
-  > button,
-  > label[role=button],
-  > nostr-svg-render,
-  > svg {
-    float: left;
-    margin: 0 1rem 1rem 0;
-
-    &:nth-last-child(1 of .secondary) {
-      margin-right: auto;
-    }
-
-    &:not(.secondary):first-child {
-      margin-left: auto;
-    }
-
-    &:not(.secondary):last-child {
-      margin-right: 0;
-    }
+  nostr-loading ~ span,
+  .inlineIcon ~ span {
+    margin-left: .5rem;
   }
 }
