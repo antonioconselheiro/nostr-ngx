@@ -25,22 +25,29 @@ button.button {
   font-weight: bold;
   font-size: 19px;
   border: 1px solid var(--separator);
+  -webkit-tap-highlight-color: transparent;
 
+  &:focus {
+    outline: none;
+  }
+  
   &:hover,
   &:active,
   &.active {
+    outline: none;
     background-color: var(--primaryHover);
   }
 
   > input[type="checkbox"],
   > input[type="radio"] {
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     margin: 0;
     padding: 0;
   }
 
   svg {
+    border: 0;
     color: var(--primaryText);
   }
 

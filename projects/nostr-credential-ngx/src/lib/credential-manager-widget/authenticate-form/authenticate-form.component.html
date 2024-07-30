@@ -32,7 +32,7 @@
 </form>
 
 <footer class="buttonGroup">
-  <button type="submit" title="authenticate" class="actionButton button secondary iconedButton" form="authenticateForm">
+  <button type="submit" title="authenticate" class="button secondary iconedButton" form="authenticateForm">
     <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="unlock"></nostr-svg-render>
     <nostr-loading *ngIf="loading"></nostr-loading>
 
@@ -42,7 +42,7 @@
   </button>
 
   <button (click)="changeStep.next('selectAccount')" type="button" title="back"
-    class="actionButton button secondary iconedButton">
+    class="button secondary iconedButton">
     <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
 
     <span>

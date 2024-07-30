@@ -21,11 +21,14 @@ button.svgButton {
   align-items: center;
   border: 1px solid var(--separator);
   cursor: pointer;
+  background-color: var(--base);
+  color: var(--primaryText);
+  -webkit-tap-highlight-color: transparent;
 
   > input[type="checkbox"],
   > input[type="radio"] {
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     margin: 0;
     padding: 0;
   }
@@ -36,6 +39,7 @@ button.svgButton {
     padding: .5rem;
 
     svg {
+      border: 0;
       width: 17.2px;
       min-height: 17px;
       color: var(--lowContrast);
@@ -62,8 +66,8 @@ button.svgButton {
     &:hover,
     &:active,
     &:focus,
-    .active {
-      :not(.borderless) {
+    &.active {
+      &:not(.borderless) {
         border: 1px solid var(--primary); 
       }
 
