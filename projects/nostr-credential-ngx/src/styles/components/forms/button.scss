@@ -24,8 +24,11 @@ button.button {
   cursor: pointer;
   font-weight: bold;
   font-size: 19px;
-  border: 1px solid var(--separator);
   -webkit-tap-highlight-color: transparent;
+
+  &:not(borderless) {
+    border: 1px solid var(--separator);
+  }
 
   &:focus {
     outline: none;

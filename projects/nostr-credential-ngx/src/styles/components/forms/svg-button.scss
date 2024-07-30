@@ -19,12 +19,15 @@ button.svgButton {
   padding: 0;
   display: flex;
   align-items: center;
-  border: 1px solid var(--separator);
   cursor: pointer;
   background-color: var(--base);
   color: var(--primaryText);
   -webkit-tap-highlight-color: transparent;
 
+  &:not(borderless) {
+    border: 1px solid var(--separator);
+  }
+  
   > input[type="checkbox"],
   > input[type="radio"] {
     width: 0;

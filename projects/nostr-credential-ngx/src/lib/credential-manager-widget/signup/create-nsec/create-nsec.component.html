@@ -8,18 +8,6 @@
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
-  <ul>
-    <li>
-      Nsec can't be changed.
-    </li>
-    <li>
-      It gives complete access to this account.
-    </li>
-    <li>
-      If you lost it, your account will be lost forever.
-    </li>
-  </ul>
-
   <div class="floatingLabel">
     <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField" readonly
       [attr.type]="showNsec ? 'text' : 'password'" placeholder=" " />
@@ -42,6 +30,18 @@
   <div>
     <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode />
   </div>
+
+  <ul>
+    <li>
+      Nsec can't be changed.
+    </li>
+    <li>
+      It gives complete access to this account.
+    </li>
+    <li>
+      If you lost it, your account will be lost forever.
+    </li>
+  </ul>
 
   <footer class="buttonGroup">
     <button (click)="changeStep.next('selectAccount')" type="button" title="back"

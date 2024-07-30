@@ -28,6 +28,8 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   relayWritable = true;
   relayReadable = true;
 
+  newRelayError: 'never' | 'required' | null = null;
+
   private subscriptions = new Subscription();
 
   constructor(
@@ -60,6 +62,17 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     this.connectionStatus = this.mainPool.listConnectionStatus();
   }
 
+  // TODO: review this in internacionalization
+  getNewRelayFieldLabel(): string {
+    if (this.relayReadable && !this.relayWritable) {
+      return 'New readonly relay';
+    } else if (!this.relayReadable && this.relayWritable) {
+      return 'New writeonly relay';
+    } else {
+      return 'New relay';
+    }
+  }
+
   listRelays(): Array<IRelayMetadata> {
     return Object
       .keys(this.choosenRelays)
@@ -71,11 +84,16 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   }
 
   connect(relay: string): void {
-    if (relay) {
+    if (!this.relayWritable && !this.relayReadable) {
+      this.newRelayError = 'never';
+    } else if (relay) {
       this.mainPool.ensureRelay(relay, {
         read: this.relayReadable,
         write: this.relayWritable
       });
+      this.newRelayError = null;
+    } else {
+      this.newRelayError = 'required';
     }
   }
 
