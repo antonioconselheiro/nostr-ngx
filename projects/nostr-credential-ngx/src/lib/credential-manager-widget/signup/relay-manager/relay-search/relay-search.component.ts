@@ -2,6 +2,9 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { TAuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 
+/**
+ * Não é MVP
+ */
 @Component({
   selector: 'nostr-relay-search',
   templateUrl: './relay-search.component.html',

@@ -36,6 +36,7 @@ button.button {
   
   &:hover,
   &:active,
+  &:has(> input:checked),
   &.active {
     outline: none;
     background-color: var(--primaryHover);

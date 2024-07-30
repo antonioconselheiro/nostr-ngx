@@ -73,6 +73,18 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
   }
 
+  formatRelayMetadata(metadata: IRelayMetadata): string {
+    if (metadata.write && metadata.read) {
+      return `${metadata.url} (read/write)`;
+    } else if (metadata.write) {
+      return `${metadata.url} (write)`;
+    } else if (metadata.read) {
+      return `${metadata.url} (read)`;
+    }
+
+    return metadata.url;
+  }
+
   listRelays(): Array<IRelayMetadata> {
     return Object
       .keys(this.choosenRelays)
@@ -91,12 +103,13 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
         event.preventDefault();
         event.stopPropagation();
 
-        relays.split(/[,;\n]/).map(relay => this.connect(relay.trim()));
+        relays.split(/[,;\n]/).map(relay => this.connect({ value: relay.trim() }));
       }
     }
   }
 
-  connect(relay: string): void {
+  connect(el: { value: string }): void {
+    const relay = el.value;
     if (!relay) {
       this.newRelayError = 'required';
       return;
@@ -106,6 +119,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
 
     this.newRelayError = null;
+    el.value = '';
     this.mainPool.ensureRelay(relay, {
       read: this.relayReadable,
       write: this.relayWritable
