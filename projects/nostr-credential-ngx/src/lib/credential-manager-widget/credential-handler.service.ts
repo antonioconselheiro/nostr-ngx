@@ -20,4 +20,8 @@ export class CredentialHandlerService {
     })
     .build();
   }
+
+  addAccount(): void {
+    
+  }
 }

@@ -19,4 +19,9 @@ export class NostrConverter {
     return nip19.npubEncode(pubkey);
   }
 
+  castNostrPublicToPubkey(npub: TNostrPublic): string {
+    const { data } = nip19.decode(npub);
+    return data;
+  }
+
 }
