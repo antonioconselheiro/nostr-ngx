@@ -1,9 +1,8 @@
-import { Injectable } from "@angular/core";
-import { NostrConverter, TNostrPublic } from "@belomonte/nostr-ngx";
-import { Event } from 'nostr-tools';
+import { Injectable } from '@angular/core';
+import { NostrConverter, TNostrPublic } from '@belomonte/nostr-ngx';
+import { Event, NostrEvent } from 'nostr-tools';
 import { IProfile } from "../domain/profile.interface";
 import { ProfileConverter } from "./profile.converter";
-import { Metadata } from "nostr-tools/kinds";
 
 @Injectable({
   providedIn: 'root'
@@ -54,21 +53,15 @@ export class ProfileCache {
     return ProfileCache.profiles[npub] = this.profileConverter.getMetadataFromNostrPublic(npub);
   }
 
-  cache(profiles: Event[]): void;
-  cache(profiles: IProfile[]): void;
-  cache(profiles: IProfile[] | Event[]): void;
-  cache(profiles: IProfile[] | Event[]): void {
-    const profileList = (profiles as (IProfile | Event)[]);
-    profileList
-      .filter((profile) => !('sig' in profile && profile.kind !== Metadata))
-      .forEach(profile => this.cacheProfile(profile));
+  cache(profiles: IProfile[]): void {
+    profiles.forEach(profile => this.cacheProfile(profile));
   }
 
-  private cacheProfile(profile: IProfile | Event): IProfile {
-    if ('sig' in profile) {
-      profile = this.profileConverter.convertEventToProfile(profile);
-    }
+  cacheFromEvent(events: NostrEvent[]): void {
+    this.cache(events.map(event => this.profileConverter.convertEventToProfile(event)));
+  }
 
+  private cacheProfile(profile: IProfile): IProfile {
     ProfileCache.profiles[profile.npub] = Object.assign(
       ProfileCache.profiles[profile.npub] || {},
       this.chooseNewer(profile, ProfileCache.profiles[profile.npub])

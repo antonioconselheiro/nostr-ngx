@@ -21,4 +21,6 @@ export interface IProfile {
   created_at?: number;
   nip05valid?: boolean;
   load: boolean;
+
+  [customizedField: string]: any;
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrConverter, SmartPool, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
-import { Event } from 'nostr-tools';
+import { NostrEvent } from 'nostr-tools';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
 import { AccountManagerStatefull } from './account-manager.statefull';
@@ -39,11 +39,12 @@ export class ProfileProxy {
     return this.profileCache.get(npubs);
   }
 
-  cache(profiles: IProfile[]): void;
-  cache(profiles: Event[]): void;
-  cache(profiles: IProfile[] | Event[]): void;
-  cache(profiles: IProfile[] | Event[]): void {
+  cache(profiles: IProfile[]): void {
     this.profileCache.cache(profiles);
+  }
+
+  cacheFromEvents(profiles: NostrEvent[]): void {
+    this.profileCache.cacheFromEvent(profiles);
   }
 
   async load(npubs: TNostrPublic): Promise<IProfile>;
@@ -88,7 +89,7 @@ export class ProfileProxy {
   
   private async forceProfileReload(npubs: Array<TNostrPublic>, pool?: SmartPool): Promise<Array<IProfile>> {
     const events = await this.profileApi.loadProfiles(npubs, pool);
-    this.profileCache.cache(events);
+    this.profileCache.cacheFromEvent(events);
     return Promise.resolve(npubs.map(npub => this.profileCache.get(npub)));
   }
 }
