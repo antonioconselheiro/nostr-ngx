@@ -106,6 +106,17 @@ export class SmartPool {
     return this.pool.getRelays();
   }
 
+  /**
+   * Keep connected relays send in params and updates its read/write config,
+   * connect to aditional relays and disconnect relays not included.
+   */
+  reuse(relays: TRelayMetadataRecord): void {
+    const keep = Object.keys(relays);
+    const close = Object.keys(this.relays).filter(relay => !keep.includes(relay));
+    this.close(close);
+    keep.forEach(relay => this.ensureRelay(relay, relays[relay]));
+  }
+
   listConnectionStatus(): Map<string, boolean> {
     const map = new Map<string, boolean>();
     this.pool.getRelays()

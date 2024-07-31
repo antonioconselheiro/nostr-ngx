@@ -5,3 +5,5 @@
 # Belomonte
 
 not released yet
+
+this library uses moduleResolution as 'bundle'
