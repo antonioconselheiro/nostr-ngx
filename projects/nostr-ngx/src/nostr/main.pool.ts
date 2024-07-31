@@ -18,8 +18,6 @@ export class MainPool extends SmartPool {
    * Updates pool with current user relays config
    */
   restart(): void {
-    this.relayConfigService.getCurrentUserRelays().then(relays => {
-      this.reuse(relays);
-    });
+    this.relayConfigService.getCurrentUserRelays().then(relays => this.reuse(relays));
   }
 }

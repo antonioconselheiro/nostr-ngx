@@ -7,6 +7,11 @@ import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { NostrGuard } from './nostr.guard';
 import { ConfigsLocalStorage } from '../storage/configs-local.storage';
 import { queryProfile } from 'nostr-tools/nip05';
+import { NostrService } from './nostr.service';
+import { RelayConverter } from './relay.converter';
+import { NostrEventKind } from '../domain/nostr-event-kind';
+import { NostrConverter } from './nostr.converter';
+import { SmartPool } from '../pool/smart.pool';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +29,9 @@ export class RelayConfigService {
 
   constructor(
     private guard: NostrGuard,
+    private nostrService: NostrService,
+    private nostrConverter: NostrConverter,
+    private relayConverter: RelayConverter,
     private configs: ConfigsLocalStorage
   ) { }
 
@@ -65,8 +73,7 @@ export class RelayConfigService {
       relayRecord = await this.getRelaysFromStorage(local, userPublicAddress);
     } else if (relayFrom === 'public') {
       if (userPublicAddress) {
-        const relays = await this.getUserPublicRelays(userPublicAddress);
-        relays.forEach(relay => relayRecord[relay] = { url: relay, write: true, read: true });
+        relayRecord = await this.getUserPublicRelays(userPublicAddress);
       }
     }
 
@@ -108,18 +115,40 @@ export class RelayConfigService {
     return Promise.resolve({});
   }
 
-  getUserPublicRelays(nip5: TNip05): Promise<string[]>;
-  getUserPublicRelays(nostrPublic: TNostrPublic): Promise<string[]>;
-  getUserPublicRelays(userPublicAddress: string): Promise<string[]>;
-  getUserPublicRelays(userPublicAddress: string): Promise<string[]> {
+  async getUserPublicRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
+  async getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
+  async getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord>;
+  async getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord> {
 
     if (this.guard.isNostrPublic(userPublicAddress)) {
-      //  TODO: pesquisar relays publicos do usuário a partir do npub
-      //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
+      const pubhex = this.nostrConverter.castNostrPublicToPubkey(userPublicAddress);
+      const [relayList] = await this.nostrService.request([
+        {
+          kinds: [ NostrEventKind.RelayList ],
+          authors: [ pubhex ]
+        }
+      ]);
+
+      this.relayConverter.convertNostrEventToRelayMetadata(relayList);
     } else {
-      return queryProfile(userPublicAddress).then(userInfo => userInfo?.relays || []);
+      //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
+      const pointer = await queryProfile(userPublicAddress);
+      if (pointer && pointer.relays && pointer.relays.length) {
+        const { pubkey, relays } = pointer;
+        const pool = new SmartPool(relays);
+        const [ relayListEvent ] = await this.nostrService.request([
+          {
+            authors: [ pubkey ],
+            kinds: [ NostrEventKind.RelayList ],
+            limit: 1
+          }
+        ], pool);
+
+        const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
+        return Promise.resolve(relayMetadata);
+      }
     }
 
-    return Promise.resolve([]);
+    return Promise.resolve({});
   }
 }

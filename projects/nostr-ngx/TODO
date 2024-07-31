@@ -1,6 +1,0 @@
-TODO
-[ ] SmartPool deve ser capaz de interpretar a tag r: https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md 
-[ ] SmartPool deve ser capaz de interpretar a tag relay: https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/72.md?plain=1#L33
-[ ] SmartPool deve ser capaz de interpretar a tag relays: https://github.com/nostr-protocol/nips/blob/2092fdd49a4f9fd274b24100283d73b193cf04e7/75.md?plain=1#L20
-[ ] SmartPool deve ser capaz de carregar relays da lista de seguidores: https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/02.md?plain=1#L11
-[ ] SmartPool deve ser capaz de carregar relays associados na tag p: https://github.com/nostr-protocol/nips/blob/2092fdd49a4f9fd274b24100283d73b193cf04e7/84.md?plain=1#L32
