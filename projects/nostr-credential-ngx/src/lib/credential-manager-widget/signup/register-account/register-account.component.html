@@ -1,4 +1,23 @@
 <h2 class="title">Profile</h2>
+
+<div class="banner">
+  <button type="button" title="read nsec from qrcode" class="svgButton">
+    <nostr-svg-render name="uploadImage"></nostr-svg-render>
+  </button>
+
+  <button type="button" title="read nsec from qrcode" class="svgButton">
+    <nostr-svg-render name="x"></nostr-svg-render>
+  </button>
+</div>
+
+<nostr-profile-picture>
+
+  <button type="button" title="read nsec from qrcode" class="svgButton">
+    <nostr-svg-render name="uploadImage"></nostr-svg-render>
+  </button>
+
+</nostr-profile-picture>
+
 <form [formGroup]="registerAccount" id="registerAccountForm" (submit)="onSubmit()" novalidate autocomplete="off">
   <div class="floatingLabel">
     <input name="displayName" formControlName="displayName"

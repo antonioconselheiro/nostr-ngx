@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RegisterAccountComponent } from './register-account.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SvgRenderModule } from '../../../svg-render/svg-render.module';
+import { ProfileWidgetModule } from "../../../profile-widget/profile-widget.module";
 
 @NgModule({
   declarations: [
@@ -11,8 +12,9 @@ import { SvgRenderModule } from '../../../svg-render/svg-render.module';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    SvgRenderModule
-  ],
+    SvgRenderModule,
+    ProfileWidgetModule
+],
   exports: [
     RegisterAccountComponent
   ]

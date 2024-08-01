@@ -4,7 +4,8 @@ import { TAuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-register-account',
-  templateUrl: './register-account.component.html'
+  templateUrl: './register-account.component.html',
+  styleUrls: [ './register-account.component.scss' ]
 })
 export class RegisterAccountComponent implements OnInit {
 
@@ -18,6 +19,7 @@ export class RegisterAccountComponent implements OnInit {
     picture: FormControl<string | null>;
     banner: FormControl<string | null>;
     bio: FormControl<string | null>;
+    url: FormControl<string | null>;
   }>;
 
   constructor(
@@ -36,7 +38,9 @@ export class RegisterAccountComponent implements OnInit {
 
       banner: [''],
 
-      bio: ['']
+      bio: [''],
+
+      url: ['']
     })
   }
 
