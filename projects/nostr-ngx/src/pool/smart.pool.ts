@@ -6,7 +6,7 @@ import { normalizeURL } from 'nostr-tools/utils';
 import { Observable } from 'rxjs';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { ExtendablePool } from './extendable.pool';
+import { OpenPool } from './open.pool';
 import { observePool } from './observe-pool.fn';
 
 /**
@@ -22,7 +22,7 @@ export class SmartPool {
    */
   private static relaysDetails: Record<string, RelayInformation | undefined> = {};
 
-  protected pool: ExtendablePool = new ExtendablePool();
+  protected pool: OpenPool = new OpenPool();
   relays: TRelayMetadataRecord = {};
   trustedRelayURLs = this.pool.trustedRelayURLs;
 

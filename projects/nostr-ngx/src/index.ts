@@ -11,7 +11,7 @@ export * from './domain/nostr-event-kind';
 
 export * from './pool/extended.pool';
 export * from './pool/smart.pool';
-export * from './pool/extendable.pool';
+export * from './pool/open.pool';
 export * from './pool/observe-pool.fn';
 export * from './pool/observe-relay.fn';
 

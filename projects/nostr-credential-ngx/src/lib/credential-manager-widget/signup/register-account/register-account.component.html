@@ -1,5 +1,44 @@
-NAME
+<h2 class="title">Profile</h2>
+<form [formGroup]="registerAccount" id="registerAccountForm" (submit)="onSubmit()" novalidate autocomplete="off">
+  <div class="floatingLabel">
+    <input name="displayName" formControlName="displayName"
+      id="registerProfileDisplayName" type="text" placeholder=" " />
 
-PICTURE
+    <label for="registerProfileDisplayName">Display Name</label>
+  </div>
 
-BIO
+  <div class="floatingLabel">
+    <textarea name="bio" formControlName="bio"
+      id="registerProfileBio"></textarea>
+
+    <label for="registerProfileBio">Display Name</label>
+  </div>
+
+  <div class="floatingLabel">
+    <input name="url" formControlName="url"
+      id="registerProfileUrl" type="text" placeholder=" " />
+
+    <label for="registerProfileUrl">Display Name</label>
+  </div>
+
+</form>
+
+<footer class="buttonGroup">
+  <button (click)="changeStep.next('selectAccount')" type="button" title="back"
+    class="button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="left"></nostr-svg-render>
+
+    <span>
+      Back
+    </span>
+  </button>
+
+  <button (click)="onSubmit()" type="submit" title="next"
+    class="button iconedButton" form="registerAccountForm">
+    <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
+
+    <span>
+      Save
+    </span>
+  </button>
+</footer>
