@@ -25,8 +25,17 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     super(profile)
   }
 
-  getAuthProfile(): IProfile | null {
+  getCurrentAuthProfile(): IProfile | null {
     return this.getValue();
+  }
+
+  getCurrentPubKey(): string | null {
+    const profile = this.getValue();
+    if (!profile) {
+      return null;
+    }
+
+    return this.nostrConverter.castNostrPublicToPubkey(profile.npub);
   }
 
   authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<IProfile> {

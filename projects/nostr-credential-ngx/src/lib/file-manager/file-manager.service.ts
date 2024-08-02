@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { base64 } from '@scure/base';
 
 /**
- * Preciso prover meios deste serviço ser substituível
+ * TODO: preciso prover meios deste serviço ser substituível
  * por serviços que integrem com cordova e capacitor
  */
 @Injectable()
@@ -51,7 +51,9 @@ export class FileManagerService {
     URL.revokeObjectURL(url);
   }
 
-  async load(type = 'image/*'): Promise<string> {
+  async load(type: string, format: 'blob'): Promise<File | null>;
+  async load(type: string, format: 'base64'): Promise<string | null>;
+  async load(type = 'image/*', format: 'blob' | 'base64' = 'base64'): Promise<File | string | null> {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', type);
@@ -65,7 +67,11 @@ export class FileManagerService {
     });
 
     if (!file) {
-      return Promise.resolve('');
+      return Promise.resolve(null);
+    }
+
+    if (format === 'blob') {
+      return Promise.resolve(file);
     }
 
     return this.blobToBase64(file);

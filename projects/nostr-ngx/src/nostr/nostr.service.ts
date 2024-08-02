@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { Filter, NostrEvent } from 'nostr-tools';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { SmartPool } from '../pool/smart.pool';
@@ -13,6 +13,7 @@ import { MainPool } from './main.pool';
 export class NostrService {
 
   constructor(
+    @Optional()
     private pool: MainPool
   ) {}
 

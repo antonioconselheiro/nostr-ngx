@@ -19,24 +19,21 @@
 </div>
 
 <form [formGroup]="registerAccount" id="registerAccountForm" (submit)="onSubmit()" novalidate autocomplete="off">
-  <div class="floatingLabel">
-    <input name="displayName" formControlName="displayName"
-      id="registerProfileDisplayName" type="text" placeholder=" " />
+  <input name="picture" formControlName="picture" type="hidden" />
+  <input name="banner" formControlName="banner" type="hidden" />
 
+  <div class="floatingLabel">
+    <input name="displayName" formControlName="displayName" id="registerProfileDisplayName" type="text" placeholder=" " />
     <label for="registerProfileDisplayName">Display Name</label>
   </div>
 
   <div class="floatingLabel">
-    <textarea name="bio" formControlName="bio"
-      id="registerProfileBio"></textarea>
-
+    <textarea name="bio" formControlName="bio" id="registerProfileBio" placeholder=" "></textarea>
     <label for="registerProfileBio">Bio</label>
   </div>
 
   <div class="floatingLabel">
-    <input name="url" formControlName="url"
-      id="registerProfileUrl" type="text" placeholder=" " />
-
+    <input name="url" formControlName="url" id="registerProfileUrl" type="text" placeholder=" " />
     <label for="registerProfileUrl">Url</label>
   </div>
 

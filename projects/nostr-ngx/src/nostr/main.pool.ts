@@ -1,23 +1,21 @@
 import { Injectable } from '@angular/core';
 import { SmartPool } from '../pool/smart.pool';
-import { RelayConfigService } from './relay-config.service';
 
+/**
+ * To restart main pool with new user configs exec:
+ * 
+ * this.relayConfigService
+ *     .getCurrentUserRelays()
+ *     .then(relays => this.mainPool.reuse(relays));
+ * 
+ * This code was not included in MainPool to avoid circular dependency
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class MainPool extends SmartPool {
 
-  constructor(
-    private relayConfigService: RelayConfigService
-  ) {
+  constructor() {
     super();
-    this.restart();
-  }
-
-  /**
-   * Updates pool with current user relays config
-   */
-  restart(): void {
-    this.relayConfigService.getCurrentUserRelays().then(relays => this.reuse(relays));
   }
 }

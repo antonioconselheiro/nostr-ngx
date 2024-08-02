@@ -40,6 +40,7 @@ button.svgButton {
   nostr-svg-render {
     transition: background-color .3s;
     display: flex;
+    padding: .5rem;
     border-radius: 50%;
     margin: 0 auto;
     width: auto;
@@ -64,6 +65,13 @@ button.svgButton {
     width: 42px;
 
     nostr-svg-render {
+      background-color: transparent;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+
       svg {
         color: white;
       }
@@ -101,28 +109,20 @@ button.svgButton {
     }
 
     &:hover {
-      nostr-svg-render {
-        background-color: var(--imgButtonDefaultHover);
-      }
+      background-color: var(--imgButtonDefaultHover);
 
       &.svgButtonHoverImage {
-        nostr-svg-render {
-          background-color: rgba(39, 44, 48, .75);
-        }
+        background-color: rgba(39, 44, 48, .75);
       }
     }
 
     &:has(> input:checked),
     &:active,
     &.active {
-      nostr-svg-render {
-        background-color: var(--imgButtonDefaultActive);
-      }
+      background-color: var(--imgButtonDefaultActive);
 
       &.svgButtonHoverImage {
-        nostr-svg-render {
-          background-color: rgba(63, 67, 71, .75);
-        }
+        background-color: rgba(63, 67, 71, .75);
       }
     }
   }

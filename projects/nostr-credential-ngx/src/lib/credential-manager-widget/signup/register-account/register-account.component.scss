@@ -1,10 +1,23 @@
 .editBanner {
+  display: flex;
+  position: relative;  
   height: 195px;
   margin: 0 -.8rem;
-  display: flex;
   align-items: center;
   justify-content: center;
   background-size: contain;
+
+  &:before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  > * {
+    z-index: 5;
+  }
 
   > .svgButtonHoverImage:not(:first-of-type) {
     margin-left: 20px;
@@ -13,6 +26,7 @@
 
 .editProfile {
   display: flex;
+  position: relative;  
   align-items: center;
   justify-content: center;
   width: 112px;
@@ -21,4 +35,17 @@
   margin: -2rem 1rem 0;
   background-size: contain;
   outline: 3px solid var(--base);
+
+  &:before {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+  }
+
+  > * {
+    z-index: 5;
+  }
 }
