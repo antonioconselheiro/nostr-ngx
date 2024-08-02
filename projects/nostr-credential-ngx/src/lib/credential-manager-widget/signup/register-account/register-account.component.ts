@@ -22,6 +22,9 @@ export class RegisterAccountComponent implements OnInit {
     url: FormControl<string | null>;
   }>;
 
+  uploadedImage?: string = decodeURIComponent('https%3A%2F%2Fnostr.build%2Fi%2Fe89d4572c560e72c08ce440064b64196d0839bbb628774096f33250775b4aa8a.jpg');
+  uploadedBanner?: string = decodeURIComponent('https%3A%2F%2Fnostr.build%2Fi%2F8814d42a71f542c0bf7453318fb7d7145106475adbed73235ac419bc26c85add.jpg');
+
   constructor(
     private fb: FormBuilder
   ) { }

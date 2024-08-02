@@ -22,9 +22,10 @@ button.svgButton {
   cursor: pointer;
   background-color: var(--base);
   color: var(--primaryText);
+  transition: background-color .3s;
   -webkit-tap-highlight-color: transparent;
 
-  &:not(borderless) {
+  &:not(.borderless) {
     border: 1px solid var(--separator);
   }
   
@@ -37,11 +38,15 @@ button.svgButton {
   }
 
   nostr-svg-render {
+    transition: background-color .3s;
     display: flex;
     border-radius: 50%;
-    padding: .5rem;
+    margin: 0 auto;
+    width: auto;
+    height: auto;
 
     svg {
+      transition: background-color .3s;
       border: 0;
       width: 17.2px;
       min-height: 17px;
@@ -51,9 +56,18 @@ button.svgButton {
     }
   }
 
-  nostr-svg-render {
-    width: auto;
-    height: auto;
+  &.svgButtonHoverImage {
+    background-color: rgba(15, 20, 25, .75);
+    max-height: 42px;
+    max-width: 42px;
+    height: 42px;
+    width: 42px;
+
+    nostr-svg-render {
+      svg {
+        color: white;
+      }
+    }
   }
 
   &:disabled {
@@ -77,13 +91,25 @@ button.svgButton {
 
       svg {
         color: var(--imgButtonDefault) !important;
-        transition: background-color .3s;
+      }
+      
+      &.svgButtonHoverImage {
+        svg {
+          color: white !important;
+        }
       }
     }
 
-    &:hover nostr-svg-render {
-      background-color: var(--imgButtonDefaultHover);
-      transition: background-color .3s;
+    &:hover {
+      nostr-svg-render {
+        background-color: var(--imgButtonDefaultHover);
+      }
+
+      &.svgButtonHoverImage {
+        nostr-svg-render {
+          background-color: rgba(39, 44, 48, .75);
+        }
+      }
     }
 
     &:has(> input:checked),
@@ -91,7 +117,12 @@ button.svgButton {
     &.active {
       nostr-svg-render {
         background-color: var(--imgButtonDefaultActive);
-        transition: background-color .3s;
+      }
+
+      &.svgButtonHoverImage {
+        nostr-svg-render {
+          background-color: rgba(63, 67, 71, .75);
+        }
       }
     }
   }

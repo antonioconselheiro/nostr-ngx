@@ -1,3 +1,24 @@
-.banner {
-  height: 580px;
+.editBanner {
+  height: 195px;
+  margin: 0 -.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: contain;
+
+  > .svgButtonHoverImage:not(:first-of-type) {
+    margin-left: 20px;
+  }
+}
+
+.editProfile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  margin: -2rem 1rem 0;
+  background-size: contain;
+  outline: 3px solid var(--base);
 }

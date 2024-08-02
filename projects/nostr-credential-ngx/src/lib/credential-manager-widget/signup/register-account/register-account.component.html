@@ -1,22 +1,22 @@
-<h2 class="title">Profile</h2>
-
-<div class="banner">
-  <button type="button" title="read nsec from qrcode" class="svgButton">
+<!--
+  TODO: preciso incluir uma forma da url da
+  imagem ser colocada diretamente pelo usuário
+-->
+<div class="editBanner" [style.backgroundImage]="'url('+ uploadedBanner +')'">
+  <button type="button" title="upload banner image" class="svgButton svgButtonHoverImage borderless">
     <nostr-svg-render name="uploadImage"></nostr-svg-render>
   </button>
 
-  <button type="button" title="read nsec from qrcode" class="svgButton">
+  <button type="button" title="remove banner image" class="svgButton svgButtonHoverImage borderless">
     <nostr-svg-render name="x"></nostr-svg-render>
   </button>
 </div>
 
-<nostr-profile-picture>
-
-  <button type="button" title="read nsec from qrcode" class="svgButton">
+<div class="editProfile" [style.backgroundImage]="'url('+ uploadedImage +')'">
+  <button type="button" title="upload profile image" class="svgButton svgButtonHoverImage borderless">
     <nostr-svg-render name="uploadImage"></nostr-svg-render>
   </button>
-
-</nostr-profile-picture>
+</div>
 
 <form [formGroup]="registerAccount" id="registerAccountForm" (submit)="onSubmit()" novalidate autocomplete="off">
   <div class="floatingLabel">
@@ -30,14 +30,14 @@
     <textarea name="bio" formControlName="bio"
       id="registerProfileBio"></textarea>
 
-    <label for="registerProfileBio">Display Name</label>
+    <label for="registerProfileBio">Bio</label>
   </div>
 
   <div class="floatingLabel">
     <input name="url" formControlName="url"
       id="registerProfileUrl" type="text" placeholder=" " />
 
-    <label for="registerProfileUrl">Display Name</label>
+    <label for="registerProfileUrl">Url</label>
   </div>
 
 </form>
