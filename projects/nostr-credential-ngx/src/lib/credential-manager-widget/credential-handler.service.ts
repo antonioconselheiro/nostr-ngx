@@ -11,17 +11,62 @@ export class CredentialHandlerService {
     private modalService: ModalService
   ) { }
 
-  handle() {
+  login() {
     this.modalService
-    .createModal(ModalNostrCredentialComponent)
-    .setOutletName('nostrCredential')
-    .setData({
-      title: 'Accounts' // FIXME: change to il8n
-    })
-    .build();
+      .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
+      .setData({
+        title: 'Accounts' // FIXME: change to il8n
+      })
+      .build();
   }
 
   addAccount(): void {
-    
+    this.modalService
+      .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
+      .setData({
+        title: 'Accounts', // FIXME: change to il8n
+        currentStep: 'authenticate'
+      })
+      .build();
   }
+
+  editProfile(): void {
+    this.modalService
+      .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
+      .setData({
+        title: 'Accounts', // FIXME: change to il8n
+        currentStep: 'registerAccount'
+      })
+      .build();
+  }
+
+  manageRelays(): void {
+    this.modalService
+      .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
+      .setData({
+        title: 'Accounts', // FIXME: change to il8n
+        currentStep: 'relayManager'
+      })
+      .build();
+  }
+
+  downloadCredentials(): void {
+
+  }
+
+  downloadSigner(): void {
+    this.modalService
+      .createModal(ModalNostrCredentialComponent)
+      .setOutletName('nostrCredential')
+      .setData({
+        title: 'Accounts', // FIXME: change to il8n
+        currentStep: 'downloadSigner'
+      })
+      .build();
+  }
+
 }

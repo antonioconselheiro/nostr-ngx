@@ -13,6 +13,18 @@ export class NostrAuthCheckComponent {
   ) { }
 
   openAuthModal(): void {
-    this.credentialHandlerService.handle();
+    this.credentialHandlerService.login();
+  }
+
+  openAddUser(): void {
+    this.credentialHandlerService.addAccount();
+  }
+
+  openManageRelays(): void {
+    this.credentialHandlerService.manageRelays();
+  }
+
+  openEditProfile(): void {
+    this.credentialHandlerService.editProfile();
   }
 }
