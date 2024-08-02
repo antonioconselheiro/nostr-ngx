@@ -56,23 +56,10 @@ export class RegisterAccountComponent implements OnInit {
 
   async uploadProfilePicture(): Promise<void> {
     const file = await this.fileManager.load('image/*', 'blob');
-    const pubkey = this.profile$.getCurrentPubKey();
-
-    if (!pubkey) {
-      //  FIXME: maybe I should show any message here
-      return Promise.resolve();
-    }
-
-    await this.nostrService.request([
-      {
-        kinds: [ NostrEventKind.FileServerPreference ],
-        authors: [ pubkey ],
-        limit: 1
-      }
-    ])
 
     if (file) {
-      uploadFile(file, 'http://nostr.build', '', {
+      const { serverApiUrl, nip98AuthorizationHeader } = await this.profile$.getUploadFileConfigs();
+      uploadFile(file, serverApiUrl, nip98AuthorizationHeader, {
         size: String(file.size),
         media_type: 'avatar',
         content_type: file.type

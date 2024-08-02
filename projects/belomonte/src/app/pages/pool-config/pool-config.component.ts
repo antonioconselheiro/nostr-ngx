@@ -122,7 +122,8 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
   }
 
   addRelay(poolConfig: IPoolConfig, newRelay: string): void {
-    if (/^ws/.test(newRelay)) {
+    //  TODO: tlvz eu deva centralizar essa expressão regular?
+    if (/^wss?:\/\/[^.]+\.[^.]=/.test(newRelay)) {
       poolConfig.pool.ensureRelay(newRelay);
     }
   }
