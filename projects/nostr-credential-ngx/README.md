@@ -7,3 +7,6 @@ To use with `nostr-ngx` and `nostr-tools`
 
 ## Release
 not released yet
+
+- Como configurar os relays padrão utilizados no client
+- Como configurar a foto de perfil e banner padrão do client 

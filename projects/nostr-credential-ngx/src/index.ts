@@ -72,3 +72,6 @@ export * from './lib/qrcode-service/qrcode.service';
 export * from './lib/qrcode-service/qrcode-service.module';
 export * from './lib/loading/loading.component';
 export * from './lib/loading/loading-widget.module';
+
+
+// TODO: incluir meio de configurar a foto de perfil e banner padrão que a biblioteca deve assumir 

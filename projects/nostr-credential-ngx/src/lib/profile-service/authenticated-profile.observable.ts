@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { NostrSecretCrypto, NostrConverter, TNcryptsec, TNostrPublic, TNostrSecret, NostrEventKind, NostrService } from '@belomonte/nostr-ngx';
+import { NostrConverter, NostrEventKind, NostrSecretCrypto, NostrService, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { readServerConfig } from 'nostr-tools/nip96';
 import { BehaviorSubject } from 'rxjs';
+import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
-import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
 import { AccountConverter } from './account.converter';
-import { ProfileProxy } from './profile.proxy';
-import { readServerConfig } from 'nostr-tools/nip96';
-import { getToken } from 'nostr-tools/nip98';
 import { NostrSigner } from './nostr.signer';
+import { ProfileProxy } from './profile.proxy';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +42,12 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     return this.nostrConverter.castNostrPublicToPubkey(profile.npub);
   }
 
+  // TODO: as configurações dos serviços de imagem NÃO RETORNAM as informações exigidas para compor
+  //  nip98AuthorizationHeader, então para implementar precisarei incluir as urls de login e método
+  //  associados as urls dos servidores de imagem mais conhecidos.
+  //  https://primal.net/e/note182duc5fwl62m8gavrpjkruu4ak2tygfp8q8wlxdrmc9g0r4zq8jsy2k9ex
+  //  TODO: Se o servidor de imagem não for conhecido pela aplicação e exigir autenticação com NIP98, então
+  //  terei que responder com um erro que dê meios ao usuário de abrir um issue no github 
   async getUploadFileConfigs(): Promise<{ serverApiUrl: string, nip98AuthorizationHeader: string }> {
     const pubkey = this.getCurrentPubKey();
     const defaultConfigs = { serverApiUrl: 'https://nostr.build', nip98AuthorizationHeader: '' }
@@ -85,13 +90,12 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
       });
     }
 
-    //  FIXME: preciso encontrar os parâmetros corretos para passar ao getToken,
-    //  coloquei uns parâmetros fixos mas não deve ser a implementação correta
-    const nip98AuthorizationHeader = await getToken(serverConfig.api_url, 'post', e => this.nostrSigner.signEvent(e))
-    return Promise.resolve({
-      serverApiUrl: serverConfig.api_url,
-      nip98AuthorizationHeader
-    });
+    console.error(`Prefered file server ${server} is not free and has no implementation in this client to authenticate`);
+    //  FIXME: aqui estou retornando as configurações padrão de upload,
+    //  mas seria bom encontrar uma forma de responder com algum tipo de erro
+    //  indicando que não há implementação para autenticar no servidor de imagens
+    //  configurado 
+    return Promise.resolve(defaultConfigs);
   }
 
   authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
