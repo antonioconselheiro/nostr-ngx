@@ -123,7 +123,6 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
   }
 
   addRelay(poolConfig: IPoolConfig, newRelay: string): void {
-    //  TODO: tlvz eu deva centralizar essa expressão regular?
     if (isRelayString.test(newRelay)) {
       poolConfig.pool.ensureRelay(newRelay);
     }

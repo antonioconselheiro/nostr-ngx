@@ -40,7 +40,6 @@ export class RelayConverter {
   }
 
   private convertRelayMetadataFromTag(tag: string[]): TRelayMetadataRecord {
-    //  TODO: centralizar regex de identificação de string como relay
     const relays = tag.filter(relay => isRelayString.test(relay));
     const record: TRelayMetadataRecord = {};
 

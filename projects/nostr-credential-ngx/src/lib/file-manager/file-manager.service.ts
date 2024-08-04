@@ -51,12 +51,15 @@ export class FileManagerService {
     URL.revokeObjectURL(url);
   }
 
-  async load(type: string, format: 'blob'): Promise<File | null>;
-  async load(type: string, format: 'base64'): Promise<string | null>;
-  async load(type = 'image/*', format: 'blob' | 'base64' = 'base64'): Promise<File | string | null> {
+  async load(params?: { type?: string, format: 'file' }): Promise<File | null>;
+  async load(params?: { type?: string, format?: 'base64' }): Promise<string | null>;
+  async load(params?: { type?: string, format?: 'file' | 'base64' }): Promise<File | string | null> {
+    const defaults = { type: 'image/*', format: 'base64' };
+    const paramsWithDefaultsFilled = { ...defaults, ...params };
+    
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', type);
+    input.setAttribute('accept', paramsWithDefaultsFilled.type);
     input.click();
 
     const file = await new Promise<File | null>(resolve => {
@@ -70,7 +73,7 @@ export class FileManagerService {
       return Promise.resolve(null);
     }
 
-    if (format === 'blob') {
+    if (paramsWithDefaultsFilled.format === 'file') {
       return Promise.resolve(file);
     }
 

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { NostrEventKind, NostrService } from '@belomonte/nostr-ngx';
 import { uploadFile } from 'nostr-tools/nip96';
 import { FileManagerService } from '../../../file-manager/file-manager.service';
 import { AuthenticatedProfileObservable } from '../../../profile-service/authenticated-profile.observable';
@@ -32,7 +31,6 @@ export class RegisterAccountComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profile$: AuthenticatedProfileObservable,
-    private nostrService: NostrService,
     private fileManager: FileManagerService
   ) { }
 
@@ -55,20 +53,35 @@ export class RegisterAccountComponent implements OnInit {
   }
 
   async uploadProfilePicture(): Promise<void> {
-    const file = await this.fileManager.load('image/*', 'blob');
+    //  TODO: por enquanto estou abrindo para image/* mas o correto seria limitar a seleção
+    //  para os mime types listados na configuração .well-known to servidor de imagens
+    const file = await this.fileManager.load({ format: 'file' });
+
+    if (file) {
+      const { serverApiUrl, nip98AuthorizationHeader } = await this.profile$.getUploadFileConfigs();
+      const response = await uploadFile(file, serverApiUrl, nip98AuthorizationHeader, {
+        size: String(file.size),
+        media_type: 'avatar',
+        content_type: file.type
+      });
+
+      response.processing_url
+    }
+  }
+
+  async uploadBanner(): Promise<void> {
+    //  TODO: por enquanto estou abrindo para image/* mas o correto seria limitar a seleção
+    //  para os mime types listados na configuração .well-known to servidor de imagens
+    const file = await this.fileManager.load({ format: 'file' });
 
     if (file) {
       const { serverApiUrl, nip98AuthorizationHeader } = await this.profile$.getUploadFileConfigs();
       uploadFile(file, serverApiUrl, nip98AuthorizationHeader, {
         size: String(file.size),
-        media_type: 'avatar',
+        media_type: 'banner',
         content_type: file.type
       });
     }
-  }
-
-  uploadBanner(): void {
-    //uploadFile();
   }
 
   onSubmit(): void {

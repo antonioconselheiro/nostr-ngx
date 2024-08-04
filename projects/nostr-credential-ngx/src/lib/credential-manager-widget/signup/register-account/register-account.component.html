@@ -3,7 +3,7 @@
   imagem ser colocada diretamente pelo usuário
 -->
 <div class="editBanner" [style.backgroundImage]="'url('+ uploadedBanner +')'">
-  <button type="button" title="upload banner image" class="svgButton svgButtonHoverImage borderless">
+  <button (click)="uploadBanner()" type="button" title="upload banner image" class="svgButton svgButtonHoverImage borderless">
     <nostr-svg-render name="uploadImage"></nostr-svg-render>
   </button>
 
@@ -13,7 +13,7 @@
 </div>
 
 <div class="editProfile" [style.backgroundImage]="'url('+ uploadedImage +')'">
-  <button type="button" title="upload profile image" class="svgButton svgButtonHoverImage borderless">
+  <button (click)="uploadProfilePicture()" type="button" title="upload profile image" class="svgButton svgButtonHoverImage borderless">
     <nostr-svg-render name="uploadImage"></nostr-svg-render>
   </button>
 </div>
