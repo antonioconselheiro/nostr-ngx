@@ -31,6 +31,7 @@ export * from './nostr/relay-config.service';
 export * from './nostr/nostr-secret.crypto';
 export * from './nostr/nostr.guard';
 export * from './nostr/main.pool';
+export * from './nostr/is-relay-string.regex';
 
 declare global {
   interface Window {

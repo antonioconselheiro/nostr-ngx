@@ -8,6 +8,7 @@ import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
 import { readServerConfig } from 'nostr-tools/nip96';
 import { getToken } from 'nostr-tools/nip98';
+import { NostrSigner } from './nostr.signer';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     private nostrConverter: NostrConverter,
     private nostrSecretCrypto: NostrSecretCrypto,
     private sessionConfigs: ProfileSessionStorage,
-    private nostrService: NostrService
+    private nostrService: NostrService,
+    private nostrSigner: NostrSigner
   ) {
     const session = sessionConfigs.read();
     const profile = session.sessionFrom === 'sessionStorage' && session.nsec && session.profile || null;
@@ -83,10 +85,12 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
       });
     }
 
-    // getToken(serverConfig.) ? where is login url???
+    //  FIXME: preciso encontrar os parâmetros corretos para passar ao getToken,
+    //  coloquei uns parâmetros fixos mas não deve ser a implementação correta
+    const nip98AuthorizationHeader = await getToken(serverConfig.api_url, 'post', e => this.nostrSigner.signEvent(e))
     return Promise.resolve({
       serverApiUrl: serverConfig.api_url,
-      nip98AuthorizationHeader: ''
+      nip98AuthorizationHeader
     });
   }
 

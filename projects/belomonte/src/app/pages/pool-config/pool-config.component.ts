@@ -4,6 +4,7 @@ import { ExtendedPool, MainPool, SmartPool } from '@belomonte/nostr-ngx';
 import { IPoolConfig } from './pool-config.interface';
 import { globalPoolsStatefull } from '../../global-pools.statefull';
 import { Subscription } from 'rxjs';
+import { isRelayString } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'app-pool-config',
@@ -123,7 +124,7 @@ export class PoolConfigComponent implements OnInit, OnDestroy {
 
   addRelay(poolConfig: IPoolConfig, newRelay: string): void {
     //  TODO: tlvz eu deva centralizar essa expressão regular?
-    if (/^wss?:\/\/[^.]+\.[^.]=/.test(newRelay)) {
+    if (isRelayString.test(newRelay)) {
       poolConfig.pool.ensureRelay(newRelay);
     }
   }

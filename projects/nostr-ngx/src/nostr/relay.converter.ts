@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
 import { NostrEvent } from 'nostr-tools';
 import { NostrEventKind } from '../domain/nostr-event-kind';
+import { isRelayString } from './is-relay-string.regex';
 
 @Injectable({
   providedIn: 'root'
@@ -39,7 +40,8 @@ export class RelayConverter {
   }
 
   private convertRelayMetadataFromTag(tag: string[]): TRelayMetadataRecord {
-    const relays = tag.filter(relay => /^ws/.test(relay));
+    //  TODO: centralizar regex de identificação de string como relay
+    const relays = tag.filter(relay => isRelayString.test(relay));
     const record: TRelayMetadataRecord = {};
 
     Object.keys(relays).forEach(relay => {
