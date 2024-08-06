@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, NostrEventKind, NostrSecretCrypto, NostrService, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
-import { readServerConfig } from 'nostr-tools/nip96';
+import { NostrConverter, NostrSecretCrypto, NostrService, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
 import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
 import { IProfile } from '../domain/profile.interface';
@@ -41,64 +40,6 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
     }
 
     return this.nostrConverter.castNostrPublicToPubkey(profile.npub);
-  }
-
-  // TODO: as configurações dos serviços de imagem NÃO RETORNAM as informações exigidas para compor
-  //  nip98AuthorizationHeader, então para implementar precisarei incluir as urls de login e método
-  //  associados as urls dos servidores de imagem mais conhecidos.
-  //  https://primal.net/e/note182duc5fwl62m8gavrpjkruu4ak2tygfp8q8wlxdrmc9g0r4zq8jsy2k9ex
-  //  TODO: Se o servidor de imagem não for conhecido pela aplicação e exigir autenticação com NIP98, então
-  //  terei que responder com um erro que dê meios ao usuário de abrir um issue no github 
-  //  FIXME: solve cyclomatic complexity
-  // eslint-disable-next-line complexity
-  async getUploadFileConfigs(): Promise<{ serverApiUrl: string, nip98AuthorizationHeader: string }> {
-    const pubkey = this.getCurrentPubKey();
-    const defaultConfigs = { serverApiUrl: 'https://nostr.build', nip98AuthorizationHeader: '' }
-  
-    if (!pubkey) {
-      return Promise.resolve(defaultConfigs);
-    }
-  
-    const [fileServer] = await this.nostrService.request([
-      {
-        kinds: [ NostrEventKind.FileServerPreference ],
-        authors: [ pubkey ],
-        limit: 1
-      }
-    ]);
-
-    if (!fileServer) {
-      return Promise.resolve(defaultConfigs);
-    }
-    
-    // TODO: não é prioritário, mas se o usuário tem mais de um servidor de imagem
-    //  cadastrado então seria bom dar a opção para que escolha em qual ele deseja publicar
-    const [server] = fileServer.tags.find(([type, value]) => type === 'server' && value) || [];
-    if (!server) {
-      return Promise.resolve(defaultConfigs);
-    }
-    
-    const serverConfig = await readServerConfig(server);
-    if (!serverConfig.plans) {
-      return Promise.resolve({
-        serverApiUrl: serverConfig.api_url,
-        nip98AuthorizationHeader: ''
-      });
-    }
-
-    if (serverConfig.plans['free'] && !serverConfig.plans['free'].is_nip98_required) {
-      return Promise.resolve({
-        serverApiUrl: serverConfig.api_url,
-        nip98AuthorizationHeader: ''
-      });
-    }
-
-    console.error(`Prefered file server ${server} is not free and has no implementation in this client to authenticate`);
-    //  FIXME: aqui estou retornando as configurações padrão de upload,
-    //  mas seria bom encontrar uma forma de responder com algum tipo de erro
-    //  indicando que não há implementação para autenticar no servidor de imagens
-    //  configurado 
-    return Promise.resolve(defaultConfigs);
   }
 
   authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<IProfile> {
