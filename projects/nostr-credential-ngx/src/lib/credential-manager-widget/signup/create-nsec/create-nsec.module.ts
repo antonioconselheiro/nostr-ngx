@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FileManagerModule } from '../../../file-manager/file-manager.module';
 import { SvgRenderModule } from '../../../svg-render/svg-render.module';
 import { CreateNsecComponent } from './create-nsec.component';
-import { AutofocusDirective } from '../../../autofocus/autofocus.directive';
 
 @NgModule({
   declarations: [
@@ -14,9 +13,7 @@ import { AutofocusDirective } from '../../../autofocus/autofocus.directive';
     CommonModule,
     ReactiveFormsModule,
     SvgRenderModule,
-    FileManagerModule,
-
-    AutofocusDirective
+    FileManagerModule
   ],
   exports: [
     CreateNsecComponent

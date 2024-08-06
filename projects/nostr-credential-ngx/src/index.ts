@@ -61,7 +61,6 @@ export * from './lib/credential-manager-widget/select-account/select-account.mod
 export * from './lib/svg-render/svg-render.module';
 export * from './lib/svg-render/svg-render.component';
 export * from './lib/svg-render/svg.record';
-export * from './lib/autofocus/autofocus.directive';
 export * from './lib/nostr-validators/nostr.validators';
 export * from './lib/nostr-validators/nostr-secret.validator-fn';
 export * from './lib/nostr-validators/confirm-password.validator-fn';
