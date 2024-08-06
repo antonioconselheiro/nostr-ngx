@@ -43,8 +43,8 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "**/*.ts",
-              "**/*.html"
+              "projects/nostr-credential-ngx/src/**/*.ts",
+              "projects/nostr-credential-ngx/src/**/*.html"
             ]
           }
         }
@@ -90,8 +90,8 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "**/*.ts",
-              "**/*.html"
+              "projects/nostr-ngx/src/**/*.ts",
+              "projects/nostr-ngx/src/**/*.html"
             ]
           }
         }
@@ -189,15 +189,6 @@
               "projects/belomonte/src/styles.scss"
             ],
             "scripts": []
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "**/*.ts",
-              "**/*.html"
-            ]
           }
         }
       }
