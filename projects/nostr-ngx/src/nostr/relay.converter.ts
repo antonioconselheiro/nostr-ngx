@@ -9,8 +9,6 @@ import { isRelayString } from './is-relay-string.regex';
 })
 export class RelayConverter {
 
-  constructor() { }
-
   private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): TRelayMetadataRecord {
     const record: TRelayMetadataRecord = {};
     const relayTags = event.tags.filter(([type]) => type === 'r');

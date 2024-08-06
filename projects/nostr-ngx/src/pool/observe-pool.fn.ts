@@ -30,7 +30,7 @@ export function observePool(pool: AbstractSimplePool): {
     const length = (pool as any).relays.size;
     const relay = await ensureRelay(url, params);
 
-    if (length != (pool as any).relays.size) {
+    if (length !== (pool as any).relays.size) {
       subject.next();
     }
 

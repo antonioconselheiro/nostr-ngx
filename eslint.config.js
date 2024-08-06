@@ -75,8 +75,11 @@ module.exports = tseslint.config(
           ]
         }
       ],
+      "@typescript-eslint/array-type": "off",
       "@typescript-eslint/member-ordering": "off",
       "@typescript-eslint/member-delimiter-style": "off",
+      "@typescript-eslint/consistent-type-definitions": "off",
+      "@typescript-eslint/consistent-indexed-object-style": "off",
       "@typescript-eslint/ban-ts-comment": [
         "warn",
         {

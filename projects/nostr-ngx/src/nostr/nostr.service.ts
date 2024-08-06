@@ -15,7 +15,7 @@ export class NostrService {
   constructor(
     @Optional()
     private pool: MainPool
-  ) {}
+  ) { }
 
   async request(
     filters: Filter[],
@@ -62,9 +62,9 @@ export class NostrService {
 
     const poolSubscription = pool.subscribeMany(
       filters, {
-      onevent: event => subject.next(event),
-      oneose(): void { }
-    });
+        onevent: event => subject.next(event)
+      }
+    );
 
     onDestroy$.subscribe(() => {
       poolSubscription.close();

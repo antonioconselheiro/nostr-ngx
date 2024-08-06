@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, ViewChild } from '@angular/core';
+import { Component, HostBinding, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ModalBuilder, ModalOutletComponent } from '@belomonte/async-modal-ngx';
 import { Subscription } from 'rxjs';
 
@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './credential-handler.component.html',
   styleUrl: './credential-handler.component.scss'
 })
-export class CredentialHandlerComponent {
+export class CredentialHandlerComponent implements OnInit, OnDestroy {
 
   @ViewChild(ModalOutletComponent)
   modal!: ModalOutletComponent;
