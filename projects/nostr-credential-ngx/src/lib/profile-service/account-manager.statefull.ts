@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { TNcryptsec } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { IAccountsLocalConfig } from '../credential-manager-widget/credential-storage/accounts-local-config.interface';
+import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
 import { IProfile } from '../domain/profile.interface';
 import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
-import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
 import { AccountConverter } from './account.converter';
 
 @Injectable({

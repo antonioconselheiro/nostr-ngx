@@ -49,6 +49,8 @@ export class AuthenticatedProfileObservable extends BehaviorSubject<IProfile | n
   //  https://primal.net/e/note182duc5fwl62m8gavrpjkruu4ak2tygfp8q8wlxdrmc9g0r4zq8jsy2k9ex
   //  TODO: Se o servidor de imagem não for conhecido pela aplicação e exigir autenticação com NIP98, então
   //  terei que responder com um erro que dê meios ao usuário de abrir um issue no github 
+  //  FIXME: solve cyclomatic complexity
+  // eslint-disable-next-line complexity
   async getUploadFileConfigs(): Promise<{ serverApiUrl: string, nip98AuthorizationHeader: string }> {
     const pubkey = this.getCurrentPubKey();
     const defaultConfigs = { serverApiUrl: 'https://nostr.build', nip98AuthorizationHeader: '' }

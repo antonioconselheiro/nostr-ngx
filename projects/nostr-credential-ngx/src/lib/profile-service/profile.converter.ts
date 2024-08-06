@@ -17,7 +17,7 @@ export class ProfileConverter {
     let metadata: IProfileMetadata;
     try {
       metadata = JSON.parse(profile.content);
-    } catch (e) {
+    } catch {
       metadata = { about: profile.content };
     }
     

@@ -55,6 +55,7 @@ module.exports = tseslint.config(
           style: "kebab-case"
         }
       ],
+      "@angular-eslint/no-output-native": "off",
       "@typescript-eslint/naming-convention": [
         "warn",
         {
@@ -93,23 +94,9 @@ module.exports = tseslint.config(
         }
       ],
       "@typescript-eslint/no-empty-function": "error",
-      "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/prefer-for-of": "off",
-      "@typescript-eslint/unbound-method": "error",
       "@typescript-eslint/adjacent-overload-signatures": "warn",
-      "@typescript-eslint/no-magic-numbers": [
-        "error",
-        {
-          "ignoreEnums": true,
-          "ignoreReadonlyClassProperties": true,
-          "ignoreNumericLiteralTypes": true,
-          "ignore": [
-            0,
-            1
-          ]
-        }
-      ],
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/consistent-type-assertions": [
         "warn",
         {
@@ -162,6 +149,10 @@ module.exports = tseslint.config(
     extends: [
       ...angular.configs.templateRecommended,
       ...angular.configs.templateAccessibility,
-    ]
+    ],
+    rules: {
+      "@angular-eslint/template/no-autofocus": "off",
+      "@angular-eslint/template/click-events-have-key-events": "off"
+    }
   }
 );

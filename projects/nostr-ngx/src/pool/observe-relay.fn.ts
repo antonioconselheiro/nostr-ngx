@@ -17,10 +17,10 @@ export function observeRelay(relay: AbstractRelay): {
     notice$ = new Subject<string>();
 
   Object.defineProperty(relay, '_connected', {
-    get: function() {
+    get: function () {
       return _connected;
     },
-    set: function(conn) {
+    set: function (conn) {
       _connected = conn;
       connection$.next(conn);
     },
@@ -36,12 +36,16 @@ export function observeRelay(relay: AbstractRelay): {
     close$.complete();
     notice$.complete();
 
-    onclose && onclose();
+    if (onclose) {
+      onclose();
+    }
   };
 
   relay.onnotice = (msg: string) => {
     notice$.next(msg);
-    onnotice && onnotice(msg);
+    if (onnotice) {
+      onnotice(msg);
+    }
   };
 
   return (relay as any)._observe = {

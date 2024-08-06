@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
@@ -13,7 +13,7 @@ import { AccountsLocalStorage } from '../../credential-storage/accounts-local.st
   templateUrl: './create-nsec-and-ncryptsec.component.html',
   styleUrl: './create-nsec-and-ncryptsec.component.scss'
 })
-export class CreateNsecAndNcryptsecComponent {
+export class CreateNsecAndNcryptsecComponent implements OnInit {
 
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();

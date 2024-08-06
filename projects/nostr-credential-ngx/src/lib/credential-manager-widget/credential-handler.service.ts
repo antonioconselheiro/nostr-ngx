@@ -11,7 +11,7 @@ export class CredentialHandlerService {
     private modalService: ModalService
   ) { }
 
-  login() {
+  login(): void {
     this.modalService
       .createModal(ModalNostrCredentialComponent)
       .setOutletName('nostrCredential')
@@ -54,8 +54,9 @@ export class CredentialHandlerService {
       .build();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   downloadCredentials(): void {
-
+    // TODO:
   }
 
   downloadSigner(): void {

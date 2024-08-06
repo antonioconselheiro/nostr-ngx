@@ -3,7 +3,7 @@
 <form [formGroup]="generateNsecForm" novalidate autocomplete="off">
   <div class="floatingLabel">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
-      id="generateNsecQRCodeTitleField" type="text" placeholder=" " listenTypingComplete 
+      id="generateNsecQRCodeTitleField" type="text" placeholder=" " nostrListenTypingComplete 
       (typingCompleted)="renderQrcode()" autofocus />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
@@ -23,7 +23,7 @@
   </div>
 
   <div>
-    <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode />
+    <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode alt="qrcode with your nsec" />
   </div>
 
   <ul>

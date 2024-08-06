@@ -28,7 +28,6 @@ export class SelectAccountComponent {
 
     //  wait the observable send centralizated
     //  and updated info of account amount
-    // eslint-disable-next-line ban/ban
     setTimeout(() => {
       if (!this.accounts.length) {
         this.changeStep.next('login');

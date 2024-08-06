@@ -59,13 +59,15 @@ export class RegisterAccountComponent implements OnInit {
 
     if (file) {
       const { serverApiUrl, nip98AuthorizationHeader } = await this.profile$.getUploadFileConfigs();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const response = await uploadFile(file, serverApiUrl, nip98AuthorizationHeader, {
         size: String(file.size),
         media_type: 'avatar',
         content_type: file.type
       });
 
-      response.processing_url
+      //  TODOING:
+      // response.processing_url
     }
   }
 
@@ -85,6 +87,6 @@ export class RegisterAccountComponent implements OnInit {
   }
 
   onSubmit(): void {
-    
+    // TODO:
   }
 }

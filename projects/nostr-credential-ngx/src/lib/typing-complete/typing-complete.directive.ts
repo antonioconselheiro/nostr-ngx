@@ -1,7 +1,7 @@
 import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 @Directive({
-  selector: '[listenTypingComplete]',
+  selector: '[nostrListenTypingComplete]',
   standalone: true
 })
 export class TypingCompleteDirective {
@@ -25,7 +25,7 @@ export class TypingCompleteDirective {
   onKeyUp(): void {
     clearTimeout(this.timeoutId);
     const timeout = Number(this.timeout);
-    const onCompleted = () => this.typingCompleted.emit(this.el.nativeElement.value);
+    const onCompleted = (): void => this.typingCompleted.emit(this.el.nativeElement.value);
     this.timeoutId = +setTimeout(onCompleted, timeout);
   }
 }

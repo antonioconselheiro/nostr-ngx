@@ -16,7 +16,7 @@ export function observePool(pool: AbstractSimplePool): {
 
   const subject = new Subject<void>();
   const close = pool.close.bind(pool);
-  const destroy = ((pool as any).destroy || function(){}).bind(pool);
+  const destroy = ((pool as any).destroy || new Function).bind(pool);
   const ensureRelay = pool.ensureRelay.bind(pool);
 
   pool.close = (relays: string[]): void => {

@@ -116,13 +116,13 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   }
 
   softwareIsName(loadedDetails: RelayInformation): boolean {
-    const isUrl = /(https?:\/\/)|(^git\@)/;
+    const isUrl = /(https?:\/\/)|(^git@)/;
     return !isUrl.test(loadedDetails.software);
   }
 
   softwareHasLink(loadedDetails: RelayInformation): string | null {
     const isHttp = /^https?:\/\//;
-    const isGitSsh = /^git@[^ ]+\:[^ ]+.git$/;
+    const isGitSsh = /^git@[^ ]+:[^ ]+.git$/;
     const isGitHttp = /^git\+/;
 
     if (isHttp.test(loadedDetails.software)) {

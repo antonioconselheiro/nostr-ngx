@@ -40,7 +40,7 @@ export class QrcodeService {
             return;
           }
 
-          var img = new Image();
+          const img = new Image();
           img.src = url;
           
           img.onload = () => {
