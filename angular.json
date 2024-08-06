@@ -38,6 +38,15 @@
               "zone.js/testing"
             ]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/nostr-credential-ngx/src/**/*.ts",
+              "projects/nostr-credential-ngx/src/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -74,6 +83,15 @@
             "polyfills": [
               "zone.js",
               "zone.js/testing"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/nostr-ngx/src/**/*.ts",
+              "projects/nostr-ngx/src/**/*.html"
             ]
           }
         }
@@ -177,6 +195,9 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }

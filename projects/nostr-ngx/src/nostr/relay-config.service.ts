@@ -42,7 +42,7 @@ export class RelayConfigService {
    * @param relays
    * @param npub 
    */
-  setLocalRelays(relays: TRelayMetadataRecord, npub?: TNostrPublic) {
+  setLocalRelays(relays: TRelayMetadataRecord, npub?: TNostrPublic): void {
     const local = this.configs.read();
 
     if (npub) {
