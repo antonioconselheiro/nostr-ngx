@@ -9,7 +9,7 @@
     "build:nostr": "npm -C projects/nostr-ngx run build",
     "build:credential": "npm -C projects/nostr-credential-ngx run build",
     "pool": "docker-compose -f pool/docker-compose.yml up",
-    "lint": "ng lint"
+    "lint": "ng lint --project=nostr-ngx; ng lint --project=nostr-credential-ngx"
   },
   "dependencies": {
     "@angular/animations": "^17.3.0",
@@ -42,7 +42,7 @@
     "@typescript-eslint/eslint-plugin": "7.11.0",
     "@typescript-eslint/parser": "7.11.0",
     "angular-eslint": "^18.2.0",
-    "eslint": "^8.55.0",
+    "eslint": "8.55.0",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
