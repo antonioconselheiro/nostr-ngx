@@ -21,8 +21,8 @@ module.exports = tseslint.config(
     languageOptions: {
       parserOptions: {
         project: true,
-        tsconfigRootDir: __dirname,
-      },
+        tsconfigRootDir: __dirname
+      }
     },
     rules: {
       "max-classes-per-file": [
@@ -44,22 +44,16 @@ module.exports = tseslint.config(
         {
           type: "attribute",
           prefix: "nostr",
-          style: "camelCase",
-        },
+          style: "camelCase"
+        }
       ],
       "@angular-eslint/component-selector": [
         "error",
         {
           type: "element",
           prefix: "nostr",
-          style: "kebab-case",
-        },
-      ],
-      "@angular-eslint/no-output-native": [
-        "off"
-      ],
-      "@angular-eslint/no-host-metadata-property": [
-        "off"
+          style: "kebab-case"
+        }
       ],
       "@typescript-eslint/naming-convention": [
         "warn",
