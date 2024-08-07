@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FileManagerService } from './file-manager.service';
+import { MediaUploader } from './media-uploader';
 
 @NgModule({
   imports: [
     CommonModule
   ],
   providers: [
-    FileManagerService
+    MediaUploader
   ]
 })
-export class FileManagerModule { }
+export class NostrMediaModule { }

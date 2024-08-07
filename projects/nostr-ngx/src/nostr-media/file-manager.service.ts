@@ -51,15 +51,22 @@ export class FileManagerService {
     URL.revokeObjectURL(url);
   }
 
-  async load(params?: { type?: string, format: 'file' }): Promise<File | null>;
-  async load(params?: { type?: string, format?: 'base64' }): Promise<string | null>;
-  async load(params?: { type?: string, format?: 'file' | 'base64' }): Promise<File | string | null> {
-    const defaults = { type: 'image/*', format: 'base64' };
+  async load(params?: { type?: string[], format: 'file' }): Promise<File | null>;
+  async load(params?: { type?: string[], format?: 'base64' }): Promise<string | null>;
+  async load(params?: { type?: string[], format?: 'file' | 'base64' }): Promise<File | string | null> {
+    const defaults = {
+      type: [
+        'image/*',
+        'video/*'
+      ],
+      format: 'base64'
+    };
     const paramsWithDefaultsFilled = { ...defaults, ...params };
-    
+    const type = paramsWithDefaultsFilled.type || [];
+
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', paramsWithDefaultsFilled.type);
+    input.setAttribute('accept', type.join(','));
     input.click();
 
     const file = await new Promise<File | null>(resolve => {
