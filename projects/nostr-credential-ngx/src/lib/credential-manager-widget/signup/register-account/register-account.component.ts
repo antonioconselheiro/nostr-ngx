@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { FileManagerService } from '@belomonte/nostr-ngx';
+import { MediaUploader } from '@belomonte/nostr-ngx';
 import { AuthenticatedProfileObservable } from '../../../profile-service/authenticated-profile.observable';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
 
@@ -30,7 +30,7 @@ export class RegisterAccountComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private profile$: AuthenticatedProfileObservable,
-    private fileManager: FileManagerService
+    private mediaUploader: MediaUploader
   ) { }
 
   ngOnInit(): void {
@@ -47,14 +47,31 @@ export class RegisterAccountComponent implements OnInit {
     })
   }
 
-  async uploadProfilePicture(): Promise<string> {
-    //  TODO:
-    return Promise.resolve('');
+  uploadProfilePicture(): void {
+
+    this.mediaUploader
+      .uploadFromDialog('http://nostr.build', { media_type: 'avatar' })
+      .subscribe({
+        next: status => {
+          if (status.type === 'complete') {
+            this.uploadedProfilePicture = status.downloadUrl;
+            this.registerAccount.patchValue({ picture: status.downloadUrl })
+          }
+        }
+      });
   }
 
-  async uploadBanner(): Promise<string> {
-    //  TODO: 
-    return Promise.resolve('');
+  uploadBanner(): void {
+    this.mediaUploader
+      .uploadFromDialog('http://nostr.build', { media_type: 'banner' })
+      .subscribe({
+        next: status => {
+          if (status.type === 'complete') {
+            this.uploadedBanner = status.downloadUrl;
+            this.registerAccount.patchValue({ banner: status.downloadUrl })
+          }
+        }
+      });
   }
 
   onSubmit(): void {

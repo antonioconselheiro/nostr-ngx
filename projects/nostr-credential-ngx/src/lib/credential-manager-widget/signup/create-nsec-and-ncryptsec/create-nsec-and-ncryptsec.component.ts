@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
+import { FileManagerService, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
-import { FileManagerService } from '../../../../../../nostr-ngx/src/nostr-media/file-manager.service';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';

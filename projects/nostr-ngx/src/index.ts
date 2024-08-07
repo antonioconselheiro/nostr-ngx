@@ -24,6 +24,14 @@ export * from './storage/configs-session.storage';
 export * from './exceptions/no-credentials-found.error';
 export * from './exceptions/signer-not-found.error';
 
+export * from './nostr-media/file-manager.service';
+export * from './nostr-media/file-processing.interface';
+export * from './nostr-media/file-sending.interface';
+export * from './nostr-media/file-upload-completed.interface';
+export * from './nostr-media/file-upload.type';
+export * from './nostr-media/media.uploader';
+export * from './nostr-media/nostr-media.module';
+
 export * from './nostr/nostr.module';
 export * from './nostr/nostr.service';
 export * from './nostr/nostr.converter';

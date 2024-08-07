@@ -17,8 +17,6 @@ import { SmartPool } from '../pool/smart.pool';
   providedIn: 'root'
 })
 export class RelayConfigService {
-  
-  static isRelayString = /^wss?:\/\/[^.]+\.[^.]=/;
 
   private static defaultAppRelays: TRelayMetadataRecord = {};
 

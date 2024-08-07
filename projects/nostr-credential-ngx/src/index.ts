@@ -2,9 +2,7 @@ export * from './lib/domain/profile.interface';
 export * from './lib/domain/unauthenticated-user.interface';
 export * from './lib/domain/profile-picture.interface';
 export * from './lib/domain/creating-account.interface';
-export * from './lib/typing-complete/typing-complete.directive';
-export * from '../../nostr-ngx/src/nostr-media/file-manager.service';
-export * from './lib/file-manager/file-manager.module';
+export * from './lib/typing-complete/typing-complete.directive'
 export * from './lib/profile-service/profile.converter';
 export * from './lib/profile-service/nostr.signer';
 export * from './lib/profile-service/profile.proxy';

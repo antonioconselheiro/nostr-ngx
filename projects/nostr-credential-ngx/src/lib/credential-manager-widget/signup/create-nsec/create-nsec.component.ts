@@ -1,7 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { TNostrSecret } from '@belomonte/nostr-ngx';
-import { FileManagerService } from '../../../../../../nostr-ngx/src/nostr-media/file-manager.service';
+import { FileManagerService, TNostrSecret } from '@belomonte/nostr-ngx';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';

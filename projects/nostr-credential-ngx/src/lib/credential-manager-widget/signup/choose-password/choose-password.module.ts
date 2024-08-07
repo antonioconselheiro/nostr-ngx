@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChoosePasswordComponent } from './choose-password.component';
-import { SvgRenderModule } from '../../../svg-render/svg-render.module';
-import { FileManagerModule } from '../../../file-manager/file-manager.module';
-import { TypingCompleteDirective } from '../../../typing-complete/typing-complete.directive';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NostrMediaModule } from '@belomonte/nostr-ngx';
+import { SvgRenderModule } from '../../../svg-render/svg-render.module';
+import { TypingCompleteDirective } from '../../../typing-complete/typing-complete.directive';
+import { ChoosePasswordComponent } from './choose-password.component';
 
 @NgModule({
   declarations: [
@@ -14,8 +14,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     ReactiveFormsModule,
     SvgRenderModule,
-    FileManagerModule,
-
+    NostrMediaModule,
     TypingCompleteDirective
   ],
   exports: [
