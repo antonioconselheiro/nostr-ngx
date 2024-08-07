@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MediaUploader } from './media-uploader';
+import { MediaUploader } from './media.uploader';
 
 @NgModule({
   imports: [

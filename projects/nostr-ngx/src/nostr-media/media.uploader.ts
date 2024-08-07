@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { calculateFileHash, generateDownloadUrl, OptionalFormDataFields, readServerConfig, ServerConfiguration, uploadFile, validateServerConfiguration } from 'nostr-tools/nip96';
+import { calculateFileHash, checkFileProcessingStatus, FileUploadResponse, generateDownloadUrl, OptionalFormDataFields, readServerConfig, ServerConfiguration, uploadFile, validateServerConfiguration } from 'nostr-tools/nip96';
 import { normalizeURL } from 'nostr-tools/utils';
+import { parseEvent } from 'nostr-tools/nip94';
 import { Observable, Subject } from 'rxjs';
 import { FileManagerService } from './file-manager.service';
 import { TFileUpload } from './file-upload.type';
+import { NostrEvent } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +43,9 @@ export class MediaUploader {
   ) { }
 
   /**
-   * Upload file to file server using a file dialog limited to file server configured file types 
+   * Upload file to file server using a file dialog limited to file server configured file types
+   * 
+   * TODO: pending to understand and implement the effect of 'delegated_to_url' property
    */
   uploadFromDialog(
     fileServer: string,
@@ -72,6 +76,15 @@ export class MediaUploader {
     params?: Omit<OptionalFormDataFields, 'size' | 'content_type'>
   ): Observable<TFileUpload> {
     const subject = new Subject<TFileUpload>();
+    readServerConfig(fileServer).then(serverConfig => {
+      calculateFileHash(file).then(fileHash => {
+        this.uploadFileWithAllStuffLoaded(serverConfig, file, fileHash, params).subscribe({
+          next: subject.next,
+          error: subject.error,
+          complete: subject.complete,
+        });
+      })
+    })
 
     return subject.asObservable();
   }
@@ -94,19 +107,25 @@ export class MediaUploader {
       if (response.status === 'error') {
         subject.error(response)
       }
-  
+
       const downloadUrl = this.getFileDownloadUrl(serverConfig, file, fileHash);
       if (response.status === 'success') {
-        return Promise.resolve(downloadUrl);
-      } else {
-        //  TODOING: implementar função assincrona para aguardar o processamento da imagem
-        response.processing_url;
+        this.sendCompleteResponse(subject, response, downloadUrl);
+      } else if (response.processing_url) {
+        this.listenFileProcessingToEmitProgress(response.processing_url, downloadUrl, subject);
       }
-
     });
 
-
     return subject.asObservable();
+  }
+
+  private sendCompleteResponse(
+    subject: Subject<TFileUpload>, response: FileUploadResponse, downloadUrl: string
+  ): void {
+    const nip94Event = response.nip94_event as any as NostrEvent | undefined;
+    const metadata = nip94Event ? parseEvent(nip94Event) : undefined;
+    subject.next({ type: 'complete', downloadUrl, metadata });
+    subject.complete();
   }
 
   private getFileDownloadUrl(
@@ -118,32 +137,6 @@ export class MediaUploader {
     const [fileExtension] = Array.from(file.name.match(matchExtensionRegex) || []);
 
     return generateDownloadUrl(fileHash, serverConfig.download_url || serverConfig.api_url, fileExtension);
-  }
-
-  private interceptFileToEmitSendingProgress(file: File, subject: Subject<TFileUpload>): File {
-    let uploadedAmount = 0;
-    const stream = new ReadableStream({
-      start(controller) {
-        const reader = file.stream().getReader();
-        function push(): void {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              controller.close();
-              return;
-            }
-            uploadedAmount += value.byteLength;
-            const percent = uploadedAmount / file.size;
-            subject.next({ type: 'sending', percent } as never);
-            controller.enqueue(value);
-            push();
-          });
-        }
-        push();
-      }
-    });
-
-    //  nothing to see here, go away
-    return stream as any as File;
   }
 
   private async getFileFromDialog(fileServer: string): Promise<{
@@ -161,5 +154,42 @@ export class MediaUploader {
 
     const fileHash = await calculateFileHash(file);
     return Promise.resolve({ file, fileHash, serverConfig });
+  }
+
+  private interceptFileToEmitSendingProgress(file: File, subject: Subject<TFileUpload>): File {
+    let uploadedAmount = 0;
+    const stream = new ReadableStream({
+      start(controller) {
+        const reader = file.stream().getReader();
+        function push(): void {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              controller.close();
+              return;
+            }
+            uploadedAmount += value.byteLength;
+            const percentage = uploadedAmount / file.size;
+            subject.next({ type: 'sending', percentage });
+            controller.enqueue(value);
+            push();
+          });
+        }
+        push();
+      }
+    });
+
+    //  nothing to see here, go away
+    return stream as any as File;
+  }
+
+  private listenFileProcessingToEmitProgress(processing_url: string, imageDownloadUrl: string, subject: Subject<TFileUpload>): void {
+    checkFileProcessingStatus(processing_url).then(response => {
+      if (response.status === 'success') {
+        this.sendCompleteResponse(subject, response, imageDownloadUrl);
+      } else if (response.status === 'processing' && 'percentage' in response) {
+        const percentage = (response.percentage / 100);
+        subject.next({ type: 'processing', percentage });
+      }
+    });
   }
 }
