@@ -1,13 +1,15 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MediaUploader } from '@belomonte/nostr-ngx';
+import { MediaUploader, NostrService } from '@belomonte/nostr-ngx';
+import { IProfile } from '../../../domain/profile.interface';
 import { AuthenticatedProfileObservable } from '../../../profile-service/authenticated-profile.observable';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
+import { RegisterAccountEventFactory } from './register-account.event-factory';
 
 @Component({
   selector: 'nostr-register-account',
   templateUrl: './register-account.component.html',
-  styleUrls: [ './register-account.component.scss' ]
+  styleUrls: ['./register-account.component.scss']
 })
 export class RegisterAccountComponent implements OnInit {
 
@@ -29,6 +31,8 @@ export class RegisterAccountComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private nostrService: NostrService,
+    private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: AuthenticatedProfileObservable,
     private mediaUploader: MediaUploader
   ) { }
@@ -37,18 +41,19 @@ export class RegisterAccountComponent implements OnInit {
     this.initForm();
   }
 
+  // eslint-disable-next-line complexity
   private initForm(): void {
+    const currentProfile = this.profile$.getCurrentAuthProfile();
     this.registerAccount = this.fb.group({
-      displayName: [''],
-      picture: [''],
-      banner: [''],
-      bio: [''],
-      url: ['']
-    })
+      displayName: [currentProfile?.display_name || ''],
+      picture: [currentProfile?.picture || ''],
+      banner: [currentProfile?.banner || ''],
+      bio: [currentProfile?.bio || ''],
+      url: [currentProfile?.website || '']
+    });
   }
 
   uploadProfilePicture(): void {
-
     this.mediaUploader
       .uploadFromDialog('http://nostr.build', { media_type: 'avatar' })
       .subscribe({
@@ -74,7 +79,33 @@ export class RegisterAccountComponent implements OnInit {
       });
   }
 
+  private castRawValueIntoProfileMetadata(currentProfile: IProfile | null, rawValues: {
+    displayName: string | null;
+    picture: string | null;
+    banner: string | null;
+    bio: string | null;
+    url: string | null;
+  }): IProfile {
+    return {
+      ...currentProfile,
+      display_name: rawValues.displayName || '',
+      picture: rawValues.picture || '',
+      banner: rawValues.banner || '',
+      bio: rawValues.bio || '',
+      website: rawValues.url || ''
+    };
+  }
+
   onSubmit(): void {
-    // TODO:
+    if (!this.registerAccount.valid) {
+      return;
+    }
+
+    const raw = this.registerAccount.getRawValue();
+    const profile = this.profile$.getCurrentAuthProfile();
+    const updatedProfile = this.castRawValueIntoProfileMetadata(profile, raw);
+    this.registerAccountEventFactory
+      .createProfileMetadata(updatedProfile)
+      .then(nostrEvent => this.nostrService.publish(nostrEvent));
   }
 }
