@@ -79,6 +79,7 @@ export class RegisterAccountComponent implements OnInit {
       });
   }
 
+  //  FIXME: aqui não deve ser IProfile, deve ser uma interface do perfil em sua forma original
   private castRawValueIntoProfileMetadata(currentProfile: IProfile | null, rawValues: {
     displayName: string | null;
     picture: string | null;

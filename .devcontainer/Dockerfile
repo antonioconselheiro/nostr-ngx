@@ -1,6 +1,7 @@
 FROM node:20
 
 RUN npm install typescript @angular/cli sass sassdoc -g
+RUN yes | npx jsr
 
 # Including jq to filter json
 RUN apt update
