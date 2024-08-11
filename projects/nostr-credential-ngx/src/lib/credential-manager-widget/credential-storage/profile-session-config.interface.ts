@@ -1,6 +1,6 @@
 import { INostrSessionConfig } from '@belomonte/nostr-ngx';
-import { IProfile } from '../../domain/profile.interface';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 export interface IProfileSessionConfig extends INostrSessionConfig {
-  profile?: IProfile;
+  metadata?: NostrMetadata;
 }

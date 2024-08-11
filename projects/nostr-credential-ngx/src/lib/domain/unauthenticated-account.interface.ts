@@ -1,7 +1,7 @@
 import { TNcryptsec, TNostrPublic, TNip05 } from "@belomonte/nostr-ngx";
 import { RelayRecord } from "nostr-tools/relay";
 
-export interface IUnauthenticatedUser {
+export interface IUnauthenticatedAccount {
   npub: TNostrPublic;
   ncryptsec: TNcryptsec;
   displayName: string;

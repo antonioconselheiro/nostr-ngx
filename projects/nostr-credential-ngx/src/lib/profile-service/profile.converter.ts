@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import {  TNostrPublic } from '@belomonte/nostr-ngx';
 import { Event, nip19 } from 'nostr-tools';
-import { IProfile } from '../domain/profile.interface';
 import { IProfileMetadata } from './profile-metadata.interface';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileConverter {
 
-  getMetadataFromNostrPublic(npub: TNostrPublic): IProfile {
+  getMetadataFromNostrPublic(npub: TNostrPublic): NostrMetadata {
     return { npub, load: false };
   }
 
-  convertEventToProfile(profile: Event, mergeWith?: IProfile ): IProfile {
+  convertEventToProfile(profile: Event, mergeWith?: NostrMetadata): NostrMetadata {
     let metadata: IProfileMetadata;
     try {
       metadata = JSON.parse(profile.content);
@@ -22,16 +22,14 @@ export class ProfileConverter {
     }
     
     const npub = nip19.npubEncode(profile.pubkey);
-    let newProfile: IProfile;
+    let newProfile: NostrMetadata;
     if (mergeWith) {
       newProfile = mergeWith;
       newProfile.npub = npub;
-      newProfile.load = true;
       Object.assign(newProfile, metadata);
     } else {
       newProfile = {
         npub: npub,
-        load: true,
         ...metadata
       }
     }

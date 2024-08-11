@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NostrConverter, TNostrPublic } from '@belomonte/nostr-ngx';
 import { NostrEvent } from 'nostr-tools';
-import { IProfile } from "../domain/profile.interface";
 import { ProfileConverter } from "./profile.converter";
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class ProfileCache {
   static instance: ProfileCache | null = null;
 
   static profiles: {
-    [npub: TNostrPublic]: IProfile
+    [npub: TNostrPublic]: NostrMetadata
   } = {};
 
   constructor(
@@ -26,10 +26,10 @@ export class ProfileCache {
     return ProfileCache.instance;
   }
 
-  get(npubs: TNostrPublic): IProfile;
-  get(npubs: TNostrPublic[]): IProfile[];
-  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[];
-  get(npubs: TNostrPublic[] | TNostrPublic): IProfile | IProfile[] {
+  get(npubs: TNostrPublic): NostrMetadata;
+  get(npubs: TNostrPublic[]): NostrMetadata[];
+  get(npubs: TNostrPublic[] | TNostrPublic): NostrMetadata | NostrMetadata[];
+  get(npubs: TNostrPublic[] | TNostrPublic): NostrMetadata | NostrMetadata[] {
     if (typeof npubs === 'string') {
       return this.getLazily(npubs);
     } else {
@@ -41,11 +41,11 @@ export class ProfileCache {
     return this.get(npub).load || false;
   }
 
-  getFromPubKey(pubkey: string): IProfile {
+  getFromPubKey(pubkey: string): NostrMetadata {
     return this.get(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
   }
 
-  private getLazily(npub: TNostrPublic): IProfile {
+  private getLazily(npub: TNostrPublic): NostrMetadata {
     if (ProfileCache.profiles[npub]) {
       return ProfileCache.profiles[npub];
     }
@@ -53,7 +53,7 @@ export class ProfileCache {
     return ProfileCache.profiles[npub] = this.profileConverter.getMetadataFromNostrPublic(npub);
   }
 
-  cache(profiles: IProfile[]): void {
+  cache(profiles: NostrMetadata[]): void {
     profiles.forEach(profile => this.cacheProfile(profile));
   }
 
@@ -61,7 +61,7 @@ export class ProfileCache {
     this.cache(events.map(event => this.profileConverter.convertEventToProfile(event)));
   }
 
-  private cacheProfile(profile: IProfile): IProfile {
+  private cacheProfile(profile: NostrMetadata): NostrMetadata {
     ProfileCache.profiles[profile.npub] = Object.assign(
       ProfileCache.profiles[profile.npub] || {},
       this.chooseNewer(profile, ProfileCache.profiles[profile.npub])
@@ -70,7 +70,7 @@ export class ProfileCache {
     return ProfileCache.profiles[profile.npub];
   }
 
-  private chooseNewer(updatedProfile: IProfile, indexedProfile: IProfile | undefined): IProfile {
+  private chooseNewer(updatedProfile: NostrMetadata, indexedProfile: NostrMetadata | undefined): NostrMetadata {
     if (!indexedProfile || !indexedProfile.load) {
       return updatedProfile;
     }

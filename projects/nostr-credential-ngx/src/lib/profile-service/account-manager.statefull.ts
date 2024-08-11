@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { TNcryptsec } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
-import { IProfile } from '../domain/profile.interface';
-import { IUnauthenticatedUser } from '../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { AccountConverter } from './account.converter';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ import { AccountConverter } from './account.converter';
 export class AccountManagerStatefull {
 
   private accounts = this.accountsLocalStorage.read().accounts || {};
-  private accountsSubject = new BehaviorSubject<IUnauthenticatedUser[]>(Object.values(this.accounts));
+  private accountsSubject = new BehaviorSubject<IUnauthenticatedAccount[]>(Object.values(this.accounts));
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
@@ -20,7 +20,7 @@ export class AccountManagerStatefull {
     private accountsLocalStorage: AccountsLocalStorage
   ) { }
 
-  addAccount(profile: IProfile, ncryptsec: TNcryptsec): IUnauthenticatedUser | null {
+  addAccount(profile: NostrMetadata, ncryptsec: TNcryptsec): IUnauthenticatedAccount | null {
     const unauthenticated = this.accountConverter.convertProfileToAccount(profile, ncryptsec);
     if (!unauthenticated) {
       return null;
@@ -30,7 +30,7 @@ export class AccountManagerStatefull {
     return unauthenticated;
   }
 
-  removeAccount(profile: IUnauthenticatedUser): void {
+  removeAccount(profile: IUnauthenticatedAccount): void {
     delete this.accounts[profile.npub];
     this.update();
   }

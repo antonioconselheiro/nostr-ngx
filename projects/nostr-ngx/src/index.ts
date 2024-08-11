@@ -1,6 +1,5 @@
 import { WindowNostr } from 'nostr-tools/nip07';
 
-export * from './domain/amount-type.type';
 export * from './domain/nostr-public.type';
 export * from './domain/relay-metadata.interface';
 export * from './domain/nostr-secret.type';

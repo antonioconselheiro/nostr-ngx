@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractStorage, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IAccountsLocalConfig } from './accounts-local-config.interface';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { getPublicKey, nip19 } from 'nostr-tools';
 
 @Injectable({
@@ -31,7 +31,7 @@ export class AccountsLocalStorage extends AbstractStorage<IAccountsLocalConfig> 
     const { data } = nip19.decode(nsec);
     const pubHex = getPublicKey(data);
     const npub = nip19.npubEncode(pubHex);
-    const account: IUnauthenticatedUser = {
+    const account: IUnauthenticatedAccount = {
       displayName,
       ncryptsec,
       npub,
@@ -41,7 +41,7 @@ export class AccountsLocalStorage extends AbstractStorage<IAccountsLocalConfig> 
     this.addAccount(account);
   }
 
-  addAccount(account: IUnauthenticatedUser): void {
+  addAccount(account: IUnauthenticatedAccount): void {
     let { accounts } = this.read();
     if (!accounts) {
       accounts = {};

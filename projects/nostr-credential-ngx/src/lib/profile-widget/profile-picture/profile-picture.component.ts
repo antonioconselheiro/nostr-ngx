@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { IProfilePicture } from '../../domain/profile-picture.interface';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 
 @Component({
   selector: 'nostr-profile-picture',
@@ -14,7 +14,7 @@ export class ProfilePictureComponent {
   profile: IProfilePicture | null = null;
 
   @Input()
-  account: IUnauthenticatedUser | null = null;
+  account: IUnauthenticatedAccount | null = null;
 
   getPicture(): string {
     if (this.profile && this.profile.picture) {

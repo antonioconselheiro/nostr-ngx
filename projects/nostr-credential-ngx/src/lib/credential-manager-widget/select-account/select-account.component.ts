@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 
@@ -11,19 +11,19 @@ import { AccountManagerStatefull } from '../../profile-service/account-manager.s
 export class SelectAccountComponent {
 
   @Input()
-  accounts: IUnauthenticatedUser[] = [];
+  accounts: IUnauthenticatedAccount[] = [];
 
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<IUnauthenticatedUser>();
+  selected = new EventEmitter<IUnauthenticatedAccount>();
 
   constructor(
     private accountManagerService: AccountManagerStatefull
   ) { }
 
-  logout(account: IUnauthenticatedUser): void {
+  logout(account: IUnauthenticatedAccount): void {
     this.accountManagerService.removeAccount(account);
 
     //  wait the observable send centralizated
@@ -35,7 +35,7 @@ export class SelectAccountComponent {
     });
   }
 
-  selectAccount(account: IUnauthenticatedUser): void {
+  selectAccount(account: IUnauthenticatedAccount): void {
     this.selected.emit(account);
     this.changeStep.next('authenticate');
   }

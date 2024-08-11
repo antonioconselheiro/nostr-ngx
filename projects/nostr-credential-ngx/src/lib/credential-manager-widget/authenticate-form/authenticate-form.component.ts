@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AuthenticatedProfileObservable } from '../../profile-service/authenticated-profile.observable';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { AuthenticatedAccountObservable } from '../../profile-service/authenticated-profile.observable';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
@@ -12,7 +12,7 @@ import { TAuthModalSteps } from '../auth-modal-steps.type';
 export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   @Input()
-  account: IUnauthenticatedUser | null = null;
+  account: IUnauthenticatedAccount | null = null;
 
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
@@ -34,7 +34,7 @@ export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   constructor(
     private fb: FormBuilder,
-    private profiles$: AuthenticatedProfileObservable
+    private profiles$: AuthenticatedAccountObservable
   ) { }
 
   ngOnInit(): void {

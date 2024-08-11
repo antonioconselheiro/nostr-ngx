@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MediaUploader, NostrService } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
-import { AuthenticatedProfileObservable } from '../../../profile-service/authenticated-profile.observable';
+import { AuthenticatedAccountObservable } from '../../../profile-service/authenticated-profile.observable';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
 import { RegisterAccountEventFactory } from './register-account.event-factory';
 
@@ -26,14 +26,14 @@ export class RegisterAccountComponent implements OnInit {
     url: FormControl<string | null>;
   }>;
 
-  uploadedProfilePicture = AuthenticatedProfileObservable.DEFAULT_PROFILE_PICTURE;
-  uploadedBanner = AuthenticatedProfileObservable.DEFAULT_BANNER_PICTURE;
+  uploadedProfilePicture = AuthenticatedAccountObservable.DEFAULT_PROFILE_PICTURE;
+  uploadedBanner = AuthenticatedAccountObservable.DEFAULT_BANNER_PICTURE;
 
   constructor(
     private fb: FormBuilder,
     private nostrService: NostrService,
     private registerAccountEventFactory: RegisterAccountEventFactory,
-    private profile$: AuthenticatedProfileObservable,
+    private profile$: AuthenticatedAccountObservable,
     private mediaUploader: MediaUploader
   ) { }
 

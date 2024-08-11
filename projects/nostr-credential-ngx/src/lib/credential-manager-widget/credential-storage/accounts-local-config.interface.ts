@@ -1,6 +1,6 @@
 import { INostrLocalConfig } from '@belomonte/nostr-ngx';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 
 export interface IAccountsLocalConfig extends INostrLocalConfig {
-  accounts?: Record<string, IUnauthenticatedUser>;
+  accounts?: Record<string, IUnauthenticatedAccount>;
 }

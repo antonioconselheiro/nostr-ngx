@@ -3,7 +3,7 @@ import { IProfile } from '../../domain/profile.interface';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
@@ -21,9 +21,9 @@ export class ModalNostrCredentialComponent
   response = new Subject<IProfile | null | void>();
 
   auth: IProfile | null = null;
-  accounts: IUnauthenticatedUser[] = [];
+  accounts: IUnauthenticatedAccount[] = [];
 
-  authenticatingAccount: IUnauthenticatedUser | null = null;
+  authenticatingAccount: IUnauthenticatedAccount | null = null;
   creatingAccount: ICreatingAccount | null = null;
   currentStep: TAuthModalSteps | null = null;
 

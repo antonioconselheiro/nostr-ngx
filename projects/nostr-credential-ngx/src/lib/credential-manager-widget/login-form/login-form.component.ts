@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../domain/profile.interface';
-import { IUnauthenticatedUser } from '../../domain/unauthenticated-user.interface';
+import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
@@ -25,13 +25,13 @@ export class LoginFormComponent implements OnInit {
   showPassword = false;
 
   @Input()
-  accounts: IUnauthenticatedUser[] = [];
+  accounts: IUnauthenticatedAccount[] = [];
 
   @Output()
   changeStep = new EventEmitter<TAuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<IUnauthenticatedUser>();
+  selected = new EventEmitter<IUnauthenticatedAccount>();
 
   readonly passwordLength = 32;
 
