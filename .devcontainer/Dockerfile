@@ -15,8 +15,8 @@ RUN curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-c
 RUN chmod +x /usr/local/bin/docker-compose
 
 # Installing nak, the nostr army knife
-RUN wget https://github.com/fiatjaf/nak/releases/download/v0.1.13/nak-v0.1.13-linux-amd64
-RUN mv nak-v0.1.13-linux-amd64 /usr/bin/nak
+RUN wget https://github.com/fiatjaf/nak/releases/download/v0.7.3/nak-v0.7.3-linux-amd64
+RUN mv nak-v0.7.3-linux-amd64 /usr/bin/nak
 RUN chmod +x /usr/bin/nak
 
 # workdir
