@@ -1,21 +1,25 @@
 import { Injectable } from '@angular/core';
-import { SmartPool } from '../pool/smart.pool';
+import { NostrFilter, NPool, NRelay1 } from '@nostrify/nostrify';
+import { OutboxStatefull } from './outbox.statefull';
 
-/**
- * To restart main pool with new user configs exec:
- * 
- * this.relayConfigService
- *     .getCurrentUserRelays()
- *     .then(relays => this.mainPool.reuse(relays));
- * 
- * This code was not included in MainPool to avoid circular dependency
- */
 @Injectable({
   providedIn: 'root'
 })
-export class MainPool extends SmartPool {
+export class MainPool extends NPool {
 
   constructor() {
-    super();
+    super({
+      open: (url) => new NRelay1(url),
+      reqRouter: (filters) => Promise.resolve(this.requestRouter(filters)),
+      eventRouter: async () => OutboxStatefull.writeRelays
+    });
+  }
+
+  private requestRouter(filters: NostrFilter[]): ReadonlyMap<WebSocket["url"], NostrFilter[]> {
+    const relays: Array<[string, NostrFilter[]]> = OutboxStatefull.readRelays.map(relay => {
+      return [ relay, filters ];
+    });
+
+    return new Map(relays);
   }
 }

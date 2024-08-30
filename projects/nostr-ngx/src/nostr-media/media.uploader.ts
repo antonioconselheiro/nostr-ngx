@@ -99,6 +99,7 @@ export class MediaUploader {
     const stream = this.interceptFileToEmitSendingProgress(file, subject);
 
     //  TODO: preciso dar suporte para autenticação via NIP98 e para planos diferentes do free para NIP96
+    //  Relay com plano de exemplo: eden.nostr.land
     uploadFile(stream, serverConfig.api_url, '', {
       ...params,
       size: String(file.size),
