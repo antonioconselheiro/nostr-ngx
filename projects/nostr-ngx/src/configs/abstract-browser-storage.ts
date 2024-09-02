@@ -1,4 +1,4 @@
-export abstract class AbstractStorage<T extends object> {
+export abstract class AbstractBrowserStorage<T extends object> {
 
   protected abstract default: T;
 

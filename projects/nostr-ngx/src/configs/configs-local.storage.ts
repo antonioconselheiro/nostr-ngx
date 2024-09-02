@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { INostrLocalConfig } from './nostr-local-config.interface';
-import { AbstractStorage } from './abstract-storage';
+import { AbstractBrowserStorage } from './abstract-browser-storage';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ConfigsLocalStorage extends AbstractStorage<INostrLocalConfig> {
+export class ConfigsLocalStorage extends AbstractBrowserStorage<INostrLocalConfig> {
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 

@@ -14,11 +14,11 @@ export * from './pool/open.pool';
 export * from './pool/observe-pool.fn';
 export * from './pool/observe-relay.fn';
 
-export * from './storage/abstract-storage';
-export * from './storage/nostr-session-config.interface';
-export * from './storage/configs-local.storage';
-export * from './storage/nostr-local-config.interface';
-export * from './storage/configs-session.storage';
+export * from './configs/abstract-browser-storage';
+export * from './configs/nostr-session-config.interface';
+export * from './configs/configs-local.storage';
+export * from './configs/nostr-local-config.interface';
+export * from './configs/configs-session.storage';
 
 export * from './exceptions/no-credentials-found.error';
 export * from './exceptions/signer-not-found.error';
