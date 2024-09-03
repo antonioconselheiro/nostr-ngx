@@ -32,8 +32,7 @@ export interface INostrCache extends DBSchema {
       pubkey: string;
       kind: number;
       content: string;
-      since: number;
-      until: number;
+      created_at: number;
     }
   };
 }

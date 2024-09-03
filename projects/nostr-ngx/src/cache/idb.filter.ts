@@ -6,7 +6,7 @@ import { INostrCache } from './nostr-cache.interface';
 @Injectable()
 export class IdbFilter {
 
-  static indexableTag = [ 'p', 'e', 't' ];
+  static indexableTag = [ 'p', 'e', 't' ]; // it's not 'pet', it's profile, event, tag
 
   async query(db: IDBPDatabase<INostrCache>, filters: NostrFilter[]): Promise<NostrEvent[]> {
     const set = new NSet();
@@ -236,7 +236,8 @@ export class IdbFilter {
     since: number,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
   ): Promise<NSet> {
-    return Promise.resolve(new NSet());
+    const cursor = await txEvent.store.index('since').openCursor(kind);
+    return this.loadCursorEventsToNSet(cursor);
   }
 
   private async loadEventUntilDate(

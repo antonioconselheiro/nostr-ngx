@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { NKinds, NostrEvent, NostrFilter, NSet, NStore } from '@nostrify/nostrify';
+import { NKinds, NostrEvent, NostrFilter, NStore } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
-import { INostrCache } from './nostr-cache.interface';
 import { IdbFilter } from './idb.filter';
+import { INostrCache } from './nostr-cache.interface';
 
 @Injectable()
 export class IdbNStore implements NStore {
@@ -26,8 +26,7 @@ export class IdbNStore implements NStore {
         eventCache.createIndex('pubkey', 'pubkey', { unique: false });
         eventCache.createIndex('kind', 'kind', { unique: false });
         eventCache.createIndex('content', 'content', { unique: false });
-        eventCache.createIndex('since', 'since', { unique: false });
-        eventCache.createIndex('until', 'until', { unique: false });
+        eventCache.createIndex('created_at', 'created_at', { unique: false });
 
         const tagIndex = db.createObjectStore('tagIndex');
         tagIndex.createIndex('tagAndValue', [ 'tag', 'value' ], { unique: false });
