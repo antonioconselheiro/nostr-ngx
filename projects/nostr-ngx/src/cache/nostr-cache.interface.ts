@@ -8,9 +8,9 @@ export interface INostrCache extends DBSchema {
     key: string,
     value: NostrMetadata & { npub: TNostrPublic; pictureB64: string; };
     indexes: {
-      npub: 'npub',
-      displayName: 'display_name',
-      name: 'name'
+      npub: string;
+      display_name: string;
+      name: string;
     }
   },
   tagIndex: {
@@ -29,9 +29,11 @@ export interface INostrCache extends DBSchema {
     key: string;
     value: NostrEvent;
     indexes: {
-      pubkey: string,
-      kind: string,
-      content: string
+      pubkey: string;
+      kind: number;
+      content: string;
+      since: number;
+      until: number;
     }
   };
 }

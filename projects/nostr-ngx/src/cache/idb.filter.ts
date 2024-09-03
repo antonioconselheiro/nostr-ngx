@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrEvent, NostrFilter, NSet } from '@nostrify/nostrify';
-import { IDBPDatabase, IDBPTransaction } from 'idb';
+import { IDBPCursorWithValue, IDBPDatabase, IDBPTransaction } from 'idb';
 import { INostrCache } from './nostr-cache.interface';
 
 @Injectable()
@@ -87,37 +87,37 @@ export class IdbFilter {
     }
 
     if (filter.ids?.length) {
-      const nset = await this.loadEventById(filter, txEvent, txTag);
+      const nset = await this.loadEventById(filter.ids, txEvent);
       const origin = 'ids';
       return Promise.resolve({ nset, origin });
     }
 
     if (filter.kinds?.length) {
-      const nset = await this.loadEventFromKinds(filter, txEvent, txTag);
+      const nset = await this.loadEventFromKinds(filter.kinds, txEvent);
       const origin = 'kinds';
       return Promise.resolve({ nset, origin });
     }
 
     if (filter.authors?.length) {
-      const nset = await this.loadEventFromAuthor(filter, txEvent, txTag);
+      const nset = await this.loadEventFromAuthor(filter.authors, txEvent);
       const origin = 'authors';
       return Promise.resolve({ nset, origin });
     }
 
     if (filter.search?.length) {
-      const nset = await this.loadEventSearchTerm(filter, txEvent, txTag);
+      const nset = await this.loadEventSearchTerm(filter.search, txEvent);
       const origin = 'search';
       return Promise.resolve({ nset, origin });
     }
 
     if (filter.since) {
-      const nset = await this.loadEventSinceDate(filter, txEvent, txTag);
+      const nset = await this.loadEventSinceDate(filter.since, txEvent);
       const origin = 'since';
       return Promise.resolve({ nset, origin });
     }
 
     if (filter.until) {
-      const nset = await this.loadEventUntilDate(filter, txEvent, txTag);
+      const nset = await this.loadEventUntilDate(filter.until, txEvent);
       const origin = 'until';
       return Promise.resolve({ nset, origin });
     }
@@ -170,52 +170,92 @@ export class IdbFilter {
     return Promise.resolve(nset);
   }
 
-  private loadEventById(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+  private async loadEventById(
+    eventIdList: string[],
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+  ): Promise<NSet> {
+    const nset = new NSet();
+    const queue = eventIdList.map(id => txEvent.store.get(id).then(event => {
+      if (event) {
+        nset.add(event);
+      }
+
+      return Promise.resolve();
+    }));
+
+    await Promise.all(queue);
+    return Promise.resolve(nset);
+  }
+
+  /**
+   * TODO: pesquisa por termo deve incluir pesquisa por display_name e name de usuário,
+   * conteúdo das notas e se não houverem espaços deve buscar pela tag t
+   */
+  private async loadEventSearchTerm(
+    searchTherm: string,
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+  ): Promise<NSet> {
+    const nset = new NSet();
+    const cursor = await txEvent.store.index('content').openCursor(IDBKeyRange.only(searchTherm));
+    this.loadCursorEventsToNSet(cursor, nset);
+
+    return Promise.resolve(nset);
+  }
+
+  private async loadEventFromAuthor(
+    filterAuthors: string[],
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+  ): Promise<NSet> {    
+    const nset = new NSet();
+    const queue = filterAuthors.map(async pubkey => {
+      const cursor = await txEvent.store.index('pubkey').openCursor(pubkey);
+      this.loadCursorEventsToNSet(cursor, nset);
+      return Promise.resolve();
+    });
+
+    await Promise.all(queue);
+    return Promise.resolve(nset);
+  }
+
+  private async loadEventFromKinds(
+    filterKinds: number[],
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+  ): Promise<NSet> {
+    const nset = new NSet();
+    const queue = filterKinds.map(async kind => {
+      const cursor = await txEvent.store.index('kind').openCursor(kind);
+      this.loadCursorEventsToNSet(cursor, nset);
+      return Promise.resolve();
+    });
+
+    await Promise.all(queue);
+    return Promise.resolve(nset);
+  }
+
+  private async loadEventSinceDate(
+    since: number,
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
   ): Promise<NSet> {
     return Promise.resolve(new NSet());
   }
 
-  private loadEventSearchTerm(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+  private async loadEventUntilDate(
+    until: number,
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
   ): Promise<NSet> {
     return Promise.resolve(new NSet());
   }
 
-  private loadEventFromAuthor(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
-    return Promise.resolve(new NSet());
-  }
+  private async loadCursorEventsToNSet(cursor: IDBPCursorWithValue<INostrCache, any, any> | null, nset = new NSet()): Promise<NSet> {
+    while (cursor) {
+      if (cursor.value) {
+        nset.add(cursor.value);
+      }
 
-  private loadEventFromKinds(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
-    return Promise.resolve(new NSet());
-  }
+      cursor = await cursor.continue();
+    }
 
-  loadEventSinceDate(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
-    return Promise.resolve(new NSet());
-  }
-
-  loadEventUntilDate(
-    filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
-    return Promise.resolve(new NSet());
+    return nset;
   }
 
   private filterIds(nset: NSet, filter: NostrFilter): NSet {

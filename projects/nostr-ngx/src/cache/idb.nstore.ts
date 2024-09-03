@@ -7,17 +7,16 @@ import { IdbFilter } from './idb.filter';
 @Injectable()
 export class IdbNStore implements NStore {
 
-  //  FIXME: tlvz este cara deva ser um Promise<IDBPDatabase<INostrCache>>
-  private db!: Promise<IDBPDatabase<INostrCache>>;
+  private db: Promise<IDBPDatabase<INostrCache>>;
 
   constructor(
     private nostrCacheFilter: IdbFilter
   ) {
-    this.initialize();
+    this.db = this.initialize();
   }
 
-  initialize(): void {
-    this.db = openDB<INostrCache>('NostrCache', 1, {
+  initialize(): Promise<IDBPDatabase<INostrCache>> {
+    return openDB<INostrCache>('NostrCache', 1, {
       upgrade(db) {
         const eventCache = db.createObjectStore('nostrEvents', {
           keyPath: 'id',
@@ -27,6 +26,8 @@ export class IdbNStore implements NStore {
         eventCache.createIndex('pubkey', 'pubkey', { unique: false });
         eventCache.createIndex('kind', 'kind', { unique: false });
         eventCache.createIndex('content', 'content', { unique: false });
+        eventCache.createIndex('since', 'since', { unique: false });
+        eventCache.createIndex('until', 'until', { unique: false });
 
         const tagIndex = db.createObjectStore('tagIndex');
         tagIndex.createIndex('tagAndValue', [ 'tag', 'value' ], { unique: false });
@@ -34,7 +35,7 @@ export class IdbNStore implements NStore {
 
         const profileMetadata = db.createObjectStore('profileMetadata');
         profileMetadata.createIndex('npub', 'npub', { unique: false });
-        profileMetadata.createIndex('displayName', 'displayName', { unique: false });
+        profileMetadata.createIndex('display_name', 'display_mame', { unique: false });
         profileMetadata.createIndex('name', 'name', { unique: false });
       },
     });
