@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { NKinds, NostrEvent, NostrFilter, NSet, NStore } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
 import { INostrCache } from './nostr-cache.interface';
-import { NostrCacheFilter } from './nostr-cache.filter';
+import { IdbFilter } from './idb.filter';
 
 @Injectable()
 export class IdbNStore implements NStore {
@@ -11,7 +11,7 @@ export class IdbNStore implements NStore {
   private db!: Promise<IDBPDatabase<INostrCache>>;
 
   constructor(
-    private nostrCacheFilter: NostrCacheFilter
+    private nostrCacheFilter: IdbFilter
   ) {
     this.initialize();
   }
@@ -54,7 +54,7 @@ export class IdbNStore implements NStore {
       async () => {
         for await (const tag of event.tags) {
           const [ type, value ] = tag;
-          if (NostrCacheFilter.indexableTag.includes(type)) {
+          if (IdbFilter.indexableTag.includes(type)) {
             await txTag.store.put({
               tag: type,
               value,
