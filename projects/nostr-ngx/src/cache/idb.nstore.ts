@@ -77,6 +77,7 @@ export class IdbNStore implements NStore {
    * prefer use query(), this is just a query().length
    */
   async count(filters: NostrFilter[]): Promise<{ count: number }> {
+    console.warn('Usage of IdbNStore.count, prefer use query(), for this indexeddb impl this method is just a query().length');
     const events = await this.query(filters);
     return Promise.resolve({ count: events.length });
   }

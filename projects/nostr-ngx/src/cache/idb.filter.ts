@@ -105,7 +105,7 @@ export class IdbFilter {
     }
 
     if (filter.search?.length) {
-      const nset = await this.loadEventSearchTerm(filter.search, txEvent);
+      const nset = await this.loadEventSearchTerm(filter.search, txEvent, txTag);
       const origin = 'search';
       return Promise.resolve({ nset, origin });
     }
@@ -187,17 +187,19 @@ export class IdbFilter {
     return Promise.resolve(nset);
   }
 
-  /**
-   * TODO: pesquisa por termo deve incluir pesquisa por display_name e name de usuário,
-   * conteúdo das notas e se não houverem espaços deve buscar pela tag t
-   */
   private async loadEventSearchTerm(
     searchTherm: string,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
   ): Promise<NSet> {
     const nset = new NSet();
     const cursor = await txEvent.store.index('content').openCursor(IDBKeyRange.only(searchTherm));
     this.loadCursorEventsToNSet(cursor, nset);
+
+    const hasNoSpaces = /[^ ]/;
+    if (hasNoSpaces.test(searchTherm)) {
+      await txTag.store.index('tagAndValue').openCursor([ 't', searchTherm ]);
+    }
 
     return Promise.resolve(nset);
   }
@@ -236,7 +238,9 @@ export class IdbFilter {
     since: number,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
   ): Promise<NSet> {
-    const cursor = await txEvent.store.index('since').openCursor(kind);
+    const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.upperBound(
+      new Date(since * 1000).toISOString()
+    ));
     return this.loadCursorEventsToNSet(cursor);
   }
 
@@ -244,7 +248,10 @@ export class IdbFilter {
     until: number,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
   ): Promise<NSet> {
-    return Promise.resolve(new NSet());
+    const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.lowerBound(
+      new Date(until * 1000).toISOString()
+    ));
+    return this.loadCursorEventsToNSet(cursor);
   }
 
   private async loadCursorEventsToNSet(cursor: IDBPCursorWithValue<INostrCache, any, any> | null, nset = new NSet()): Promise<NSet> {
@@ -260,6 +267,13 @@ export class IdbFilter {
   }
 
   private filterIds(nset: NSet, filter: NostrFilter): NSet {
+    const ids = filter.ids || [];
+    if (!ids.length) {
+      return nset;
+    }
+
+    nset.query()
+
     return nset;
   }
 
