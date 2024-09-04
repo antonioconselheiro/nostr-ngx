@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NKinds, NostrEvent, NostrFilter, NStore } from '@nostrify/nostrify';
-import { IDBPDatabase, openDB } from 'idb';
+import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { IdbFilter } from './idb.filter';
 import { INostrCache } from './nostr-cache.interface';
 
@@ -51,21 +51,23 @@ export class IdbNStore implements NStore {
 
     await Promise.all([
       txEvent.store.put(event),
-      async () => {
-        for await (const tag of event.tags) {
-          const [ type, value ] = tag;
-          if (IdbFilter.indexableTag.includes(type)) {
-            await txTag.store.put({
-              tag: type,
-              value,
-              eventId: event.id
-            });
-          }
-        }
-      },
+      this.indexTagsToEvent(event, txTag),
       txEvent.done,
       txTag.done
     ]);
+  }
+
+  private async indexTagsToEvent(event: NostrEvent, txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readwrite">): Promise<void> {
+    for await (const tag of event.tags) {
+      const [ type, value ] = tag;
+      if (IdbFilter.indexableTag.includes(type)) {
+        await txTag.store.put({
+          tag: type,
+          value,
+          eventId: event.id
+        });
+      }
+    }
   }
 
   async query(filters: NostrFilter[]): Promise<NostrEvent[]> {
@@ -74,6 +76,7 @@ export class IdbNStore implements NStore {
   }
 
   /**
+   * @deprecated
    * prefer use query(), this is just a query().length
    */
   async count(filters: NostrFilter[]): Promise<{ count: number }> {
@@ -83,6 +86,6 @@ export class IdbNStore implements NStore {
   }
 
   async remove(filters: NostrFilter[]): Promise<void> {
-    // Remove events.
+    // TODO: remover eventos do indexeddb que conbinarem com o filtro
   }
 }

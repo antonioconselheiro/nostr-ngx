@@ -15,7 +15,7 @@ export class IdbFilter {
     const txTag = db.transaction('tagIndex', 'readonly');
 
     for await (const filter of filters) {
-      const events = await this.querySingleFilter(filter, txEvent, txTag);
+      const events = this.querySingleFilter(filter, txEvent, txTag);
       for await (const event of events) {
         ncache.add(event);
       }
@@ -26,11 +26,12 @@ export class IdbFilter {
       txEvent.done
     ]);
 
-    return Promise.resolve(Array.from(ncache));
+    const results = Array.from(ncache);
+    ncache.clear();
+
+    return Promise.resolve(results);
   }
 
-  //  FIXME: diminui complexidade ciclomático deste método
-  // eslint-disable-next-line complexity
   private async *querySingleFilter(
     filter: NostrFilter,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
