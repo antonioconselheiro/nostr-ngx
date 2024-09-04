@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
-import { NostrEvent, NostrFilter, NSet } from '@nostrify/nostrify';
+import { NCache, NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { IDBPCursorWithValue, IDBPDatabase, IDBPTransaction } from 'idb';
+import { ncacheDefaultParams } from './ncache-default.params';
 import { INostrCache } from './nostr-cache.interface';
 
 @Injectable()
 export class IdbFilter {
 
-  static indexableTag = [ 'p', 'e', 't' ]; // it's not 'pet', it's profile, event, tag
+  static indexableTag = [ 'p', 'e', 't' ]; // it's not 'pet', it's pubkey, event, tag
 
   async query(db: IDBPDatabase<INostrCache>, filters: NostrFilter[]): Promise<NostrEvent[]> {
-    const set = new NSet();
+    const ncache = new NCache(ncacheDefaultParams);
     const txEvent = db.transaction('nostrEvents', 'readonly');
     const txTag = db.transaction('tagIndex', 'readonly');
 
     for await (const filter of filters) {
       const events = await this.querySingleFilter(filter, txEvent, txTag);
       for await (const event of events) {
-        set.add(event);
+        ncache.add(event);
       }
     }
 
@@ -25,7 +26,7 @@ export class IdbFilter {
       txEvent.done
     ]);
 
-    return Promise.resolve(Array.from(set));
+    return Promise.resolve(Array.from(ncache));
   }
 
   //  FIXME: diminui complexidade ciclomático deste método
@@ -35,37 +36,10 @@ export class IdbFilter {
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
     txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
   ): AsyncIterable<NostrEvent> {
-    // eslint-disable-next-line prefer-const
-    let { origin, nset } = await this.loadStreamFromBestIndex(filter, txEvent, txTag);
-    if (filter.ids && origin !== 'ids') {
-      nset = this.filterIds(nset, filter);
-    }
+    const ncache = await this.loadStreamFromBestIndex(filter, txEvent, txTag);
+    const events = await ncache.query([filter]);
 
-    if (filter.authors && origin !== 'authors') {
-      nset = this.filterAuthors(nset, filter);
-    }
-
-    if (filter.kinds && origin !== 'kinds') {
-      nset = this.filterKinds(nset, filter);
-    }
-
-    if (filter.search && origin !== 'search') {
-      nset = this.filterSearch(nset, filter);
-    }
-
-    if (filter.since) {
-      nset = this.filterSince(nset, filter);
-    }
-
-    if (filter.until) {
-      nset = this.filterUntil(nset, filter);
-    }
-
-    if (filter.limit) {
-      nset = this.filterLimit(nset, filter);
-    }
-
-    for (const event of [...nset]) {
+    for (const event of events) {
       yield event;
     }
   }
@@ -76,53 +50,36 @@ export class IdbFilter {
     filter: NostrFilter,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
     txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<{
-    origin: keyof NostrFilter | 'tags',
-    nset: NSet
-  }> {
+  ): Promise<NCache> {
     if (this.hasTags(filter)) {
-      const nset = await this.loadEventFromTags(filter, txEvent, txTag);
-      const origin = 'tags';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventFromTags(filter, txEvent, txTag);
     }
 
     if (filter.ids?.length) {
-      const nset = await this.loadEventById(filter.ids, txEvent);
-      const origin = 'ids';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventById(filter.ids, txEvent);
     }
 
     if (filter.kinds?.length) {
-      const nset = await this.loadEventFromKinds(filter.kinds, txEvent);
-      const origin = 'kinds';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventFromKinds(filter.kinds, txEvent);
     }
 
     if (filter.authors?.length) {
-      const nset = await this.loadEventFromAuthor(filter.authors, txEvent);
-      const origin = 'authors';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventFromAuthor(filter.authors, txEvent);
     }
 
     if (filter.search?.length) {
-      const nset = await this.loadEventSearchTerm(filter.search, txEvent, txTag);
-      const origin = 'search';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventSearchTerm(filter.search, txEvent, txTag);
     }
 
     if (filter.since) {
-      const nset = await this.loadEventSinceDate(filter.since, txEvent);
-      const origin = 'since';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventSinceDate(filter.since, txEvent);
     }
 
     if (filter.until) {
-      const nset = await this.loadEventUntilDate(filter.until, txEvent);
-      const origin = 'until';
-      return Promise.resolve({ nset, origin });
+      return this.loadEventUntilDate(filter.until, txEvent);
     }
 
-    return Promise.resolve({ nset: new NSet(), origin: 'tags' });
+    return Promise.resolve(new NCache(ncacheDefaultParams));
   }
 
   private hasTags(filter: NostrFilter): boolean {
@@ -135,7 +92,7 @@ export class IdbFilter {
     filter: NostrFilter,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
     txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
+  ): Promise<NCache> {
     const allFoundsIds: Array<Set<string>> = [];
     const tagFilterMatcher = /^#/;
     const tagSearch = Object
@@ -164,140 +121,105 @@ export class IdbFilter {
     }, allFoundsIds[0] || new Set());
 
     const events = await Promise.all([...intersection].map(idEvent => txEvent.store.get(idEvent)));
-    const nset = new NSet();
-    events.forEach(event => event && nset.add(event));
+    const ncache = new NCache(ncacheDefaultParams);
+    events.forEach(event => event && ncache.add(event));
 
-    return Promise.resolve(nset);
+    return Promise.resolve(ncache);
   }
 
   private async loadEventById(
     eventIdList: string[],
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
-  ): Promise<NSet> {
-    const nset = new NSet();
+  ): Promise<NCache> {
+    const ncache = new NCache(ncacheDefaultParams);
     const queue = eventIdList.map(id => txEvent.store.get(id).then(event => {
       if (event) {
-        nset.add(event);
+        ncache.add(event);
       }
 
       return Promise.resolve();
     }));
 
     await Promise.all(queue);
-    return Promise.resolve(nset);
+    return Promise.resolve(ncache);
   }
 
   private async loadEventSearchTerm(
     searchTherm: string,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
     txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
-  ): Promise<NSet> {
-    const nset = new NSet();
+  ): Promise<NCache> {
+    const ncache = new NCache(ncacheDefaultParams);
     const cursor = await txEvent.store.index('content').openCursor(IDBKeyRange.only(searchTherm));
-    this.loadCursorEventsToNSet(cursor, nset);
+    this.loadCursorEventsToNCache(cursor, ncache);
 
     const hasNoSpaces = /[^ ]/;
     if (hasNoSpaces.test(searchTherm)) {
       await txTag.store.index('tagAndValue').openCursor([ 't', searchTherm ]);
     }
 
-    return Promise.resolve(nset);
+    return Promise.resolve(ncache);
   }
 
   private async loadEventFromAuthor(
     filterAuthors: string[],
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
-  ): Promise<NSet> {    
-    const nset = new NSet();
+  ): Promise<NCache> {    
+    const ncache = new NCache(ncacheDefaultParams);
     const queue = filterAuthors.map(async pubkey => {
       const cursor = await txEvent.store.index('pubkey').openCursor(pubkey);
-      this.loadCursorEventsToNSet(cursor, nset);
+      this.loadCursorEventsToNCache(cursor, ncache);
       return Promise.resolve();
     });
 
     await Promise.all(queue);
-    return Promise.resolve(nset);
+    return Promise.resolve(ncache);
   }
 
   private async loadEventFromKinds(
     filterKinds: number[],
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
-  ): Promise<NSet> {
-    const nset = new NSet();
+  ): Promise<NCache> {
+    const ncache = new NCache(ncacheDefaultParams);
     const queue = filterKinds.map(async kind => {
       const cursor = await txEvent.store.index('kind').openCursor(kind);
-      this.loadCursorEventsToNSet(cursor, nset);
+      this.loadCursorEventsToNCache(cursor, ncache);
       return Promise.resolve();
     });
 
     await Promise.all(queue);
-    return Promise.resolve(nset);
+    return Promise.resolve(ncache);
   }
 
   private async loadEventSinceDate(
     since: number,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
-  ): Promise<NSet> {
+  ): Promise<NCache> {
     const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.upperBound(
       new Date(since * 1000).toISOString()
     ));
-    return this.loadCursorEventsToNSet(cursor);
+    return this.loadCursorEventsToNCache(cursor);
   }
 
   private async loadEventUntilDate(
     until: number,
     txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
-  ): Promise<NSet> {
+  ): Promise<NCache> {
     const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.lowerBound(
       new Date(until * 1000).toISOString()
     ));
-    return this.loadCursorEventsToNSet(cursor);
+    return this.loadCursorEventsToNCache(cursor);
   }
 
-  private async loadCursorEventsToNSet(cursor: IDBPCursorWithValue<INostrCache, any, any> | null, nset = new NSet()): Promise<NSet> {
+  private async loadCursorEventsToNCache(cursor: IDBPCursorWithValue<INostrCache, any, any> | null, ncache = new NCache(ncacheDefaultParams)): Promise<NCache> {
     while (cursor) {
       if (cursor.value) {
-        nset.add(cursor.value);
+        ncache.add(cursor.value);
       }
 
       cursor = await cursor.continue();
     }
 
-    return nset;
-  }
-
-  private filterIds(nset: NSet, filter: NostrFilter): NSet {
-    const ids = filter.ids || [];
-    if (!ids.length) {
-      return nset;
-    }
-
-    nset.query()
-
-    return nset;
-  }
-
-  private filterAuthors(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
-  }
-
-  private filterKinds(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
-  }
-
-  private filterSearch(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
-  }
-
-  private filterSince(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
-  }
-
-  private filterUntil(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
-  }
-
-  private filterLimit(nset: NSet, filter: NostrFilter): NSet {
-    return nset;
+    return ncache;
   }
 }

@@ -1,0 +1,1 @@
+export const ncacheDefaultParams = { max: 1000 };
