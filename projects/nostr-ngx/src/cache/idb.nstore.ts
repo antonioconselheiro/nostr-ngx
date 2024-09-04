@@ -6,6 +6,7 @@ import { INostrCache } from './nostr-cache.interface';
 
 /**
  * FIXME: pendente de escrever lógica para controlar tamanho máximo do indexeddb
+ * FIXME: preciso escrever testes unitários para essa classe e validar o funcionamento
  */
 @Injectable()
 export class IdbNStore implements NStore {

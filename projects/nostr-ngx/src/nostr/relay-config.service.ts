@@ -11,7 +11,7 @@ import { NostrService } from './nostr.service';
 import { RelayConverter } from './relay.converter';
 import { NostrEventKind } from '../domain/nostr-event-kind';
 import { NostrConverter } from './nostr.converter';
-import { SmartPool } from '../pool/smart.pool';
+import { MainPool } from './main.pool';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +32,8 @@ export class RelayConfigService {
     private nostrService: NostrService,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
-    private configs: ConfigsLocalStorage
+    private configs: ConfigsLocalStorage,
+    private pool: MainPool
   ) { }
 
   /**
@@ -134,15 +135,15 @@ export class RelayConfigService {
       //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
       const pointer = await queryProfile(userPublicAddress);
       if (pointer && pointer.relays && pointer.relays.length) {
+        //  FIXME: must send this to outbox
         const { pubkey, relays } = pointer;
-        const pool = new SmartPool(relays);
-        const [ relayListEvent ] = await this.nostrService.request([
+        const [ relayListEvent ] = await this.pool.query([
           {
             authors: [ pubkey ],
             kinds: [ NostrEventKind.RelayList ],
             limit: 1
           }
-        ], pool);
+        ]);
 
         const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
         return Promise.resolve(relayMetadata);
