@@ -4,6 +4,9 @@ import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { IdbFilter } from './idb.filter';
 import { INostrCache } from './nostr-cache.interface';
 
+/**
+ * FIXME: pendente de escrever lógica para controlar tamanho máximo do indexeddb
+ */
 @Injectable()
 export class IdbNStore implements NStore {
 
@@ -28,13 +31,18 @@ export class IdbNStore implements NStore {
         eventCache.createIndex('content', 'content', { unique: false });
         eventCache.createIndex('created_at', 'created_at', { unique: false });
 
-        const tagIndex = db.createObjectStore('tagIndex');
+        const tagIndex = db.createObjectStore('tagIndex', {
+          keyPath: 'key',
+          autoIncrement: true
+        });
+
         tagIndex.createIndex('tagAndValue', [ 'tag', 'value' ], { unique: false });
         tagIndex.createIndex('tag', 'tag', { unique: false });
+        tagIndex.createIndex('eventId', 'eventId', { unique: false });
 
         const profileMetadata = db.createObjectStore('profileMetadata');
         profileMetadata.createIndex('npub', 'npub', { unique: false });
-        profileMetadata.createIndex('display_name', 'display_mame', { unique: false });
+        profileMetadata.createIndex('display_name', 'display_name', { unique: false });
         profileMetadata.createIndex('name', 'name', { unique: false });
       },
     });
@@ -86,6 +94,7 @@ export class IdbNStore implements NStore {
   }
 
   async remove(filters: NostrFilter[]): Promise<void> {
-    // TODO: remover eventos do indexeddb que conbinarem com o filtro
+    const db = await this.db;
+    return await this.nostrCacheFilter.delete(db, filters);
   }
 }

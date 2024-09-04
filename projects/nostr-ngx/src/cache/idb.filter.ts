@@ -10,9 +10,47 @@ export class IdbFilter {
   static indexableTag = [ 'p', 'e', 't' ]; // it's not 'pet', it's pubkey, event, tag
 
   async query(db: IDBPDatabase<INostrCache>, filters: NostrFilter[]): Promise<NostrEvent[]> {
-    const ncache = new NCache(ncacheDefaultParams);
     const txEvent = db.transaction('nostrEvents', 'readonly');
     const txTag = db.transaction('tagIndex', 'readonly');
+
+    const events = await this.queryUsingExistingTransactions(filters, txEvent, txTag);
+
+    await Promise.all([
+      txTag.done,
+      txEvent.done
+    ]);
+
+    return Promise.resolve(events);
+  }
+
+  async delete(db: IDBPDatabase<INostrCache>, filters: NostrFilter[]): Promise<void> {
+    const txEvent = db.transaction('nostrEvents', 'readwrite');
+    const txTag = db.transaction('tagIndex', 'readwrite');
+    const events = await this.queryUsingExistingTransactions(filters, txEvent, txTag);
+
+    for await (const event of events) {
+      await txEvent.store.delete(event.id);
+    }
+
+    const tagIndexes = await txTag.store.index('eventId').getAll(IDBKeyRange.only(events.map(event => event.id)));
+    for (const tag of tagIndexes) {
+      await txTag.store.delete(tag.key);
+    }
+
+    await Promise.all([
+      txTag.done,
+      txEvent.done
+    ]);
+
+    return Promise.resolve();
+  }
+
+  private async queryUsingExistingTransactions(
+    filters: NostrFilter[],
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], IDBTransactionMode>
+  ): Promise<NostrEvent[]> {
+    const ncache = new NCache(ncacheDefaultParams);
 
     for await (const filter of filters) {
       const events = this.querySingleFilter(filter, txEvent, txTag);
@@ -20,11 +58,6 @@ export class IdbFilter {
         ncache.add(event);
       }
     }
-
-    await Promise.all([
-      txTag.done,
-      txEvent.done
-    ]);
 
     const results = Array.from(ncache);
     ncache.clear();
@@ -34,8 +67,8 @@ export class IdbFilter {
 
   private async *querySingleFilter(
     filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], IDBTransactionMode>
   ): AsyncIterable<NostrEvent> {
     const ncache = await this.loadStreamFromBestIndex(filter, txEvent, txTag);
     const events = await ncache.query([filter]);
@@ -49,8 +82,8 @@ export class IdbFilter {
   // eslint-disable-next-line complexity
   private async loadStreamFromBestIndex(
     filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], IDBTransactionMode>
   ): Promise<NCache> {
     if (this.hasTags(filter)) {
       return this.loadEventFromTags(filter, txEvent, txTag);
@@ -91,8 +124,8 @@ export class IdbFilter {
 
   private async loadEventFromTags(
     filter: NostrFilter,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], IDBTransactionMode>
   ): Promise<NCache> {
     const allFoundsIds: Array<Set<string>> = [];
     const tagFilterMatcher = /^#/;
@@ -130,7 +163,7 @@ export class IdbFilter {
 
   private async loadEventById(
     eventIdList: string[],
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>
   ): Promise<NCache> {
     const ncache = new NCache(ncacheDefaultParams);
     const queue = eventIdList.map(id => txEvent.store.get(id).then(event => {
@@ -147,8 +180,8 @@ export class IdbFilter {
 
   private async loadEventSearchTerm(
     searchTherm: string,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">,
-    txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>,
+    txTag: IDBPTransaction<INostrCache, ["tagIndex"], IDBTransactionMode>
   ): Promise<NCache> {
     const ncache = new NCache(ncacheDefaultParams);
     const cursor = await txEvent.store.index('content').openCursor(IDBKeyRange.only(searchTherm));
@@ -164,7 +197,7 @@ export class IdbFilter {
 
   private async loadEventFromAuthor(
     filterAuthors: string[],
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>
   ): Promise<NCache> {    
     const ncache = new NCache(ncacheDefaultParams);
     const queue = filterAuthors.map(async pubkey => {
@@ -179,7 +212,7 @@ export class IdbFilter {
 
   private async loadEventFromKinds(
     filterKinds: number[],
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>
   ): Promise<NCache> {
     const ncache = new NCache(ncacheDefaultParams);
     const queue = filterKinds.map(async kind => {
@@ -194,7 +227,7 @@ export class IdbFilter {
 
   private async loadEventSinceDate(
     since: number,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>
   ): Promise<NCache> {
     const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.upperBound(
       new Date(since * 1000).toISOString()
@@ -204,7 +237,7 @@ export class IdbFilter {
 
   private async loadEventUntilDate(
     until: number,
-    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], "readonly">
+    txEvent: IDBPTransaction<INostrCache, ["nostrEvents"], IDBTransactionMode>
   ): Promise<NCache> {
     const cursor = await txEvent.store.index('created_at').openCursor(IDBKeyRange.lowerBound(
       new Date(until * 1000).toISOString()
@@ -212,7 +245,7 @@ export class IdbFilter {
     return this.loadCursorEventsToNCache(cursor);
   }
 
-  private async loadCursorEventsToNCache(cursor: IDBPCursorWithValue<INostrCache, any, any> | null, ncache = new NCache(ncacheDefaultParams)): Promise<NCache> {
+  private async loadCursorEventsToNCache(cursor: IDBPCursorWithValue<INostrCache, [any], any> | null, ncache = new NCache(ncacheDefaultParams)): Promise<NCache> {
     while (cursor) {
       if (cursor.value) {
         ncache.add(cursor.value);

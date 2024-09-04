@@ -16,13 +16,15 @@ export interface INostrCache extends DBSchema {
   tagIndex: {
     key: string;
     value: {
+      key: string;
       tag: string;
       value: string;
       eventId: string;
     };
     indexes: {
-      tagAndValue: [ string, string ],
-      tag: string
+      tagAndValue: [ string, string ];
+      tag: string;
+      eventId: string;
     }
   };
   nostrEvents: {
