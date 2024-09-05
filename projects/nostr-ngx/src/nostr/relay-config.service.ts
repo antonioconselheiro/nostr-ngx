@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
-import { TNip05 } from '../domain/nip05.type';
-import { TNostrPublic } from '../domain/nostr-public.type';
-import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { INostrLocalConfig } from '../configs/nostr-local-config.interface';
-import { IRelayMetadata } from '../domain/relay-metadata.interface';
-import { NostrGuard } from './nostr.guard';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { queryProfile } from 'nostr-tools/nip05';
-import { NostrService } from './nostr.service';
-import { RelayConverter } from './relay.converter';
+import { ConfigsLocalStorage } from '../configs/configs-local.storage';
+import { INostrLocalConfig } from '../configs/nostr-local-config.interface';
+import { TNip05 } from '../domain/nip05.type';
 import { NostrEventKind } from '../domain/nostr-event-kind';
-import { NostrConverter } from './nostr.converter';
+import { TNostrPublic } from '../domain/nostr-public.type';
+import { IRelayMetadata } from '../domain/relay-metadata.interface';
+import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
 import { MainPool } from './main.pool';
+import { NostrConverter } from './nostr.converter';
+import { NostrGuard } from './nostr.guard';
+import { RelayConverter } from './relay.converter';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +28,6 @@ export class RelayConfigService {
 
   constructor(
     private guard: NostrGuard,
-    private nostrService: NostrService,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private configs: ConfigsLocalStorage,
@@ -123,7 +121,7 @@ export class RelayConfigService {
 
     if (this.guard.isNostrPublic(userPublicAddress)) {
       const pubhex = this.nostrConverter.castNostrPublicToPubkey(userPublicAddress);
-      const [relayList] = await this.nostrService.request([
+      const [relayList] = await this.pool.query([
         {
           kinds: [ NostrEventKind.RelayList ],
           authors: [ pubhex ]
@@ -143,7 +141,9 @@ export class RelayConfigService {
             kinds: [ NostrEventKind.RelayList ],
             limit: 1
           }
-        ]);
+        ], {
+          hint: [ relays ]
+        });
 
         const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
         return Promise.resolve(relayMetadata);

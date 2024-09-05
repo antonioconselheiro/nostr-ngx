@@ -7,10 +7,12 @@ import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { MainPool } from './main.pool';
 import { NostrSecretCrypto } from './nostr-secret.crypto';
+import { IdbCacheModule } from '../idb-cache/idb-cache.module';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    IdbCacheModule
   ],
   providers: [
     NostrService,
