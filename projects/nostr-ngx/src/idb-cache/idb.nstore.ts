@@ -71,6 +71,7 @@ export class IdbNStore implements NStore {
       const [ type, value ] = tag;
       if (IdbFilter.indexableTag.includes(type)) {
         await txTag.store.put({
+          key: undefined as any as number, // ¯\_(ツ)_/¯
           tag: type,
           value,
           eventId: event.id

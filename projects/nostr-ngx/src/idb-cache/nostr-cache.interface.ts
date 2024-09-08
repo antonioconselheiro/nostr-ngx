@@ -14,9 +14,9 @@ export interface INostrCache extends DBSchema {
     }
   },
   tagIndex: {
-    key: string;
+    key: number;
     value: {
-      key: string;
+      key: number;
       tag: string;
       value: string;
       eventId: string;

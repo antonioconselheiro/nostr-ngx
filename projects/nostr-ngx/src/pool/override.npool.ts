@@ -1,11 +1,11 @@
 import { NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
-import { NpoolOutboxOptions } from './npool-outbox.options';
+import { NpoolRouterOptions } from './npool-router.options';
 import { NPoolRequestOptions } from './npool-request.options';
 
 export class OverrideNPool extends NPool {
 
-  constructor(opts: NpoolOutboxOptions) {
+  constructor(opts: NpoolRouterOptions) {
     super(opts);
   }
 
@@ -63,8 +63,8 @@ export class OverrideNPool extends NPool {
     );
   }
 
-  protected getOpts(): NpoolOutboxOptions {
+  protected getOpts(): NpoolRouterOptions {
     //  u____u nobody need know, keep scrolling
-    return (this as any as { opts: NpoolOutboxOptions }).opts;
+    return (this as any as { opts: NpoolRouterOptions }).opts;
   }
 }

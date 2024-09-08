@@ -8,9 +8,6 @@ export * from './domain/ncryptsec.type';
 export * from './domain/nip05.type';
 export * from './domain/nostr-event-kind';
 
-export * from './pool/observe-pool.fn';
-export * from './pool/observe-relay.fn';
-
 export * from './configs/abstract-browser-storage';
 export * from './configs/nostr-session-config.interface';
 export * from './configs/configs-local.storage';

@@ -133,15 +133,14 @@ export class RelayConfigService {
       //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
       const pointer = await queryProfile(userPublicAddress);
       if (pointer && pointer.relays && pointer.relays.length) {
-        //  FIXME: must send this to outbox
-        const { pubkey, relays } = pointer;
+        const { pubkey } = pointer;
         const [ relayListEvent ] = await this.pool.query([
           {
             authors: [ pubkey ],
             kinds: [ NostrEventKind.RelayList ],
             limit: 1
           }
-        ]);
+        ], { useOnly: [ pointer ] });
 
         const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
         return Promise.resolve(relayMetadata);
