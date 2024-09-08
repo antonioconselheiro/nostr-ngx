@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MainPool } from './main.pool';
+import { MainPool } from '../pool/main.pool';
 import { IdbNStore } from '../idb-cache/idb.nstore';
 
 @Injectable()

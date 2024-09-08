@@ -7,7 +7,7 @@ import { NostrEventKind } from '../domain/nostr-event-kind';
 import { TNostrPublic } from '../domain/nostr-public.type';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { MainPool } from './main.pool';
+import { MainPool } from '../pool/main.pool';
 import { NostrConverter } from './nostr.converter';
 import { NostrGuard } from './nostr.guard';
 import { RelayConverter } from './relay.converter';
@@ -141,9 +141,7 @@ export class RelayConfigService {
             kinds: [ NostrEventKind.RelayList ],
             limit: 1
           }
-        ], {
-          hint: [ relays ]
-        });
+        ]);
 
         const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
         return Promise.resolve(relayMetadata);

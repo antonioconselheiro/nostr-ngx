@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { NostrService } from './nostr.service';
-import { NostrGuard } from './nostr.guard';
-import { NostrConverter } from './nostr.converter';
-import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { MainPool } from './main.pool';
-import { NostrSecretCrypto } from './nostr-secret.crypto';
+import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { IdbCacheModule } from '../idb-cache/idb-cache.module';
+import { NostrSecretCrypto } from './nostr-secret.crypto';
+import { NostrConverter } from './nostr.converter';
+import { NostrGuard } from './nostr.guard';
+import { NostrService } from './nostr.service';
 
 @NgModule({
   imports: [
@@ -19,7 +18,6 @@ import { IdbCacheModule } from '../idb-cache/idb-cache.module';
     NostrGuard,
     NostrConverter,
     NostrSecretCrypto,
-    MainPool,
     ConfigsSessionStorage,
     ConfigsLocalStorage
   ]
