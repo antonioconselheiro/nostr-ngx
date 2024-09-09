@@ -28,7 +28,7 @@ export * from './nostr-media/nostr-media.module';
 export * from './nostr/nostr.module';
 export * from './nostr/nostr.service';
 export * from './nostr/nostr.converter';
-export * from './nostr/relay-config.service';
+export * from './pool/relay-config.service';
 export * from './nostr/nostr-secret.crypto';
 export * from './nostr/nostr.guard';
 export * from './pool/main.pool';

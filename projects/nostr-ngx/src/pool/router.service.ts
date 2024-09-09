@@ -5,23 +5,13 @@ import { ProfilePointer } from "nostr-tools/nip19";
 import { NostrEventKind } from "../domain/nostr-event-kind";
 import { NPoolRequestOptions } from "./npool-request.options";
 import { NpoolRouterOptions } from "./npool-router.options";
-
-interface RouterMatcher {
-  fallback: Array<WebSocket['url']>;
-
-  eventRouter: Array<{
-    match: Array<NostrFilter>,
-    extract: (event: NostrEvent) => Promise<Array<WebSocket['url']>>
-  }>;
-
-  requestRouter: () => Promise<Array<WebSocket['url']>>;
-}
+import { DefaultRouterMatcher } from "./default.router-matcher";
 
 @Injectable()
-export class OutboxService implements NpoolRouterOptions {
+export class RouterService implements NpoolRouterOptions {
 
   constructor(
-    private routerMatcher: RouterMatcher
+    private routerMatcher: DefaultRouterMatcher
   ) {}
 
   open(url: WebSocket["url"]): NRelay {
@@ -52,7 +42,7 @@ export class OutboxService implements NpoolRouterOptions {
   async reqRouter(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<ReadonlyMap<WebSocket["url"], NostrFilter[]>> {
     
 
-    const relays: Array<[string, NostrFilter[]]> = OutboxService.readRelays.map(relay => {
+    const relays: Array<[string, NostrFilter[]]> = RouterService.readRelays.map(relay => {
       return [ relay, filters ];
     });
   

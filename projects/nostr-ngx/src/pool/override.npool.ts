@@ -63,6 +63,10 @@ export class OverrideNPool extends NPool {
     );
   }
 
+  override query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
+    return super.query(filters, opts);
+  }
+
   protected getOpts(): NpoolRouterOptions {
     //  u____u nobody need know, keep scrolling
     return (this as any as { opts: NpoolRouterOptions }).opts;

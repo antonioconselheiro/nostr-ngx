@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '@nostrify/nostrify';
 import { filter, from, map, Observable, of, takeUntil } from 'rxjs';
-import { OutboxService } from './outbox.service';
+import { RouterService } from './router.service';
 import { OverrideNPool } from './override.npool';
 
 @Injectable({
@@ -10,9 +10,9 @@ import { OverrideNPool } from './override.npool';
 export class MainPool extends OverrideNPool {
 
   constructor(
-    outbox: OutboxService
+    routerService: RouterService
   ) {
-    super(outbox);
+    super(routerService);
   }
 
   observe(filters: Array<NostrFilter>): Observable<NostrEvent> {

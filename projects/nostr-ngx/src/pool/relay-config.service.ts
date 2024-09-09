@@ -7,10 +7,11 @@ import { NostrEventKind } from '../domain/nostr-event-kind';
 import { TNostrPublic } from '../domain/nostr-public.type';
 import { IRelayMetadata } from '../domain/relay-metadata.interface';
 import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { MainPool } from '../pool/main.pool';
-import { NostrConverter } from './nostr.converter';
-import { NostrGuard } from './nostr.guard';
-import { RelayConverter } from './relay.converter';
+import { MainPool } from './main.pool';
+import { NostrConverter } from '../nostr/nostr.converter';
+import { NostrGuard } from '../nostr/nostr.guard';
+import { RelayConverter } from '../nostr/relay.converter';
+import { TNostrProfile } from '../domain/nostr-profile.type';
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +60,7 @@ export class RelayConfigService {
    */
   getCurrentUserRelays(): Promise<TRelayMetadataRecord>;
   getCurrentUserRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
+  getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
   getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord>;
   async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord> {
@@ -120,33 +122,57 @@ export class RelayConfigService {
   async getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord> {
 
     if (this.guard.isNostrPublic(userPublicAddress)) {
-      const pubhex = this.nostrConverter.castNostrPublicToPubkey(userPublicAddress);
-      const [relayList] = await this.pool.query([
-        {
-          kinds: [ NostrEventKind.RelayList ],
-          authors: [ pubhex ]
-        }
-      ]);
 
-      this.relayConverter.convertNostrEventToRelayMetadata(relayList);
     } else {
-      //  https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
-      const pointer = await queryProfile(userPublicAddress);
-      if (pointer && pointer.relays && pointer.relays.length) {
-        const { pubkey } = pointer;
-        const [ relayListEvent ] = await this.pool.query([
-          {
-            authors: [ pubkey ],
-            kinds: [ NostrEventKind.RelayList ],
-            limit: 1
-          }
-        ], { useOnly: [ pointer ] });
 
-        const relayMetadata = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
-        return Promise.resolve(relayMetadata);
-      }
     }
 
     return Promise.resolve({});
+  }
+
+  async loadRelaysFromNprofile(nprofile: TNostrProfile): Promise<TRelayMetadataRecord | null> {
+
+  }
+
+  async loadRelaysFromNIP5(nip5: TNip05): Promise<TRelayMetadataRecord | null> {
+    const pointer = await queryProfile(nip5);
+    if (pointer && pointer.relays && pointer.relays.length) {
+      const { pubkey } = pointer;
+      const [ relayListEvent ] = await this.pool.query([
+        {
+          authors: [ pubkey ],
+          kinds: [ NostrEventKind.RelayList ],
+          limit: 1
+        }
+      ], {
+        useOnly: [ pointer ]
+      }).catch(() => Promise.resolve([null]));
+
+      if (relayListEvent) {
+        const relayList = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
+        return Promise.resolve(relayList);
+      }
+    }
+
+    return Promise.resolve(null);
+  }
+
+  async loadRelaysOnlyHavingNpub(npub: TNostrPublic): Promise<TRelayMetadataRecord | null> {
+    const pubhex = this.nostrConverter.castNostrPublicToPubkey(npub);
+    const [relayListEvent] = await this.pool.query([
+      {
+        kinds: [ NostrEventKind.RelayList ],
+        authors: [ pubhex ]
+      }
+    ], {
+      include: [ 'wss://purplepag.es' ]
+    }).catch(() => Promise.resolve([null]));
+
+    if (relayListEvent) {
+      const relayList = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
+      return Promise.resolve(relayList);
+    }
+
+    return Promise.resolve(null);
   }
 }
