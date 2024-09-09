@@ -5,8 +5,8 @@ import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
 import { Nip05 } from '../domain/nip05.type';
 import { NostrEventKind } from '../domain/nostr-event-kind';
-import { Nprofile } from '../domain/nostr-profile.type';
-import { Npub } from '../domain/nostr-public.type';
+import { NProfile } from '../domain/nprofile.type';
+import { NPub } from '../domain/npub.type';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
@@ -39,7 +39,7 @@ export class RelayConfigService {
    * @param relays
    * @param npub 
    */
-  setLocalRelays(relays: RelayRecord, npub?: Npub): void {
+  setLocalRelays(relays: RelayRecord, npub?: NPub): void {
     const local = this.configs.read();
 
     if (npub) {
@@ -62,8 +62,8 @@ export class RelayConfigService {
    */
   getCurrentUserRelays(): Promise<RelayRecord>;
   getCurrentUserRelays(nip5: Nip05): Promise<RelayRecord>;
-  getCurrentUserRelays(nostrPublic: Npub): Promise<RelayRecord>;
-  getCurrentUserRelays(nostrPublic: Npub): Promise<RelayRecord>;
+  getCurrentUserRelays(nostrPublic: NPub): Promise<RelayRecord>;
+  getCurrentUserRelays(nostrPublic: NPub): Promise<RelayRecord>;
   getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord>;
   async getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord> {
     const local = this.configs.read();
@@ -98,7 +98,7 @@ export class RelayConfigService {
   }
 
   private getRelaysFromStorage(local: NostrLocalConfig): Promise<RelayRecord>;
-  private getRelaysFromStorage(local: NostrLocalConfig, nostrPublic: Npub): Promise<RelayRecord>;
+  private getRelaysFromStorage(local: NostrLocalConfig, nostrPublic: NPub): Promise<RelayRecord>;
   private getRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord>;
   private getRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord> {
     if (!userPublicAddress) {
@@ -111,20 +111,19 @@ export class RelayConfigService {
   }
 
   async getUserPublicRelays(nip5: Nip05): Promise<RelayRecord>;
-  async getUserPublicRelays(nostrPublic: Npub): Promise<RelayRecord>;
+  async getUserPublicRelays(nostrPublic: NPub): Promise<RelayRecord>;
+  async getUserPublicRelays(nostrProfile: NProfile): Promise<RelayRecord>;
   async getUserPublicRelays(userPublicAddress: string): Promise<RelayRecord>;
   async getUserPublicRelays(userPublicAddress: string): Promise<RelayRecord> {
+    this.guard.isNip05(userPublicAddress);
+    this.guard.isNPub(userPublicAddress);
+    this.guard.isNProfile(userPublicAddress);
 
-    if (this.guard.isNostrPublic(userPublicAddress)) {
-
-    } else {
-
-    }
 
     return Promise.resolve({});
   }
 
-  async loadRelaysFromNprofile(nprofile: Nprofile): Promise<RelayRecord | null> {
+  async loadRelaysFromNprofile(nprofile: NProfile): Promise<RelayRecord | null> {
     const pointer = nip19.decode(nprofile);
     if (pointer.data.relays?.length) {
       const [relayListEvent] = await this.pool.query([
@@ -168,7 +167,7 @@ export class RelayConfigService {
     return Promise.resolve(null);
   }
 
-  async loadRelaysOnlyHavingNpub(npub: Npub): Promise<RelayRecord | null> {
+  async loadRelaysOnlyHavingNpub(npub: NPub): Promise<RelayRecord | null> {
     const pubhex = this.nostrConverter.castNostrPublicToPubkey(npub);
     const [relayListEvent] = await this.pool.query([
       {

@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 import { NostrEvent, NostrFilter, NRelay, NRelay1 } from "@nostrify/nostrify";
-import { matchFilters } from "nostr-tools";
+import { matchFilters, kinds as NostrEventKind } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
-import { NostrEventKind } from "../domain/nostr-event-kind";
 import { NPoolRequestOptions } from "./npool-request.options";
 import { NpoolRouterOptions } from "./npool-router.options";
 import { DefaultRouterMatcher } from "./default.router-matcher";
@@ -33,7 +32,7 @@ export class RouterService implements NpoolRouterOptions {
     const extractor = this.routerMatcher.eventRouter.find(matcher => matchFilters(matcher.match, event) && matcher.extract);
     let relays: Array<WebSocket["url"]> = [];
     if (extractor) {
-      relays = await extractor.extract(event);
+      relays = await extractor.router(event);
     }
 
     return [...relayHint, ...relays];

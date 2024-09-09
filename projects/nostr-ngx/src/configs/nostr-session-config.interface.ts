@@ -1,5 +1,5 @@
 import { Ncryptsec } from '../domain/ncryptsec.type';
-import { Nsec } from '../domain/nostr-secret.type';
+import { NSec } from '../domain/nsec.type';
 
 /**
  * saved in session storage
@@ -7,5 +7,5 @@ import { Nsec } from '../domain/nostr-secret.type';
 export interface NostrSessionConfig {
   sessionFrom: 'none' | 'sessionStorage' | 'signer' | 'bunker' | 'memory';
   ncryptsec?: Ncryptsec;
-  nsec?: Nsec;
+  nsec?: NSec;
 }

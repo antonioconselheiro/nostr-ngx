@@ -1,28 +1,48 @@
 import { Injectable } from '@angular/core';
-import { Nsec } from '../domain/nostr-secret.type';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { Npub } from '../domain/nostr-public.type';
 import { NIP05_REGEX } from 'nostr-tools/nip05';
 import { Nip05 } from '../domain/nip05.type';
+import { NProfile } from '../domain/nprofile.type';
+import { NEvent } from '../domain/nevent.type';
+import { NAddr } from '../domain/naddr.type';
+import { NSec } from '../domain/nsec.type';
+import { NPub } from '../domain/npub.type';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { Note } from '../domain/note.type';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NostrGuard {
 
-  isNostrSecret(nsec: unknown): nsec is Nsec {
-    return typeof nsec === 'string' && /^nsec/.test(nsec);
+  isNProfile(value?: string | null): value is NProfile {
+    return /^nprofile1[a-z\d]+$/.test(value || '');
   }
 
-  isNostrPublic(npub: unknown): npub is Npub {
-    return typeof npub === 'string' && /^npub/.test(npub);
+  isNEvent(value?: string | null): value is NEvent {
+    return /^nevent1[a-z\d]+$/.test(value || '');
   }
 
-  isNcryptsec(ncryptsec: unknown): ncryptsec is Ncryptsec {
-    return typeof ncryptsec === 'string' && /^ncryptsec/.test(ncryptsec);
+  isNAddr(value?: string | null): value is NAddr {
+    return /^naddr1[a-z\d]+$/.test(value || '');
   }
 
-  isNip05(nip05: unknown): nip05 is Nip05 {
-    return typeof nip05 === 'string' && NIP05_REGEX.test(nip05);
+  isNSec(value?: string | null): value is NSec {
+    return /^nsec1[a-z\d]{58}$/.test(value || '');
+  }
+
+  isNPub(value?: string | null): value is NPub {
+    return /^npub1[a-z\d]{58}$/.test(value || '');
+  }
+
+  isNote(value?: string | null): value is Note {
+    return /^note1[a-z\d]+$/.test(value || '');
+  }
+
+  isNcryptsec(value?: string | null): value is Ncryptsec {
+    return /^ncryptsec1[a-z\d]+$/.test(value || '');
+  }
+
+  isNip05(value?: string | null): value is Nip05 {
+    return NIP05_REGEX.test(value || '');
   }
 }

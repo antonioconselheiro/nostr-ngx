@@ -1,8 +1,8 @@
 import { WindowNostr } from 'nostr-tools/nip07';
 
-export * from './domain/nostr-public.type';
+export * from './domain/npub.type';
 export * from './domain/relay-config.interface';
-export * from './domain/nostr-secret.type';
+export * from './domain/nsec.type';
 export * from './domain/user-relay.record';
 export * from './domain/ncryptsec.type';
 export * from './domain/nip05.type';
