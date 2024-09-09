@@ -1,30 +1,27 @@
 import { Injectable } from '@angular/core';
 import { queryProfile } from 'nostr-tools/nip05';
+import { RelayRecord } from 'nostr-tools/relay';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { INostrLocalConfig } from '../configs/nostr-local-config.interface';
-import { TNip05 } from '../domain/nip05.type';
+import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
+import { Nip05 } from '../domain/nip05.type';
 import { NostrEventKind } from '../domain/nostr-event-kind';
-import { TNostrPublic } from '../domain/nostr-public.type';
-import { IRelayMetadata } from '../domain/relay-metadata.interface';
-import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
-import { MainPool } from './main.pool';
+import { Nprofile } from '../domain/nostr-profile.type';
+import { Npub } from '../domain/nostr-public.type';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
-import { TNostrProfile } from '../domain/nostr-profile.type';
+import { MainPool } from './main.pool';
+import { nip19 } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RelayConfigService {
 
-  private static defaultAppRelays: TRelayMetadataRecord = {};
+  private static defaultAppRelays: RelayRecord = {};
 
-  static setDefaultApplicationRelays(relays: { [url: string]: Omit<IRelayMetadata, 'url'> }): void {
-    this.defaultAppRelays = {};
-    Object.keys(relays).forEach(url => {
-      this.defaultAppRelays[url] = { url, ...relays[url] };
-    });
+  static setDefaultApplicationRelays(relays: RelayRecord): void {
+    this.defaultAppRelays = relays;
   }
 
   constructor(
@@ -42,14 +39,19 @@ export class RelayConfigService {
    * @param relays
    * @param npub 
    */
-  setLocalRelays(relays: TRelayMetadataRecord, npub?: TNostrPublic): void {
+  setLocalRelays(relays: RelayRecord, npub?: Npub): void {
     const local = this.configs.read();
 
     if (npub) {
-      local.userRelays = local.userRelays || {};
+      if (!local.accounts) {
+        local.accounts = {};
+      }
 
-      //  FIXME: devo associar os relays aos account, se não o usuário não terá como deletar seus relays
-      local.userRelays[npub] = relays;
+      if (local.accounts[npub]) {
+        local.accounts[npub].relays = relays;
+      } else {
+        local.accounts[npub] = { relays };
+      }
     } else {
       local.commonRelays = relays;
     }
@@ -58,15 +60,15 @@ export class RelayConfigService {
   /**
    * Return relays according to user-customized settings
    */
-  getCurrentUserRelays(): Promise<TRelayMetadataRecord>;
-  getCurrentUserRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
-  getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
-  getCurrentUserRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
-  getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord>;
-  async getCurrentUserRelays(userPublicAddress?: string): Promise<TRelayMetadataRecord> {
+  getCurrentUserRelays(): Promise<RelayRecord>;
+  getCurrentUserRelays(nip5: Nip05): Promise<RelayRecord>;
+  getCurrentUserRelays(nostrPublic: Npub): Promise<RelayRecord>;
+  getCurrentUserRelays(nostrPublic: Npub): Promise<RelayRecord>;
+  getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord>;
+  async getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord> {
     const local = this.configs.read();
     const relayFrom = local.relayFrom;
-    let relayRecord: TRelayMetadataRecord = {};
+    let relayRecord: RelayRecord = {};
 
     if (relayFrom === 'signer') {
       relayRecord = await this.getRelaysFromSigner();
@@ -87,39 +89,31 @@ export class RelayConfigService {
     return relayRecord;
   }
 
-  private async getRelaysFromSigner(): Promise<TRelayMetadataRecord> {
-    const relayRecordWithMetadata: Record<string, IRelayMetadata> = {};
-
+  private getRelaysFromSigner(): Promise<RelayRecord> {
     if (window.nostr) {
-      const signerRelays = await window.nostr.getRelays();
-      Object.keys(signerRelays).forEach(url => {
-        const config = signerRelays[url];
-        relayRecordWithMetadata[url] = {
-          url, ...config
-        };
-      });
-    }
-
-    return Promise.resolve(relayRecordWithMetadata);
-  }
-
-  private getRelaysFromStorage(local: INostrLocalConfig): Promise<TRelayMetadataRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMetadataRecord>;
-  private getRelaysFromStorage(local: INostrLocalConfig, userPublicAddress?: string): Promise<TRelayMetadataRecord> {
-    if (!userPublicAddress) {
-      return Promise.resolve(local.commonRelays || {});
-    } else if (this.guard.isNostrPublic(userPublicAddress)) {
-      return Promise.resolve(local.userRelays && local.userRelays[userPublicAddress] || {})
+      return window.nostr.getRelays();
     }
 
     return Promise.resolve({});
   }
 
-  async getUserPublicRelays(nip5: TNip05): Promise<TRelayMetadataRecord>;
-  async getUserPublicRelays(nostrPublic: TNostrPublic): Promise<TRelayMetadataRecord>;
-  async getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord>;
-  async getUserPublicRelays(userPublicAddress: string): Promise<TRelayMetadataRecord> {
+  private getRelaysFromStorage(local: NostrLocalConfig): Promise<RelayRecord>;
+  private getRelaysFromStorage(local: NostrLocalConfig, nostrPublic: Npub): Promise<RelayRecord>;
+  private getRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord>;
+  private getRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord> {
+    if (!userPublicAddress) {
+      return Promise.resolve(local.commonRelays || {});
+    } else if (this.guard.isNostrPublic(userPublicAddress)) {
+      return Promise.resolve(local.accounts && local.accounts[userPublicAddress].relays || {})
+    }
+
+    return Promise.resolve({});
+  }
+
+  async getUserPublicRelays(nip5: Nip05): Promise<RelayRecord>;
+  async getUserPublicRelays(nostrPublic: Npub): Promise<RelayRecord>;
+  async getUserPublicRelays(userPublicAddress: string): Promise<RelayRecord>;
+  async getUserPublicRelays(userPublicAddress: string): Promise<RelayRecord> {
 
     if (this.guard.isNostrPublic(userPublicAddress)) {
 
@@ -130,11 +124,28 @@ export class RelayConfigService {
     return Promise.resolve({});
   }
 
-  async loadRelaysFromNprofile(nprofile: TNostrProfile): Promise<TRelayMetadataRecord | null> {
+  async loadRelaysFromNprofile(nprofile: Nprofile): Promise<RelayRecord | null> {
+    const pointer = nip19.decode(nprofile);
+    if (pointer.data.relays?.length) {
+      const [relayListEvent] = await this.pool.query([
+        {
+          kinds: [ NostrEventKind.RelayList ],
+          authors: [ pointer.data.pubkey ]
+        }
+      ], {
+        useOnly: pointer.data.relays
+      }).catch(() => Promise.resolve([null]));
 
+      if (relayListEvent) {
+        const relayList = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
+        return Promise.resolve(relayList);
+      }
+    }
+
+    return Promise.resolve(null);
   }
 
-  async loadRelaysFromNIP5(nip5: TNip05): Promise<TRelayMetadataRecord | null> {
+  async loadRelaysFromNIP5(nip5: Nip05): Promise<RelayRecord | null> {
     const pointer = await queryProfile(nip5);
     if (pointer && pointer.relays && pointer.relays.length) {
       const { pubkey } = pointer;
@@ -157,7 +168,7 @@ export class RelayConfigService {
     return Promise.resolve(null);
   }
 
-  async loadRelaysOnlyHavingNpub(npub: TNostrPublic): Promise<TRelayMetadataRecord | null> {
+  async loadRelaysOnlyHavingNpub(npub: Npub): Promise<RelayRecord | null> {
     const pubhex = this.nostrConverter.castNostrPublicToPubkey(npub);
     const [relayListEvent] = await this.pool.query([
       {
@@ -165,6 +176,9 @@ export class RelayConfigService {
         authors: [ pubhex ]
       }
     ], {
+      /**
+       * TODO: preciso centralizar isso como configuração
+       */
       include: [ 'wss://purplepag.es' ]
     }).catch(() => Promise.resolve([null]));
 

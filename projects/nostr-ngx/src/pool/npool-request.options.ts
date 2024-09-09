@@ -1,5 +1,6 @@
 import { NostrEvent } from '@nostrify/nostrify';
 import { ProfilePointer } from 'nostr-tools/nip19';
+import { Nprofile } from '../domain/nostr-profile.type';
 
 export interface NPoolRequestOptions {
   /**
@@ -10,10 +11,10 @@ export interface NPoolRequestOptions {
   /**
    * Relays to be included in the operation
    */
-  include?: Array<WebSocket['url'] | NostrEvent | ProfilePointer>;
+  include?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | Nprofile>;
 
   /**
    * Limit operation to these relays
    */
-  useOnly?: Array<WebSocket['url'] | NostrEvent | ProfilePointer>;
+  useOnly?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | Nprofile>;
 }

@@ -1,8 +1,11 @@
-import { TNcryptsec } from '../domain/ncryptsec.type';
-import { TNostrSecret } from '../domain/nostr-secret.type';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { Nsec } from '../domain/nostr-secret.type';
 
-export interface INostrSessionConfig {
+/**
+ * saved in session storage
+ */
+export interface NostrSessionConfig {
   sessionFrom: 'none' | 'sessionStorage' | 'signer' | 'bunker' | 'memory';
-  ncryptsec?: TNcryptsec;
-  nsec?: TNostrSecret;
+  ncryptsec?: Ncryptsec;
+  nsec?: Nsec;
 }

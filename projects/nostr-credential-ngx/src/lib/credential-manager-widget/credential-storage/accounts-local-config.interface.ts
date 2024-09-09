@@ -2,5 +2,7 @@ import { INostrLocalConfig } from '@belomonte/nostr-ngx';
 import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 
 export interface IAccountsLocalConfig extends INostrLocalConfig {
-  accounts?: Record<string, IUnauthenticatedAccount>;
+  accounts?: {
+    [npub: string]: IUnauthenticatedAccount
+  };
 }

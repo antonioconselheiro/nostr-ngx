@@ -16,12 +16,17 @@ export class DefaultRouterMatcher implements IRouterMatcher {
 
   eventRouter = [
     {
-      match: this.matchDirectMessage.bind(this),
+      match: this.isDirectMessageEvent.bind(this),
       router: this.routesForDirectMessage.bind(this)
     },
 
     {
-      match: this.matchAddressed.bind(this),
+      match: this.isRelayListEvent.bind(this),
+      router: this.routerToUpdateRelayList.bind(this)
+    },
+
+    {
+      match: this.isAddressedEvent.bind(this),
       router: this.routerForAddressed.bind(this)
     },
 
@@ -30,14 +35,14 @@ export class DefaultRouterMatcher implements IRouterMatcher {
     }
   ];
 
-  async requestRouter(): Promise<Array<string>> {
+  async requestRouter(): Promise<Array<WebSocket['url']>> {
     return Promise.resolve(['']);
   }
 
   /**
    * create a basic filter just for event kind
    */
-  private matchDirectMessage(event: NostrEvent): boolean {
+  private isDirectMessageEvent(event: NostrEvent): boolean {
     return event.kind === kinds.EncryptedDirectMessage;
   }
 
@@ -45,8 +50,16 @@ export class DefaultRouterMatcher implements IRouterMatcher {
 
   }
 
-  private matchAddressed(event: NostrEvent): boolean {
+  private isRelayListEvent(event: NostrEvent): boolean {
+    return event.kind === kinds.RelayList;
+  }
 
+  private routerToUpdateRelayList(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+
+  }
+
+  private isAddressedEvent(event: NostrEvent): boolean {
+    //  tag a
   }
 
   private routerForAddressed(event: NostrEvent): Promise<Array<WebSocket['url']>> {

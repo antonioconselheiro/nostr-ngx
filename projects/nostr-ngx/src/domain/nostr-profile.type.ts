@@ -1,1 +1,1 @@
-export type TNostrProfile = `nprofile1${string}`;
+export type Nprofile = `nprofile1${string}`;

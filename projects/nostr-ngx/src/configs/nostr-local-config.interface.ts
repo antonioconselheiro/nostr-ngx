@@ -1,11 +1,17 @@
-import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { RelayRecord } from 'nostr-tools/relay';
 
-export interface INostrLocalConfig {
+/**
+ * saved in local storage
+ */
+export interface NostrLocalConfig {
   relayFrom: 'none' | 'localStorage' | 'signer' | 'public';
-  commonRelays?: TRelayMetadataRecord;
 
   /**
-   * string index is npub
+   * non npub related local configured relays
    */
-  userRelays?: Record<string, TRelayMetadataRecord>;
+  commonRelays?: RelayRecord;
+
+  accounts?: {
+    [npub: string]: { relays: RelayRecord }
+  };
 }

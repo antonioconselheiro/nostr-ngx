@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TRelayMetadataRecord } from '../domain/relay-metadata.record';
+import { UserRelayRecord } from '../domain/user-relay.record';
 import { NostrEvent } from 'nostr-tools';
 import { NostrEventKind } from '../domain/nostr-event-kind';
 import { isRelayString } from './is-relay-string.regex';
@@ -9,8 +9,8 @@ import { isRelayString } from './is-relay-string.regex';
 })
 export class RelayConverter {
 
-  private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): TRelayMetadataRecord {
-    const record: TRelayMetadataRecord = {};
+  private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): UserRelayRecord {
+    const record: UserRelayRecord = {};
     const relayTags = event.tags.filter(([type]) => type === 'r');
     relayTags.forEach(([, relay, config]) => {
       if (config === 'write') {
@@ -37,9 +37,9 @@ export class RelayConverter {
     return record;
   }
 
-  private convertRelayMetadataFromTag(tag: string[]): TRelayMetadataRecord {
+  private convertRelayMetadataFromTag(tag: string[]): UserRelayRecord {
     const relays = tag.filter(relay => isRelayString.test(relay));
-    const record: TRelayMetadataRecord = {};
+    const record: UserRelayRecord = {};
 
     Object.keys(relays).forEach(relay => {
       if (relay) {
@@ -54,11 +54,11 @@ export class RelayConverter {
     return record;
   }
 
-  convertNostrEventToRelayMetadata(event: NostrEvent): TRelayMetadataRecord {
+  convertNostrEventToRelayMetadata(event: NostrEvent): UserRelayRecord {
     if (event.kind === NostrEventKind.RelayList) {
       return this.convertRelayMetadataFromRelayListMetadataEvent(event);
     } else {
-      let record: TRelayMetadataRecord = {};
+      let record: UserRelayRecord = {};
       event.tags.forEach(tag => record = { ...record, ...this.convertRelayMetadataFromTag(tag) });
 
       return record;
