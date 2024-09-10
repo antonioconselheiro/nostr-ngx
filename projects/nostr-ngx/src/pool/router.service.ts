@@ -1,17 +1,17 @@
-import { Injectable } from "@angular/core";
-import { NostrEvent, NostrFilter, NRelay, NRelay1 } from "@nostrify/nostrify";
-import { matchFilters, kinds as NostrEventKind } from "nostr-tools";
-import { ProfilePointer } from "nostr-tools/nip19";
-import { NPoolRequestOptions } from "./npool-request.options";
-import { NpoolRouterOptions } from "./npool-router.options";
-import { DefaultRouterMatcher } from "./default.router-matcher";
+import { Injectable } from '@angular/core';
+import { NostrEvent, NostrFilter, NRelay, NRelay1 } from '@nostrify/nostrify';
+import { kinds as NostrEventKind } from 'nostr-tools';
+import { ProfilePointer } from 'nostr-tools/nip19';
+import { DefaultRouterMatcher } from './default.router-matcher';
+import { NPoolRequestOptions } from './npool-request.options';
+import { NpoolRouterOptions } from './npool-router.options';
 
 @Injectable()
 export class RouterService implements NpoolRouterOptions {
 
   constructor(
     private routerMatcher: DefaultRouterMatcher
-  ) {}
+  ) { }
 
   open(url: WebSocket["url"]): NRelay {
     return new NRelay1(url);
@@ -23,16 +23,15 @@ export class RouterService implements NpoolRouterOptions {
       if (usingOnly.length) {
         return usingOnly;
       } else {
-        return this.routerMatcher.fallback;
+        return this.routerMatcher.defaultFallback;
       }
     }
 
     const relayHint = this.parseRelayList(opts?.include, 'w');
-
-    const extractor = this.routerMatcher.eventRouter.find(matcher => matchFilters(matcher.match, event) && matcher.extract);
+    const router = this.routerMatcher.eventRouter.find(matcher => (matcher.match && matcher.match(event) || !matcher.match) && matcher.router);
     let relays: Array<WebSocket["url"]> = [];
-    if (extractor) {
-      relays = await extractor.router(event);
+    if (router) {
+      relays = await router.router(event);
     }
 
     return [...relayHint, ...relays];

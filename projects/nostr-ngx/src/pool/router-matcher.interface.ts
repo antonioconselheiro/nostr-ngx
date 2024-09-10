@@ -5,7 +5,7 @@ export interface IRouterMatcher {
   /**
    * list of relays when no relay was found
    */
-  fallback: Array<WebSocket['url']>;
+  defaultFallback: Array<WebSocket['url']>;
 
   /**
    * found relays to publish an event

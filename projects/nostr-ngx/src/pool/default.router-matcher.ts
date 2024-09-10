@@ -1,17 +1,17 @@
 import { Injectable } from "@angular/core";
 import { NostrEvent } from "@nostrify/nostrify";
-import { kinds } from "nostr-tools";
-import { IdbNStore } from "../idb-cache/idb.nstore";
+import { kinds, nip19 } from "nostr-tools";
 import { RelayConfigService } from "./relay-config.service";
 import { IRouterMatcher } from "./router-matcher.interface";
+import { ProfilePointer } from "nostr-tools/nip19";
 
 @Injectable()
 export class DefaultRouterMatcher implements IRouterMatcher {
-  fallback = [];
+
+  defaultFallback = [];
 
   constructor(
-    private relayConfigService: RelayConfigService,
-    private idb: IdbNStore
+    private relayConfigService: RelayConfigService
   ) {}
 
   eventRouter = [
@@ -23,11 +23,6 @@ export class DefaultRouterMatcher implements IRouterMatcher {
     {
       match: this.isRelayListEvent.bind(this),
       router: this.routerToUpdateRelayList.bind(this)
-    },
-
-    {
-      match: this.isAddressedEvent.bind(this),
-      router: this.routerForAddressed.bind(this)
     },
 
     {
@@ -46,8 +41,18 @@ export class DefaultRouterMatcher implements IRouterMatcher {
     return event.kind === kinds.EncryptedDirectMessage;
   }
 
-  private routesForDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+  private async routesForDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+    const relayRecord = await this.relayConfigService.loadRelaysOnlyHavingPubkey(event.pubkey);
 
+    const pointers = this.getPTagsAsProfilePointer(event)
+    const queue = pointers.map(pointer => this.relayConfigService.loadRelaysFromProfilePointer(pointer));
+    const listOfRelayList = await Promise.all(queue);
+
+    //  TODOING: agora devo pegar os relays 'write' do relayRecord e os relays 'read' do listOfRelayList, eu acho 
+  }
+
+  private getPTagsAsProfilePointer(event: NostrEvent): Array<ProfilePointer> {
+    return [];
   }
 
   private isRelayListEvent(event: NostrEvent): boolean {
@@ -58,15 +63,11 @@ export class DefaultRouterMatcher implements IRouterMatcher {
 
   }
 
-  private isAddressedEvent(event: NostrEvent): boolean {
-    //  tag a
-  }
-
-  private routerForAddressed(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-
-  }
-
   private defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+
+  }
+
+  private extractRelaysFromTags(event: NostrEvent): Promise<Array<WebSocket['url']>> {
 
   }
 }
