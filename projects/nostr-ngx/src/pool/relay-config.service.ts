@@ -33,7 +33,7 @@ export class RelayConfigService {
    * @param relays
    * @param npub 
    */
-  setLocalRelays(relays: RelayRecord, npub?: NPub): void {
+  setLocalRelays(relays: RelayRecord, npub?: NPub, directMessagesRelays?: Array<WebSocket['url']>): void {
     const local = this.configs.read();
 
     if (npub) {
@@ -42,9 +42,17 @@ export class RelayConfigService {
       }
 
       if (local.accounts[npub]) {
-        local.accounts[npub].relays = relays;
+        if (local.accounts[npub].relays) {
+          local.accounts[npub].relays.general = relays;
+        } else {
+          local.accounts[npub].relays = { general: relays };
+        }
       } else {
-        local.accounts[npub] = { relays };
+        local.accounts[npub] = { relays: { general: relays } };
+      }
+
+      if (directMessagesRelays) {
+        local.accounts[npub].relays.directMessage = directMessagesRelays
       }
     } else {
       local.commonRelays = relays;

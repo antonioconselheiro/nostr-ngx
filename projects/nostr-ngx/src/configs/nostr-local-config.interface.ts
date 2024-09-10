@@ -12,6 +12,11 @@ export interface NostrLocalConfig {
   commonRelays?: RelayRecord;
 
   accounts?: {
-    [npub: string]: { relays: RelayRecord }
+    [npub: string]: {
+      relays: {
+        general: RelayRecord;
+        directMessage?: Array<WebSocket['url']>;
+      };
+    };
   };
 }
