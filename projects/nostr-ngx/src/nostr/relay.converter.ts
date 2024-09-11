@@ -1,33 +1,29 @@
 import { Injectable } from '@angular/core';
-import { UserRelayRecord } from '../domain/user-relay.record';
-import { NostrEvent } from 'nostr-tools';
-import { NostrEventKind } from '../domain/nostr-event-kind';
+import { kinds, NostrEvent } from 'nostr-tools';
 import { isRelayString } from './is-relay-string.regex';
+import { RelayRecord } from 'nostr-tools/relay';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RelayConverter {
 
-  private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): UserRelayRecord {
-    const record: UserRelayRecord = {};
+  private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): RelayRecord {
+    const record: RelayRecord = {};
     const relayTags = event.tags.filter(([type]) => type === 'r');
     relayTags.forEach(([, relay, config]) => {
       if (config === 'write') {
         record[relay] = {
-          url: relay,
           read: false,
           write: true
         };
       } else if (config === 'read') {
         record[relay] = {
-          url: relay,
           read: true,
           write: false
         };
       } else {
         record[relay] = {
-          url: relay,
           read: true,
           write: true
         };
@@ -37,14 +33,13 @@ export class RelayConverter {
     return record;
   }
 
-  private convertRelayMetadataFromTag(tag: string[]): UserRelayRecord {
+  private convertRelayMetadataFromTag(tag: string[]): RelayRecord {
     const relays = tag.filter(relay => isRelayString.test(relay));
-    const record: UserRelayRecord = {};
+    const record: RelayRecord = {};
 
     Object.keys(relays).forEach(relay => {
       if (relay) {
         record[relay] = {
-          url: relay,
           read: true,
           write: false
         };
@@ -54,11 +49,15 @@ export class RelayConverter {
     return record;
   }
 
-  convertNostrEventToRelayMetadata(event: NostrEvent): UserRelayRecord {
-    if (event.kind === NostrEventKind.RelayList) {
+  /**
+   * FIXME: este cast deve se aplicar somente para 10002, outros tipos de evento devem retornar null
+   * tzlvéz eu deva incluir algo na assinatura do método para forçar somente eventos 10002 já validados
+   */
+  convertNostrEventToRelayMetadata(event: NostrEvent): RelayRecord {
+    if (event.kind === kinds.RelayList) {
       return this.convertRelayMetadataFromRelayListMetadataEvent(event);
     } else {
-      let record: UserRelayRecord = {};
+      let record: RelayRecord = {};
       event.tags.forEach(tag => record = { ...record, ...this.convertRelayMetadataFromTag(tag) });
 
       return record;

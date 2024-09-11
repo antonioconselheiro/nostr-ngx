@@ -45,14 +45,14 @@ export class DefaultRouterMatcher implements IRouterMatcher {
   }
 
   private async routesToDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    const senderRelays = await this.relayConfigService.loadRelaysOnlyHavingPubkey(event.pubkey);
+    const senderDMRelays = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
 
     const pointers = this.getPTagsAsProfilePointer(event)
-    const fellows = pointers.map(pointer => this.relayConfigService.loadRelaysFromProfilePointer(pointer));
+    const fellows = pointers.map(pointer => this.relayConfigService.loadMainRelaysFromProfilePointer(pointer));
     const fellowDMRelays = await Promise.all(fellows);
 
     return Promise.resolve([
-      ...senderRelays,
+      ...senderDMRelays,
       ...fellowDMRelays
     ]);
   }
@@ -66,11 +66,11 @@ export class DefaultRouterMatcher implements IRouterMatcher {
   }
 
   private async routesToUserOutboxAndFellowInbox(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    const relayRecord = await this.relayConfigService.loadRelaysOnlyHavingPubkey(event.pubkey);
+    const relayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
     const senderOutbox = this.extractOutboxRelays(relayRecord);
 
     const pointers = this.getPTagsAsProfilePointer(event)
-    const fellows = pointers.map(pointer => this.relayConfigService.loadRelaysFromProfilePointer(pointer));
+    const fellows = pointers.map(pointer => this.relayConfigService.loadMainRelaysFromProfilePointer(pointer));
     const listOfRelayList = await Promise.all(fellows);
     const fellowInbox = this.extractInboxRelays(listOfRelayList);
 
