@@ -1,31 +1,37 @@
 import { Injectable } from "@angular/core";
-import { NostrEvent } from "@nostrify/nostrify";
-import { kinds } from "nostr-tools";
+import { kinds, NostrEvent } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
 import { RelayConfigService } from "./relay-config.service";
-import { IRouterMatcher } from "./router-matcher.interface";
+import { RouterMatcher } from "./router-matcher.interface";
 
 @Injectable()
-export class DefaultRouterMatcher implements IRouterMatcher {
+export class DefaultRouterMatcher implements RouterMatcher {
 
-  defaultFallback = [];
+  defaultDiscovery = [ 'wss://purplepag.es' ];
+
+  defaultFallback = [ 'wss://nos.lol' ];
 
   constructor(
     private relayConfigService: RelayConfigService
-  ) {}
+  ) { }
 
   eventRouter = [
     {
-      match: this.isDirectMessageEvent.bind(this),
+      matcher: this.isDirectMessageEvent.bind(this),
       router: this.routesToDirectMessage.bind(this)
     },
+
     {
-      match: this.isRelayListEvent.bind(this),
-      router: this.routerToUpdateRelayList.bind(this)
+      matcher: this.isRelayListEvent.bind(this),
+      router: this.routerToUpdateMainRelayList.bind(this)
     },
     {
-      match: this.isInteractionEvent.bind(this),
+      matcher: this.isDirectMessageRelayListEvent.bind(this),
+      router: this.routerToUpdateDirectMessageRelayList.bind(this)
+    },
+    {
+      matcher: this.isInteractionEvent.bind(this),
       router: this.routesToUserOutboxAndFellowInbox.bind(this)
     },
 
@@ -46,22 +52,22 @@ export class DefaultRouterMatcher implements IRouterMatcher {
 
   private async routesToDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
     const senderDMRelays = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
-
     const pointers = this.getPTagsAsProfilePointer(event)
-    const fellows = pointers.map(pointer => this.relayConfigService.loadMainRelaysFromProfilePointer(pointer));
+    const fellows = pointers.map(pointer => this.relayConfigService.loadDirectMessageRelaysFromProfilePointer(pointer));
     const fellowDMRelays = await Promise.all(fellows);
+    const list = new Array<WebSocket['url'] | null>()
+      .concat(senderDMRelays || [])
+      .concat(fellowDMRelays.flat(2))
+      .filter((r): r is WebSocket['url'] => !!r);
 
-    return Promise.resolve([
-      ...senderDMRelays,
-      ...fellowDMRelays
-    ]);
+    return Promise.resolve(list);
   }
 
   /**
    * is react, reply, follow, unfollow or some event
    * where author interacts with another user
    */
-  private isInteractionEvent(event: NostrEvent): boolean {
+  private isInteractionEvent(event: NostrEvent): event is NostrEvent {
     //  TODO: encontrar tag p? mapear por kind?
   }
 
@@ -102,7 +108,10 @@ export class DefaultRouterMatcher implements IRouterMatcher {
     return this.extractRelaysOfRelayList(relayRecord, 'read');
   }
 
-  private extractRelaysOfRelayList(relayRecord: RelayRecord | null | Array<RelayRecord | null>, relayType: 'read' | 'write'): Array<WebSocket['url']> {
+  private extractRelaysOfRelayList(
+    relayRecord: RelayRecord | null | Array<RelayRecord | null>,
+    relayType: 'read' | 'write'
+  ): Array<WebSocket['url']> {
     if (relayRecord instanceof Array) {
       return relayRecord.map(record => this.extractOutboxRelays(record)).flat(2);
     } else if (relayRecord) {
@@ -114,21 +123,33 @@ export class DefaultRouterMatcher implements IRouterMatcher {
     return [];
   }
 
-  private isRelayListEvent(event: NostrEvent): boolean {
-    //  FIXME: include correct kind when nostr-tools implements nip17.ts
-    const kindDirectMessageRelayList = 10050;
-    return event.kind === kinds.RelayList || event.kind === kindDirectMessageRelayList;
+  private isRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: typeof kinds.RelayList } {
+    return event.kind === kinds.RelayList;
   }
 
-  private routerToUpdateRelayList(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+  private routerToUpdateMainRelayList(event: NostrEvent & { kind: typeof kinds.RelayList }): Promise<Array<WebSocket['url']>> {
+    //  TODO:
+    event;
+    return Promise.resolve([]);
+  }
 
+  private isDirectMessageRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: 10050 } {
+    return event.kind === this.relayConfigService.kindDirectMessageRelayList;
+  }
+
+  private routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
+    //  TODO:
+    event;
+    return Promise.resolve([]);
   }
 
   private defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-
+    event;
+    return Promise.resolve([]);
   }
 
   private extractRelaysFromTags(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-
+    event;
+    return Promise.resolve([]);
   }
 }

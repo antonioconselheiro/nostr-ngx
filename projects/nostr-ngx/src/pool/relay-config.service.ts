@@ -142,9 +142,9 @@ export class RelayConfigService {
         useOnly: pointer.relays
       }).catch(() => Promise.resolve([null]));
 
-      if (relayListEvent) {
-        const relayList = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
-        return Promise.resolve(relayList);
+      if (this.guard.isKind(relayListEvent, kinds.RelayList)) {
+        const record = this.relayConverter.convertRelayListEventToRelayRecord(relayListEvent);
+        return Promise.resolve(record);
       }
 
       return this.loadMainRelaysOnlyHavingPubkey(pubkey);
@@ -185,8 +185,8 @@ export class RelayConfigService {
       include: [ 'wss://purplepag.es' ]
     }).catch(() => Promise.resolve([null]));
 
-    if (relayListEvent) {
-      const relayList = this.relayConverter.convertNostrEventToRelayMetadata(relayListEvent);
+    if (this.guard.isKind(relayListEvent, kinds.RelayList)) {
+      const relayList = this.relayConverter.convertRelayListEventToRelayRecord(relayListEvent);
       return Promise.resolve(relayList);
     }
 
@@ -224,12 +224,12 @@ export class RelayConfigService {
         useOnly: pointer.relays
       }).catch(() => Promise.resolve([null]));
 
-      if (directMessageRelayListEvent) {
-        const relayList = this.relayConverter.convertNostrEventToRelayMetadata(directMessageRelayListEvent);
+      if (this.guard.isKind(directMessageRelayListEvent, this.kindDirectMessageRelayList)) {
+        const relayList = this.relayConverter.convertDirectMessageRelayEventToRelayList(directMessageRelayListEvent);
         return Promise.resolve(relayList);
       }
 
-      return this.loadMainRelaysOnlyHavingPubkey(pubkey);
+      return this.loadDirectMessageRelaysOnlyHavingPubkey(pubkey);
     }
 
     return Promise.resolve(null);
@@ -248,7 +248,24 @@ export class RelayConfigService {
   }
 
   async loadDirectMessageRelaysOnlyHavingPubkey(pubkey: string): Promise<Array<WebSocket['url']> | null> {
-    return Promise.resolve([]);
+    const [relayListEvent] = await this.pool.query([
+      {
+        kinds: [ kinds.RelayList ],
+        authors: [ pubkey ]
+      }
+    ], {
+      /**
+       * TODO: preciso centralizar isso como configuração
+       */
+      include: [ 'wss://purplepag.es' ]
+    }).catch(() => Promise.resolve([null]));
+
+    if (this.guard.isKind(relayListEvent, this.kindDirectMessageRelayList)) {
+      const relayList = this.relayConverter.convertDirectMessageRelayEventToRelayList(relayListEvent);
+      return Promise.resolve(relayList);
+    }
+
+    return Promise.resolve(null);
   }
 
 }

@@ -1,6 +1,12 @@
-import { NostrEvent } from "@nostrify/nostrify";
+import { NostrEvent } from "nostr-tools";
+import { EventRouterMatcher } from "./event-router-matcher.interface";
 
-export interface IRouterMatcher {
+export interface RouterMatcher {
+
+  /**
+   * List of relays to find users relay list
+   */
+  defaultDiscovery: Array<WebSocket['url']>;
 
   /**
    * list of relays when no relay was found
@@ -10,17 +16,7 @@ export interface IRouterMatcher {
   /**
    * found relays to publish an event
    */
-  eventRouter: Array<{
-    /**
-     * function to identify if event matches with this routing fn
-     */
-    matcher?: (event: NostrEvent) => boolean,
-
-    /**
-     * custom routes for this match
-     */
-    router: (event: NostrEvent) => Promise<Array<WebSocket['url']>>
-  }>;
+  eventRouter: Array<EventRouterMatcher<NostrEvent>>;
 
   requestRouter: () => Promise<Array<WebSocket['url']>>;
 }

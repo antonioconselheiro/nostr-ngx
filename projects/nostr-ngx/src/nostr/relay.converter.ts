@@ -8,7 +8,27 @@ import { RelayRecord } from 'nostr-tools/relay';
 })
 export class RelayConverter {
 
-  private convertRelayMetadataFromRelayListMetadataEvent(event: NostrEvent): RelayRecord {
+  private convertRelayMetadataFromTag(tag: string[]): Array<WebSocket['url']> {
+    const relays = tag.filter(relay => isRelayString.test(relay));
+    const list: Array<WebSocket['url']> = [];
+
+    Object.keys(relays).forEach(relay => {
+      if (relay) {
+        list.push(relay);
+      }
+    });
+
+    return list;
+  }
+
+  convertDirectMessageRelayEventToRelayList(event: NostrEvent & { kind: 10050 }): Array<WebSocket['url']> {
+    let list: Array<WebSocket['url']> = [];
+    event.tags.forEach(tag => list = [ ...list, ...this.convertRelayMetadataFromTag(tag) ]);
+
+    return list;
+  }
+
+  convertRelayListEventToRelayRecord(event: NostrEvent & { kind: typeof kinds.RelayList }): RelayRecord {
     const record: RelayRecord = {};
     const relayTags = event.tags.filter(([type]) => type === 'r');
     relayTags.forEach(([, relay, config]) => {
@@ -31,36 +51,5 @@ export class RelayConverter {
     });
 
     return record;
-  }
-
-  private convertRelayMetadataFromTag(tag: string[]): RelayRecord {
-    const relays = tag.filter(relay => isRelayString.test(relay));
-    const record: RelayRecord = {};
-
-    Object.keys(relays).forEach(relay => {
-      if (relay) {
-        record[relay] = {
-          read: true,
-          write: false
-        };
-      }
-    });
-
-    return record;
-  }
-
-  /**
-   * FIXME: este cast deve se aplicar somente para 10002, outros tipos de evento devem retornar null
-   * tzlvéz eu deva incluir algo na assinatura do método para forçar somente eventos 10002 já validados
-   */
-  convertNostrEventToRelayMetadata(event: NostrEvent): RelayRecord {
-    if (event.kind === kinds.RelayList) {
-      return this.convertRelayMetadataFromRelayListMetadataEvent(event);
-    } else {
-      let record: RelayRecord = {};
-      event.tags.forEach(tag => record = { ...record, ...this.convertRelayMetadataFromTag(tag) });
-
-      return record;
-    }
   }
 }
