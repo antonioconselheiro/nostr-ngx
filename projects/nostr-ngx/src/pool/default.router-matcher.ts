@@ -4,6 +4,7 @@ import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
+import { RelayConverter } from "../nostr/relay.converter";
 
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
@@ -13,6 +14,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   defaultFallback = [ 'wss://nos.lol' ];
 
   constructor(
+    private relayConverter: RelayConverter
     private relayConfigService: RelayConfigService
   ) { }
 
@@ -71,6 +73,9 @@ export class DefaultRouterMatcher implements RouterMatcher {
     //  TODO: encontrar tag p? mapear por kind?
   }
 
+  /**
+   * Relays outbox do usuário solicitante e relays inbox do usuário destino
+   */
   private async routesToUserOutboxAndFellowInbox(event: NostrEvent): Promise<Array<WebSocket['url']>> {
     const relayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
     const senderOutbox = this.extractOutboxRelays(relayRecord);
@@ -101,14 +106,14 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private extractOutboxRelays(relayRecord: RelayRecord | null | Array<RelayRecord | null>): Array<WebSocket['url']> {
-    return this.extractRelaysOfRelayList(relayRecord, 'write');
+    return this.extractRelaysOfRelayRecord(relayRecord, 'write');
   }
 
   private extractInboxRelays(relayRecord: RelayRecord | null | Array<RelayRecord | null>): Array<WebSocket['url']> {
-    return this.extractRelaysOfRelayList(relayRecord, 'read');
+    return this.extractRelaysOfRelayRecord(relayRecord, 'read');
   }
 
-  private extractRelaysOfRelayList(
+  private extractRelaysOfRelayRecord(
     relayRecord: RelayRecord | null | Array<RelayRecord | null>,
     relayType: 'read' | 'write'
   ): Array<WebSocket['url']> {
@@ -127,10 +132,18 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return event.kind === kinds.RelayList;
   }
 
-  private routerToUpdateMainRelayList(event: NostrEvent & { kind: typeof kinds.RelayList }): Promise<Array<WebSocket['url']>> {
-    //  TODO:
-    event;
-    return Promise.resolve([]);
+  /**
+   * Update old write relays and new write relays
+   */
+  private async routerToUpdateMainRelayList(event: NostrEvent & { kind: typeof kinds.RelayList }): Promise<Array<WebSocket['url']>> {
+    //  Updating old relay list helps users listen to these knows you don't use this relay anymore.
+    //  It will load the last published relay list from ncache or from indexeddb, if user is editing
+    //  relay list the event will be surely loaded
+    const oldRelayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
+    const newRelayRecord = this.relayConverter.convertRelayListEventToRelayRecord(event);
+    const relayList = this.extractRelaysOfRelayRecord([ newRelayRecord, oldRelayRecord ], 'write');
+
+    return Promise.resolve(relayList);
   }
 
   private isDirectMessageRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: 10050 } {
@@ -138,9 +151,11 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
-    //  TODO:
-    event;
-    return Promise.resolve([]);
+    const oldRelayRecord = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
+    const newRelayRecord = this.relayConverter.convertDirectMessageRelayEventToRelayList(event);
+    const relayList = [...(oldRelayRecord || []), ...newRelayRecord];
+
+    return Promise.resolve(relayList);
   }
 
   private defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {

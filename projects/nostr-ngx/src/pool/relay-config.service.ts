@@ -136,7 +136,8 @@ export class RelayConfigService {
       const [relayListEvent] = await this.pool.query([
         {
           kinds: [ kinds.RelayList ],
-          authors: [ pubkey ]
+          authors: [ pubkey ],
+          limit: 1
         }
       ], {
         useOnly: pointer.relays
@@ -176,7 +177,8 @@ export class RelayConfigService {
     const [relayListEvent] = await this.pool.query([
       {
         kinds: [ kinds.RelayList ],
-        authors: [ pubkey ]
+        authors: [ pubkey ],
+        limit: 1
       }
     ], {
       /**
@@ -218,7 +220,8 @@ export class RelayConfigService {
       const [directMessageRelayListEvent] = await this.pool.query([
         {
           kinds: [ this.kindDirectMessageRelayList ],
-          authors: [ pubkey ]
+          authors: [ pubkey ],
+          limit: 1
         }
       ], {
         useOnly: pointer.relays
@@ -236,22 +239,30 @@ export class RelayConfigService {
   }
 
   async loadDirectMessageRelaysFromNprofile(nprofile: NProfile): Promise<Array<WebSocket['url']> | null> {
-    return Promise.resolve([]);
+    return this.loadDirectMessageRelaysFromProfilePointer(nip19.decode(nprofile).data);
   }
 
   async loadDirectMessageRelaysFromNIP5(nip5: Nip05): Promise<Array<WebSocket['url']> | null> {
-    return Promise.resolve([]);
+    const pointer = await queryProfile(nip5);
+
+    if (pointer) {
+      return this.loadDirectMessageRelaysFromProfilePointer(pointer);
+    }
+
+    return Promise.resolve(null);
   }
 
   async loadDirectMessageRelaysOnlyHavingNpub(npub: NPub): Promise<Array<WebSocket['url']> | null> {
-    return Promise.resolve([]);
+    const pubkey = this.nostrConverter.castNostrPublicToPubkey(npub);
+    return this.loadDirectMessageRelaysOnlyHavingPubkey(pubkey);
   }
 
   async loadDirectMessageRelaysOnlyHavingPubkey(pubkey: string): Promise<Array<WebSocket['url']> | null> {
     const [relayListEvent] = await this.pool.query([
       {
         kinds: [ kinds.RelayList ],
-        authors: [ pubkey ]
+        authors: [ pubkey ],
+        limit: 1
       }
     ], {
       /**
