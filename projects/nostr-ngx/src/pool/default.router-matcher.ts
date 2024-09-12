@@ -2,9 +2,9 @@ import { Injectable } from "@angular/core";
 import { kinds, NostrEvent } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
+import { RelayConverter } from "../nostr/relay.converter";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
-import { RelayConverter } from "../nostr/relay.converter";
 
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
@@ -14,7 +14,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   defaultFallback = [ 'wss://nos.lol' ];
 
   constructor(
-    private relayConverter: RelayConverter
+    private relayConverter: RelayConverter,
     private relayConfigService: RelayConfigService
   ) { }
 
@@ -70,7 +70,9 @@ export class DefaultRouterMatcher implements RouterMatcher {
    * where author interacts with another user
    */
   private isInteractionEvent(event: NostrEvent): event is NostrEvent {
-    //  TODO: encontrar tag p? mapear por kind?
+    const find = event.tags.find(([type]) => type === 'p');
+
+    return find && find.length && true || false;
   }
 
   /**
@@ -150,10 +152,22 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return event.kind === this.relayConfigService.kindDirectMessageRelayList;
   }
 
-  private routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
-    const oldRelayRecord = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
-    const newRelayRecord = this.relayConverter.convertDirectMessageRelayEventToRelayList(event);
-    const relayList = [...(oldRelayRecord || []), ...newRelayRecord];
+  /**
+   * this is not for sending private message, is for update relay list for sending private message
+   */
+  private async routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
+    //  load author write relays
+    const authorRelayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
+    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayRecord, 'write')
+
+    //  load old direct message author list
+    const oldRelayDMList = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
+    
+    //  get relays from new direct message list
+    const newRelayDMList = this.relayConverter.convertDirectMessageRelayEventToRelayList(event);
+
+    //  join these three lists
+    const relayList = [...(oldRelayDMList || []), ...newRelayDMList, ...authorWriteRelays];
 
     return Promise.resolve(relayList);
   }
