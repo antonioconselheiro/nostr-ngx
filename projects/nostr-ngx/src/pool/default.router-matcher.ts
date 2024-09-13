@@ -6,6 +6,10 @@ import { RelayConverter } from "../nostr/relay.converter";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
 
+/**
+ * TODO: incluir roteamento para addressed event
+ * TODO: incluir fallback dos relays para dm para os "read"
+ */
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
 
@@ -36,7 +40,6 @@ export class DefaultRouterMatcher implements RouterMatcher {
       matcher: this.isInteractionEvent.bind(this),
       router: this.routesToUserOutboxAndFellowInbox.bind(this)
     },
-
     {
       router: this.defaultRouting.bind(this)
     }
@@ -62,6 +65,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
       .concat(fellowDMRelays.flat(2))
       .filter((r): r is WebSocket['url'] => !!r);
 
+    console.log('routing direct message event, relays: ', list);
     return Promise.resolve(list);
   }
 
@@ -76,21 +80,27 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   /**
-   * Relays outbox do usuário solicitante e relays inbox do usuário destino
+   * Relays outbox do usuário solicitante e relays inbox do usuário destino.
+   * FIXME: reler sobre essa abordagem, pode ser que eu não esteja fazendo o roteamento correto para interação
    */
   private async routesToUserOutboxAndFellowInbox(event: NostrEvent): Promise<Array<WebSocket['url']>> {
     const relayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
     const senderOutbox = this.extractOutboxRelays(relayRecord);
 
-    const pointers = this.getPTagsAsProfilePointer(event)
+    const pointers = this.getPTagsAsProfilePointer(event);
     const fellows = pointers.map(pointer => this.relayConfigService.loadMainRelaysFromProfilePointer(pointer));
     const listOfRelayList = await Promise.all(fellows);
     const fellowInbox = this.extractInboxRelays(listOfRelayList);
-
-    return Promise.resolve([
+    const relayList = [
+      //  don't remove too much relays from main user because client must obey his configs
       ...senderOutbox,
-      ...fellowInbox
-    ]);
+      //  too much relays is bad
+      ...fellowInbox.splice(0, 3)
+    ];
+
+    console.log('routing interaction to user outbox and fellows inbox, relays: ', relayList);
+
+    return Promise.resolve(relayList);
   }
 
   /**
@@ -145,6 +155,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
     const newRelayRecord = this.relayConverter.convertRelayListEventToRelayRecord(event);
     const relayList = this.extractRelaysOfRelayRecord([ newRelayRecord, oldRelayRecord ], 'write');
 
+    console.log('routing relay list update, sending to relays:', relayList);
     return Promise.resolve(relayList);
   }
 
@@ -158,7 +169,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   private async routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
     //  load author write relays
     const authorRelayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
-    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayRecord, 'write')
+    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayRecord, 'write');
 
     //  load old direct message author list
     const oldRelayDMList = await this.relayConfigService.loadDirectMessageRelaysOnlyHavingPubkey(event.pubkey);
@@ -168,17 +179,16 @@ export class DefaultRouterMatcher implements RouterMatcher {
 
     //  join these three lists
     const relayList = [...(oldRelayDMList || []), ...newRelayDMList, ...authorWriteRelays];
+    console.log('routing to update relay list for direct message, sending updates to relays:', relayList);
 
     return Promise.resolve(relayList);
   }
 
-  private defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    event;
-    return Promise.resolve([]);
-  }
+  private async defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {
+    const authorRelayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
+    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayRecord, 'write');
 
-  private extractRelaysFromTags(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    event;
-    return Promise.resolve([]);
+    console.log('routing to default, sending updates to relays:', authorWriteRelays);
+    return Promise.resolve(authorWriteRelays);
   }
 }
