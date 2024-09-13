@@ -8,14 +8,16 @@ import { RouterMatcher } from "./router-matcher.interface";
 
 /**
  * TODO: incluir roteamento para addressed event
+ * TODO: incluir roteamento para relays de pesquisa (10007)
  * TODO: incluir fallback dos relays para dm para os "read"
+ * TODO: nomvp: incluir roteamento para wiki
  */
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
 
   defaultDiscovery = [ 'wss://purplepag.es' ];
 
-  defaultFallback = [ 'wss://nos.lol' ];
+  defaultFallback = [ 'wss://nos.lol', 'wss://nostr.mom' ];
 
   constructor(
     private relayConverter: RelayConverter,

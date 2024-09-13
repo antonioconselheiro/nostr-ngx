@@ -7,12 +7,17 @@ export interface NostrLocalConfig {
   relayFrom: 'none' | 'localStorage' | 'signer' | 'public';
 
   /**
+   * Current user
+   */
+  currentPubkey?: string;
+
+  /**
    * non npub related local configured relays
    */
   commonRelays?: RelayRecord;
 
   accounts?: {
-    [npub: string]: {
+    [pubkey: string]: {
       relays: {
         general: RelayRecord;
         directMessage?: Array<WebSocket['url']>;

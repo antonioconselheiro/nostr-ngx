@@ -52,4 +52,43 @@ export class RelayConverter {
 
     return record;
   }
+
+  /**
+   * Read relay hints in events,
+   * 
+   * this should not be used to parse 10002, use it specific method:
+   * convertDirectMessageRelayEventToRelayList and convertRelayListEventToRelayRecord.
+   *  
+   * Read tag 'relays' and tag 'r', read either the relay from tag 'e' and from tag 'p'
+   */
+  convertEventToRelayList(event: NostrEvent): Array<WebSocket['url']> {
+    const shouldIgnore = [ kinds.RelayList ].includes(event.kind);
+    if (shouldIgnore) {
+      return [];
+    }
+
+    const relaysFound: Array<WebSocket['url']> = [];
+    event.tags.forEach(tags => {
+      const [type, ...values] = tags;
+      switch (type) {
+        case 'relays':
+          values.forEach(relay => relaysFound.push(relay));
+          break;
+        case 'r':
+          if (values[0]) {
+            relaysFound.push(values[0]);
+          }
+          break;
+        case 'p':
+        case 'e':
+        case 'a':
+          if (values[1]) {
+            relaysFound.push(values[1]);
+          }
+          break;
+      }
+    });
+
+    return relaysFound;
+  }
 }

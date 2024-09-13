@@ -18,6 +18,8 @@ import { ProfilePointer } from 'nostr-tools/nip19';
 })
 export class RelayConfigService {
 
+  readonly hexadecimalRegex = /^[a-f\d]+$/;
+
   //  FIXME: include correct kind when nostr-tools implements nip17.ts
   readonly kindDirectMessageRelayList = 10050;
 
@@ -38,24 +40,25 @@ export class RelayConfigService {
    */
   setLocalRelays(relays: RelayRecord, npub?: NPub, directMessagesRelays?: Array<WebSocket['url']>): void {
     const local = this.configs.read();
-
+    
     if (npub) {
+      const { data: pubkey } = nip19.decode(npub);
       if (!local.accounts) {
         local.accounts = {};
       }
 
-      if (local.accounts[npub]) {
-        if (local.accounts[npub].relays) {
-          local.accounts[npub].relays.general = relays;
+      if (local.accounts[pubkey]) {
+        if (local.accounts[pubkey].relays) {
+          local.accounts[pubkey].relays.general = relays;
         } else {
-          local.accounts[npub].relays = { general: relays };
+          local.accounts[pubkey].relays = { general: relays };
         }
       } else {
-        local.accounts[npub] = { relays: { general: relays } };
+        local.accounts[pubkey] = { relays: { general: relays } };
       }
 
       if (directMessagesRelays) {
-        local.accounts[npub].relays.directMessage = directMessagesRelays
+        local.accounts[pubkey].relays.directMessage = directMessagesRelays
       }
     } else {
       local.commonRelays = relays;
@@ -65,12 +68,7 @@ export class RelayConfigService {
   /**
    * Return relays according to user-customized settings
    */
-  getCurrentUserRelays(): Promise<RelayRecord | null>;
-  getCurrentUserRelays(nip5: Nip05): Promise<RelayRecord | null>;
-  getCurrentUserRelays(nostrPublic: NPub): Promise<RelayRecord | null>;
-  getCurrentUserRelays(nostrPublic: NPub): Promise<RelayRecord | null>;
-  getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord | null>;
-  async getCurrentUserRelays(userPublicAddress?: string): Promise<RelayRecord | null> {
+  async getCurrentUserRelays(): Promise<RelayRecord | null> {
     const local = this.configs.read();
     const relayFrom = local.relayFrom;
     let relayRecord: RelayRecord | null = null;
@@ -78,11 +76,9 @@ export class RelayConfigService {
     if (relayFrom === 'signer') {
       relayRecord = await this.getRelaysFromSigner();
     } else if (relayFrom === 'localStorage') {
-      relayRecord = await this.getMainRelaysFromStorage(local, userPublicAddress);
-    } else if (relayFrom === 'public') {
-      if (userPublicAddress) {
-        relayRecord = await this.getUserPublicMainRelays(userPublicAddress);
-      }
+      relayRecord = await this.getMainRelaysFromStorage(local);
+    } else if (relayFrom === 'public' && local.currentPubkey) {
+      relayRecord = await this.getUserPublicMainRelays(local.currentPubkey);
     }
 
     console.info('local configs', local);
@@ -98,17 +94,13 @@ export class RelayConfigService {
     return Promise.resolve({});
   }
 
-  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<RelayRecord>;
-  private getMainRelaysFromStorage(local: NostrLocalConfig, nostrPublic: NPub): Promise<RelayRecord>;
-  private getMainRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord>;
-  private getMainRelaysFromStorage(local: NostrLocalConfig, userPublicAddress?: string): Promise<RelayRecord> {
-    if (!userPublicAddress) {
-      return Promise.resolve(local.commonRelays || {});
-    } else if (this.guard.isNPub(userPublicAddress)) {
-      return Promise.resolve(local.accounts && local.accounts[userPublicAddress].relays || {})
+  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<RelayRecord> {
+    const pubkey = local.currentPubkey;
+    if (pubkey) {
+      return Promise.resolve(local.accounts && local.accounts[pubkey].relays || {})
     }
 
-    return Promise.resolve({});
+    return Promise.resolve(local.commonRelays || {});
   }
 
   async getUserPublicMainRelays(nip5: Nip05): Promise<RelayRecord | null>;
@@ -116,14 +108,13 @@ export class RelayConfigService {
   async getUserPublicMainRelays(nprofile: NProfile): Promise<RelayRecord | null>;
   async getUserPublicMainRelays(pubkey: string): Promise<RelayRecord | null>;
   async getUserPublicMainRelays(userPublicAddress: string): Promise<RelayRecord | null> {
-    const HEXADECIMAL_REGEX = /^[a-f\d]+$/;
     if (this.guard.isNip05(userPublicAddress)) {
       return this.loadMainRelaysFromNIP5(userPublicAddress);
     } else if (this.guard.isNPub(userPublicAddress)) {
       return this.loadMainRelaysOnlyHavingNpub(userPublicAddress);
     } else if (this.guard.isNProfile(userPublicAddress)) {
       return this.loadMainRelaysFromNprofile(userPublicAddress);
-    } else if (HEXADECIMAL_REGEX.test(userPublicAddress)) {
+    } else if (this.hexadecimalRegex.test(userPublicAddress)) {
       return this.loadMainRelaysOnlyHavingPubkey(userPublicAddress);
     }
 
