@@ -31,7 +31,8 @@ export class FacadeNPool extends NPool {
     //  I will remove this if this suggestion get accepted:
     //  https://github.com/soapbox-pub/nostrify/issues/2
     const controller = new AbortController();
-    const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
+    //  FIXME: AbortSignal.any is throwing build erro e__e
+    const signal = opts?.signal ? (AbortSignal as any).any([opts.signal, controller.signal]) : controller.signal;
 
     const routes = await this.getOpts().reqRouter(filters, opts);
     const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);

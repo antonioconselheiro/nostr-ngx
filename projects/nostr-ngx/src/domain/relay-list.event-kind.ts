@@ -1,1 +1,5 @@
-export type RelayListEventKind = 10006 | 10007 | 10050 | 10102;
+export type BlockedRelayList = 10006;
+export type SearchRelayList = 10007;
+export type DirectMessageRelayList = 10050;
+export type WikiRelayList = 10102;
+export type RelayListEventKind = BlockedRelayList | SearchRelayList | DirectMessageRelayList | WikiRelayList;

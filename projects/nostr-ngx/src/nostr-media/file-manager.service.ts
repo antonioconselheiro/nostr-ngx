@@ -3,7 +3,6 @@ import { base64 } from '@scure/base';
 
 /**
  * TODO: preciso prover meios deste serviço ser substituível
- * por serviços que integrem com cordova e capacitor
  */
 @Injectable()
 export class FileManagerService {
