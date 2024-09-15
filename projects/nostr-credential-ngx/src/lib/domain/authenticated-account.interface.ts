@@ -1,9 +1,9 @@
-import { TNostrPublic } from '@belomonte/nostr-ngx';
+import { NPub } from '@belomonte/nostr-ngx';
 import { NostrEvent, NostrMetadata } from '@nostrify/nostrify';
 
 export interface IAuthenticatedAccount {
   metadata: NostrMetadata;
-  npub: TNostrPublic;
+  npub: NPub;
   pubhex: string;
   relayList: NostrEvent;
 }

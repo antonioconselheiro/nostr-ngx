@@ -165,7 +165,7 @@ export class RelayConfigService {
   }
 
   async loadMainRelaysOnlyHavingNpub(npub: NPub): Promise<RelayRecord | null> {
-    const pubkey = this.nostrConverter.castNostrPublicToPubkey(npub);
+    const pubkey = this.nostrConverter.casNPubToPubkey(npub);
     return this.loadMainRelaysOnlyHavingPubkey(pubkey);
   }
 
@@ -379,7 +379,7 @@ export class RelayConfigService {
    */
   loadRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async loadRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
-    const pubkey = this.nostrConverter.castNostrPublicToPubkey(npub);
+    const pubkey = this.nostrConverter.casNPubToPubkey(npub);
     return this.loadRelayListOnlyHavingPubkey(pubkey, kind);
   }
 

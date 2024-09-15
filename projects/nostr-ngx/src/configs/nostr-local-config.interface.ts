@@ -1,4 +1,5 @@
 import { RelayRecord } from 'nostr-tools/relay';
+import { NostrLocalConfigAccount } from './nostr-local-config-account.interface';
 
 /**
  * saved in local storage
@@ -17,11 +18,6 @@ export interface NostrLocalConfig {
   commonRelays?: RelayRecord;
 
   accounts?: {
-    [pubkey: string]: {
-      relays: {
-        general: RelayRecord;
-        directMessage?: Array<WebSocket['url']>;
-      };
-    };
+    [pubkey: string]: NostrLocalConfigAccount;
   };
 }

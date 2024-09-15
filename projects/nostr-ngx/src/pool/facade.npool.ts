@@ -115,7 +115,6 @@ export class FacadeNPool extends NPool {
       
       return result.flat(2)
     }
-
   }
 
   protected getOpts(): NpoolRouterOptions {

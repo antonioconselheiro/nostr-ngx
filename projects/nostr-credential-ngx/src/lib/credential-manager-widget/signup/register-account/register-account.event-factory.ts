@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { NostrSigner } from '@belomonte/nostr-credential-ngx';
-import { NostrEventKind } from '@belomonte/nostr-ngx';
-import { EventTemplate, NostrEvent } from 'nostr-tools';
-import { IProfile } from '../../../domain/profile.interface';
+import { EventTemplate, kinds, NostrEvent } from 'nostr-tools';
+import { NostrSigner } from '../../../profile-service/nostr.signer';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +12,9 @@ export class RegisterAccountEventFactory {
     private nostrSigner: NostrSigner
   ) { }
 
-  createProfileMetadata(profile: IProfile): Promise<NostrEvent> {
+  createProfileMetadata(profile: NostrMetadata): Promise<NostrEvent> {
     const event: EventTemplate = {
-      kind: NostrEventKind.Metadata,
+      kind: kinds.Metadata,
       content: JSON.stringify(profile),
       tags: [],
       created_at: this.generateCreatedAt()

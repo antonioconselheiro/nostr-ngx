@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, TNostrPublic } from '@belomonte/nostr-ngx';
+import { NostrConverter, NPub } from '@belomonte/nostr-ngx';
 import { NostrEvent } from 'nostr-tools';
 import { ProfileConverter } from "./profile.converter";
 import { NostrMetadata } from '@nostrify/nostrify';
 
+// FIXME: must create an specific structure LNRU based to profile caching
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +13,7 @@ export class ProfileCache {
   static instance: ProfileCache | null = null;
 
   static profiles: {
-    [npub: TNostrPublic]: NostrMetadata
+    [npub: NPub]: NostrMetadata
   } = {};
 
   constructor(
@@ -26,10 +27,10 @@ export class ProfileCache {
     return ProfileCache.instance;
   }
 
-  get(npubs: TNostrPublic): NostrMetadata;
-  get(npubs: TNostrPublic[]): NostrMetadata[];
-  get(npubs: TNostrPublic[] | TNostrPublic): NostrMetadata | NostrMetadata[];
-  get(npubs: TNostrPublic[] | TNostrPublic): NostrMetadata | NostrMetadata[] {
+  get(npubs: NPub): NostrMetadata;
+  get(npubs: NPub[]): NostrMetadata[];
+  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[];
+  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[] {
     if (typeof npubs === 'string') {
       return this.getLazily(npubs);
     } else {
@@ -37,15 +38,15 @@ export class ProfileCache {
     }
   }
 
-  isEagerLoaded(npub: TNostrPublic): boolean {
+  isEagerLoaded(npub: NPub): boolean {
     return this.get(npub).load || false;
   }
 
   getFromPubKey(pubkey: string): NostrMetadata {
-    return this.get(this.nostrConverter.castPubkeyToNostrPublic(pubkey));
+    return this.get(this.nostrConverter.castPubkeyToNpub(pubkey));
   }
 
-  private getLazily(npub: TNostrPublic): NostrMetadata {
+  private getLazily(npub: NPub): NostrMetadata {
     if (ProfileCache.profiles[npub]) {
       return ProfileCache.profiles[npub];
     }

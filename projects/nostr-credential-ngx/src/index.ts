@@ -1,4 +1,3 @@
-export * from './lib/domain/profile.interface';
 export * from './lib/domain/unauthenticated-account.interface';
 export * from './lib/domain/profile-picture.interface';
 export * from './lib/domain/creating-account.interface';

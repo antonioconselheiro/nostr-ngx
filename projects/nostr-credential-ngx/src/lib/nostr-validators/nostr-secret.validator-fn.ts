@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { nip19 } from 'nostr-tools';
 
-export function nostrSecretValidatorFactory(): ValidatorFn {
+export function nsecValidatorFactory(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
 
     //  I'm not the 'required' validator
@@ -14,18 +14,18 @@ export function nostrSecretValidatorFactory(): ValidatorFn {
 
       if (type === 'npub') {
         return {
-          invalidNostrPublicGivenInstead: true
+          invalidNpubGivenInstead: true
         }
       } else if (type === 'nsec') {
         return null;
       }
 
       return {
-        invalidNostrSecret: true
+        invalidNSec: true
       };
     } catch {
       return {
-        invalidNostrSecret: true
+        invalidNSec: true
       };
     }
 

@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
-import {  TNostrPublic } from '@belomonte/nostr-ngx';
+import { NPub } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
 import { Event, nip19 } from 'nostr-tools';
 import { IProfileMetadata } from './profile-metadata.interface';
-import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileConverter {
 
-  getMetadataFromNostrPublic(npub: TNostrPublic): NostrMetadata {
-    return { npub, load: false };
+  getMetadataFromNPub(npub: NPub): NostrMetadata {
+    //  FIXME: 
+    return { load: false };
   }
 
   convertEventToProfile(profile: Event, mergeWith?: NostrMetadata): NostrMetadata {

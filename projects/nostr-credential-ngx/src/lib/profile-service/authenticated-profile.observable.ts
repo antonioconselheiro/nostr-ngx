@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, NostrSecretCrypto, TNcryptsec, TNostrPublic, TNostrSecret } from '@belomonte/nostr-ngx';
+import { NostrConverter, NSecCrypto, Ncryptsec, NPub, NSec } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
@@ -22,7 +22,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
     private profileProxy: ProfileProxy,
     private accountConverter: AccountConverter,
     private nostrConverter: NostrConverter,
-    private nostrSecretCrypto: NostrSecretCrypto,
+    private nsecCrypto: NSecCrypto,
     private sessionConfigs: ProfileSessionStorage
   ) {
     const session = sessionConfigs.read();
@@ -56,47 +56,47 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       return null;
     }
 
-    return this.nostrConverter.castNostrPublicToPubkey(profile.npub);
+    return this.nostrConverter.casNPubToPubkey(profile.npub);
   }
 
-  authenticateWithNostrSecret(nsec: TNostrSecret, saveNostrSecretInSessionStorage = false): Promise<NostrMetadata> {
+  authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
 
-    if (saveNostrSecretInSessionStorage) {
+    if (saveNSecInSessionStorage) {
       this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
   }
 
-  authenticateAccount(account: IUnauthenticatedAccount, password: string, saveNostrSecretInSessionStorage = false): Promise<NostrMetadata> {
+  authenticateAccount(account: IUnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
     const nsec = this.accountConverter.decryptAccount(account, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
     this.sessionConfigs.patch({ ncryptsec: account.ncryptsec });
 
-    if (saveNostrSecretInSessionStorage) {
+    if (saveNSecInSessionStorage) {
       this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
   }
 
-  authenticateEncryptedEncode(ncryptsec: TNcryptsec, password: string, saveNostrSecretInSessionStorage = false): Promise<NostrMetadata> {
-    const nsec = this.nostrSecretCrypto.decryptNcryptsec(ncryptsec, password);
+  authenticateEncryptedEncode(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
+    const nsec = this.nsecCrypto.decrypNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
     this.sessionConfigs.patch({ ncryptsec });
 
-    if (saveNostrSecretInSessionStorage) {
+    if (saveNSecInSessionStorage) {
       this.sessionConfigs.patch({ nsec });
     }
 
     return this.loadProfile(user.npub);
   }
 
-  private loadProfile(npub: TNostrPublic): Promise<NostrMetadata> {
+  private loadProfile(npub: NPub): Promise<NostrMetadata> {
     return this.profileProxy
       .load(npub)
       .then(metadata => {

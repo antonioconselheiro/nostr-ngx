@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TNcryptsec } from '@belomonte/nostr-ngx';
+import { Ncryptsec, NostrLocalConfigRelays, NPub } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
@@ -20,8 +20,8 @@ export class AccountManagerStatefull {
     private accountsLocalStorage: AccountsLocalStorage
   ) { }
 
-  addAccount(profile: NostrMetadata, ncryptsec: TNcryptsec): IUnauthenticatedAccount | null {
-    const unauthenticated = this.accountConverter.convertProfileToAccount(profile, ncryptsec);
+  addAccount(npub: NPub, profile: NostrMetadata, ncryptsec: Ncryptsec, relays: NostrLocalConfigRelays): IUnauthenticatedAccount | null {
+    const unauthenticated = this.accountConverter.convertProfileToAccount(npub, profile, ncryptsec, relays);
     if (!unauthenticated) {
       return null;
     }

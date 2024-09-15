@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NostrService, SmartPool, TNostrPublic } from '@belomonte/nostr-ngx';
+import { NostrPool, NPub } from '@belomonte/nostr-ngx';
 import { nip19, NostrEvent } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
 
@@ -9,15 +9,15 @@ import { Metadata } from 'nostr-tools/kinds';
 export class ProfileNostr {
 
   constructor(
-    private nostrService: NostrService
+    private nostrPool: NostrPool
   ) { }
 
-  loadProfiles(npubs: Array<TNostrPublic>, pool?: SmartPool): Promise<NostrEvent[]> {
-    return this.nostrService.request([
+  loadProfiles(npubs: Array<NPub>): Promise<NostrEvent[]> {
+    return this.nostrPool.query([
       {
         kinds: [ Metadata ],
         authors: npubs.map(npub => String(nip19.decode(npub).data))
       }
-    ], pool);
+    ]);
   }
 }

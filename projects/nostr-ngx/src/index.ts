@@ -41,14 +41,15 @@ export * from './configs/nostr-session-config.interface';
 export * from './configs/configs-local.storage';
 export * from './configs/nostr-local-config.interface';
 export * from './configs/configs-session.storage';
+export * from './configs/nostr-local-config-account.interface';
+export * from './configs/nostr-local-config-relays.interface';
 export * from './exceptions/no-credentials-found.error';
 export * from './exceptions/signer-not-found.error';
 export * from './nostr/nostr.module';
 export * from './nostr/is-relay-string.regex';
 export * from './nostr/relay.converter';
-export * from './nostr/nostr.service';
 export * from './nostr/nostr.converter';
-export * from './nostr/nostr-secret.crypto';
+export * from './nostr/nsec.crypto';
 export * from './nostr/nostr.guard';
 
 declare global {

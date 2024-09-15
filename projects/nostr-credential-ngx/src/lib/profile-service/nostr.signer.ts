@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ConfigsSessionStorage, NoCredentialsFoundError, SignerNotFoundError, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
+import { ConfigsSessionStorage, NoCredentialsFoundError, SignerNotFoundError, Ncryptsec, NSec } from '@belomonte/nostr-ngx';
 import { EventTemplate, finalizeEvent, generateSecretKey, nip19, NostrEvent } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 
@@ -19,18 +19,18 @@ export class NostrSigner {
     private sessionConfigs: ConfigsSessionStorage
   ) { }
 
-  login(nsec: TNostrSecret): void {
+  login(nsec: NSec): void {
     const { data } = nip19.decode(nsec);
     NostrSigner.inMemoryNsec = data as Uint8Array;
   }
 
-  generateNsec(): TNostrSecret {
+  generateNsec(): NSec {
     return nip19.nsecEncode(generateSecretKey());
   }
 
-  encryptNsec(password: string): TNcryptsec | null;
-  encryptNsec(password: string, nsec: TNostrSecret): TNcryptsec; 
-  encryptNsec(password: string, nsec?: TNostrSecret): TNcryptsec | null {
+  encryptNsec(password: string): Ncryptsec | null;
+  encryptNsec(password: string, nsec: NSec): Ncryptsec; 
+  encryptNsec(password: string, nsec?: NSec): Ncryptsec | null {
     if (nsec) {
       return this.generateNcryptsec(password, nsec);
     }
@@ -53,14 +53,14 @@ export class NostrSigner {
     return null;
   }
 
-  private generateNcryptsec(password: string, nsec: TNostrSecret | Uint8Array): TNcryptsec {
+  private generateNcryptsec(password: string, nsec: NSec | Uint8Array): Ncryptsec {
     if (typeof nsec === 'string') {
       const decoded = nip19.decode(nsec);
       const bytes = decoded.data as Uint8Array; 
 
-      return nip49.encrypt(bytes, password) as TNcryptsec;
+      return nip49.encrypt(bytes, password) as Ncryptsec;
     } else {
-      return nip49.encrypt(nsec, password) as TNcryptsec;
+      return nip49.encrypt(nsec, password) as Ncryptsec;
     }
   }
 
@@ -70,7 +70,6 @@ export class NostrSigner {
 
   signEvent(event: EventTemplate): Promise<NostrEvent> {
     const sessionConfig = this.sessionConfigs.read();
-
     if (sessionConfig.sessionFrom === 'signer') {
       return this.signWithSigner(event);
     }

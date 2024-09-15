@@ -7,7 +7,7 @@ import { NSec } from '../domain/nsec.type';
 @Injectable({
   providedIn: 'root'
 })
-export class NostrSecretCrypto {
+export class NSecCrypto {
 
   decryptNcryptsec(encryptedSecret: Ncryptsec, password: string): NSec {
     return nip19.nsecEncode(nip49.decrypt(encryptedSecret, password));

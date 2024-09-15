@@ -1,8 +1,8 @@
 <h2 class="title">Login</h2>
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off" id="accountForm">
-  <div [class.error]="submitted && getFormControlErrors('nostrSecret')" class="floatingLabel">
-    <input #nostrSecret required name="nostrSecret" maxlength="64" formControlName="nostrSecret" placeholder=" "
-      id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showNostrSecret ? 'text' : 'password'" />
+  <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
+    <input #nsec required name="nsec" maxlength="64" formControlName="nsec" placeholder=" "
+      id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showNSec ? 'text' : 'password'" />
     <label for="addAccountNsecField">nsec</label>
 
     <button type="button" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
@@ -11,35 +11,35 @@
       <nostr-svg-render name="scanQrcode"></nostr-svg-render>
     </button>
 
-    <button type="button" [attr.title]="showNostrSecret ? 'hide nsec' : 'show nsec'"
-      (click)="showNostrSecret = !showNostrSecret" class="svgButton">
+    <button type="button" [attr.title]="showNSec ? 'hide nsec' : 'show nsec'"
+      (click)="showNSec = !showNSec" class="svgButton">
 
-      <nostr-svg-render [name]="showNostrSecret ? 'eyeOff' : 'eye'"></nostr-svg-render>
+      <nostr-svg-render [name]="showNSec ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
-    <ng-container *ngIf="submitted && getFormControlErrors('nostrSecret')">
-      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'required')" class="error">
+    <ng-container *ngIf="submitted && getFormControlErrors('nsec')">
+      <span *ngIf="getFormControlErrorStatus('nsec', 'required')" class="error">
         nsec is required
       </span>
-      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'invalidNostrPublicGivenInstead')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNpubGivenInstead')" class="error">
         npub given instead nsec
       </span>
-      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'invalidNostrSecret')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nsec', 'invalidNSec')" class="error">
         Invalid nsec
       </span>
-      <span *ngIf="getFormControlErrorStatus('nostrSecret', 'nostrSecretNotFound')" class="error">
+      <span *ngIf="getFormControlErrorStatus('nsec', 'nsecNotFound')" class="error">
         Could not found this account in current relay pool
       </span>
     </ng-container>
   </div>
 
   <div class="checkbox">
-    <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNostrSecretEncrypted
-      id="saveNostrSecretEncrypted" type="checkbox" placeholder=" " />
-    <label for="saveNostrSecretEncrypted">Remember account (save encrypted)</label>
+    <input name="saveNcryptsecLocalStorage" formControlName="saveNcryptsecLocalStorage" #saveNSecEncrypted
+      id="saveNSecEncrypted" type="checkbox" placeholder=" " />
+    <label for="saveNSecEncrypted">Remember account (save encrypted)</label>
   </div>
 
-  <div *ngIf="saveNostrSecretEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
+  <div *ngIf="saveNSecEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
     class="floatingLabel passwordField">
 
     <input #password required name="password" [maxlength]="passwordLength" formControlName="password" placeholder=" "

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { IProfile } from '../../../../domain/profile.interface';
+import { NostrPool } from '@belomonte/nostr-ngx';
+import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { ProfileProxy } from '../../../../profile-service/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
-import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { ExtendedPool, MainPool } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -21,16 +21,14 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   @Input()
   relay!: string;
 
-  pool?: ExtendedPool;
-
   loadedDetails: RelayInformation | null = null;
-  loadedContactProfile: IProfile | null = null;
+  loadedContactProfile: NostrMetadata | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
   numberFormat = '1.0-0';
 
   constructor(
-    private mainPool: MainPool,
+    private nostrPool: NostrPool,
     private profileProxy: ProfileProxy
   ) { }
 
@@ -43,7 +41,6 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   }
 
   private connectPool(): void {
-    const pool = this.pool = new ExtendedPool(this.mainPool);
     fetchRelayInformation(this.relay)
       .then(details => {
         pool.ensureRelay(this.relay, { details });

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { FileManagerService, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
+import { FileManagerService, Ncryptsec, NSec } from '@belomonte/nostr-ngx';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
 import { NostrSigner } from '../../../profile-service/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
@@ -27,8 +27,8 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
 
   generateNcryptsecForm!: FormGroup<{
     qrcodeTitle: FormControl<string | null | undefined>;
-    nsec: FormControl<TNostrSecret | null>;
-    ncryptsec: FormControl<TNcryptsec | null>;
+    nsec: FormControl<NSec | null>;
+    ncryptsec: FormControl<Ncryptsec | null>;
   }>;
 
   constructor(

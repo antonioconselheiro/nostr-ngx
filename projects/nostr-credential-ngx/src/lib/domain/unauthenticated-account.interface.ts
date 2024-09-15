@@ -1,9 +1,8 @@
-import { TNcryptsec, TNostrPublic, TNip05 } from "@belomonte/nostr-ngx";
-import { RelayRecord } from "nostr-tools/relay";
+import { Ncryptsec, Nip05, NostrLocalConfigAccount, NostrLocalConfigRelays, NPub } from "@belomonte/nostr-ngx";
 
-export interface IUnauthenticatedAccount {
-  npub: TNostrPublic;
-  ncryptsec: TNcryptsec;
+export interface IUnauthenticatedAccount extends NostrLocalConfigAccount {
+  npub: NPub;
+  ncryptsec: Ncryptsec;
   displayName: string;
 
   /**
@@ -11,7 +10,6 @@ export interface IUnauthenticatedAccount {
    * imagem de perfil não dependa de internet ou estabilidade de relay para ser exibida
    */
   picture: string;
-  nip05?: TNip05;
-  nip05valid?: boolean;
-  relays?: RelayRecord;
+  nip05?: Nip05;
+  relays: NostrLocalConfigRelays;
 }

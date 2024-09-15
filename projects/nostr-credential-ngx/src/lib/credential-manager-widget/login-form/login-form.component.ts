@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { NostrConverter, TNcryptsec, TNostrSecret } from '@belomonte/nostr-ngx';
-import { IProfile } from '../../domain/profile.interface';
+import { NostrConverter, Ncryptsec, NSec, NostrLocalConfigRelays, NPub } from '@belomonte/nostr-ngx';
 import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -11,6 +10,7 @@ import { ProfileProxy } from '../../profile-service/profile.proxy';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 import { TLoginFormFields } from './login-form-fields.type';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-login-form',
@@ -21,7 +21,7 @@ export class LoginFormComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  showNostrSecret = false;
+  showNSec = false;
   showPassword = false;
 
   @Input()
@@ -42,7 +42,7 @@ export class LoginFormComponent implements OnInit {
   };
 
   accountForm!: FormGroup<{
-    nostrSecret: FormControl<string | null>;
+    nsec: FormControl<string | null>;
     saveNcryptsecLocalStorage: FormControl<boolean | null>;
     password: FormControl<string | null>;
   }>;
@@ -62,9 +62,9 @@ export class LoginFormComponent implements OnInit {
 
   private initForm(): void {
     this.accountForm = this.fb.group({
-      nostrSecret: ['', [
+      nsec: ['', [
         Validators.required.bind(this),
-        NostrValidators.nostrSecret
+        NostrValidators.nsec
       ]],
 
       saveNcryptsecLocalStorage: [true],
@@ -95,31 +95,31 @@ export class LoginFormComponent implements OnInit {
       return Promise.resolve();
     }
 
-    const { password, nostrSecret } = this.accountForm.getRawValue() as { password: string, nostrSecret: TNostrSecret };
-    if (!nostrSecret || !password) {
+    const { password, nsec } = this.accountForm.getRawValue() as { password: string, nsec: NSec };
+    if (!nsec || !password) {
       return Promise.resolve();
     }
 
-    const user = this.nostrConverter.convertNsecToNpub(nostrSecret);
-    const ncrypted = this.nostrSigner.encryptNsec(password, nostrSecret);
+    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
 
     this.loading = true;
     this.profileProxy
       .load(user.npub)
-      .then(profile => this.addAccount(profile, ncrypted))
+      .then(profile => this.addAccount(user.npub, profile, ncrypted))
       .finally(() => this.loading = false);
   }
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {
-    const nostrSecret = await this.camera$.readQrCode();
-    this.accountForm.patchValue({ nostrSecret });
+    const nsec = await this.camera$.readQrCode();
+    this.accountForm.patchValue({ nsec });
     return Promise.resolve();
   }
 
-  private addAccount(profile: IProfile, ncryptsec: TNcryptsec): void {
+  private addAccount(npub: NPub, profile: NostrMetadata, ncryptsec: Ncryptsec, relays: NostrLocalConfigRelays): void {
     if (profile.load) {
       this.accountForm.reset();
-      const unauthenticatedAccount = this.accountManagerService.addAccount(profile, ncryptsec);
+      const unauthenticatedAccount = this.accountManagerService.addAccount(npub, profile, ncryptsec, relays);
       if (!unauthenticatedAccount) {
         this.changeStep.next('selectAccount');
       } else {
@@ -128,8 +128,8 @@ export class LoginFormComponent implements OnInit {
       }
 
     } else {
-      this.accountForm.controls['nostrSecret'].setErrors({
-        nostrSecretNotFound: true
+      this.accountForm.controls['nsec'].setErrors({
+        nsecNotFound: true
       });
     }
   }
