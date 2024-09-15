@@ -24,13 +24,18 @@ export class NostrPool extends FacadeNPool {
     super(routerService, nstore, ncache);
   }
 
-  //  FIXME: incluir uso do abort signal para o unsubsribe do observable
-  observe(filters: Array<NostrFilter>): Observable<NostrEvent> {
-    const observable = from(this.req(filters));
+  //  TODO: verificar se a incrição e desinscrição estão funcionando corretamente
+  observe(filters: Array<NostrFilter>, opts?: NPoolRequestOptions): Observable<NostrEvent> {
+    const observable = from(this.req(filters, opts));
     const closedSignal$ = observable.pipe(
       filter(([kind]) => kind === 'CLOSED'),
       takeUntil(of(undefined)) 
     );
+
+    const abort = new AbortController();
+    opts = opts || {};
+
+    closedSignal$.subscribe(() => abort.abort());
   
     return observable
       .pipe(
@@ -40,8 +45,8 @@ export class NostrPool extends FacadeNPool {
   }
 
   override req(
-    filters: NostrFilter[],
-    opts?: NPoolRequestOptions,
+    filters: Array<NostrFilter>,
+    opts?: NPoolRequestOptions
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
     return super.req(filters, opts);
   }
