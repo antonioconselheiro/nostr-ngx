@@ -7,9 +7,9 @@
     "dev": "npm start",
     "build": "sh ./build.sh",
     "build:nostr": "npm -C projects/nostr-ngx run build",
-    "build:credential": "npm -C projects/nostr-credential-ngx run build",
+    "build:gui": "npm -C projects/nostr-gui-ngx run build",
     "pool": "docker-compose -f pool/docker-compose.yml up",
-    "lint": "ng lint --project=nostr-ngx; ng lint --project=nostr-credential-ngx"
+    "lint": "ng lint --project=nostr-ngx; ng lint --project=nostr-gui-ngx"
   },
   "dependencies": {
     "@angular/animations": "^18.1.3",

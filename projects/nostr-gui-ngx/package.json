@@ -1,5 +1,5 @@
 {
-  "name": "@belomonte/nostr-credential-ngx",
+  "name": "@belomonte/nostr-gui-ngx",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^17.3.0",
@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build:ngx": "ng build",
-    "build:sass": "sass ./src/styles.scss --style compressed > ../../dist/nostr-credential-ngx/style.css",
+    "build:sass": "sass ./src/styles.scss --style compressed > ../../dist/nostr-gui-ngx/style.css",
     "build": "npm run build:ngx && npm run build:sass",
     "docs": "sassdoc src --dest=sassdoc --verbose && npx compodoc -p tsconfig.json"
   }

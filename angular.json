@@ -3,28 +3,28 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "nostr-credential-ngx": {
+    "nostr-gui-ngx": {
       "projectType": "library",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
         }
       },
-      "root": "projects/nostr-credential-ngx",
-      "sourceRoot": "projects/nostr-credential-ngx/src",
+      "root": "projects/nostr-gui-ngx",
+      "sourceRoot": "projects/nostr-gui-ngx/src",
       "prefix": "nostr",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/nostr-credential-ngx/ng-package.json"
+            "project": "projects/nostr-gui-ngx/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/nostr-credential-ngx/tsconfig.lib.prod.json"
+              "tsConfig": "projects/nostr-gui-ngx/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/nostr-credential-ngx/tsconfig.lib.json"
+              "tsConfig": "projects/nostr-gui-ngx/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -32,7 +32,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/nostr-credential-ngx/tsconfig.spec.json",
+            "tsConfig": "projects/nostr-gui-ngx/tsconfig.spec.json",
             "polyfills": [
               "zone.js",
               "zone.js/testing"
@@ -43,8 +43,8 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "projects/nostr-credential-ngx/src/**/*.ts",
-              "projects/nostr-credential-ngx/src/**/*.html"
+              "projects/nostr-gui-ngx/src/**/*.ts",
+              "projects/nostr-gui-ngx/src/**/*.html"
             ]
           }
         }
@@ -124,7 +124,7 @@
               "projects/belomonte/src/assets"
             ],
             "styles": [
-              "dist/nostr-credential-ngx/styles.scss",
+              "dist/nostr-gui-ngx/styles.scss",
               "projects/belomonte/src/styles.scss"
             ],
             "scripts": []
