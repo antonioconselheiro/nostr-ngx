@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProfile } from '../../domain/profile.interface';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
@@ -7,6 +6,7 @@ import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.in
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',
@@ -14,13 +14,13 @@ import { ICreatingAccount } from '../../domain/creating-account.interface';
   styleUrl: './modal-nostr-credential.component.scss'
 })
 export class ModalNostrCredentialComponent
-  extends ModalableDirective<IAuthModalArguments | null, IProfile | null>
+  extends ModalableDirective<IAuthModalArguments | null, NostrMetadata | null>
   implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription();
-  response = new Subject<IProfile | null | void>();
+  response = new Subject<NostrMetadata | null | void>();
 
-  auth: IProfile | null = null;
+  auth: NostrMetadata | null = null;
   accounts: IUnauthenticatedAccount[] = [];
 
   authenticatingAccount: IUnauthenticatedAccount | null = null;

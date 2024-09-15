@@ -38,8 +38,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       account = {
         metadata,
         npub,
-        pubhex,
-        pool
+        pubhex
       };
     }
 
@@ -84,7 +83,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
   }
 
   authenticateEncryptedEncode(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
-    const nsec = this.nsecCrypto.decrypNcryptsec(ncryptsec, password);
+    const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
     this.sessionConfigs.patch({ ncryptsec });
@@ -105,8 +104,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
         this.next({
           metadata,
           npub,
-          pubhex: data,
-          pool: t
+          pubhex: data
         });
 
         return Promise.resolve(metadata);

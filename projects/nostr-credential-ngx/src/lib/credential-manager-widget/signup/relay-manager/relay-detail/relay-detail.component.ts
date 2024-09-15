@@ -59,16 +59,16 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private onLoad(details: RelayInformation, pool: ExtendedPool): void {
+  private onLoad(details: RelayInformation): void {
     this.loadedDetails = details;
     console.info(this.relay, 'details', details);
-    this.loadContactAccount(details, pool);
+    this.loadContactAccount(details);
   }
 
-  private loadContactAccount(details: RelayInformation, pool: ExtendedPool): void {
+  private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
       this.profileProxy
-        .loadFromPublicHexa(details.pubkey, pool)
+        .loadFromPublicHexa(details.pubkey)
         .then(profile => this.loadedContactProfile = profile)
     }
   }
