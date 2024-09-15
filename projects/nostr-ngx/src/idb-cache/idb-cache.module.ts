@@ -16,4 +16,4 @@ import { IO_CACHE_NSTORE_TOKEN } from '../injection-token/io-cache-nstore.token'
     }
   ]
 })
-export class IdbCacheModule { }
+export class IdbStoreModule { }
