@@ -17,4 +17,9 @@ export interface NPoolRequestOptions {
    * Limit operation to these relays
    */
   useOnly?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | NProfile>;
+
+  /**
+   * Force ignore current configured ncache and nstore and request exclusively from relay 
+   */
+  ignoreCache?: boolean;
 }

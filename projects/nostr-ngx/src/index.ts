@@ -31,7 +31,7 @@ export * from './nostr/nostr.converter';
 export * from './pool/relay-config.service';
 export * from './nostr/nostr-secret.crypto';
 export * from './nostr/nostr.guard';
-export * from './pool/main.pool';
+export * from './pool/nostr.pool';
 
 declare global {
   interface Window {

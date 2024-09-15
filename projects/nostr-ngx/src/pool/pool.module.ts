@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { MainPool } from "./main.pool";
+import { NostrPool } from "./nostr.pool";
 import { NgModule } from "@angular/core";
 import { RouterService } from "./router.service";
 
@@ -9,7 +9,7 @@ import { RouterService } from "./router.service";
   ],
   providers: [
     RouterService,
-    MainPool
+    NostrPool
   ]
 })
 export class PoolModule {}

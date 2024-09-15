@@ -1,11 +1,25 @@
-import { NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool } from '@nostrify/nostrify';
+import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NStore } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
-import { NpoolRouterOptions } from './npool-router.options';
 import { NPoolRequestOptions } from './npool-request.options';
+import { NpoolRouterOptions } from './npool-router.options';
 
-export class OverrideNPool extends NPool {
+/**
+ * controls the relation between main npool and the cache system (provided ncache and nstore)
+ */
+export class FacadeNPool extends NPool {
 
-  constructor(opts: NpoolRouterOptions) {
+  constructor(
+    opts: NpoolRouterOptions,
+    /**
+     * I/O cache
+     */
+    protected readonly nstore: NStore,
+
+    /**
+     * in memory cache
+     */
+    protected readonly ncache: NCache
+  ) {
     super(opts);
   }
 
@@ -13,6 +27,9 @@ export class OverrideNPool extends NPool {
     filters: NostrFilter[],
     opts?: NPoolRequestOptions,
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
+    //  FIXME? the following code is a copy of npool code, with opts being send to reqRouter,
+    //  I will remove this if this suggestion get accepted:
+    //  https://github.com/soapbox-pub/nostrify/issues/2
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
 
@@ -59,7 +76,7 @@ export class OverrideNPool extends NPool {
     const relayUrls = await this.getOpts().eventRouter(event, opts);
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).event(event, opts)),
+      relayUrls.map((url) => this.relay(url).event(event, opts))
     );
   }
 
