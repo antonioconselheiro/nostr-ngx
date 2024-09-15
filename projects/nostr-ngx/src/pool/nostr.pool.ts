@@ -24,6 +24,7 @@ export class NostrPool extends FacadeNPool {
     super(routerService, nstore, ncache);
   }
 
+  //  FIXME: incluir uso do abort signal para o unsubsribe do observable
   observe(filters: Array<NostrFilter>): Observable<NostrEvent> {
     const observable = from(this.req(filters));
     const closedSignal$ = observable.pipe(

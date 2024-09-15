@@ -3,7 +3,7 @@ import { NPub } from '../domain/npub.type';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent } from 'nostr-tools';
 
-export interface INostrCache extends DBSchema {
+export interface NostrCache extends DBSchema {
   profileMetadata: {
     key: string,
     value: NostrMetadata & { npub: NPub; pictureB64: string; };

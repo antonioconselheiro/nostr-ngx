@@ -1,6 +1,9 @@
 import { NCache, NostrEvent, NostrFilter, NSet } from '@nostrify/nostrify';
 import { matchFilters } from 'nostr-tools';
 
+/**
+ * ncache from nostrify, but with indexes and limit filter
+ */
 export class InMemoryNCache extends NCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
@@ -64,7 +67,7 @@ export class InMemoryNCache extends NCache {
       .map(id => this.cache.get(id))
       .filter((event): event is NostrEvent => event && matchFilters([filter], event) || false)
       .forEach((event, i) => {
-        if (filter.limit && filter.limit > i) {
+        if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
         }
       });

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { NKinds, NostrEvent, NostrFilter, NStore } from '@nostrify/nostrify';
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { IdbFilter } from './idb.filter';
-import { INostrCache } from './nostr-cache.interface';
+import { NostrCache } from './nostr-cache.interface';
 
 /**
  * FIXME: pendente de escrever lógica para controlar tamanho máximo do indexeddb
@@ -11,7 +11,7 @@ import { INostrCache } from './nostr-cache.interface';
 @Injectable()
 export class IdbNStore implements NStore {
 
-  private db: Promise<IDBPDatabase<INostrCache>>;
+  private db: Promise<IDBPDatabase<NostrCache>>;
 
   constructor(
     private nostrCacheFilter: IdbFilter
@@ -19,8 +19,8 @@ export class IdbNStore implements NStore {
     this.db = this.initialize();
   }
 
-  initialize(): Promise<IDBPDatabase<INostrCache>> {
-    return openDB<INostrCache>('NostrCache', 1, {
+  initialize(): Promise<IDBPDatabase<NostrCache>> {
+    return openDB<NostrCache>('NostrCache', 1, {
       upgrade(db) {
         const eventCache = db.createObjectStore('nostrEvents', {
           keyPath: 'id',
@@ -66,7 +66,7 @@ export class IdbNStore implements NStore {
     ]);
   }
 
-  private async indexTagsToEvent(event: NostrEvent, txTag: IDBPTransaction<INostrCache, ["tagIndex"], "readwrite">): Promise<void> {
+  private async indexTagsToEvent(event: NostrEvent, txTag: IDBPTransaction<NostrCache, ["tagIndex"], "readwrite">): Promise<void> {
     for await (const tag of event.tags) {
       const [ type, value ] = tag;
       if (IdbFilter.indexableTag.includes(type)) {
