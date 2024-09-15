@@ -127,6 +127,7 @@ export class IdbFilter {
       .find(key => /^#/.test(key));
   }
 
+  //  TODO: preciso validar se este método está funcionando corretamente
   private async loadEventFromTags(
     filter: NostrFilter,
     txEvent: IDBPTransaction<NostrCache, ["nostrEvents"], IDBTransactionMode>,

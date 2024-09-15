@@ -18,6 +18,9 @@ export class InMemoryNCache extends NCache {
     indexedByKind.push(event.id);
     indexedByAuthor.push(event.id);
 
+    this.kindIndex.set(event.kind, indexedByKind);
+    this.authorIndex.set(event.pubkey, indexedByAuthor);
+
     return super.add(event);
   }
 
@@ -66,7 +69,7 @@ export class InMemoryNCache extends NCache {
     ids
       .map(id => this.cache.get(id))
       .filter((event): event is NostrEvent => event && matchFilters([filter], event) || false)
-      .forEach((event, i) => {
+      .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
         }
