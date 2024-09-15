@@ -1,0 +1,1 @@
+export type RelayListEventKind = 10006 | 10007 | 10050 | 10102;

@@ -47,7 +47,8 @@ export class NostrGuard {
     return NIP05_REGEX.test(value || '');
   }
 
-  isKind<T extends number>(event: NostrEvent | null, kind: T): event is NostrEvent & { kind: T } {
-    return event && event.kind === kind || false;
+  isKind<T extends number>(event: NostrEvent | null, kind: T | T[]): event is NostrEvent & { kind: T } {
+    const kindAsArray: number[] = kind instanceof Array ? kind : [ kind ];
+    return event && kindAsArray.includes(event.kind) || false;
   }
 }

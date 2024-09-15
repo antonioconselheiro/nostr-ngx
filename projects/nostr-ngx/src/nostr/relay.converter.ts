@@ -21,7 +21,11 @@ export class RelayConverter {
     return list;
   }
 
-  convertDirectMessageRelayEventToRelayList(event: NostrEvent & { kind: 10050 }): Array<WebSocket['url']> {
+  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 }): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent & { kind: 10007 }): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent & { kind: 10050 }): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 | 10007 | 10050 }): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 | 10007 | 10050 }): Array<WebSocket['url']> {
     let list: Array<WebSocket['url']> = [];
     event.tags.forEach(tag => list = [ ...list, ...this.convertRelayMetadataFromTag(tag) ]);
 
@@ -57,7 +61,7 @@ export class RelayConverter {
    * Read relay hints in events,
    * 
    * this should not be used to parse 10002, use it specific method:
-   * convertDirectMessageRelayEventToRelayList and convertRelayListEventToRelayRecord.
+   * convertRelayListEventToRelayRecord.
    *  
    * Read tag 'relays' and tag 'r', read either the relay from tag 'e' and from tag 'p'
    */
@@ -69,21 +73,21 @@ export class RelayConverter {
 
     const relaysFound: Array<WebSocket['url']> = [];
     event.tags.forEach(tags => {
-      const [type, ...values] = tags;
+      const [type, ...tagValues] = tags;
       switch (type) {
         case 'relays':
-          values.forEach(relay => relaysFound.push(relay));
+          tagValues.forEach(relay => relaysFound.push(relay));
           break;
         case 'r':
-          if (values[0]) {
-            relaysFound.push(values[0]);
+          if (tagValues[0]) {
+            relaysFound.push(tagValues[0]);
           }
           break;
         case 'p':
         case 'e':
         case 'a':
-          if (values[1]) {
-            relaysFound.push(values[1]);
+          if (tagValues[1]) {
+            relaysFound.push(tagValues[1]);
           }
           break;
       }

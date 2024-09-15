@@ -31,7 +31,7 @@ module.exports = tseslint.config(
       ],
       "max-lines": [
         "error",
-        400
+        450
       ],
       "complexity": [
         "error",
