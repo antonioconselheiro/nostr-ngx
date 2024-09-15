@@ -24,4 +24,8 @@ export class NostrConverter {
     return data;
   }
 
+  castPubkeyToNpub(pubkey: string): NPub {
+    return nip19.npubEncode(pubkey);
+  }
+
 }

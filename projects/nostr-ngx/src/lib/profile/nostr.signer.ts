@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
-import { ConfigsSessionStorage, NoCredentialsFoundError, SignerNotFoundError, Ncryptsec, NSec } from '@belomonte/nostr-ngx';
 import { EventTemplate, finalizeEvent, generateSecretKey, nip19, NostrEvent } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
+import { ConfigsSessionStorage } from '../configs/configs-session.storage';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NSec } from '../domain/nsec.type';
+import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
+import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.error';
 
 /**
  * Sign Nostr Event according to user authentication settings

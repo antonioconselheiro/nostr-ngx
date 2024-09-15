@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MediaUploader, NostrService } from '@belomonte/nostr-ngx';
 import { IProfile } from '../../../domain/profile.interface';
-import { AuthenticatedAccountObservable } from '../../../profile-service/authenticated-profile.observable';
+import { AuthenticatedAccountObservable } from '../../../../../../nostr-ngx/src/lib/profile/authenticated-profile.observable';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
 import { RegisterAccountEventFactory } from './register-account.event-factory';
 

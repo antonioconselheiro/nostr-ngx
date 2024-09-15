@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, NPub } from '@belomonte/nostr-ngx';
 import { NostrEvent } from 'nostr-tools';
 import { ProfileConverter } from "./profile.converter";
 import { NostrMetadata } from '@nostrify/nostrify';
+import { NPub } from '../domain/npub.type';
+import { NostrConverter } from '../nostr/nostr.converter';
 
 // FIXME: must create an specific structure LNRU based to profile caching
 @Injectable({

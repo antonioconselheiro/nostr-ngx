@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Ncryptsec, NostrLocalConfigRelays, NPub } from '@belomonte/nostr-ngx';
 import { BehaviorSubject } from 'rxjs';
-import { AccountsLocalStorage } from '../credential-manager-widget/credential-storage/accounts-local.storage';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { AccountsLocalStorage } from '../../../../nostr-gui-ngx/src/lib/credential-manager-widget/credential-storage/accounts-local.storage';
+import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
 import { AccountConverter } from './account.converter';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NPub } from '../domain/npub.type';
 
 @Injectable({
   providedIn: 'root'

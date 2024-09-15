@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NostrConverter, NPub, NSec } from '@belomonte/nostr-ngx';
 import { NostrEvent } from 'nostr-tools';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
 import { AccountManagerStatefull } from './account-manager.statefull';
 import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';

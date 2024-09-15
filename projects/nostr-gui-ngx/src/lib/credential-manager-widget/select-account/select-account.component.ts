@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
+import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
 
 @Component({
   selector: 'nostr-select-account',

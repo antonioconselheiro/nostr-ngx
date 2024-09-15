@@ -22,4 +22,4 @@ import { AuthenticatedAccountObservable } from './authenticated-profile.observab
     AuthenticatedAccountObservable
   ]
 })
-export class ProfileServiceModule { }
+export class ProfileModule { }

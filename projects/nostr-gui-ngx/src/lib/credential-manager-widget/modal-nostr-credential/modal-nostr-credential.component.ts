@@ -4,7 +4,7 @@ import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
 import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerStatefull } from '../../profile-service/account-manager.statefull';
+import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
 import { NostrMetadata } from '@nostrify/nostrify';
 

@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, NSecCrypto, Ncryptsec, NPub, NSec } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
-import { ProfileSessionStorage } from '../credential-manager-widget/credential-storage/profile-session.storage';
-import { IAuthenticatedAccount } from '../domain/authenticated-account.interface';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { ProfileSessionStorage } from '../../../../nostr-gui-ngx/src/lib/credential-manager-widget/credential-storage/profile-session.storage';
+import { IAuthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/authenticated-account.interface';
+import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
 import { AccountConverter } from './account.converter';
 import { ProfileProxy } from './profile.proxy';
+import { NostrConverter } from '../nostr/nostr.converter';
+import { NSecCrypto } from '../nostr/nsec.crypto';
+import { NSec } from '../domain/nsec.type';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NPub } from '../domain/npub.type';
 
 @Injectable({
   providedIn: 'root'

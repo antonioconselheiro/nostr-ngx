@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { IRelayMetadata, MainPool, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
-import { NostrSigner } from '../../../../profile-service/nostr.signer';
+import { NostrSigner } from '../../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
 import { TAuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { Subscription } from 'rxjs';

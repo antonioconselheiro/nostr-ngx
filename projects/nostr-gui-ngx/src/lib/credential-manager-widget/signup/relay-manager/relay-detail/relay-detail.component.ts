@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NostrPool } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { ProfileProxy } from '../../../../profile-service/profile.proxy';
+import { ProfileProxy } from '../../../../../../../nostr-ngx/src/lib/profile/profile.proxy';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { NostrMetadata } from '@nostrify/nostrify';
 

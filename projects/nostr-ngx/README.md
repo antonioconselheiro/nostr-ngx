@@ -4,7 +4,7 @@
 
 # nostr-ngx
 
-To use together with nostr-tools
+To use together with `nostr-tools` and `@nostrify/nostrify`
 
 ## Release
 not released yet
