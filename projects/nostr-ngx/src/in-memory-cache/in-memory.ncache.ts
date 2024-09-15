@@ -93,10 +93,18 @@ export class InMemoryNCache extends NCache {
       if (indexOfByKind !== indexNotFound) {
         indexedByKind.splice(indexOfByKind, 1);
       }
+
+      if (!indexedByKind.length) {
+        this.kindIndex.delete(event.kind);
+      }
   
       const indexOfByAuthor = indexedByAuthor.indexOf(event.id);
       if (indexOfByAuthor !== indexNotFound) {
         indexedByAuthor.splice(indexOfByAuthor, 1);
+      }
+
+      if (!indexedByAuthor.length) {
+        this.authorIndex.delete(event.pubkey);
       }
     }
 

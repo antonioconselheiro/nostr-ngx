@@ -13,6 +13,9 @@ import { RelayConverter } from '../nostr/relay.converter';
 import { NostrPool } from './nostr.pool';
 import { ProfilePointer } from 'nostr-tools/nip19';
 
+/**
+ * load each kind of relay config
+ */
 @Injectable({
   providedIn: 'root'
 })

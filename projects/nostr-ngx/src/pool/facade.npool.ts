@@ -1,4 +1,4 @@
-import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NStore } from '@nostrify/nostrify';
+import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet, NStore } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
@@ -81,8 +81,41 @@ export class FacadeNPool extends NPool {
     );
   }
 
-  override query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
-    return super.query(filters, opts);
+  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
+    let limit: number | false = false;
+    const limits = filters.map(filter => filter.limit || null);
+    limit = limits.find(l => null) ? false : limits.reduce(
+      (accumulator, currentValue) =>  (accumulator || 0) + (currentValue || 0),
+    0) || false;
+
+    if (limit) {
+      const memoryCacheResults = await this.ncache.query(filters);
+      let results = memoryCacheResults;
+      if (memoryCacheResults.length < limit) {
+        const nset = new NSet();
+        memoryCacheResults.forEach(result => nset.add(result));
+        const ioCacheResults = await this.nstore.query(filters);
+        ioCacheResults.forEach(result => nset.add(result));
+
+        if (nset.size < limit) {
+          const poolResults = await super.query(filters, opts);
+          poolResults.forEach(result => nset.add(result));
+        }
+
+        results = Array.from(nset);
+      }
+
+      return Promise.resolve(results);
+    } else {
+      const result = await Promise.all([
+        this.ncache.query(filters),
+        this.nstore.query(filters),
+        super.query(filters, opts),
+      ]);
+      
+      return result.flat(2)
+    }
+
   }
 
   protected getOpts(): NpoolRouterOptions {

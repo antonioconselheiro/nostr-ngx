@@ -142,11 +142,11 @@ export class IdbFilter {
       .filter(tag => IdbFilter.indexableTag.includes(tag));
 
     if (tagSearch.length) {
-      for await (const tag of tagSearch) {
+      for (const tag of tagSearch) {
         const values = filter[`#${tag}`] || [];
         const foundsIds = new Set<string>();
 
-        for await (const value of values) {
+        for (const value of values) {
           let cursor = await txTag.store.index('tagAndValue').openCursor([ tag, value ]);
           while (cursor) {
             foundsIds.add(cursor.value.eventId);
