@@ -1,36 +1,32 @@
 import { Injectable } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
 import { LRUCache } from 'lru-cache';
 import { nip19, NostrEvent } from 'nostr-tools';
-import { NPub } from '../domain/npub.type';
-import { NostrConverter } from '../nostr/nostr.converter';
-import { ProfileConverter } from "./profile.converter";
-import { NostrGuard } from '../nostr/nostr.guard';
-import { NSchema as n } from '@nostrify/nostrify';
 import { Nip05 } from '../domain/nip05.type';
+import { NPub } from '../domain/npub.type';
+import { NostrGuard } from '../nostr/nostr.guard';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileCache {
 
+  protected nip5IndexForPubkey = new Map<string, string>();
+
   protected cache = new LRUCache<string, [NostrEvent, NostrMetadata]>({
     max: 1000
   });
 
-  static profiles: {
-    [npub: NPub]: NostrMetadata
-  } = {};
-
   constructor(
-    private guard: NostrGuard,
-    private nostrConverter: NostrConverter,
-    private profileConverter: ProfileConverter
+    private guard: NostrGuard
   )  { }
 
   add(metadataEvent: NostrEvent & { kind: 0 }): void {
     const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
     this.cache.set(metadataEvent.id, [metadataEvent, metadata]);
+    if (metadata.nip05) {
+      this.nip5IndexForPubkey.set(metadata.nip05, metadataEvent.pubkey);
+    }
   }
   
   get(pubkey: string): NostrMetadata | null;
@@ -52,10 +48,22 @@ export class ProfileCache {
     }
   }
 
-  getByNip5(nip5: Nip05[]): NostrMetadata[];
   getByNip5(nip5: Nip05): NostrMetadata | null;
-  getByNip5(nip5: Nip05 | Nip05[]): NostrMetadata[] | NostrMetadata | null {
-    //  TODOING
+  getByNip5(nip5s: Nip05[]): NostrMetadata[];
+  getByNip5(nip5s: Nip05 | Nip05[]): NostrMetadata[] | NostrMetadata | null {
+    if (nip5s instanceof Array ) {
+      nip5s
+        .map(nip5 => this.nip5IndexForPubkey.get(nip5))
+        .map(pubkey => pubkey && this.get(pubkey) || null)
+        .filter(metadata => !!metadata);
+    } else {
+      const pubkey = this.nip5IndexForPubkey.get(nip5s);
+      if (pubkey) {
+        return this.get(pubkey);
+      }
+    }
+
+    return null;
   }
 
   private castPublicAddressToPubkey(publicAddress: string): string | null {
