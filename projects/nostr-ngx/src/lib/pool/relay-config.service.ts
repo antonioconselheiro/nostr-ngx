@@ -21,8 +21,6 @@ import { ProfilePointer } from 'nostr-tools/nip19';
 })
 export class RelayConfigService {
 
-  readonly hexadecimalRegex = /^[a-f\d]+$/;
-
   //  FIXME: include correct kind when nostr-tools implements nip17.ts
   readonly kindsBlockedRelayList = 10006;
   readonly kindsSearchRelayList = 10007;
@@ -119,7 +117,7 @@ export class RelayConfigService {
       return this.loadMainRelaysOnlyHavingNpub(userPublicAddress);
     } else if (this.guard.isNProfile(userPublicAddress)) {
       return this.loadMainRelaysFromNprofile(userPublicAddress);
-    } else if (this.hexadecimalRegex.test(userPublicAddress)) {
+    } else if (this.guard.isHexadecimal(userPublicAddress)) {
       return this.loadMainRelaysOnlyHavingPubkey(userPublicAddress);
     }
 
@@ -254,14 +252,13 @@ export class RelayConfigService {
    */
   getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
-    const HEXADECIMAL_REGEX = /^[a-f\d]+$/;
     if (this.guard.isNip05(userPublicAddress)) {
       return this.loadRelayListFromNIP5(userPublicAddress, kind);
     } else if (this.guard.isNPub(userPublicAddress)) {
       return this.loadRelayListOnlyHavingNpub(userPublicAddress, kind);
     } else if (this.guard.isNProfile(userPublicAddress)) {
       return this.loadRelayListFromNprofile(userPublicAddress, kind);
-    } else if (HEXADECIMAL_REGEX.test(userPublicAddress)) {
+    } else if (this.guard.isHexadecimal(userPublicAddress)) {
       return this.loadRelayListOnlyHavingPubkey(userPublicAddress, kind);
     }
 

@@ -51,4 +51,8 @@ export class NostrGuard {
     const kindAsArray: number[] = kind instanceof Array ? kind : [ kind ];
     return event && kindAsArray.includes(event.kind) || false;
   }
+
+  isHexadecimal(stuff: string): boolean {
+    return /^[a-f\d]+$/.test(stuff);
+  }
 }

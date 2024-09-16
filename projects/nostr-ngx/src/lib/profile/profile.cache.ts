@@ -1,86 +1,72 @@
 import { Injectable } from '@angular/core';
-import { NostrEvent } from 'nostr-tools';
-import { ProfileConverter } from "./profile.converter";
 import { NostrMetadata } from '@nostrify/nostrify';
+import { LRUCache } from 'lru-cache';
+import { nip19, NostrEvent } from 'nostr-tools';
 import { NPub } from '../domain/npub.type';
 import { NostrConverter } from '../nostr/nostr.converter';
+import { ProfileConverter } from "./profile.converter";
+import { NostrGuard } from '../nostr/nostr.guard';
+import { NSchema as n } from '@nostrify/nostrify';
+import { Nip05 } from '../domain/nip05.type';
 
-// FIXME: must create an specific structure LNRU based to profile caching
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileCache {
 
-  static instance: ProfileCache | null = null;
+  protected cache = new LRUCache<string, [NostrEvent, NostrMetadata]>({
+    max: 1000
+  });
 
   static profiles: {
     [npub: NPub]: NostrMetadata
   } = {};
 
   constructor(
+    private guard: NostrGuard,
     private nostrConverter: NostrConverter,
     private profileConverter: ProfileConverter
-  )  {
-    if (!ProfileCache.instance) {
-      ProfileCache.instance = this;
-    }
+  )  { }
 
-    return ProfileCache.instance;
+  add(metadataEvent: NostrEvent & { kind: 0 }): void {
+    const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
+    this.cache.set(metadataEvent.id, [metadataEvent, metadata]);
   }
-
-  get(npubs: NPub): NostrMetadata;
+  
+  get(pubkey: string): NostrMetadata | null;
+  get(pubkeys: string[]): NostrMetadata[];
+  get(npub: NPub): NostrMetadata | null;
   get(npubs: NPub[]): NostrMetadata[];
-  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[];
-  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[] {
-    if (typeof npubs === 'string') {
-      return this.getLazily(npubs);
+  get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null {
+    publicAddresses = publicAddresses instanceof Array ? publicAddresses : [ publicAddresses ];
+    const metadatas = publicAddresses
+      .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
+      .map(pubkey => pubkey && this.cache.get(pubkey) || null)
+      .filter((tuple): tuple is [ NostrEvent, NostrMetadata ] => !!tuple)
+      .map(([,metadata]) => metadata);
+
+    if (publicAddresses instanceof Array) {
+      return metadatas;
     } else {
-      return npubs.map(npub => this.getLazily(npub));
+      return metadatas[0] || null;
     }
   }
 
-  isEagerLoaded(npub: NPub): boolean {
-    return this.get(npub).load || false;
+  getByNip5(nip5: Nip05[]): NostrMetadata[];
+  getByNip5(nip5: Nip05): NostrMetadata | null;
+  getByNip5(nip5: Nip05 | Nip05[]): NostrMetadata[] | NostrMetadata | null {
+    //  TODOING
   }
 
-  getFromPubKey(pubkey: string): NostrMetadata {
-    return this.get(this.nostrConverter.castPubkeyToNpub(pubkey));
-  }
+  private castPublicAddressToPubkey(publicAddress: string): string | null {
+    if (this.guard.isNPub(publicAddress)) {
 
-  private getLazily(npub: NPub): NostrMetadata {
-    if (ProfileCache.profiles[npub]) {
-      return ProfileCache.profiles[npub];
+      const { data } = nip19.decode(publicAddress);
+      return data;
+    } else if (this.guard.isHexadecimal(publicAddress)) {
+      return publicAddress;
     }
 
-    return ProfileCache.profiles[npub] = this.profileConverter.getMetadataFromNostrPublic(npub);
-  }
-
-  cache(profiles: NostrMetadata[]): void {
-    profiles.forEach(profile => this.cacheProfile(profile));
-  }
-
-  cacheFromEvent(events: NostrEvent[]): void {
-    this.cache(events.map(event => this.profileConverter.convertEventToProfile(event)));
-  }
-
-  private cacheProfile(profile: NostrMetadata): NostrMetadata {
-    ProfileCache.profiles[profile.npub] = Object.assign(
-      ProfileCache.profiles[profile.npub] || {},
-      this.chooseNewer(profile, ProfileCache.profiles[profile.npub])
-    );
-
-    return ProfileCache.profiles[profile.npub];
-  }
-
-  private chooseNewer(updatedProfile: NostrMetadata, indexedProfile: NostrMetadata | undefined): NostrMetadata {
-    if (!indexedProfile || !indexedProfile.load) {
-      return updatedProfile;
-    }
-
-    if (Number(updatedProfile.created_at) >= Number(indexedProfile.created_at)) {
-      return updatedProfile;
-    }
-
-    return indexedProfile;
+    return null;
   }
 }
