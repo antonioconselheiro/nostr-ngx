@@ -7,7 +7,7 @@ import { CredentialHandlerService } from './credential-handler.service';
 import { SvgRenderModule } from '../svg-render/svg-render.module';
 import { NostrModule } from '@belomonte/nostr-ngx';
 import { QrcodeServiceModule } from '../qrcode-service/qrcode-service.module';
-import { CredentialStorageModule } from './credential-storage/credential-storage.module';
+import { CredentialStorageModule } from '../../../../nostr-ngx/src/lib/credential-storage/credential-storage.module';
 
 @NgModule({
   imports: [

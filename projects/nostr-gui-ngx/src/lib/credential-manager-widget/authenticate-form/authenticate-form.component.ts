@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthenticatedAccountObservable } from '../../../../../nostr-ngx/src/lib/profile/authenticated-profile.observable';
-import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({

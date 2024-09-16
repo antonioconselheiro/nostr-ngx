@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { IAuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
-import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
 import { ICreatingAccount } from '../../domain/creating-account.interface';

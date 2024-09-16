@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AccountsLocalStorage } from '../../../../nostr-gui-ngx/src/lib/credential-manager-widget/credential-storage/accounts-local.storage';
-import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
+import { AccountsLocalStorage } from '../credential-storage/accounts-local.storage';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { AccountConverter } from './account.converter';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';

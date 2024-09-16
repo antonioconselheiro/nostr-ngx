@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { NostrConverter, NPub, NSec } from '@belomonte/nostr-ngx';
 import { NostrEvent } from 'nostr-tools';
-import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { AccountManagerStatefull } from './account-manager.statefull';
 import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { NostrConverter } from '../nostr/nostr.converter';
+import { NPub } from '../domain/npub.type';
+import { NSec } from '../domain/nsec.type';
 
 /**
  * Orchestrate the interaction with the profile data,

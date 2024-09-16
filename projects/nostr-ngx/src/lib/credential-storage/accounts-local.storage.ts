@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractBrowserStorage, Ncryptsec, NostrLocalConfigRelays, NSec } from '@belomonte/nostr-ngx';
 import { AccountsLocalConfig } from './accounts-local-config.interface';
-import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { getPublicKey, nip19 } from 'nostr-tools';
 
 @Injectable({

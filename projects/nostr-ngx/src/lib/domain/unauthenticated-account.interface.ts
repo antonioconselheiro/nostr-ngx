@@ -1,4 +1,9 @@
-import { Ncryptsec, Nip05, NostrLocalConfigAccount, NostrLocalConfigRelays, NPub } from "@belomonte/nostr-ngx";
+import { NostrLocalConfigAccount } from "../configs/nostr-local-config-account.interface";
+import { NostrLocalConfigRelays } from "../configs/nostr-local-config-relays.interface";
+import { Ncryptsec } from "./ncryptsec.type";
+import { Nip05 } from "./nip05.type";
+import { NPub } from "./npub.type";
+
 
 export interface IUnauthenticatedAccount extends NostrLocalConfigAccount {
   npub: NPub;

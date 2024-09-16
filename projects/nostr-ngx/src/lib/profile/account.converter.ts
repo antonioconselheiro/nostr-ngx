@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IUnauthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { nip19 } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 import { Nip05, NostrLocalConfigRelays, NPub, Ncryptsec, NSec } from '@belomonte/nostr-ngx';

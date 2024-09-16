@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IUnauthenticatedAccount } from '../../domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
 

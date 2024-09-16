@@ -5,7 +5,7 @@ import { ICreatingAccount } from '../../../domain/creating-account.interface';
 import { NostrSigner } from '../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { TAuthModalSteps } from '../../auth-modal-steps.type';
-import { AccountsLocalStorage } from '../../credential-storage/accounts-local.storage';
+import { AccountsLocalStorage } from '../../../../../../nostr-ngx/src/lib/credential-storage/accounts-local.storage';
 
 @Component({
   selector: 'nostr-create-nsec-and-ncryptsec',
