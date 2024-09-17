@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { NKinds, NostrEvent, NostrFilter, NStore } from '@nostrify/nostrify';
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { IdbFilter } from './idb.filter';
-import { NostrCache } from './nostr-cache.interface';
+import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 
 /**
  * FIXME: pendente de escrever lógica para controlar tamanho máximo do indexeddb
@@ -11,16 +11,16 @@ import { NostrCache } from './nostr-cache.interface';
 @Injectable()
 export class IdbNStore implements NStore {
 
-  private db: Promise<IDBPDatabase<NostrCache>>;
+  protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   constructor(
-    private nostrCacheFilter: IdbFilter
+    protected nostrCacheFilter: IdbFilter
   ) {
     this.db = this.initialize();
   }
 
-  initialize(): Promise<IDBPDatabase<NostrCache>> {
-    return openDB<NostrCache>('NostrCache', 1, {
+  protected initialize(): Promise<IDBPDatabase<IdbNostrEventCache>> {
+    return openDB<IdbNostrEventCache>('NostrEventCache', 1, {
       upgrade(db) {
         const eventCache = db.createObjectStore('nostrEvents', {
           keyPath: 'id',
@@ -40,11 +40,6 @@ export class IdbNStore implements NStore {
         tagIndex.createIndex('tagAndValue', [ 'tag', 'value' ], { unique: false });
         tagIndex.createIndex('tag', 'tag', { unique: false });
         tagIndex.createIndex('eventId', 'eventId', { unique: false });
-
-        const profileMetadata = db.createObjectStore('profileMetadata');
-        profileMetadata.createIndex('npub', 'npub', { unique: false });
-        profileMetadata.createIndex('display_name', 'display_name', { unique: false });
-        profileMetadata.createIndex('name', 'name', { unique: false });
       },
     });
   }
@@ -66,7 +61,7 @@ export class IdbNStore implements NStore {
     ]);
   }
 
-  private async indexTagsToEvent(event: NostrEvent, txTag: IDBPTransaction<NostrCache, ["tagIndex"], "readwrite">): Promise<void> {
+  private async indexTagsToEvent(event: NostrEvent, txTag: IDBPTransaction<IdbNostrEventCache, ["tagIndex"], "readwrite">): Promise<void> {
     for await (const tag of event.tags) {
       const [ type, value ] = tag;
       if (IdbFilter.indexableTag.includes(type)) {
@@ -86,11 +81,11 @@ export class IdbNStore implements NStore {
   }
 
   /**
-   * @deprecated
    * prefer use query(), this is just a query().length
    */
   async count(filters: NostrFilter[]): Promise<{ count: number }> {
-    console.warn('Usage of IdbNStore.count, prefer use query(), for this indexeddb impl this method is just a query().length');
+    console.warn('Usage of IdbNStore.count, prefer use query(), ' +
+        'for this indexeddb impl this method is just a query().length');
     const events = await this.query(filters);
     return Promise.resolve({ count: events.length });
   }

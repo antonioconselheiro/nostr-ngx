@@ -1,18 +1,7 @@
 import { DBSchema } from 'idb';
-import { NPub } from '../domain/npub.type';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent } from 'nostr-tools';
 
-export interface NostrCache extends DBSchema {
-  profileMetadata: {
-    key: string,
-    value: NostrMetadata & { npub: NPub; pictureB64: string; };
-    indexes: {
-      npub: string;
-      display_name: string;
-      name: string;
-    }
-  },
+export interface IdbNostrEventCache extends DBSchema {
   tagIndex: {
     key: number;
     value: {

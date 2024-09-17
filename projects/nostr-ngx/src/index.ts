@@ -25,7 +25,7 @@ export * from './lib/idb-cache/idb.nstore';
 export * from './lib/idb-cache/ncache-default.params';
 export * from './lib/idb-cache/idb.filter';
 export * from './lib/idb-cache/idb-cache.module';
-export * from './lib/idb-cache/nostr-cache.interface';
+export * from './lib/idb-cache/idb-nostr-event-cache.interface';
 export * from './lib/in-memory-cache/in-memory.ncache';
 export * from './lib/in-memory-cache/in-memory-cache.module';
 export * from './lib/tools/nostr-date.fn';

@@ -5,27 +5,43 @@ import { nip19, NostrEvent } from 'nostr-tools';
 import { Nip05 } from '../domain/nip05.type';
 import { NPub } from '../domain/npub.type';
 import { NostrGuard } from '../nostr/nostr.guard';
+import { IDBPDatabase, openDB } from 'idb';
+import { IdbProfileCache } from './idb-profile-cache.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileCache {
 
-  protected nip5IndexForPubkey = new Map<string, string>();
-
+  //  in memory index, map nip5 to pubkey
+  protected indexedByNip5 = new Map<string, string>();
+  protected db: Promise<IDBPDatabase<IdbProfileCache>>;
   protected cache = new LRUCache<string, [NostrEvent, NostrMetadata]>({
     max: 1000
   });
 
   constructor(
     private guard: NostrGuard
-  )  { }
+  )  {
+    this.db = this.initialize();
+  }
+
+  initialize(): Promise<IDBPDatabase<IdbProfileCache>> {
+    return openDB<IdbProfileCache>('NostrProfileCache', 1, {
+      upgrade(db) {
+        const profileMetadata = db.createObjectStore('profileMetadata');
+        profileMetadata.createIndex('npub', 'npub', { unique: false });
+        profileMetadata.createIndex('display_name', 'display_name', { unique: false });
+        profileMetadata.createIndex('name', 'name', { unique: false });
+      },
+    });
+  }
 
   add(metadataEvent: NostrEvent & { kind: 0 }): void {
     const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
     this.cache.set(metadataEvent.id, [metadataEvent, metadata]);
     if (metadata.nip05) {
-      this.nip5IndexForPubkey.set(metadata.nip05, metadataEvent.pubkey);
+      this.indexedByNip5.set(metadata.nip05, metadataEvent.pubkey);
     }
   }
   
@@ -51,13 +67,13 @@ export class ProfileCache {
   getByNip5(nip5: Nip05): NostrMetadata | null;
   getByNip5(nip5s: Nip05[]): NostrMetadata[];
   getByNip5(nip5s: Nip05 | Nip05[]): NostrMetadata[] | NostrMetadata | null {
-    if (nip5s instanceof Array ) {
+    if (nip5s instanceof Array) {
       nip5s
-        .map(nip5 => this.nip5IndexForPubkey.get(nip5))
+        .map(nip5 => this.indexedByNip5.get(nip5))
         .map(pubkey => pubkey && this.get(pubkey) || null)
         .filter(metadata => !!metadata);
     } else {
-      const pubkey = this.nip5IndexForPubkey.get(nip5s);
+      const pubkey = this.indexedByNip5.get(nip5s);
       if (pubkey) {
         return this.get(pubkey);
       }
