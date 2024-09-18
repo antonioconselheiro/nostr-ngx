@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
+import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { LRUCache } from 'lru-cache';
 import { nip19, NostrEvent } from 'nostr-tools';
 import { Nip05 } from '../domain/nip05.type';
 import { NPub } from '../domain/npub.type';
 import { NostrGuard } from '../nostr/nostr.guard';
-import { IDBPDatabase, openDB } from 'idb';
 import { IdbProfileCache } from './idb-profile-cache.interface';
 
 @Injectable({
@@ -13,36 +13,65 @@ import { IdbProfileCache } from './idb-profile-cache.interface';
 })
 export class ProfileCache {
 
+  protected readonly table: 'profileMetadata' = 'profileMetadata';
+
   //  in memory index, map nip5 to pubkey
   protected indexedByNip5 = new Map<string, string>();
   protected db: Promise<IDBPDatabase<IdbProfileCache>>;
-  protected cache = new LRUCache<string, [NostrEvent, NostrMetadata]>({
+  protected cache = new LRUCache<string, NostrMetadata>({
     max: 1000
   });
 
   constructor(
-    private guard: NostrGuard
+    protected guard: NostrGuard
   )  {
     this.db = this.initialize();
+    this.load(this.db);
   }
 
-  initialize(): Promise<IDBPDatabase<IdbProfileCache>> {
+  private initialize(): Promise<IDBPDatabase<IdbProfileCache>> {
+    const profileCache = this;
     return openDB<IdbProfileCache>('NostrProfileCache', 1, {
       upgrade(db) {
-        const profileMetadata = db.createObjectStore('profileMetadata');
-        profileMetadata.createIndex('npub', 'npub', { unique: false });
-        profileMetadata.createIndex('display_name', 'display_name', { unique: false });
-        profileMetadata.createIndex('name', 'name', { unique: false });
-      },
+        const profileMetadata = db.createObjectStore(profileCache.table);
+        profileMetadata.createIndex('pubkey', 'pubkey', { unique: true });
+      }
     });
   }
 
-  add(metadataEvent: NostrEvent & { kind: 0 }): void {
+  private async load(db: Promise<IDBPDatabase<IdbProfileCache>>): Promise<void> {
+    const conn = await db;
+    const tx = conn.transaction(this.table, 'readonly');
+    const all = await tx.store.getAll();
+
+    all.forEach(resultset => this.cache.set(resultset.pubkey, resultset.metadata));
+
+    return Promise.resolve();
+  }
+
+  async add(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<void> {
+    //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
+    const db = await this.db;
+    const tx = db.transaction(this.table, 'readwrite');
+    const queue = metadataEvents.map(event => this.addSingle(event, tx));
+    
+    await Promise.all([
+      ...queue,
+      tx.done
+    ]);
+  }
+
+  protected async addSingle(metadataEvent: NostrEvent & { kind: 0 }, tx:  IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">): Promise<void> {
     const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
-    this.cache.set(metadataEvent.id, [metadataEvent, metadata]);
+    this.cache.set(metadataEvent.pubkey, metadata);
     if (metadata.nip05) {
       this.indexedByNip5.set(metadata.nip05, metadataEvent.pubkey);
     }
+
+    tx.store.put({
+      pubkey: metadataEvent.pubkey,
+      metadata
+    })
   }
   
   get(pubkey: string): NostrMetadata | null;
@@ -54,8 +83,7 @@ export class ProfileCache {
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
       .map(pubkey => pubkey && this.cache.get(pubkey) || null)
-      .filter((tuple): tuple is [ NostrEvent, NostrMetadata ] => !!tuple)
-      .map(([,metadata]) => metadata);
+      .filter((metadata): metadata is NostrMetadata => !!metadata);
 
     if (publicAddresses instanceof Array) {
       return metadatas;

@@ -4,11 +4,12 @@ import { DBSchema } from 'idb';
 export interface IdbProfileCache extends DBSchema {
   profileMetadata: {
     key: string,
-    value: NostrMetadata;
+    value: {
+      pubkey: string;
+      metadata: NostrMetadata
+    };
     indexes: {
-      npub: string;
-      display_name: string;
-      name: string;
+      pubkey: string;
     }
   };
 }

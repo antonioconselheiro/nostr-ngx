@@ -48,7 +48,8 @@ export class IdbNStore implements NStore {
     if (NKinds.ephemeral(event.kind)) {
       return Promise.resolve();
     }
-
+    
+    //  FIXME: incluir num web worker?
     const db = await this.db;
     const txEvent = db.transaction('nostrEvents', 'readwrite');
     const txTag = db.transaction('tagIndex', 'readwrite');
@@ -92,6 +93,7 @@ export class IdbNStore implements NStore {
 
   async remove(filters: NostrFilter[]): Promise<void> {
     const db = await this.db;
+    //  FIXME: incluir num web worker?
     return await this.nostrCacheFilter.delete(db, filters);
   }
 }

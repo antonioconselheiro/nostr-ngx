@@ -105,6 +105,7 @@ module.exports = tseslint.config(
         }
       ],
       "@typescript-eslint/no-use-before-define": "warn",
+      "@typescript-eslint/prefer-as-const": [ "off" ],
       "@typescript-eslint/explicit-function-return-type": [
         "error",
         {
@@ -113,6 +114,7 @@ module.exports = tseslint.config(
       ],
       "prefer-arrow/prefer-arrow-functions": "off",
       "for-direction": [ "off" ],
+      "@typescript-eslint/no-this-alias": "off",
       "eqeqeq": "warn",
       "quotes": [
         "off"
