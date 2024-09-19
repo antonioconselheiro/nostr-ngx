@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { InMemoryNCache } from './in-memory.ncache';
-import { IN_MEMORY_NCACHE_TOKEN } from '../injection-token/in-memory-ncache.token';
+import { IdbNCache } from './idb.ncache';
+import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
 
 @NgModule({
   imports: [
@@ -9,9 +9,9 @@ import { IN_MEMORY_NCACHE_TOKEN } from '../injection-token/in-memory-ncache.toke
   ],
   providers: [
     {
-      provide: IN_MEMORY_NCACHE_TOKEN,
-      useClass: InMemoryNCache
+      provide: MAIN_NCACHE_TOKEN,
+      useClass: IdbNCache
     }
   ]
 })
-export class InMemoryCacheModule { }
+export class IdbNCacheModule { }

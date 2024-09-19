@@ -1,4 +1,4 @@
-import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet, NStore } from '@nostrify/nostrify';
+import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
@@ -10,13 +10,9 @@ export class FacadeNPool extends NPool {
 
   constructor(
     opts: NpoolRouterOptions,
-    /**
-     * I/O cache
-     */
-    protected readonly nstore: NStore,
 
     /**
-     * in memory cache
+     * the main cache
      */
     protected readonly ncache: NCache
   ) {
@@ -83,8 +79,9 @@ export class FacadeNPool extends NPool {
 
   override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
     let limit: number | false = false;
+    //  FIXME: validar calculo do limite
     const limits = filters.map(filter => filter.limit || null);
-    limit = limits.find(l => null) ? false : limits.reduce(
+    limit = limits.find(() => null) ? false : limits.reduce(
       (accumulator, currentValue) =>  (accumulator || 0) + (currentValue || 0),
     0) || false;
 
@@ -94,13 +91,9 @@ export class FacadeNPool extends NPool {
       if (memoryCacheResults.length < limit) {
         const nset = new NSet();
         memoryCacheResults.forEach(result => nset.add(result));
-        const ioCacheResults = await this.nstore.query(filters);
-        ioCacheResults.forEach(result => nset.add(result));
 
-        if (nset.size < limit) {
-          const poolResults = await super.query(filters, opts);
-          poolResults.forEach(result => nset.add(result));
-        }
+        const poolResults = await super.query(filters, opts);
+        poolResults.forEach(result => nset.add(result));
 
         results = Array.from(nset);
       }
@@ -109,7 +102,6 @@ export class FacadeNPool extends NPool {
     } else {
       const result = await Promise.all([
         this.ncache.query(filters),
-        this.nstore.query(filters),
         super.query(filters, opts),
       ]);
       

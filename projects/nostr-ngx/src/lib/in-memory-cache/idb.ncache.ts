@@ -1,17 +1,62 @@
 import { NCache, NostrEvent, NostrFilter, NSet } from '@nostrify/nostrify';
+import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
+import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 
+//  TODO: include index by create at
+//  TODO: include index by tag
 /**
- * ncache from nostrify, but with indexes and limit filter
+ * ncache load from indexeddb and keep it syncronized
  */
-export class InMemoryNCache extends NCache {
+export class IdbNCache extends NCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
+
+  protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   private kindIndex = new Map<number, Array<string>>();
   private authorIndex = new Map<string, Array<string>>();
 
+  constructor() {
+    super({
+      //  FIXME: make this number configurable to end user
+      max: 5000,
+      dispose: event => this.delete(event)
+    });
+    this.db = this.initialize();
+    this.db.then(db => {
+      const tx = db.transaction('nostrEvents', 'readonly');
+      tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
+    })
+  }
+
+  protected initialize(): Promise<IDBPDatabase<IdbNostrEventCache>> {
+    return openDB<IdbNostrEventCache>('NostrEventCache', 1, {
+      upgrade(db) {
+        db.createObjectStore('nostrEvents', {
+          keyPath: 'id',
+          autoIncrement: false
+        });
+      },
+    });
+  }
+
   override add(event: NostrEvent): this {
+    const me = this.indexInMemory(event);
+
+    //  FIXME: mover para um web worker?
+    this.db.then(db => {
+      const tx = db.transaction('nostrEvents', 'readwrite');
+      Promise.all([
+        tx.store.put(event),
+        tx.done
+      ]);
+    });
+
+    return me;
+  }
+
+  protected indexInMemory(event: NostrEvent): this {
     const indexedByKind = this.kindIndex.get(event.kind) || [];
     const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
 
@@ -24,7 +69,7 @@ export class InMemoryNCache extends NCache {
     return super.add(event);
   }
 
-  override async query(filters: NostrFilter[]): Promise<NostrEvent[]> {    
+  override async query(filters: NostrFilter[]): Promise<NostrEvent[]> {
     if (this.shouldLoadFromIndex(filters)) {
 
       const nset = new NSet();
@@ -88,8 +133,8 @@ export class InMemoryNCache extends NCache {
       const indexNotFound = -1;
       const indexedByKind = this.kindIndex.get(event.kind) || [];
       const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
-  
-      const indexOfByKind = indexedByKind.indexOf(event.id);    
+
+      const indexOfByKind = indexedByKind.indexOf(event.id);
       if (indexOfByKind !== indexNotFound) {
         indexedByKind.splice(indexOfByKind, 1);
       }
@@ -97,7 +142,7 @@ export class InMemoryNCache extends NCache {
       if (!indexedByKind.length) {
         this.kindIndex.delete(event.kind);
       }
-  
+
       const indexOfByAuthor = indexedByAuthor.indexOf(event.id);
       if (indexOfByAuthor !== indexNotFound) {
         indexedByAuthor.splice(indexOfByAuthor, 1);
@@ -107,6 +152,12 @@ export class InMemoryNCache extends NCache {
         this.authorIndex.delete(event.pubkey);
       }
     }
+
+    //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
+    this.db.then(db => {
+      const tx = db.transaction('nostrEvents', 'readwrite');
+      tx.store.delete(event.id);
+    });
 
     return removed;
   }

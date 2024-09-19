@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
-import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NStore } from '@nostrify/nostrify';
+import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '@nostrify/nostrify';
 import { filter, from, map, Observable, of, takeUntil } from 'rxjs';
-import { RouterService } from './router.service';
+import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
 import { FacadeNPool } from './facade.npool';
-import { IO_CACHE_NSTORE_TOKEN } from '../injection-token/io-cache-nstore.token';
 import { NPoolRequestOptions } from './npool-request.options';
-import { IN_MEMORY_NCACHE_TOKEN } from '../injection-token/in-memory-ncache.token';
+import { RouterService } from './router.service';
 
 /**
  * "Clients SHOULD open a single websocket connection to each relay and use it for all their subscriptions."
@@ -18,10 +17,9 @@ export class NostrPool extends FacadeNPool {
 
   constructor(
     routerService: RouterService,
-    @Inject(IO_CACHE_NSTORE_TOKEN) protected override readonly nstore: NStore,
-    @Inject(IN_MEMORY_NCACHE_TOKEN) protected override readonly ncache: NCache
+    @Inject(MAIN_NCACHE_TOKEN) protected override readonly ncache: NCache
   ) {
-    super(routerService, nstore, ncache);
+    super(routerService, ncache);
   }
 
   //  TODO: verificar se a incrição e desinscrição estão funcionando corretamente
