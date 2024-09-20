@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ProfileSessionConfig } from './profile-session-config.interface';
-import { AbstractBrowserStorage } from '@belomonte/nostr-ngx';
+import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
 
 @Injectable({
   providedIn: 'root'

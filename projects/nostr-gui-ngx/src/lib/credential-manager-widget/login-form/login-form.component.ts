@@ -1,12 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { NostrConverter, Ncryptsec, NSec, NostrLocalConfigRelays, NPub } from '@belomonte/nostr-ngx';
-import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
-import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
-import { NostrSigner } from '../../../../../nostr-ngx/src/lib/profile/nostr.signer';
-import { ProfileService } from '../../../../../nostr-ngx/src/lib/profile/profile.service';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 import { TLoginFormFields } from './login-form-fields.type';
@@ -50,7 +46,7 @@ export class LoginFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private camera$: CameraObservable,
-    private profileProxy: ProfileService,
+    private profileService: ProfileService,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
     private accountManagerService: AccountManagerStatefull
@@ -104,7 +100,7 @@ export class LoginFormComponent implements OnInit {
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
 
     this.loading = true;
-    this.profileProxy
+    this.profileService
       .load(user.npub)
       .then(profile => this.addAccount(user.npub, profile, ncrypted))
       .finally(() => this.loading = false);

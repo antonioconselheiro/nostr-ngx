@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { NostrPool } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { NostrPool } from '../pool/nostr.pool';
 
 @Injectable({
   providedIn: 'root'

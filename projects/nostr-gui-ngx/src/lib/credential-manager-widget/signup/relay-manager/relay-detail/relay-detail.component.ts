@@ -1,16 +1,15 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { NostrPool } from '@belomonte/nostr-ngx';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NostrMetadata } from '@nostrify/nostrify';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { ProfileService } from '../../../../../../../nostr-ngx/src/lib/profile/profile.service';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
-import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-relay-detail',
   templateUrl: './relay-detail.component.html',
   styleUrl: './relay-detail.component.scss'
 })
-export class RelayDetailComponent implements OnInit, OnDestroy {
+export class RelayDetailComponent implements OnInit {
 
   @Output()
   back = new EventEmitter<void>();
@@ -28,35 +27,12 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
   numberFormat = '1.0-0';
 
   constructor(
-    private nostrPool: NostrPool,
-    private profileProxy: ProfileService
+    private profileService: ProfileService
   ) { }
 
   ngOnInit(): void {
-    this.connectPool();
-  }
-
-  ngOnDestroy(): void {
-    this.disconnectPool();
-  }
-
-  private connectPool(): void {
     fetchRelayInformation(this.relay)
-      .then(details => {
-        pool.ensureRelay(this.relay, { details });
-        this.onLoad(details, pool);
-      })
-      .catch(e => {
-        console.error(e);
-        pool.ensureRelay(this.relay);
-      });
-  }
-
-  private disconnectPool(): void {
-    if (this.pool) {
-      this.pool.destroy();
-      delete this.pool;
-    }
+    .then(details => this.onLoad(details));
   }
 
   private onLoad(details: RelayInformation): void {
@@ -67,8 +43,8 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
 
   private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
-      this.profileProxy
-        .loadFromPublicHexa(details.pubkey)
+      this.profileService
+        .get(details.pubkey)
         .then(profile => this.loadedContactProfile = profile)
     }
   }

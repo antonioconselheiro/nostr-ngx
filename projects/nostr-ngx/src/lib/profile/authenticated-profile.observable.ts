@@ -3,7 +3,7 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
 import { ProfileSessionStorage } from '../credential-storage/profile-session.storage';
-import { IAuthenticatedAccount } from '../../../../nostr-gui-ngx/src/lib/domain/authenticated-account.interface';
+import { IAuthenticatedAccount } from '../domain/authenticated-account.interface';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { AccountConverter } from './account.converter';
 import { ProfileService } from './profile.service';
@@ -42,7 +42,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       account = {
         metadata,
         npub,
-        pubhex
+        pubkey: pubhex
       };
     }
 
@@ -101,15 +101,18 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
 
   private loadProfile(npub: NPub): Promise<NostrMetadata> {
     return this.profileProxy
-      .load(npub)
+      .get(npub)
       .then(metadata => {
-        this.sessionConfigs.patch({ metadata });
-        const { data } = nip19.decode(npub);
-        this.next({
-          metadata,
-          npub,
-          pubhex: data
-        });
+        if (metadata) {
+          this.sessionConfigs.patch({ metadata });
+
+          const { data } = nip19.decode(npub);
+          this.next({
+            metadata,
+            npub,
+            pubkey: data
+          });
+        }
 
         return Promise.resolve(metadata);
       });

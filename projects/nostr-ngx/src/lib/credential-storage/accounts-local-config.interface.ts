@@ -1,8 +1,9 @@
-import { NostrLocalConfig } from '@belomonte/nostr-ngx';
+
+import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 
 export interface AccountsLocalConfig extends NostrLocalConfig {
   accounts?: {
-    [npub: string]: IUnauthenticatedAccount
+    [pubkey: string]: IUnauthenticatedAccount
   };
 }

@@ -1,25 +1,9 @@
-export * from '../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
 export * from './lib/domain/profile-picture.interface';
 export * from './lib/domain/creating-account.interface';
 export * from './lib/typing-complete/typing-complete.directive'
-export * from '../../nostr-ngx/src/lib/profile/profile.converter';
-export * from '../../nostr-ngx/src/lib/profile/nostr.signer';
-export * from '../../nostr-ngx/src/lib/profile/profile.service';
-export * from '../../nostr-ngx/src/lib/profile/account.converter';
-export * from '../../nostr-ngx/src/lib/profile/account-manager.statefull';
-export * from '../../nostr-ngx/src/lib/profile/profile.module';
-export * from '../../nostr-ngx/src/lib/profile/authenticated-profile.observable';
-export * from '../../nostr-ngx/src/lib/profile/profile.cache';
-export * from '../../nostr-ngx/src/lib/profile/profile-metadata.interface';
-export * from '../../nostr-ngx/src/lib/profile/profile.nostr';
 export * from './lib/profile-widget/profile-picture/profile-picture.component';
 export * from './lib/profile-widget/profile-widget.module';
 export * from './lib/credential-manager-widget/credential-manager-widget.module';
-export * from '../../nostr-ngx/src/lib/credential-storage/credential-storage.module';
-export * from '../../nostr-ngx/src/lib/credential-storage/profile-session.storage';
-export * from '../../nostr-ngx/src/lib/credential-storage/accounts-local.storage';
-export * from '../../nostr-ngx/src/lib/credential-storage/profile-session-config.interface';
-export * from '../../nostr-ngx/src/lib/credential-storage/accounts-local-config.interface';
 export * from './lib/credential-manager-widget/modal-ncryptsec-decrypt/modal-ncryptsec-decrypt.module';
 export * from './lib/credential-manager-widget/modal-ncryptsec-decrypt/modal-ncryptsec-decrypt.component';
 export * from './lib/credential-manager-widget/auth-modal-arguments.interface';
@@ -68,6 +52,5 @@ export * from './lib/qrcode-service/qrcode.service';
 export * from './lib/qrcode-service/qrcode-service.module';
 export * from './lib/loading/loading.component';
 export * from './lib/loading/loading-widget.module';
-
 
 // TODO: incluir meio de configurar a foto de perfil e banner padrão que a biblioteca deve assumir 

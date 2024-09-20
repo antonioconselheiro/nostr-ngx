@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Ncryptsec, Nip05, NostrLocalConfigRelays, NSec } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import * as nip49 from 'nostr-tools/nip49';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { Nip05 } from '../domain/nip05.type';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { NSec } from '../domain/nsec.type';
 
 @Injectable({
   providedIn: 'root'

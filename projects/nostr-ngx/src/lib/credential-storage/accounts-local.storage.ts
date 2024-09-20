@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AbstractBrowserStorage, Ncryptsec, NostrLocalConfigRelays, NSec } from '@belomonte/nostr-ngx';
 import { AccountsLocalConfig } from './accounts-local-config.interface';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { getPublicKey, nip19 } from 'nostr-tools';
+import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NSec } from '../domain/nsec.type';
+import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,11 +33,10 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalCo
   addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, displayName: string, relays: NostrLocalConfigRelays): void {
     const { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data);
-    const npub = nip19.npubEncode(pubkey);
     const account: IUnauthenticatedAccount = {
       displayName,
       ncryptsec,
-      npub,
+      pubkey,
       picture: '',
       relays
     }
@@ -48,7 +50,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalCo
       accounts = {};
     }
 
-    accounts[account.npub] = account;
+    accounts[account.pubkey] = account;
     this.patch({ accounts });
   }
 }
