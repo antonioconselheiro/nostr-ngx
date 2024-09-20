@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { ProfileService } from '../../../../../../../nostr-ngx/src/lib/profile/profile.service';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { ProfileService } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',

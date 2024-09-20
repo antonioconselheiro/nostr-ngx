@@ -1,10 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { MediaUploader, NostrService } from '@belomonte/nostr-ngx';
-import { IProfile } from '../../../domain/profile.interface';
-import { AuthenticatedAccountObservable } from '../../../../../../nostr-ngx/src/lib/profile/authenticated-profile.observable';
-import { TAuthModalSteps } from '../../auth-modal-steps.type';
+import { AuthenticatedAccountObservable, MediaUploader, NostrPool } from '@belomonte/nostr-ngx';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { RegisterAccountEventFactory } from './register-account.event-factory';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-register-account',
@@ -14,7 +13,7 @@ import { RegisterAccountEventFactory } from './register-account.event-factory';
 export class RegisterAccountComponent implements OnInit {
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   submitted = false;
 
@@ -22,7 +21,7 @@ export class RegisterAccountComponent implements OnInit {
     displayName: FormControl<string | null>;
     picture: FormControl<string | null>;
     banner: FormControl<string | null>;
-    bio: FormControl<string | null>;
+    about: FormControl<string | null>;
     url: FormControl<string | null>;
   }>;
 
@@ -31,7 +30,7 @@ export class RegisterAccountComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private nostrService: NostrService,
+    private npool: NostrPool,
     private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: AuthenticatedAccountObservable,
     private mediaUploader: MediaUploader
@@ -48,7 +47,7 @@ export class RegisterAccountComponent implements OnInit {
       displayName: [currentProfile?.display_name || ''],
       picture: [currentProfile?.picture || ''],
       banner: [currentProfile?.banner || ''],
-      bio: [currentProfile?.bio || ''],
+      about: [currentProfile?.about || ''],
       url: [currentProfile?.website || '']
     });
   }
@@ -80,19 +79,19 @@ export class RegisterAccountComponent implements OnInit {
   }
 
   //  FIXME: aqui não deve ser IProfile, deve ser uma interface do perfil em sua forma original
-  private castRawValueIntoProfileMetadata(currentProfile: IProfile | null, rawValues: {
+  private castRawValueIntoProfileMetadata(currentProfile: NostrMetadata | null, rawValues: {
     displayName: string | null;
     picture: string | null;
     banner: string | null;
-    bio: string | null;
+    about: string | null;
     url: string | null;
-  }): IProfile {
+  }): NostrMetadata {
     return {
       ...currentProfile,
       display_name: rawValues.displayName || '',
       picture: rawValues.picture || '',
       banner: rawValues.banner || '',
-      bio: rawValues.bio || '',
+      about: rawValues.about || '',
       website: rawValues.url || ''
     };
   }
@@ -107,6 +106,6 @@ export class RegisterAccountComponent implements OnInit {
     const updatedProfile = this.castRawValueIntoProfileMetadata(profile, raw);
     this.registerAccountEventFactory
       .createProfileMetadata(updatedProfile)
-      .then(nostrEvent => this.nostrService.publish(nostrEvent));
+      .then(nostrEvent => this.npool.event(nostrEvent));
   }
 }

@@ -58,7 +58,7 @@ export * from './lib/profile/nostr.signer';
 export * from './lib/profile/nostr-metadata-cached.interface';
 export * from './lib/profile/account.converter';
 export * from './lib/profile/account-manager.statefull';
-export * from './lib/profile/authenticated-profile.observable';
+export * from './lib/profile/authenticated-account.observable';
 export * from './lib/profile/profile.cache';
 export * from './lib/profile/profile-metadata.interface';
 export * from './lib/profile/profile.nostr';

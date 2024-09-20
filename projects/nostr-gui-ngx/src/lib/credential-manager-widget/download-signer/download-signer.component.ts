@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { TAuthModalSteps } from '../auth-modal-steps.type';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-download-signer',
@@ -8,5 +8,5 @@ import { TAuthModalSteps } from '../auth-modal-steps.type';
 })
 export class DownloadSignerComponent {
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 }

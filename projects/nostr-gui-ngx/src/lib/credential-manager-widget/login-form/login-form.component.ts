@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { NostrConverter, Ncryptsec, NSec, NostrLocalConfigRelays, NPub } from '@belomonte/nostr-ngx';
+import { AccountManagerStatefull, IUnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
-import { TAuthModalSteps } from '../auth-modal-steps.type';
-import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 import { TLoginFormFields } from './login-form-fields.type';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 
 @Component({
   selector: 'nostr-login-form',
@@ -24,7 +24,7 @@ export class LoginFormComponent implements OnInit {
   accounts: IUnauthenticatedAccount[] = [];
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
   selected = new EventEmitter<IUnauthenticatedAccount>();
@@ -101,8 +101,8 @@ export class LoginFormComponent implements OnInit {
 
     this.loading = true;
     this.profileService
-      .load(user.npub)
-      .then(profile => this.addAccount(user.npub, profile, ncrypted))
+      .getFully(user.pubkey)
+      .then(({ metadata, relays }) => this.addAccount(user.npub, metadata, ncrypted, relays))
       .finally(() => this.loading = false);
   }
 
@@ -112,21 +112,14 @@ export class LoginFormComponent implements OnInit {
     return Promise.resolve();
   }
 
-  private addAccount(npub: NPub, profile: NostrMetadata, ncryptsec: Ncryptsec, relays: NostrLocalConfigRelays): void {
-    if (profile.load) {
-      this.accountForm.reset();
-      const unauthenticatedAccount = this.accountManagerService.addAccount(npub, profile, ncryptsec, relays);
-      if (!unauthenticatedAccount) {
-        this.changeStep.next('selectAccount');
-      } else {
-        this.selected.next(unauthenticatedAccount);
-        this.changeStep.next('authenticate');
-      }
-
+  private addAccount(npub: NPub, profile: NostrMetadata | null, ncryptsec: Ncryptsec, relays: NostrUserRelays): void {
+    this.accountForm.reset();
+    const unauthenticatedAccount = this.accountManagerService.addAccount(npub, profile, ncryptsec, relays);
+    if (!unauthenticatedAccount) {
+      this.changeStep.next('selectAccount');
     } else {
-      this.accountForm.controls['nsec'].setErrors({
-        nsecNotFound: true
-      });
+      this.selected.next(unauthenticatedAccount);
+      this.changeStep.next('authenticate');
     }
   }
 }

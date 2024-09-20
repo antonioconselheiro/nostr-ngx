@@ -1,11 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { FileManagerService, Ncryptsec, NSec } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec } from '@belomonte/nostr-ngx';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
-import { NostrSigner } from '../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
-import { TAuthModalSteps } from '../../auth-modal-steps.type';
-import { AccountsLocalStorage } from '../../../../../../nostr-ngx/src/lib/credential-storage/accounts-local.storage';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-create-nsec-and-ncryptsec',
@@ -15,7 +13,7 @@ import { AccountsLocalStorage } from '../../../../../../nostr-ngx/src/lib/creden
 export class CreateNsecAndNcryptsecComponent implements OnInit {
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   @Input()
   creatingAccount!: ICreatingAccount;

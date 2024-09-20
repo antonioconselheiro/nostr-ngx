@@ -1,7 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
-import { TAuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-select-account',
@@ -14,7 +12,7 @@ export class SelectAccountComponent {
   accounts: IUnauthenticatedAccount[] = [];
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
   selected = new EventEmitter<IUnauthenticatedAccount>();

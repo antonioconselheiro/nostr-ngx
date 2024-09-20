@@ -1,8 +1,8 @@
-import { IProfile } from '../domain/profile.interface';
-import { TAuthModalSteps } from './auth-modal-steps.type';
+import { NostrMetadata } from '@nostrify/nostrify';
+import { AuthModalSteps } from './auth-modal-steps.type';
 
-export interface IAuthModalArguments {
+export interface AuthModalArguments {
   title?: string;
-  currentAuthProfile?: IProfile | null;
-  currentStep?: TAuthModalSteps | null;
+  currentAuthProfile?: NostrMetadata | null;
+  currentStep?: AuthModalSteps | null;
 }

@@ -1,11 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { TNcryptsec } from '@belomonte/nostr-ngx';
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
-import { NostrSigner } from '../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
-import { TAuthModalSteps } from '../../auth-modal-steps.type';
+import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { TChoosePasswordFields } from './choose-password-fields.type';
 import { ICreatingAccount } from '../../../domain/creating-account.interface';
+import { Ncryptsec, NostrSigner } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-choose-password',
@@ -20,7 +19,7 @@ export class ChoosePasswordComponent implements OnInit {
   showConfirmPassword = false;
   submitted = false;
 
-  ncryptsec?: TNcryptsec | null;
+  ncryptsec?: Ncryptsec | null;
   qrcode = '';
 
   formOptions: AbstractControlOptions = {
@@ -36,7 +35,7 @@ export class ChoosePasswordComponent implements OnInit {
   }>;
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
   validSubmit = new EventEmitter<ICreatingAccount>();

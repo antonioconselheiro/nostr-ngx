@@ -1,9 +1,8 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { IRelayMetadata, MainPool, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
-import { NostrSigner } from '../../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
-import { TAuthModalSteps } from '../../../auth-modal-steps.type';
-import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { IRelayMetadata, NostrPool, NostrSigner, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
 import { Subscription } from 'rxjs';
+import { AuthModalSteps } from '../../../auth-modal-steps.type';
+import { TRelayManagerSteps } from '../relay-manager-steps.type';
 
 @Component({
   selector: 'nostr-my-relays',
@@ -13,7 +12,7 @@ import { Subscription } from 'rxjs';
 export class MyRelaysComponent implements OnInit, OnDestroy {
 
   @Output()
-  changeStep = new EventEmitter<TAuthModalSteps>();
+  changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
   changeRelayStep = new EventEmitter<TRelayManagerSteps>();
@@ -33,7 +32,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(
-    private mainPool: MainPool,
+    private npool: NostrPool,
     private nostrSigner: NostrSigner
   ) { }
 

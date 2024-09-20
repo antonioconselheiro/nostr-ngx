@@ -5,7 +5,7 @@ import { ProfileCache } from './profile.cache';
 import { AccountConverter } from './account.converter';
 import { ProfileService } from './profile.service';
 import { AccountManagerStatefull } from './account-manager.statefull';
-import { AuthenticatedAccountObservable } from './authenticated-profile.observable';
+import { AuthenticatedAccountObservable } from './authenticated-account.observable';
 
 @NgModule({
   imports: [

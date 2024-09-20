@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EventTemplate, kinds, NostrEvent } from 'nostr-tools';
-import { NostrSigner } from '../../../../../../nostr-ngx/src/lib/profile/nostr.signer';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { NostrSigner } from '@belomonte/nostr-ngx';
 
 @Injectable({
   providedIn: 'root'

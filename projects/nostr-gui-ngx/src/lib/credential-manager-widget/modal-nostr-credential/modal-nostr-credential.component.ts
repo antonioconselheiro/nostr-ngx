@@ -1,12 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
-import { IAuthModalArguments } from '../auth-modal-arguments.interface';
+import { AuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
-import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
-import { TAuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { AccountManagerStatefull, IUnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',
@@ -14,7 +13,7 @@ import { NostrMetadata } from '@nostrify/nostrify';
   styleUrl: './modal-nostr-credential.component.scss'
 })
 export class ModalNostrCredentialComponent
-  extends ModalableDirective<IAuthModalArguments | null, NostrMetadata | null>
+  extends ModalableDirective<AuthModalArguments | null, NostrMetadata | null>
   implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription();
@@ -25,7 +24,7 @@ export class ModalNostrCredentialComponent
 
   authenticatingAccount: IUnauthenticatedAccount | null = null;
   creatingAccount: ICreatingAccount | null = null;
-  currentStep: TAuthModalSteps | null = null;
+  currentStep: AuthModalSteps | null = null;
 
   constructor(
     private accountManagerStatefull: AccountManagerStatefull
@@ -44,7 +43,7 @@ export class ModalNostrCredentialComponent
     }));
   }
 
-  onChangeStep(step: TAuthModalSteps): void {
+  onChangeStep(step: AuthModalSteps): void {
     // let a tick to the screen click effect
     setTimeout(() => this.currentStep = step);
   }
@@ -59,7 +58,7 @@ export class ModalNostrCredentialComponent
     this.subscriptions.unsubscribe();
   }
 
-  override onInjectData(data: IAuthModalArguments | null): void {
+  override onInjectData(data: AuthModalArguments | null): void {
     if (data?.currentStep) {
       this.currentStep = data?.currentStep;
     }

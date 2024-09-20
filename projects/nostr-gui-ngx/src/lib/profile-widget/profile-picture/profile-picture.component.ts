@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { IProfilePicture } from '../../domain/profile-picture.interface';
-import { IUnauthenticatedAccount } from '../../../../../nostr-ngx/src/lib/domain/unauthenticated-account.interface';
+import { IUnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-profile-picture',
