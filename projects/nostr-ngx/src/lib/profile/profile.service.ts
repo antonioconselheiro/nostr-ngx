@@ -51,7 +51,7 @@ export class ProfileService {
       metadata: null
     };
 
-    const eventMetadata = events.filter(event => this.guard.isKind(event, kinds.Metadata));
+    const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
     const [ metadata ] = await this.profileCache.add(eventMetadata);
     result.metadata = metadata;
 

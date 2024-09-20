@@ -43,7 +43,7 @@ export class ProfileNostr {
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.query([
       {
-        kinds: [Metadata],
+        kinds: [ kinds.Metadata ],
         authors
       }
     ], opts) as Promise<Array<NostrEvent & { kind: 0 }>>;
