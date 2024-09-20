@@ -14,7 +14,7 @@ import { ProfileNostr } from './profile.nostr';
 @Injectable({
   providedIn: 'root'
 })
-export class ProfileProxy {
+export class ProfileService {
 
   constructor(
     private nostrSigner: NostrSigner,

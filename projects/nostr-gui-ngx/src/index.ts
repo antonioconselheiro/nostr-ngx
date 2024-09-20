@@ -4,7 +4,7 @@ export * from './lib/domain/creating-account.interface';
 export * from './lib/typing-complete/typing-complete.directive'
 export * from '../../nostr-ngx/src/lib/profile/profile.converter';
 export * from '../../nostr-ngx/src/lib/profile/nostr.signer';
-export * from '../../nostr-ngx/src/lib/profile/profile.proxy';
+export * from '../../nostr-ngx/src/lib/profile/profile.service';
 export * from '../../nostr-ngx/src/lib/profile/account.converter';
 export * from '../../nostr-ngx/src/lib/profile/account-manager.statefull';
 export * from '../../nostr-ngx/src/lib/profile/profile.module';

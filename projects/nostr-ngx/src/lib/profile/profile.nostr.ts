@@ -9,7 +9,7 @@ import { NPoolRequestOptions } from '../pool/npool-request.options';
 })
 export class ProfileNostr {
 
-  private readonly kindsDirectMessageList = 10050;
+  private readonly kindDirectMessageList = 10050;
 
   constructor(
     private nostrPool: NostrPool
@@ -23,14 +23,14 @@ export class ProfileNostr {
   async loadProfile(author: string, opts?: NPoolRequestOptions): Promise<NostrEvent & { kind: 0 }> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio
-    const [ event ] = await this.nostrPool.query([
+    const [event] = await this.nostrPool.query([
       {
-        kinds: [ Metadata ],
-        authors: [ author ],
+        kinds: [Metadata],
+        authors: [author],
         limit: 1
       }
     ], opts);
-    
+
     return Promise.resolve(event as NostrEvent & { kind: 0 });
   }
 
@@ -44,7 +44,7 @@ export class ProfileNostr {
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.query([
       {
-        kinds: [ Metadata ],
+        kinds: [Metadata],
         authors
       }
     ], opts) as Promise<Array<NostrEvent & { kind: 0 }>>;
@@ -53,14 +53,29 @@ export class ProfileNostr {
   loadProfileRelayConfig(pubkey: string): Promise<Array<NostrEvent>> {
     return this.nostrPool.query([
       {
-        authors: [ pubkey ],
+        authors: [pubkey],
         kinds: [
-          kinds.RelayList,
-          kinds.SearchRelaysList,
-          kinds.BlockedRelaysList,
-          this.kindsDirectMessageList
+          kinds.RelayList
         ],
-        limit: 4
+        limit: 1
+      },
+
+      {
+        authors: [pubkey],
+        kinds: [kinds.SearchRelaysList],
+        limit: 1
+      },
+
+      {
+        authors: [pubkey],
+        kinds: [kinds.BlockedRelaysList],
+        limit: 1
+      },
+
+      {
+        authors: [pubkey],
+        kinds: [this.kindDirectMessageList],
+        limit: 1
       }
     ]);
   }
@@ -73,7 +88,7 @@ export class ProfileNostr {
           kinds.RelayList,
           kinds.SearchRelaysList,
           kinds.BlockedRelaysList,
-          this.kindsDirectMessageList
+          this.kindDirectMessageList
         ]
       }
     ]);

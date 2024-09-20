@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileCache } from './profile.cache';
 import { AccountConverter } from './account.converter';
-import { ProfileProxy } from './profile.proxy';
+import { ProfileService } from './profile.service';
 import { AccountManagerStatefull } from './account-manager.statefull';
 import { AuthenticatedAccountObservable } from './authenticated-profile.observable';
 
@@ -14,7 +14,7 @@ import { AuthenticatedAccountObservable } from './authenticated-profile.observab
   providers: [
     ProfileNostr,
     ProfileCache,
-    ProfileProxy,
+    ProfileService,
     AccountConverter,
     AccountManagerStatefull,
     AuthenticatedAccountObservable

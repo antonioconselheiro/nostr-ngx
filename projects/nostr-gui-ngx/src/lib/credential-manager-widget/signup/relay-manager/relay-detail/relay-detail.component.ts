@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NostrPool } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { ProfileProxy } from '../../../../../../../nostr-ngx/src/lib/profile/profile.proxy';
+import { ProfileService } from '../../../../../../../nostr-ngx/src/lib/profile/profile.service';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
 import { NostrMetadata } from '@nostrify/nostrify';
 
@@ -29,7 +29,7 @@ export class RelayDetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private nostrPool: NostrPool,
-    private profileProxy: ProfileProxy
+    private profileProxy: ProfileService
   ) { }
 
   ngOnInit(): void {

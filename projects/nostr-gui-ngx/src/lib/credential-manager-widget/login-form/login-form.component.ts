@@ -6,7 +6,7 @@ import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AccountManagerStatefull } from '../../../../../nostr-ngx/src/lib/profile/account-manager.statefull';
 import { NostrSigner } from '../../../../../nostr-ngx/src/lib/profile/nostr.signer';
-import { ProfileProxy } from '../../../../../nostr-ngx/src/lib/profile/profile.proxy';
+import { ProfileService } from '../../../../../nostr-ngx/src/lib/profile/profile.service';
 import { TAuthModalSteps } from '../auth-modal-steps.type';
 import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 import { TLoginFormFields } from './login-form-fields.type';
@@ -50,7 +50,7 @@ export class LoginFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private camera$: CameraObservable,
-    private profileProxy: ProfileProxy,
+    private profileProxy: ProfileService,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
     private accountManagerService: AccountManagerStatefull
