@@ -5,7 +5,7 @@ import { getPublicKey, nip19 } from 'nostr-tools';
 import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
-import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +30,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalCo
     delete localStorage[this.NOSTR_STORAGE_KEY];
   }
 
-  addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, displayName: string, relays: NostrLocalConfigRelays): void {
+  addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, displayName: string, relays: NostrUserRelays): void {
     const { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data);
     const account: IUnauthenticatedAccount = {

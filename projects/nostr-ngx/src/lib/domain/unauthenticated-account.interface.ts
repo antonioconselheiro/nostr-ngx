@@ -1,5 +1,5 @@
 import { NostrLocalConfigAccount } from "../configs/nostr-local-config-account.interface";
-import { NostrLocalConfigRelays } from "../configs/nostr-local-config-relays.interface";
+import { NostrUserRelays } from "../configs/nostr-user-relays.interface";
 import { Ncryptsec } from "./ncryptsec.type";
 import { Nip05 } from "./nip05.type";
 
@@ -15,5 +15,5 @@ export interface IUnauthenticatedAccount extends NostrLocalConfigAccount {
    */
   picture: string;
   nip05?: Nip05;
-  relays: NostrLocalConfigRelays;
+  relays: NostrUserRelays;
 }

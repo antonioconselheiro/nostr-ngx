@@ -5,7 +5,7 @@ import * as nip49 from 'nostr-tools/nip49';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { Nip05 } from '../domain/nip05.type';
 import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { NSec } from '../domain/nsec.type';
 
 @Injectable({
@@ -13,7 +13,7 @@ import { NSec } from '../domain/nsec.type';
 })
 export class AccountConverter {
 
-  convertProfileToAccount(pubkey: string, profile: NostrMetadata | null, ncryptsec: Ncryptsec, relays: NostrLocalConfigRelays): IUnauthenticatedAccount {
+  convertProfileToAccount(pubkey: string, profile: NostrMetadata | null, ncryptsec: Ncryptsec, relays: NostrUserRelays): IUnauthenticatedAccount {
     const displayName = profile && (profile.display_name || profile.name) || '';
     const picture = profile && profile.picture || ''; // TODO: include a config to define a default image or a random image generator function
     const nip05 = (profile && profile.nip05  as Nip05 || undefined);

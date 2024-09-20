@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { kinds, NostrEvent } from 'nostr-tools';
-import { Metadata } from 'nostr-tools/kinds';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { NostrPool } from '../pool/nostr.pool';
 
@@ -20,15 +19,15 @@ export class ProfileNostr {
    * @param opts optional request options
    * @returns metadata event
    */
-  async loadProfile(author: string, opts?: NPoolRequestOptions): Promise<NostrEvent & { kind: 0 }> {
+  async loadProfile(pubkey: string, opts?: NPoolRequestOptions): Promise<NostrEvent & { kind: 0 }> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio
     const [event] = await this.nostrPool.query([
       {
-        kinds: [Metadata],
-        authors: [author],
+        kinds: [kinds.Metadata],
+        authors: [pubkey],
         limit: 1
-      }
+      },
     ], opts);
 
     return Promise.resolve(event as NostrEvent & { kind: 0 });
@@ -92,5 +91,41 @@ export class ProfileNostr {
         ]
       }
     ]);
+  }
+
+  async loadFullyProfileConfig(pubkey: string, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
+    //  FIXME: aplicar schemas
+    //  FIXME: applicar filtros de bloqueio
+    return this.nostrPool.query([
+      {
+        kinds: [kinds.Metadata],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.RelayList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.SearchRelaysList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.BlockedRelaysList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [10_050],
+        authors: [pubkey],
+        limit: 1
+      }
+    ], opts);
   }
 }

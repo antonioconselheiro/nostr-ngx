@@ -1,11 +1,11 @@
 
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NPub } from './npub.type';
-import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 
 export interface IAuthenticatedAccount {
   metadata: NostrMetadata | null;
   npub: NPub;
   pubkey: string;
-  relays: NostrLocalConfigRelays;
+  relays: NostrUserRelays;
 }

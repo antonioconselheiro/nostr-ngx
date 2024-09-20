@@ -36,7 +36,7 @@ module.exports = tseslint.config(
       "complexity": [
         "error",
         {
-          "max": 8
+          "max": 9
         }
       ],
       "@angular-eslint/directive-selector": [

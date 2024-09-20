@@ -1,5 +1,5 @@
-import { NostrLocalConfigRelays } from "./nostr-local-config-relays.interface";
+import { NostrUserRelays } from "./nostr-user-relays.interface";
 
 export interface NostrLocalConfigAccount {
-  relays: NostrLocalConfigRelays;
+  relays: NostrUserRelays;
 }

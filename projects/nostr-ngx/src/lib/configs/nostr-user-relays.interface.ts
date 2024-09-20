@@ -1,6 +1,6 @@
 import { RelayRecord } from "nostr-tools/relay";
 
-export interface NostrLocalConfigRelays {
+export interface NostrUserRelays {
   general: RelayRecord;
   directMessage?: Array<WebSocket['url']>;
   search?: Array<WebSocket['url']>;

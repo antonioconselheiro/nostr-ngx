@@ -4,14 +4,13 @@ import { getPublicKey, nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
 import { ProfileSessionStorage } from '../credential-storage/profile-session.storage';
 import { IAuthenticatedAccount } from '../domain/authenticated-account.interface';
+import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NSec } from '../domain/nsec.type';
 import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { AccountConverter } from './account.converter';
-import { ProfileService } from './profile.service';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NSecCrypto } from '../nostr/nsec.crypto';
-import { NSec } from '../domain/nsec.type';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NPub } from '../domain/npub.type';
+import { AccountConverter } from './account.converter';
+import { ProfileService } from './profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +22,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
   static DEFAULT_BANNER_PICTURE = 'data:image/jpeg;base64,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';
 
   constructor(
-    private profileProxy: ProfileService,
+    private profileService: ProfileService,
     private accountConverter: AccountConverter,
     private nostrConverter: NostrConverter,
     private nsecCrypto: NSecCrypto,
@@ -32,18 +31,23 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
     const session = sessionConfigs.read();
     const metadata = session.sessionFrom === 'sessionStorage' && session.metadata || null;
     const nsec = session.sessionFrom === 'sessionStorage' && session.nsec || null;
+    const relays = session.relays;
     let account: IAuthenticatedAccount | null = null;
-
-    if (metadata && nsec) {
+    
+    if (metadata && nsec && relays) {
       const { data } = nip19.decode(nsec);
-      const pubhex = getPublicKey(data);
-      const npub = nip19.npubEncode(pubhex);
+      const pubkey = getPublicKey(data);
+      const npub = nip19.npubEncode(pubkey);
 
-      account = {
-        metadata,
-        npub,
-        pubkey: pubhex
-      };
+      if (relays) {
+        account = {
+          metadata,
+          npub,
+          pubkey,
+          relays
+        };
+      }
+
     }
 
     super(account);
@@ -62,7 +66,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
     return this.nostrConverter.casNPubToPubkey(profile.npub);
   }
 
-  authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
+  authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<NostrMetadata | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
 
@@ -70,10 +74,10 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       this.sessionConfigs.patch({ nsec });
     }
 
-    return this.loadProfile(user.npub);
+    return this.loadProfile(user.pubkey);
   }
 
-  authenticateAccount(account: IUnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
+  authenticateAccount(account: IUnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata | null> {
     const nsec = this.accountConverter.decryptAccount(account, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
@@ -83,10 +87,10 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       this.sessionConfigs.patch({ nsec });
     }
 
-    return this.loadProfile(user.npub);
+    return this.loadProfile(user.pubkey);
   }
 
-  authenticateEncryptedEncode(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata> {
+  authenticateEncryptedEncode(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<NostrMetadata | null> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     this.sessionConfigs.clear();
@@ -96,21 +100,22 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<IAuthenticat
       this.sessionConfigs.patch({ nsec });
     }
 
-    return this.loadProfile(user.npub);
+    return this.loadProfile(user.pubkey);
   }
 
-  private loadProfile(npub: NPub): Promise<NostrMetadata> {
-    return this.profileProxy
-      .get(npub)
-      .then(metadata => {
+  private loadProfile(pubkey: string): Promise<NostrMetadata | null> {
+    return this.profileService
+      .getFully(pubkey)
+      .then(({ metadata, relays }) => {
         if (metadata) {
-          this.sessionConfigs.patch({ metadata });
+          const npub = nip19.npubEncode(pubkey);
 
-          const { data } = nip19.decode(npub);
+          this.sessionConfigs.patch({
+            metadata
+          });
+
           this.next({
-            metadata,
-            npub,
-            pubkey: data
+            metadata, npub, pubkey, relays
           });
         }
 

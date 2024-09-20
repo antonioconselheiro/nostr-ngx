@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { isRelayString } from './is-relay-string.regex';
 import { RelayRecord } from 'nostr-tools/relay';
-import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { NostrGuard } from './nostr.guard';
 
 @Injectable({
@@ -102,8 +102,8 @@ export class RelayConverter {
     return relaysFound;
   }
 
-  convertEventsToRelayConfig(relayEvents: Array<NostrEvent>): { [pubkey: string]: NostrLocalConfigRelays } {
-    const record: { [pubkey: string]: NostrLocalConfigRelays } = {};
+  convertEventsToRelayConfig(relayEvents: Array<NostrEvent>): { [pubkey: string]: NostrUserRelays } {
+    const record: { [pubkey: string]: NostrUserRelays } = {};
     relayEvents.forEach(event => {
       if (this.guard.isKind(event, kinds.RelayList)) {
         record[event.pubkey].general = this.convertRelayListEventToRelayRecord(event);
