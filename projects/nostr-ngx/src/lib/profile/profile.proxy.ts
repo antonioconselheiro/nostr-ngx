@@ -34,33 +34,26 @@ export class ProfileProxy {
     private nostrConverter: NostrConverter
   ) { }
 
-  get(npubs: NPub): NostrMetadata;
+  get(pubkey: string): NostrMetadata | null;
+  get(pubkeys: string[]): NostrMetadata[];
+  get(npub: NPub): NostrMetadata | null;
   get(npubs: NPub[]): NostrMetadata[];
-  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[];
-  get(npubs: NPub[] | NPub): NostrMetadata | NostrMetadata[] {
-    return this.profileCache.get(npubs);
+  get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null {
+    return this.profileCache.get(publicAddresses);
   }
 
-  cache(profiles: NostrMetadata[]): void {
-    this.profileCache.cache(profiles);
-  }
-
-  cacheFromEvents(profiles: NostrEvent[]): void {
-    this.profileCache.cacheFromEvent(profiles);
+  cache(profiles: Array<NostrEvent & { kind: 0 }>): void {
+    this.profileCache.add(profiles);
   }
 
   async load(npubs: NPub): Promise<NostrMetadata>;
   async load(npubs: NPub[]): Promise<NostrMetadata[]>;
+  async load(npubs: NPub[] | NPub): Promise<NostrMetadata | NostrMetadata[]>;
   async load(npubs: NPub[] | NPub): Promise<NostrMetadata | NostrMetadata[]> {
-    if (typeof npubs === 'string') {
-      const indexedProfile = ProfileCache.profiles[npubs];
-      if (!indexedProfile || !indexedProfile.load) {
-        return this.loadProfile(npubs);
-      }
-
-      return Promise.resolve(indexedProfile);
+    if (npubs instanceof Array) {
+      return this.profileApi.loadProfiles(npubs);
     } else {
-      return this.loadProfiles(npubs);
+      return this.profileApi.loadProfiles([npubs]);
     }
   }
 

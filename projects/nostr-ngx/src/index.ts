@@ -1,6 +1,5 @@
 import { WindowNostr } from 'nostr-tools/nip07';
 
-export * from './lib/injection-token/io-cache-nstore.token';
 export * from './lib/injection-token/main-ncache.token';
 export * from './lib/domain/nprofile.type';
 export * from './lib/domain/naddr.type';
@@ -21,13 +20,9 @@ export * from './lib/pool/npool-router.options';
 export * from './lib/pool/npool-request.options';
 export * from './lib/pool/facade.npool';
 export * from './lib/pool/nostr.pool';
-export * from './lib/idb-cache/idb.nstore';
-export * from './lib/idb-cache/ncache-default.params';
-export * from './lib/idb-cache/idb.filter';
-export * from './lib/idb-cache/idb-cache.module';
-export * from './lib/in-memory-cache/idb-nostr-event-cache.interface';
-export * from './lib/in-memory-cache/idb.ncache';
-export * from './lib/in-memory-cache/in-memory-cache.module';
+export * from './lib/idb-cache/idb-nostr-event-cache.interface';
+export * from './lib/idb-cache/idb.ncache';
+export * from './lib/idb-cache/idb-ncache.module';
 export * from './lib/tools/nostr-date.fn';
 export * from './lib/nostr-media/file-sending.interface';
 export * from './lib/nostr-media/file-upload-completed.interface';

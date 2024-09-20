@@ -84,7 +84,7 @@ export class ProfileCache {
       this.indexedByNip5.set(metadata.nip05, metadataEvent.pubkey);
     }
 
-    tx.store.put({
+    await tx.store.put({
       pubkey: metadataEvent.pubkey,
       metadata
     })
@@ -94,6 +94,7 @@ export class ProfileCache {
   get(pubkeys: string[]): NostrMetadata[];
   get(npub: NPub): NostrMetadata | null;
   get(npubs: NPub[]): NostrMetadata[];
+  get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null;
   get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [ publicAddresses ];
     const metadatas = publicAddresses
