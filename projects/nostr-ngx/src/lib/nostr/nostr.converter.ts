@@ -8,11 +8,11 @@ import { NSec } from '../domain/nsec.type';
 })
 export class NostrConverter {
 
-  convertNsecToNpub(nostrSecret: NSec): { npub: NPub, pubhex: string } {
+  convertNsecToNpub(nostrSecret: NSec): { npub: NPub, pubkey: string } {
     const { data } = nip19.decode(nostrSecret);
-    const pubhex = getPublicKey(data);
+    const pubkey = getPublicKey(data);
 
-    return { pubhex, npub: nip19.npubEncode(pubhex) };
+    return { pubkey, npub: nip19.npubEncode(pubkey) };
   }
 
   castPubkeyToNostrPublic(pubkey: string): NPub {

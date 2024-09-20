@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
+import { NostrEvent, NostrMetadata } from '@nostrify/nostrify';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../credential-storage/accounts-local.storage';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { AccountConverter } from './account.converter';
-import { NostrMetadata } from '@nostrify/nostrify';
-import { NostrLocalConfigRelays } from '../configs/nostr-local-config-relays.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NPub } from '../domain/npub.type';
+import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { RelayConverter } from '../nostr/relay.converter';
+import { AccountConverter } from './account.converter';
 
 @Injectable({
   providedIn: 'root'
@@ -19,21 +18,23 @@ export class AccountManagerStatefull {
 
   constructor(
     private accountConverter: AccountConverter,
-    private accountsLocalStorage: AccountsLocalStorage
+    private accountsLocalStorage: AccountsLocalStorage,
+    private relayConverter: RelayConverter
   ) { }
 
-  addAccount(npub: NPub, profile: NostrMetadata, ncryptsec: Ncryptsec, relays: NostrLocalConfigRelays): IUnauthenticatedAccount | null {
-    const unauthenticated = this.accountConverter.convertProfileToAccount(npub, profile, ncryptsec, relays);
+  addAccount(pubkey: string, profile: NostrMetadata | null, ncryptsec: Ncryptsec, relays: Array<NostrEvent>): IUnauthenticatedAccount | null {
+    const relayConfigRecord = this.relayConverter.convertEventsToRelayConfig(relays);
+    const unauthenticated = this.accountConverter.convertProfileToAccount(pubkey, profile, ncryptsec, relayConfigRecord[pubkey]);
     if (!unauthenticated) {
       return null;
     }
-    this.accounts[unauthenticated.npub] = unauthenticated
+    this.accounts[unauthenticated.pubkey] = unauthenticated
     this.update();
     return unauthenticated;
   }
 
   removeAccount(profile: IUnauthenticatedAccount): void {
-    delete this.accounts[profile.npub];
+    delete this.accounts[profile.pubkey];
     this.update();
   }
 

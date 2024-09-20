@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { NostrGuard, NostrPool, NPub } from '@belomonte/nostr-ngx';
-import { nip19, NostrEvent } from 'nostr-tools';
+import { NostrPool } from '@belomonte/nostr-ngx';
+import { kinds, NostrEvent } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 
@@ -9,19 +9,73 @@ import { NPoolRequestOptions } from '../pool/npool-request.options';
 })
 export class ProfileNostr {
 
+  private readonly kindsDirectMessageList = 10050;
+
   constructor(
-    private guard: NostrGuard,
     private nostrPool: NostrPool
   ) { }
 
-  loadProfiles(npubs: Array<NPub | string>, opts?: NPoolRequestOptions): Promise<Array<NostrEvent & { kind: 0 }>> {
-    const authors = npubs.map(pubkey => this.guard.isNPub(pubkey) ? String(nip19.decode(pubkey).data) : pubkey);
+  /**
+   * @param authors array of pubkey, hexadecimal
+   * @param opts optional request options
+   * @returns metadata event
+   */
+  async loadProfile(author: string, opts?: NPoolRequestOptions): Promise<NostrEvent & { kind: 0 }> {
+    //  FIXME: aplicar schemas
+    //  FIXME: applicar filtros de bloqueio
+    const [ event ] = await this.nostrPool.query([
+      {
+        kinds: [ Metadata ],
+        authors: [ author ],
+        limit: 1
+      }
+    ], opts);
+    
+    return Promise.resolve(event as NostrEvent & { kind: 0 });
+  }
+
+  /**
+   * @param authors array of pubkey, hexadecimal
+   * @param opts optional request options
+   * @returns metadata event
+   */
+  loadProfiles(authors: Array<string>, opts?: NPoolRequestOptions): Promise<Array<NostrEvent & { kind: 0 }>> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.query([
       {
-        kinds: [ Metadata ], authors
+        kinds: [ Metadata ],
+        authors
       }
     ], opts) as Promise<Array<NostrEvent & { kind: 0 }>>;
+  }
+
+  loadProfileRelayConfig(pubkey: string): Promise<Array<NostrEvent>> {
+    return this.nostrPool.query([
+      {
+        authors: [ pubkey ],
+        kinds: [
+          kinds.RelayList,
+          kinds.SearchRelaysList,
+          kinds.BlockedRelaysList,
+          this.kindsDirectMessageList
+        ],
+        limit: 4
+      }
+    ]);
+  }
+
+  loadProfilesRelayConfig(pubkeys: Array<string>): Promise<Array<NostrEvent>> {
+    return this.nostrPool.query([
+      {
+        authors: pubkeys,
+        kinds: [
+          kinds.RelayList,
+          kinds.SearchRelaysList,
+          kinds.BlockedRelaysList,
+          this.kindsDirectMessageList
+        ]
+      }
+    ]);
   }
 }
