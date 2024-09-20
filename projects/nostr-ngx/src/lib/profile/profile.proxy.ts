@@ -9,18 +9,9 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NPub } from '../domain/npub.type';
 import { NSec } from '../domain/nsec.type';
+import { NPoolRequestOptions } from '../pool/npool-request.options';
 
-/**
- * Orchestrate the interaction with the profile data,
- * check the cache, call the nostr api, cast the
- * resultset into domain object, cache it and return
- * 
- * There is a set of operations that must be done for
- * each nostr query precisely to reduce the need to repeat
- * queries, the complexity of this flow is abstracted
- * through this facade, which orchestrates services with
- * different responsibilities (cache, api, cast)
- */
+// TODO: include load and cache of users relay list
 @Injectable({
   providedIn: 'root'
 })
@@ -42,25 +33,26 @@ export class ProfileProxy {
     return this.profileCache.get(publicAddresses);
   }
 
-  cache(profiles: Array<NostrEvent & { kind: 0 }>): void {
-    this.profileCache.add(profiles);
-  }
-
-  async load(npubs: NPub): Promise<NostrMetadata>;
-  async load(npubs: NPub[]): Promise<NostrMetadata[]>;
-  async load(npubs: NPub[] | NPub): Promise<NostrMetadata | NostrMetadata[]>;
-  async load(npubs: NPub[] | NPub): Promise<NostrMetadata | NostrMetadata[]> {
-    if (npubs instanceof Array) {
-      return this.profileApi.loadProfiles(npubs);
+  //  FIXME: must load from cache, except if opts include  ignoreCache=true
+  async load(pubkeys: string, opts?: NPoolRequestOptions): Promise<NostrMetadata>;
+  async load(pubkeys: string[], opts?: NPoolRequestOptions): Promise<NostrMetadata[]>;
+  async load(pubkeys: string[] | string, opts?: NPoolRequestOptions): Promise<NostrMetadata | NostrMetadata[]>;
+  async load(pubkeys: string[] | string, opts?: NPoolRequestOptions): Promise<NostrMetadata | NostrMetadata[]> {
+    if (pubkeys instanceof Array) {
+      const events = await this.profileApi.loadProfiles(pubkeys, opts);
+      return this.profileCache.add(events);
     } else {
-      return this.profileApi.loadProfiles([npubs]);
+      const events = await this.profileApi.loadProfiles([pubkeys], opts);
+      const [ metadata ] = await this.profileCache.add(events);
+      return Promise.resolve(metadata || null);
     }
   }
 
-  loadFromPublicHexa(pubkey: string): Promise<NostrMetadata> {
-    return this.loadProfile(this.nostrConverter.castPubkeyToNpub(pubkey));
+  add(profiles: Array<NostrEvent & { kind: 0 }>): void {
+    this.profileCache.add(profiles);
   }
 
+  //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<IUnauthenticatedAccount | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
     const profile = await this.load(user.npub);
@@ -68,23 +60,5 @@ export class ProfileProxy {
     const account = this.accountManagerStatefull.addAccount(user.npub, profile, ncrypted);
 
     return Promise.resolve(account);
-  }
-
-  async loadProfiles(npubss: NPub[]): Promise<NostrMetadata[]> {
-    const npubs = [...new Set(npubss.flat(1))];
-    const notLoaded = npubs.filter(npub => !this.profileCache.isEagerLoaded(npub))
-
-    return this.forceProfileReload(notLoaded);
-  }
-
-  async loadProfile(npub: NPub): Promise<NostrMetadata> {
-    return this.loadProfiles([npub])
-      .then(profiles => Promise.resolve(profiles[0]));
-  }
-  
-  private async forceProfileReload(npubs: Array<NPub>): Promise<Array<NostrMetadata>> {
-    const events = await this.profileApi.loadProfiles(npubs);
-    this.profileCache.cacheFromEvent(events);
-    return Promise.resolve(npubs.map(npub => this.profileCache.get(npub)));
   }
 }
