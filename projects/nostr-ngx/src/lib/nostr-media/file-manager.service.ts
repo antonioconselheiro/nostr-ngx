@@ -7,7 +7,23 @@ import { base64 } from '@scure/base';
 @Injectable()
 export class FileManagerService {
 
-  private blobToBase64(blobFile?: Blob | null): Promise<string> {
+  async linkToBase64(url: string): Promise<string | null> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return Promise.resolve(null);
+    }
+
+    const blob = await response.blob();
+    const reader = new FileReader();
+
+    return new Promise(resolve => {
+      reader.onloadend = () => resolve(reader.result ? String(reader.result) : null);
+
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  blobToBase64(blobFile?: Blob | null): Promise<string> {
     if (!blobFile) {
       return Promise.resolve('');
     }
@@ -19,17 +35,17 @@ export class FileManagerService {
         if (!arrayBuffer) {
           return resolve('');
         }
-  
+
         const uint8Array = new Uint8Array(arrayBuffer as ArrayBuffer);
         return resolve(`data:${blobFile.type || 'image/png'};base64,` + base64.encode(uint8Array));
       };
-  
+
       reader.readAsArrayBuffer(blobFile);
     });
   }
 
   private base64ToBlob(base64File: string): Blob {
-    const [,, type,, encoded] = Array.from(base64File.match(/(data:)([^ ]+)(;base64,)([^ ]+)/) || []);
+    const [, , type, , encoded] = Array.from(base64File.match(/(data:)([^ ]+)(;base64,)([^ ]+)/) || []);
     const binary = base64.decode(encoded);
     const array = [];
     for (let i = 0; i < binary.length; i++) {
