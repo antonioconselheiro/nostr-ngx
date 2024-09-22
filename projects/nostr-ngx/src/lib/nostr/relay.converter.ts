@@ -132,4 +132,34 @@ export class RelayConverter {
 
     return record;
   }
+
+  /**
+   * extract write relays
+   */
+  extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+    return this.extractRelaysOfRelayRecord(userRelayConfig, 'write');
+  }
+
+  /**
+   * extract read relays
+   */
+  extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+    return this.extractRelaysOfRelayRecord(userRelayConfig, 'read');
+  }
+
+  extractRelaysOfRelayRecord(
+    userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>,
+    relayType: 'read' | 'write'
+  ): Array<WebSocket['url']> {
+    if (userRelayConfig instanceof Array) {
+      return userRelayConfig.map(record => this.extractOutboxRelays(record)).flat(2);
+    } else if (userRelayConfig && userRelayConfig.general) {
+      const general = userRelayConfig.general;
+      return Object
+        .keys(general)
+        .filter(relay => general[relay][relayType]);
+    }
+
+    return [];
+  }
 }

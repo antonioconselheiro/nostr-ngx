@@ -45,7 +45,9 @@ export class RouterService implements NpoolRouterOptions {
     if (routes.length) {
       return Promise.resolve(routes);
     } else {
-      return this.routerMatcher.defaultFallback;
+      return this.relayConverter.extractOutboxRelays({
+        general: this.routerMatcher.defaultFallback()
+      });
     }
   }
 
@@ -62,7 +64,9 @@ export class RouterService implements NpoolRouterOptions {
     }
 
     if (!relays.length) {
-      relays = this.routerMatcher.defaultFallback;
+      relays = this.relayConverter.extractInboxRelays({
+        general: this.routerMatcher.defaultFallback()
+      });
     }
 
     const subscriptions: Array<[string, NostrFilter[]]> = relays.map(relay => {
