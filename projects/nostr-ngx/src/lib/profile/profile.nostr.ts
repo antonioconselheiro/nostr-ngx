@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { NostrPool } from '../pool/nostr.pool';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -43,47 +44,18 @@ export class ProfileNostr {
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.query([
       {
-        kinds: [ kinds.Metadata ],
+        kinds: [kinds.Metadata],
         authors
       }
     ], opts) as Promise<Array<NostrEvent & { kind: 0 }>>;
   }
 
-  loadProfileRelayConfig(pubkey: string): Promise<Array<NostrEvent>> {
-    return this.nostrPool.query([
-      {
-        authors: [pubkey],
-        kinds: [
-          kinds.RelayList
-        ],
-        limit: 1
-      },
-
-      {
-        authors: [pubkey],
-        kinds: [kinds.SearchRelaysList],
-        limit: 1
-      },
-
-      {
-        authors: [pubkey],
-        kinds: [kinds.BlockedRelaysList],
-        limit: 1
-      },
-
-      {
-        authors: [pubkey],
-        kinds: [this.kindDirectMessageList],
-        limit: 1
-      }
-    ]);
-  }
-
-  loadProfilesRelayConfig(pubkeys: Array<string>): Promise<Array<NostrEvent>> {
+  loadProfilesConfig(pubkeys: Array<string>): Promise<Array<NostrEvent>> {
     return this.nostrPool.query([
       {
         authors: pubkeys,
         kinds: [
+          kinds.Metadata,
           kinds.RelayList,
           kinds.SearchRelaysList,
           kinds.BlockedRelaysList,
@@ -93,7 +65,7 @@ export class ProfileNostr {
     ]);
   }
 
-  async loadFullyProfileConfig(pubkey: string, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
+  loadProfileConfig(pubkey: string, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.query([
@@ -122,10 +94,31 @@ export class ProfileNostr {
       },
 
       {
-        kinds: [10_050],
+        kinds: [this.kindDirectMessageList],
         authors: [pubkey],
         limit: 1
       }
     ], opts);
+  }
+
+  listenUserConfigUpdates(pubkey: string): Observable<NostrEvent> {
+    //  FIXME: aplicar schemas
+    //  FIXME: applicar filtros de bloqueio
+    return this.nostrPool.observe([
+      {
+        kinds: [
+          kinds.Metadata,
+          kinds.RelayList,
+          kinds.SearchRelaysList,
+          kinds.BlockedRelaysList,
+          this.kindDirectMessageList
+        ],
+        authors: [
+          pubkey
+        ]
+      }
+    ], {
+      ignoreCache: true
+    });
   }
 }

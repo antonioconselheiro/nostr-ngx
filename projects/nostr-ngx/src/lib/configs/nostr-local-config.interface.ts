@@ -1,5 +1,5 @@
 import { RelayRecord } from 'nostr-tools/relay';
-import { NostrLocalConfigAccount } from './nostr-local-config-account.interface';
+import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 
 /**
  * saved in local storage
@@ -18,6 +18,6 @@ export interface NostrLocalConfig {
   commonRelays?: RelayRecord;
 
   accounts?: {
-    [pubkey: string]: NostrLocalConfigAccount;
+    [pubkey: string]: UnauthenticatedAccount;
   };
 }

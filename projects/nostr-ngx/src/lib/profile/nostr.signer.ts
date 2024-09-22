@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { EventTemplate, finalizeEvent, generateSecretKey, nip19, NostrEvent } from 'nostr-tools';
-import * as nip49 from 'nostr-tools/nip49';
 import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
-import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.error';
+import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
+import { NSecCrypto } from '../nostr/nsec.crypto';
 
 /**
  * Sign Nostr Event according to user authentication settings
@@ -20,7 +20,8 @@ export class NostrSigner {
   private static inMemoryNsec?: Uint8Array;
 
   constructor(
-    private sessionConfigs: ConfigsSessionStorage
+    private sessionConfigs: ConfigsSessionStorage,
+    private nsecCrypto: NSecCrypto
   ) { }
 
   login(nsec: NSec): void {
@@ -36,36 +37,25 @@ export class NostrSigner {
   encryptNsec(password: string, nsec: NSec): Ncryptsec; 
   encryptNsec(password: string, nsec?: NSec): Ncryptsec | null {
     if (nsec) {
-      return this.generateNcryptsec(password, nsec);
+      return this.nsecCrypto.encryptNSec(nsec, password);
     }
 
     const sessionConfig = this.sessionConfigs.read();
-    if (sessionConfig.sessionFrom === 'signer') {
+    if (sessionConfig.signer === 'extension') {
       //  maybe should write a NIP suggestin to include a way to get a ncryptsec from extension 
       return null;
     }
 
     if (NostrSigner.inMemoryNsec) {
-      return this.generateNcryptsec(password, NostrSigner.inMemoryNsec);
+      return this.nsecCrypto.encryptNSec(NostrSigner.inMemoryNsec, password);
     }
 
     const session = this.sessionConfigs.read();
-    if (session.sessionFrom === 'sessionStorage' && session.nsec) {
-      return this.generateNcryptsec(password, session.nsec);
+    if (!session.signer && session.nsec) {
+      return this.nsecCrypto.encryptNSec(session.nsec, password);
     }
 
     return null;
-  }
-
-  private generateNcryptsec(password: string, nsec: NSec | Uint8Array): Ncryptsec {
-    if (typeof nsec === 'string') {
-      const decoded = nip19.decode(nsec);
-      const bytes = decoded.data as Uint8Array; 
-
-      return nip49.encrypt(bytes, password) as Ncryptsec;
-    } else {
-      return nip49.encrypt(nsec, password) as Ncryptsec;
-    }
   }
 
   hasSignerExtension(): boolean {
@@ -74,7 +64,7 @@ export class NostrSigner {
 
   signEvent(event: EventTemplate): Promise<NostrEvent> {
     const sessionConfig = this.sessionConfigs.read();
-    if (sessionConfig.sessionFrom === 'signer') {
+    if (sessionConfig.signer === 'extension') {
       return this.signWithSigner(event);
     }
 
@@ -95,7 +85,7 @@ export class NostrSigner {
     }
 
     const session = this.sessionConfigs.read();
-    if (session.sessionFrom === 'sessionStorage' && session.nsec) {
+    if (!session.signer && session.nsec) {
       const { data } = nip19.decode(session.nsec);
       return Promise.resolve(finalizeEvent(event, data as Uint8Array));
     }

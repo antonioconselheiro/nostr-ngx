@@ -2,9 +2,8 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileCache } from './profile.cache';
-import { AccountConverter } from './account.converter';
 import { ProfileService } from './profile.service';
-import { AccountManagerStatefull } from './account-manager.statefull';
+import { AccountManagerService } from './account-manager.service';
 import { AuthenticatedAccountObservable } from './authenticated-account.observable';
 
 @NgModule({
@@ -15,8 +14,7 @@ import { AuthenticatedAccountObservable } from './authenticated-account.observab
     ProfileNostr,
     ProfileCache,
     ProfileService,
-    AccountConverter,
-    AccountManagerStatefull,
+    AccountManagerService,
     AuthenticatedAccountObservable
   ]
 })

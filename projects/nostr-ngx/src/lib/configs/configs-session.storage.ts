@@ -9,9 +9,7 @@ export class ConfigsSessionStorage extends AbstractBrowserStorage<NostrSessionCo
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: NostrSessionConfig = {
-    sessionFrom: 'none'
-  };
+  protected default: NostrSessionConfig = {};
 
   protected getItem(): string | null {
     return sessionStorage.getItem(this.NOSTR_STORAGE_KEY);

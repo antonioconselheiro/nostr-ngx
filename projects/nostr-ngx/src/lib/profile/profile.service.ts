@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent, kinds } from 'nostr-tools';
 import { NSec } from '../domain/nsec.type';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
-import { AccountManagerStatefull } from './account-manager.statefull';
+import { AccountManagerService } from './account-manager.service';
 import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
+import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 
 // TODO: include load and cache of users relay list
 @Injectable({
@@ -20,40 +21,42 @@ import { NostrGuard } from '../nostr/nostr.guard';
 export class ProfileService {
 
   constructor(
-    private nostrSigner: NostrSigner,
+    private guard: NostrGuard,
+    private configs: ConfigsLocalStorage,
     private profileApi: ProfileNostr,
-    private accountManagerStatefull: AccountManagerStatefull,
+    private nostrSigner: NostrSigner,
     private profileCache: ProfileCache,
     private nostrConverter: NostrConverter,
-    private guard: NostrGuard,
-    private relayConverter: RelayConverter
+    private relayConverter: RelayConverter,
+    private accountManagerStatefull: AccountManagerService
   ) { }
 
   //  FIXME: must load from cache, except if opts include  ignoreCache=true
   async get(pubkey: string, opts?: NPoolRequestOptions): Promise<NostrMetadata | null> {
     const event = await this.profileApi.loadProfile(pubkey, opts);
-    const [ metadata ] = await this.profileCache.add([event]);
+    const [metadata] = await this.profileCache.add([event]);
 
     return Promise.resolve(metadata || null);
   }
 
   /**
-   * load from pool or from the cache the metadata and relay configs
+   * load from pool or from the cache the metadata and relay configs,
+   * if loaded from pool, it will be added to cache
    */
   async getFully(pubkey: string, opts?: NPoolRequestOptions): Promise<{ metadata: NostrMetadata | null, relays: NostrUserRelays }> {
-    const events = await this.profileApi.loadFullyProfileConfig(pubkey, opts);
+    const events = await this.profileApi.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
     const result: {
       metadata: NostrMetadata | null,
       relays: NostrUserRelays
     } = {
-      relays: record[pubkey],
-      metadata: null
+      metadata: null,
+      relays: record[pubkey]
     };
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const [ metadata ] = await this.profileCache.add(eventMetadata);
-    result.metadata = metadata;
+    const [metadata] = await this.profileCache.add(eventMetadata);
+    result.metadata = metadata || null;
 
     return Promise.resolve(result);
   }
@@ -63,25 +66,47 @@ export class ProfileService {
     return this.profileCache.add(events);
   }
 
-  add(profiles: Array<NostrEvent & { kind: 0 }>): void {
-    this.profileCache.add(profiles);
+  cache(profiles: Array<NostrEvent & { kind: 0 }>): Promise<Array<NostrMetadata>> {
+    return this.profileCache.add(profiles);
   }
 
   //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
-  async loadAccountFromCredentials(nsec: NSec, password: string): Promise<IUnauthenticatedAccount | null> {
+  async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
-    const profile = await this.get(user.pubkey);
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
-    const relays = await this.profileApi.loadProfileRelayConfig(user.pubkey);
-    const account = this.accountManagerStatefull.addAccount(user.npub, profile, ncrypted, relays);
+
+    const { metadata, relays } = await this.getFully(user.pubkey);
+    const account = this.accountManagerStatefull.addAccount(user.pubkey, metadata, relays, ncrypted);
 
     return Promise.resolve(account);
   }
 
   async loadAccountRelayConfig(pubkey: string): Promise<NostrUserRelays> {
-    const events = await this.profileApi.loadProfileRelayConfig(pubkey);
+    const events = await this.profileApi.loadProfileConfig(pubkey);
     const config = this.relayConverter.convertEventsToRelayConfig(events);
 
     return Promise.resolve(config[pubkey]);
+  }
+
+  /**
+   * Include account to login later
+   */
+  addUnauthenticatedAccount(account: UnauthenticatedAccount): void {
+    const local = this.configs.read();
+    if (!local.accounts) {
+      local.accounts = {};
+    }
+
+    local.accounts[account.pubkey] = account;
+    this.configs.save(local);
+  }
+
+  removerUnauthenticatedAccount(pubkey: string): void {
+    const local = this.configs.read();
+    if (local.accounts) {
+      delete local.accounts[pubkey];
+    }
+
+    this.configs.save(local);
   }
 }

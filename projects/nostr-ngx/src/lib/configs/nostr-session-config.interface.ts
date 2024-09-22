@@ -1,13 +1,11 @@
-import { Ncryptsec } from '../domain/ncryptsec.type';
+import { Account } from '../domain/account.interface';
 import { NSec } from '../domain/nsec.type';
-import { NostrUserRelays } from './nostr-user-relays.interface';
 
 /**
  * saved in session storage
  */
 export interface NostrSessionConfig {
-  sessionFrom: 'none' | 'sessionStorage' | 'signer' | 'bunker' | 'memory';
-  ncryptsec?: Ncryptsec;
+  signer?: 'extension';
+  account?: Account;
   nsec?: NSec;
-  relays?: NostrUserRelays;
 }

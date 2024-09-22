@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
-import { AccountsLocalConfig } from './accounts-local-config.interface';
-import { IUnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
+import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
-import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
+import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalConfig> {
+export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfig> {
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: AccountsLocalConfig = {
+  protected default: NostrLocalConfig = {
     relayFrom: 'none'
   };
 
@@ -30,13 +31,14 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalCo
     delete localStorage[this.NOSTR_STORAGE_KEY];
   }
 
-  addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, displayName: string, relays: NostrUserRelays): void {
+  addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata?: NostrMetadata): void {
     const { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data);
-    const account: IUnauthenticatedAccount = {
-      displayName,
+    const account: UnauthenticatedAccount = {
+      metadata,
       ncryptsec,
       pubkey,
+      //  FIXME: cast picture url into base64
       picture: '',
       relays
     }
@@ -44,7 +46,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<AccountsLocalCo
     this.addAccount(account);
   }
 
-  addAccount(account: IUnauthenticatedAccount): void {
+  addAccount(account: UnauthenticatedAccount): void {
     let { accounts } = this.read();
     if (!accounts) {
       accounts = {};

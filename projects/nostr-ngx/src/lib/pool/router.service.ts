@@ -55,8 +55,9 @@ export class RouterService implements NpoolRouterOptions {
       relays = this.parseRelayList(opts?.useOnly);
     } else {
       const record = await this.relayConfigService.getCurrentUserRelays();
-      if (record) {
-        relays = Object.keys(record).filter(url => record[url].read);
+      if (record && record.general) {
+        const general = record.general;
+        relays = Object.keys(general).filter(url => general[url].read);
       }
     }
 

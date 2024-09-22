@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 import { kinds, NostrEvent } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
-import { RelayRecord } from "nostr-tools/relay";
+import { NostrUserRelays } from "../configs/nostr-user-relays.interface";
+import { NostrGuard } from "../nostr/nostr.guard";
 import { RelayConverter } from "../nostr/relay.converter";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
-import { NostrGuard } from "../nostr/nostr.guard";
 
 /**
  * TODO: incluir roteamento para addressed event
@@ -122,24 +122,25 @@ export class DefaultRouterMatcher implements RouterMatcher {
     });
   }
 
-  private extractOutboxRelays(relayRecord: RelayRecord | null | Array<RelayRecord | null>): Array<WebSocket['url']> {
-    return this.extractRelaysOfRelayRecord(relayRecord, 'write');
+  private extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+    return this.extractRelaysOfRelayRecord(userRelayConfig, 'write');
   }
 
-  private extractInboxRelays(relayRecord: RelayRecord | null | Array<RelayRecord | null>): Array<WebSocket['url']> {
-    return this.extractRelaysOfRelayRecord(relayRecord, 'read');
+  private extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+    return this.extractRelaysOfRelayRecord(userRelayConfig, 'read');
   }
 
   private extractRelaysOfRelayRecord(
-    relayRecord: RelayRecord | null | Array<RelayRecord | null>,
+    userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>,
     relayType: 'read' | 'write'
   ): Array<WebSocket['url']> {
-    if (relayRecord instanceof Array) {
-      return relayRecord.map(record => this.extractOutboxRelays(record)).flat(2);
-    } else if (relayRecord) {
+    if (userRelayConfig instanceof Array) {
+      return userRelayConfig.map(record => this.extractOutboxRelays(record)).flat(2);
+    } else if (userRelayConfig && userRelayConfig.general) {
+      const general = userRelayConfig.general;
       return Object
-        .keys(relayRecord)
-        .filter(relay => relayRecord[relay][relayType]);
+        .keys(general)
+        .filter(relay => general[relay][relayType]);
     }
 
     return [];
@@ -192,8 +193,8 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private async defaultRouting(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    const authorRelayRecord = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
-    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayRecord, 'write');
+    const authorRelayConfig = await this.relayConfigService.loadMainRelaysOnlyHavingPubkey(event.pubkey);
+    const authorWriteRelays = this.extractRelaysOfRelayRecord(authorRelayConfig, 'write');
 
     console.log('routing to default, sending updates to relays:', authorWriteRelays);
     return Promise.resolve(authorWriteRelays);

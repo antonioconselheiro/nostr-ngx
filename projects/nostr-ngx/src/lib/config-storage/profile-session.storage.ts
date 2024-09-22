@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
-import { ProfileSessionConfig } from './profile-session-config.interface';
 import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
+import { NostrSessionConfig } from '../configs/nostr-session-config.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ProfileSessionStorage extends AbstractBrowserStorage<ProfileSessionConfig> {
+export class ProfileSessionStorage extends AbstractBrowserStorage<NostrSessionConfig> {
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: ProfileSessionConfig = {
-    sessionFrom: 'none'
-  };
+  protected default: NostrSessionConfig = {};
 
   protected getItem(): string | null {
     return sessionStorage.getItem(this.NOSTR_STORAGE_KEY);

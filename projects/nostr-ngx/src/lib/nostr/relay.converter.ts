@@ -4,11 +4,14 @@ import { isRelayString } from './is-relay-string.regex';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { NostrGuard } from './nostr.guard';
+import { Account } from '../domain/account.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RelayConverter {
+
+  private readonly kindDirectMessageList = 10050;
 
   constructor(
     private guard: NostrGuard
@@ -102,12 +105,23 @@ export class RelayConverter {
     return relaysFound;
   }
 
-  convertEventsToRelayConfig(relayEvents: Array<NostrEvent>): { [pubkey: string]: NostrUserRelays } {
+  convertEventsToRelayConfig(
+    relayEvents: Array<NostrEvent>,
+    patchExistingUser?: Account
+  ): { [pubkey: string]: NostrUserRelays } {
     const record: { [pubkey: string]: NostrUserRelays } = {};
+    if (patchExistingUser) {
+      record[patchExistingUser.pubkey] = patchExistingUser.relays;
+    }
+
     relayEvents.forEach(event => {
+      if (!record[event.pubkey]) {
+        record[event.pubkey] = { };
+      }
+
       if (this.guard.isKind(event, kinds.RelayList)) {
         record[event.pubkey].general = this.convertRelayListEventToRelayRecord(event);
-      } else if (this.guard.isKind(event, 10_050)) {
+      } else if (this.guard.isKind(event, this.kindDirectMessageList)) {
         record[event.pubkey].directMessage = this.convertEventToRelayList(event);
       } else if (this.guard.isKind(event, kinds.SearchRelaysList)) {
         record[event.pubkey].search = this.convertEventToRelayList(event);

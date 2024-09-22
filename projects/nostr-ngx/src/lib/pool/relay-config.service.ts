@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { kinds, nip19 } from 'nostr-tools';
 import { queryProfile } from 'nostr-tools/nip05';
+import { ProfilePointer } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
@@ -11,7 +12,7 @@ import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrPool } from './nostr.pool';
-import { ProfilePointer } from 'nostr-tools/nip19';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 
 /**
  * load each kind of relay config
@@ -36,57 +37,30 @@ export class RelayConfigService {
 
   /**
    * Override application default relays for unauthenticated
-   * accounts and for accounts without any relay configured
-   *
-   * @param relays
-   * @param npub 
    */
-  setLocalRelays(relays: RelayRecord, npub?: NPub, directMessagesRelays?: Array<WebSocket['url']>): void {
-    const local = this.configs.read();
-    
-    if (npub) {
-      const { data: pubkey } = nip19.decode(npub);
-      if (!local.accounts) {
-        local.accounts = {};
-      }
-
-      if (local.accounts[pubkey]) {
-        if (local.accounts[pubkey].relays) {
-          local.accounts[pubkey].relays.general = relays;
-        } else {
-          local.accounts[pubkey].relays = { general: relays };
-        }
-      } else {
-        local.accounts[pubkey] = { relays: { general: relays } };
-      }
-
-      if (directMessagesRelays) {
-        local.accounts[pubkey].relays.directMessage = directMessagesRelays
-      }
-    } else {
-      local.commonRelays = relays;
-    }
+  setLocalRelays(relays: RelayRecord): void {
+    this.configs.patch({ commonRelays: relays });
   }
 
   /**
    * Return relays according to user-customized settings
    */
-  async getCurrentUserRelays(): Promise<RelayRecord | null> {
+  async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
     const local = this.configs.read();
     const relayFrom = local.relayFrom;
-    let relayRecord: RelayRecord | null = null;
+    let config: NostrUserRelays | null = null;
 
     if (relayFrom === 'signer') {
-      relayRecord = await this.getRelaysFromSigner();
+      config = await this.getRelaysFromSigner();
     } else if (relayFrom === 'localStorage') {
-      relayRecord = await this.getMainRelaysFromStorage(local);
+      config = await this.getMainRelaysFromStorage(local);
     } else if (relayFrom === 'public' && local.currentPubkey) {
-      relayRecord = await this.getUserPublicMainRelays(local.currentPubkey);
+      config = await this.getUserPublicMainRelays(local.currentPubkey);
     }
 
     console.info('local configs', local);
-    console.info('result relays', relayRecord);
-    return relayRecord;
+    console.info('result relays', config);
+    return config;
   }
 
   private getRelaysFromSigner(): Promise<RelayRecord> {
@@ -97,7 +71,7 @@ export class RelayConfigService {
     return Promise.resolve({});
   }
 
-  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<RelayRecord> {
+  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<NostrUserRelays> {
     const pubkey = local.currentPubkey;
     if (pubkey) {
       return Promise.resolve(local.accounts && local.accounts[pubkey].relays || {})
@@ -106,11 +80,11 @@ export class RelayConfigService {
     return Promise.resolve(local.commonRelays || {});
   }
 
-  async getUserPublicMainRelays(nip5: Nip05): Promise<RelayRecord | null>;
-  async getUserPublicMainRelays(npub: NPub): Promise<RelayRecord | null>;
-  async getUserPublicMainRelays(nprofile: NProfile): Promise<RelayRecord | null>;
-  async getUserPublicMainRelays(pubkey: string): Promise<RelayRecord | null>;
-  async getUserPublicMainRelays(userPublicAddress: string): Promise<RelayRecord | null> {
+  async getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;
+  async getUserPublicMainRelays(npub: NPub): Promise<NostrUserRelays | null>;
+  async getUserPublicMainRelays(nprofile: NProfile): Promise<NostrUserRelays | null>;
+  async getUserPublicMainRelays(pubkey: string): Promise<NostrUserRelays | null>;
+  async getUserPublicMainRelays(userPublicAddress: string): Promise<NostrUserRelays | null> {
     if (this.guard.isNip05(userPublicAddress)) {
       return this.loadMainRelaysFromNIP5(userPublicAddress);
     } else if (this.guard.isNPub(userPublicAddress)) {
@@ -124,13 +98,13 @@ export class RelayConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysFromProfilePointer(pointer: ProfilePointer): Promise<RelayRecord | null> {
+  async loadMainRelaysFromProfilePointer(pointer: ProfilePointer): Promise<NostrUserRelays | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
       const [relayListEvent] = await this.pool.query([
         {
-          kinds: [ kinds.RelayList ],
-          authors: [ pubkey ],
+          kinds: [kinds.RelayList],
+          authors: [pubkey],
           limit: 1
         }
       ], {
@@ -148,11 +122,11 @@ export class RelayConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysFromNprofile(nprofile: NProfile): Promise<RelayRecord | null> {
+  async loadMainRelaysFromNprofile(nprofile: NProfile): Promise<NostrUserRelays | null> {
     return this.loadMainRelaysFromProfilePointer(nip19.decode(nprofile).data);
   }
 
-  async loadMainRelaysFromNIP5(nip5: Nip05): Promise<RelayRecord | null> {
+  async loadMainRelaysFromNIP5(nip5: Nip05): Promise<NostrUserRelays | null> {
     const pointer = await queryProfile(nip5);
 
     if (pointer) {
@@ -162,23 +136,23 @@ export class RelayConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysOnlyHavingNpub(npub: NPub): Promise<RelayRecord | null> {
+  async loadMainRelaysOnlyHavingNpub(npub: NPub): Promise<NostrUserRelays | null> {
     const pubkey = this.nostrConverter.casNPubToPubkey(npub);
     return this.loadMainRelaysOnlyHavingPubkey(pubkey);
   }
 
-  async loadMainRelaysOnlyHavingPubkey(pubkey: string): Promise<RelayRecord | null> {
+  async loadMainRelaysOnlyHavingPubkey(pubkey: string): Promise<NostrUserRelays | null> {
     const [relayListEvent] = await this.pool.query([
       {
-        kinds: [ kinds.RelayList ],
-        authors: [ pubkey ],
+        kinds: [kinds.RelayList],
+        authors: [pubkey],
         limit: 1
       }
     ], {
       /**
        * TODO: preciso centralizar isso como configuração
        */
-      include: [ 'wss://purplepag.es' ]
+      include: ['wss://purplepag.es']
     }).catch(() => Promise.resolve([null]));
 
     if (this.guard.isKind(relayListEvent, kinds.RelayList)) {
@@ -188,8 +162,6 @@ export class RelayConfigService {
 
     return Promise.resolve(null);
   }
-
-  //  do u like overloads? mwhaHAah
 
   /**
    * @returns user list of blocked relays, using NIP5.
@@ -288,8 +260,8 @@ export class RelayConfigService {
       const { pubkey } = pointer;
       const [directMessageRelayListEvent] = await this.pool.query([
         {
-          kinds: [ this.kindDirectMessageRelayList ],
-          authors: [ pubkey ],
+          kinds: [this.kindDirectMessageRelayList],
+          authors: [pubkey],
           limit: 1
         }
       ], {
@@ -401,15 +373,15 @@ export class RelayConfigService {
   async loadRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
     const [relayListEvent] = await this.pool.query([
       {
-        kinds: [ kind ],
-        authors: [ pubkey ],
+        kinds: [kind],
+        authors: [pubkey],
         limit: 1
       }
     ], {
       /**
        * TODO: preciso centralizar isso como configuração
        */
-      include: [ 'wss://purplepag.es' ]
+      include: ['wss://purplepag.es']
     }).catch(() => Promise.resolve([null]));
 
     if (this.guard.isKind(relayListEvent, kind)) {
