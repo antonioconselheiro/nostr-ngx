@@ -6,6 +6,7 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { nip19 } from 'nostr-tools';
 
 /**
  * manage account objects, manage the account list in localstorage and the current user account in sessionstorage
@@ -44,11 +45,12 @@ export class AccountManagerService {
     //  FIXME: should load picture and cast into base64
     // TODO: include a config to define a default image or a random image generator function
     const picture = profile && profile.picture || '';
-
+    const npub = nip19.npubEncode(pubkey);
     const account: Account = {
       picture,
       ncryptsec,
       pubkey,
+      npub,
       relays
     };
 

@@ -34,10 +34,13 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
   addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata?: NostrMetadata): void {
     const { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data);
+    const npub = nip19.npubEncode(pubkey);
+
     const account: UnauthenticatedAccount = {
       metadata,
       ncryptsec,
       pubkey,
+      npub,
       //  FIXME: cast picture url into base64
       picture: '',
       relays

@@ -79,6 +79,7 @@ export class FacadeNPool extends NPool {
 
   override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
     let limit: number | false = false;
+    //  TODO: se o filtro tiver ids a quantidade de ids deve ser considera como limit
     //  FIXME: validar calculo do limite
     const limits = filters.map(filter => filter.limit || null);
     limit = limits.find(() => null) ? false : limits.reduce(
