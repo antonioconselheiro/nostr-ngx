@@ -6,6 +6,7 @@ import { NostrGuard } from "../nostr/nostr.guard";
 import { RelayConverter } from "../nostr/relay.converter";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
+import { appConfig } from "../config-storage/app.config";
 
 /**
  * TODO: incluir roteamento para addressed event
@@ -15,19 +16,6 @@ import { RouterMatcher } from "./router-matcher.interface";
  */
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
-
-  static setDefaultFallback(relays: RelayRecord): void {
-    this.defaultFallback = relays;
-  }
-
-  private static defaultFallback: RelayRecord = {
-    'wss://nos.lol': {
-      read: true, write: true
-    },
-    'wss://nostr.mom': {
-      read: true, write: true
-    }
-  };
 
   constructor(
     private guard: NostrGuard,
@@ -70,7 +58,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   defaultFallback(): RelayRecord {
-    return DefaultRouterMatcher.defaultFallback;
+    return appConfig.defaultFallback;
   }
 
   async requestRouter(): Promise<Array<WebSocket['url']>> {

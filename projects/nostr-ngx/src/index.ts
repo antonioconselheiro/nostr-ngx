@@ -40,6 +40,7 @@ export * from './lib/configs/nostr-user-relays.interface';
 export * from './lib/configs/abstract-browser-storage';
 export * from './lib/configs/nostr-session-config.interface';
 export * from './lib/configs/configs-local.storage';
+export * from './lib/config-storage/app.config';
 export * from './lib/configs/nostr-local-config.interface';
 export * from './lib/configs/configs-session.storage';
 export * from './lib/exceptions/no-credentials-found.error';

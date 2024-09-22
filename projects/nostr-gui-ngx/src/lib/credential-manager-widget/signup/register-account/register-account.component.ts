@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AuthenticatedAccountObservable, MediaUploader, NostrPool } from '@belomonte/nostr-ngx';
+import { appConfig, AuthenticatedAccountObservable, MediaUploader, NostrPool } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { RegisterAccountEventFactory } from './register-account.event-factory';
 import { NostrMetadata } from '@nostrify/nostrify';
@@ -25,8 +25,8 @@ export class RegisterAccountComponent implements OnInit {
     url: FormControl<string | null>;
   }>;
 
-  uploadedProfilePicture = AuthenticatedAccountObservable.DEFAULT_PROFILE_PICTURE;
-  uploadedBanner = AuthenticatedAccountObservable.DEFAULT_BANNER_PICTURE;
+  uploadedProfilePicture = appConfig.defaultProfile.picture;
+  uploadedBanner = appConfig.defaultProfile.banner;
 
   constructor(
     private fb: FormBuilder,

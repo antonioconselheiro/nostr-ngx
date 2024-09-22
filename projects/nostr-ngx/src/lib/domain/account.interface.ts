@@ -7,6 +7,7 @@ import { NPub } from './npub.type';
 export interface Account {
   pubkey: string;
   npub: NPub;
+  isNip05Valid: boolean;
   ncryptsec?: Ncryptsec;
   metadata?: NostrMetadata;
 
