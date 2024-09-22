@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { AuthenticatedAccountObservable, IUnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AuthenticatedAccountObservable, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-authenticate-form',
@@ -11,7 +11,7 @@ import { AuthenticatedAccountObservable, IUnauthenticatedAccount } from '@belomo
 export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   @Input()
-  account: IUnauthenticatedAccount | null = null;
+  account: UnauthenticatedAccount | null = null;
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();

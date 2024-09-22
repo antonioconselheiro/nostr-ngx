@@ -5,7 +5,7 @@ import { Subject, Subscription } from 'rxjs';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 import { ICreatingAccount } from '../../domain/creating-account.interface';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { AccountManagerStatefull, IUnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AccountManagerStatefull, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',
@@ -20,9 +20,9 @@ export class ModalNostrCredentialComponent
   response = new Subject<NostrMetadata | null | void>();
 
   auth: NostrMetadata | null = null;
-  accounts: IUnauthenticatedAccount[] = [];
+  accounts: UnauthenticatedAccount[] = [];
 
-  authenticatingAccount: IUnauthenticatedAccount | null = null;
+  authenticatingAccount: UnauthenticatedAccount | null = null;
   creatingAccount: ICreatingAccount | null = null;
   currentStep: AuthModalSteps | null = null;
 

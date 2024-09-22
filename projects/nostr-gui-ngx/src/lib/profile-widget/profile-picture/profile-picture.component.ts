@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { IProfilePicture } from '../../domain/profile-picture.interface';
-import { IUnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-profile-picture',
@@ -14,7 +14,7 @@ export class ProfilePictureComponent {
   profile: IProfilePicture | null = null;
 
   @Input()
-  account: IUnauthenticatedAccount | null = null;
+  account: UnauthenticatedAccount | null = null;
 
   getPicture(): string {
     if (this.profile && this.profile.picture) {

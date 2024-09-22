@@ -1,9 +1,13 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { IRelayMetadata, NostrPool, NostrSigner, TRelayMetadataRecord } from '@belomonte/nostr-ngx';
+import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
 import { Subscription } from 'rxjs';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { RelayRecord } from 'nostr-tools/relay';
 
+/**
+ * FIXME: this screen need to show relay current connection
+ */
 @Component({
   selector: 'nostr-my-relays',
   templateUrl: './my-relays.component.html',
@@ -21,7 +25,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   relayDetail = new EventEmitter<string>();
 
   connectionStatus = new Map<string, boolean>();
-  choosenRelays: TRelayMetadataRecord = {};
+  choosenRelays: RelayRecord = {};
 
   relaysFrom = 'public';
   relayWritable = true;
@@ -37,28 +41,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.mainPoolSubscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubscribe();
-  }
-  
-  private unsubscribe(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  private mainPoolSubscribe(): void {
-    const subscription = this.mainPool
-      .observeConnection()
-      .subscribe(() => this.updateConnectionStatus());
-
-    this.subscriptions.add(subscription);
-  }
-
-  private updateConnectionStatus(): void {
-    this.choosenRelays = this.mainPool.relays;
-    this.connectionStatus = this.mainPool.listConnectionStatus();
+    
   }
 
   // TODO: review this in internacionalization
@@ -72,26 +55,26 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatRelayMetadata(metadata: IRelayMetadata): string {
-    if (metadata.write && metadata.read) {
-      return `${metadata.url} (read/write)`;
-    } else if (metadata.write) {
-      return `${metadata.url} (write)`;
-    } else if (metadata.read) {
-      return `${metadata.url} (read)`;
+  formatRelayMetadata(relay: string, record: RelayRecord): string {
+    if (record.write && record.read) {
+      return `${relay} (read/write)`;
+    } else if (record.write) {
+      return `${relay} (write)`;
+    } else if (record.read) {
+      return `${relay} (read)`;
     }
 
-    return metadata.url;
+    return relay;
   }
 
-  listRelays(): Array<IRelayMetadata> {
+  listRelays(): Array<any> {
     return Object
       .keys(this.choosenRelays)
       .map(relay => this.choosenRelays[relay]);
   }
 
   removeRelay(relay: string): void {
-    this.mainPool.close([relay]);
+    //this.mainPool.close([relay]);
   }
 
   onPasteRelays(event: ClipboardEvent): void {
@@ -119,13 +102,9 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
     this.newRelayError = null;
     el.value = '';
-    this.mainPool.ensureRelay(relay, {
-      read: this.relayReadable,
-      write: this.relayWritable
-    });
-  }
-
-  disconnectAll(): void {
-    this.mainPool.destroy();
+    //this.mainPool.ensureRelay(relay, {
+    //  read: this.relayReadable,
+    //  write: this.relayWritable
+    //});
   }
 }

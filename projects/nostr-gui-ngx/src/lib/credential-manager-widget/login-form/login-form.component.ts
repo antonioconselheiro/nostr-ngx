@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { AccountManagerStatefull, IUnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
+import { AccountManagerStatefull, UnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -21,13 +21,13 @@ export class LoginFormComponent implements OnInit {
   showPassword = false;
 
   @Input()
-  accounts: IUnauthenticatedAccount[] = [];
+  accounts: UnauthenticatedAccount[] = [];
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<IUnauthenticatedAccount>();
+  selected = new EventEmitter<UnauthenticatedAccount>();
 
   readonly passwordLength = 32;
 

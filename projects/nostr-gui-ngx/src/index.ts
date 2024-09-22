@@ -1,6 +1,7 @@
+
 export * from './lib/domain/profile-picture.interface';
 export * from './lib/domain/creating-account.interface';
-export * from './lib/typing-complete/typing-complete.directive'
+export * from './lib/typing-complete/typing-complete.directive';
 export * from './lib/profile-widget/profile-picture/profile-picture.component';
 export * from './lib/profile-widget/profile-widget.module';
 export * from './lib/credential-manager-widget/credential-manager-widget.module';
@@ -28,7 +29,9 @@ export * from './lib/credential-manager-widget/signup/relay-manager/relay-manage
 export * from './lib/credential-manager-widget/signup/relay-manager/relay-manager.component';
 export * from './lib/credential-manager-widget/signup/relay-manager/relay-search/nostr-watch.api';
 export * from './lib/credential-manager-widget/signup/relay-manager/relay-search/relay-search.component';
+export * from './lib/credential-manager-widget/signup/register-account/register-account-fields.type';
 export * from './lib/credential-manager-widget/signup/register-account/register-account.module';
+export * from './lib/credential-manager-widget/signup/register-account/register-account.event-factory';
 export * from './lib/credential-manager-widget/signup/register-account/register-account.component';
 export * from './lib/credential-manager-widget/authenticate-form/authenticate-form.module';
 export * from './lib/credential-manager-widget/authenticate-form/authenticate-form.component';
