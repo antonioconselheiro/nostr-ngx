@@ -11,7 +11,7 @@ import { RouterMatcher } from "./router-matcher.interface";
  * TODO: incluir roteamento para addressed event
  * TODO: incluir roteamento para relays de pesquisa (10007)
  * TODO: incluir fallback dos relays para dm para os "read"
- * TODO: nomvp: incluir roteamento para wiki
+ * TODO: no-mvp: incluir roteamento para wiki
  */
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {

@@ -3,9 +3,9 @@ import { ModalableDirective } from '@belomonte/async-modal-ngx';
 import { AuthModalArguments } from '../auth-modal-arguments.interface';
 import { Subject, Subscription } from 'rxjs';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { ICreatingAccount } from '../../domain/creating-account.interface';
+import { CreatingAccount } from '../../domain/creating-account.interface';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { AccountManagerStatefull, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AccountManagerService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',
@@ -23,11 +23,11 @@ export class ModalNostrCredentialComponent
   accounts: UnauthenticatedAccount[] = [];
 
   authenticatingAccount: UnauthenticatedAccount | null = null;
-  creatingAccount: ICreatingAccount | null = null;
+  creatingAccount: CreatingAccount | null = null;
   currentStep: AuthModalSteps | null = null;
 
   constructor(
-    private accountManagerStatefull: AccountManagerStatefull
+    private accountManagerService: AccountManagerService
   ) {
     super();
   }
@@ -38,7 +38,7 @@ export class ModalNostrCredentialComponent
   }
 
   private bindAccountsSubscription(): void {
-    this.subscriptions.add(this.accountManagerStatefull.accounts$.subscribe({
+    this.subscriptions.add(this.accountManagerService.accounts$.subscribe({
       next: accounts => this.accounts = accounts
     }));
   }

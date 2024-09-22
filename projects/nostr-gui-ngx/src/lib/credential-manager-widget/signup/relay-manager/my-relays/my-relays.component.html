@@ -27,9 +27,9 @@
   </div>
 
   <ul class="relayList">
-    <li *ngFor="let relay of listRelays()" class="connected">
-      <a (click)="relayDetail.next(relay.url)" tabindex>{{formatRelayMetadata(relay)}}</a>
-      <button class="borderless" (click)="removeRelay(relay.url)" type="button">✕</button>
+    <li *ngFor="let tuple of listRelays()" class="connected">
+      <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
+      <button class="borderless" (click)="removeRelay(tuple[0])" type="button">✕</button>
     </li>
   </ul>
 

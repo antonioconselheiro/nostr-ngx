@@ -42,13 +42,14 @@ export class RegisterAccountComponent implements OnInit {
 
   // eslint-disable-next-line complexity
   private initForm(): void {
-    const currentProfile = this.profile$.getCurrentAuthProfile();
+    const account = this.profile$.getValue();
+    const metadata = account?.metadata || null;
     this.registerAccount = this.fb.group({
-      displayName: [currentProfile?.display_name || ''],
-      picture: [currentProfile?.picture || ''],
-      banner: [currentProfile?.banner || ''],
-      about: [currentProfile?.about || ''],
-      url: [currentProfile?.website || '']
+      displayName: [metadata?.display_name || ''],
+      picture: [metadata?.picture || ''],
+      banner: [metadata?.banner || ''],
+      about: [metadata?.about || ''],
+      url: [metadata?.website || '']
     });
   }
 
@@ -102,8 +103,8 @@ export class RegisterAccountComponent implements OnInit {
     }
 
     const raw = this.registerAccount.getRawValue();
-    const profile = this.profile$.getCurrentAuthProfile();
-    const updatedProfile = this.castRawValueIntoProfileMetadata(profile, raw);
+    const account = this.profile$.getValue();
+    const updatedProfile = this.castRawValueIntoProfileMetadata(account?.metadata || null, raw);
     this.registerAccountEventFactory
       .createProfileMetadata(updatedProfile)
       .then(nostrEvent => this.npool.event(nostrEvent));

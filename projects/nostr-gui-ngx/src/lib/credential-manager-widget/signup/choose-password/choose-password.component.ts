@@ -3,7 +3,7 @@ import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { TChoosePasswordFields } from './choose-password-fields.type';
-import { ICreatingAccount } from '../../../domain/creating-account.interface';
+import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { Ncryptsec, NostrSigner } from '@belomonte/nostr-ngx';
 
 @Component({
@@ -38,7 +38,7 @@ export class ChoosePasswordComponent implements OnInit {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  validSubmit = new EventEmitter<ICreatingAccount>();
+  validSubmit = new EventEmitter<CreatingAccount>();
 
   constructor(
     private fb: FormBuilder,

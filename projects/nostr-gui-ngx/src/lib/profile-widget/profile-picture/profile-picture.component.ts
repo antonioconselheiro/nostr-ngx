@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IProfilePicture } from '../../domain/profile-picture.interface';
+import { ProfilePicture } from '../../domain/profile-picture.interface';
 import { UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
@@ -11,7 +11,7 @@ export class ProfilePictureComponent {
   static defaultPicture = '/assets/profile/default-profile.png'; 
 
   @Input()
-  profile: IProfilePicture | null = null;
+  profile: ProfilePicture | null = null;
 
   @Input()
   account: UnauthenticatedAccount | null = null;
@@ -30,7 +30,7 @@ export class ProfilePictureComponent {
     if (this.profile) {
       return this.profile.display_name || this.profile.name || '';
     } else if (this.account) {
-      return this.account.displayName;
+      return this.account.metadata?.display_name || '';
     }
 
     return 'profile picture';

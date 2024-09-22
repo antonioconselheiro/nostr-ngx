@@ -1,9 +1,8 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
-import { Subscription } from 'rxjs';
+import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
-import { RelayRecord } from 'nostr-tools/relay';
 
 /**
  * FIXME: this screen need to show relay current connection
@@ -13,7 +12,7 @@ import { RelayRecord } from 'nostr-tools/relay';
   templateUrl: './my-relays.component.html',
   styleUrl: './my-relays.component.scss'
 })
-export class MyRelaysComponent implements OnInit, OnDestroy {
+export class MyRelaysComponent {
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -33,16 +32,10 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
   newRelayError: 'never' | 'required' | null = null;
 
-  private subscriptions = new Subscription();
-
   constructor(
     private npool: NostrPool,
     private nostrSigner: NostrSigner
   ) { }
-
-  ngOnInit(): void {
-    
-  }
 
   // TODO: review this in internacionalization
   getNewRelayFieldLabel(): string {
@@ -55,7 +48,10 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatRelayMetadata(relay: string, record: RelayRecord): string {
+  formatRelayMetadata(relay: string, record: {
+    read: boolean;
+    write: boolean;
+  }): string {
     if (record.write && record.read) {
       return `${relay} (read/write)`;
     } else if (record.write) {
@@ -67,10 +63,10 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     return relay;
   }
 
-  listRelays(): Array<any> {
+  listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
     return Object
       .keys(this.choosenRelays)
-      .map(relay => this.choosenRelays[relay]);
+      .map(relay => [ relay, this.choosenRelays[relay] ]);
   }
 
   removeRelay(relay: string): void {

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AccountManagerService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-select-account',
@@ -19,7 +19,7 @@ export class SelectAccountComponent {
   selected = new EventEmitter<UnauthenticatedAccount>();
 
   constructor(
-    private accountManagerService: AccountManagerStatefull
+    private accountManagerService: AccountManagerService
   ) { }
 
   logout(account: UnauthenticatedAccount): void {

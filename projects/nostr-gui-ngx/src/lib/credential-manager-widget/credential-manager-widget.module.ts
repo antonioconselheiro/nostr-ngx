@@ -14,7 +14,6 @@ import { QrcodeServiceModule } from '../qrcode-service/qrcode-service.module';
     AsyncModalModule,
     SvgRenderModule,
     NostrModule,
-    CredentialStorageModule,
     ModalNostrCredentialModule,
     QrcodeServiceModule
   ],

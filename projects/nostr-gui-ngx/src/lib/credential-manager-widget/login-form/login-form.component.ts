@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { AccountManagerStatefull, UnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
+import { AccountManagerService, UnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -49,7 +49,7 @@ export class LoginFormComponent implements OnInit {
     private profileService: ProfileService,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
-    private accountManagerService: AccountManagerStatefull
+    private accountManagerService: AccountManagerService
   ) { }
 
   ngOnInit(): void {
@@ -100,10 +100,13 @@ export class LoginFormComponent implements OnInit {
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
 
     this.loading = true;
-    this.profileService
-      .getFully(user.pubkey)
-      .then(({ metadata, relays }) => this.addAccount(user.npub, metadata, ncrypted, relays))
-      .finally(() => this.loading = false);
+
+    try {
+      const { metadata, relays } = await this.profileService.getFully(user.pubkey);
+      await this.addAccount(user.npub, metadata, relays, ncrypted);
+    } finally {
+      this.loading = false;
+    }
   }
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {
@@ -112,14 +115,16 @@ export class LoginFormComponent implements OnInit {
     return Promise.resolve();
   }
 
-  private addAccount(npub: NPub, profile: NostrMetadata | null, ncryptsec: Ncryptsec, relays: NostrUserRelays): void {
+  private async addAccount(npub: NPub, metadata: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
     this.accountForm.reset();
-    const unauthenticatedAccount = this.accountManagerService.addAccount(npub, profile, ncryptsec, relays);
+    const unauthenticatedAccount = await this.accountManagerService.addAccount(npub, metadata, relays, ncryptsec)
     if (!unauthenticatedAccount) {
       this.changeStep.next('selectAccount');
     } else {
       this.selected.next(unauthenticatedAccount);
       this.changeStep.next('authenticate');
     }
+
+    return Promise.resolve(unauthenticatedAccount);
   }
 }

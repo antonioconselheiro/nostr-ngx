@@ -5,10 +5,10 @@
   <nostr-profile-picture [account]="account"></nostr-profile-picture>
   <div class="userInfo">
     <span class="userName">
-      {{account.displayName}}
-      <span *ngIf="account.nip05valid" class="userVerified"></span>
+      {{account?.metadata?.displayName}}
+      <span *ngIf="account?.metadata?.nip05valid" class="userVerified"></span>
     </span>
-    <span *ngIf="account.nip05" class="userNip5">{{account.nip05}}</span>
+    <span *ngIf="account?.metadata?.nip05" class="userNip5">{{account?.metadata?.nip05}}</span>
   </div>
 </section>
 
