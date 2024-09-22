@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/nostr-credential-ngx",
+  "dest": "../../dist/nostr-gui-ngx",
   "lib": {
     "entryFile": "src/index.ts"
   },

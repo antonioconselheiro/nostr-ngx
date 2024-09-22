@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CredentialHandlerService } from '@belomonte/nostr-credential-ngx';
+import { CredentialHandlerService } from '@belomonte/nostr-gui-ngx';
 
 @Component({
   selector: 'app-nostr-auth-check',

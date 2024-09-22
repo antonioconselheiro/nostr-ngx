@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NostrAuthCheckModule } from './pages/nostr-auth-check/nostr-auth-check.module';
 import { PoolInteractModule } from './pages/pool-interact/pool-interact.module';
-import { PoolConfigModule } from './pages/pool-config/pool-config.module';
 
 @Component({
   selector: 'app-root',
@@ -12,8 +11,7 @@ import { PoolConfigModule } from './pages/pool-config/pool-config.module';
     CommonModule,
     RouterModule,
     NostrAuthCheckModule,
-    PoolInteractModule,
-    PoolConfigModule
+    PoolInteractModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

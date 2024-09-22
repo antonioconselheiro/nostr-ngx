@@ -1,13 +1,3 @@
-<form>
-  <fieldset>
-    <legend>Choose a pool</legend>
-
-    <select [(ngModel)]="choosenPool" [ngModelOptions]="{standalone: true}">
-      <option [value]="pool" *ngFor="let pool of poolsOptions">{{pool}}</option>
-    </select>
-  </fieldset>
-</form>
-
 <form [formGroup]="formEventPublish">
   <fieldset>
     <legend>Write on Pool</legend>

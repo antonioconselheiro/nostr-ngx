@@ -1,4 +1,4 @@
-nostr-credential-ngx
+nostr-gui-ngx
 [ ] Exportar scss com o básico, para ser sobrescrito e permitir customização da aparência dos componentes
 [ ] Remover todas as aplicações de scss em elementos nativos
 [ ] Quando um perfil não for encontrado em um relay, a autenticação não deve ser impedida, pelo contrário, deve se dar meios de continuar sem os detalhes de perfil
