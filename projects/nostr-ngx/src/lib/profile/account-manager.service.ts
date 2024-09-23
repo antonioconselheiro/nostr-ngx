@@ -24,11 +24,8 @@ export class AccountManagerService {
     private accountsLocalStorage: AccountsLocalStorage
   ) { }
 
-  //  FIXME: incluir validação verificando se todos eventos pertencem ao pubkey
-  //  FIXME: incluir validação dos tipos dos eventos recebido
-  async addAccount(pubkey: string, metadata: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
-    const unauthenticated = this.accountFactory(pubkey, metadata, relays, ncryptsec);
-    this.accounts[unauthenticated.pubkey] = unauthenticated
+  async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
+    const unauthenticated = this.accounts[account.pubkey] = { ...account, ncryptsec }
     this.update();
 
     return Promise.resolve(unauthenticated);

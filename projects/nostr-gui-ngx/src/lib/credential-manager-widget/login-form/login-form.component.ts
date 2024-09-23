@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { AccountManagerService, UnauthenticatedAccount, Ncryptsec, NostrConverter, NostrSigner, NostrUserRelays, NPub, NSec, ProfileService } from '@belomonte/nostr-ngx';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { Account, AccountManagerService, Ncryptsec, NostrConverter, NostrSigner, NSec, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -102,8 +101,8 @@ export class LoginFormComponent implements OnInit {
     this.loading = true;
 
     try {
-      const { metadata, relays } = await this.profileService.getFully(user.pubkey);
-      await this.addAccount(user.npub, metadata, relays, ncrypted);
+      const account = await this.profileService.getAccount(user.pubkey);
+      await this.addAccount(account, ncrypted);
     } finally {
       this.loading = false;
     }
@@ -115,9 +114,9 @@ export class LoginFormComponent implements OnInit {
     return Promise.resolve();
   }
 
-  private async addAccount(npub: NPub, metadata: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
+  private async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
     this.accountForm.reset();
-    const unauthenticatedAccount = await this.accountManagerService.addAccount(npub, metadata, relays, ncryptsec)
+    const unauthenticatedAccount = await this.accountManagerService.addAccount(account, ncryptsec)
     if (!unauthenticatedAccount) {
       this.changeStep.next('selectAccount');
     } else {
