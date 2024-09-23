@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { NostrEvent, kinds } from 'nostr-tools';
+import { NostrEvent, kinds, nip19 } from 'nostr-tools';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
@@ -14,6 +14,9 @@ import { AccountManagerService } from './account-manager.service';
 import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { ProfilePointer } from 'nostr-tools/nip19';
+import { NPub } from '../domain/npub.type';
+import { NProfile } from '../domain/nprofile.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -71,6 +74,37 @@ export class ProfileService {
     return pubkeys.map(pubkey => this.accountManager.accountFactory(
       pubkey, record[pubkey] && record[pubkey].metadata || null, record[pubkey])
     );
+  }
+
+  getAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
+    const { data } = nip19.decode(npub);
+    return this.getAccount(data, opts);
+  }
+
+  listAccountsUsingNPub(npubs: Array<NPub>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+    return this.listAccounts(npubs.map(npub => {
+      const { data } = nip19.decode(npub);
+      return data;
+    }), opts);
+  }
+  
+  getAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
+    const { data } = nip19.decode(nprofile);
+    opts = opts || {};
+    opts.include = opts.include ? [ ...opts.include, data ] : [ data ];
+    return this.getAccount(data.pubkey, opts);
+  }
+
+  listAccountsUsingNProfile(nprofiles: Array<NProfile>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+    const include: ProfilePointer[] = [];
+    const pubkeys = nprofiles.map(nprofile => {
+      const { data } = nip19.decode(nprofile);
+      include.push(data);
+      return data.pubkey;
+    })
+    opts = opts || {};
+    opts.include = opts.include ? [ ...opts.include, ...include ] : include;
+    return this.listAccounts(pubkeys, opts);
   }
 
   // TODO:
