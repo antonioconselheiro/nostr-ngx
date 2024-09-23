@@ -73,9 +73,8 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
 
   private updateProfile(pubkey: string, signer?: 'extension'): Promise<Account> {
     return this.profileService
-      .getFully(pubkey)
-      .then(({ metadata, relays }) => {
-        const account = this.accountManager.account(pubkey, metadata || null, relays);
+      .getAccount(pubkey)
+      .then((account) => {
         this.profileSessionStorage.save({ account });
 
         if (signer) {

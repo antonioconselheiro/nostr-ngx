@@ -15,7 +15,7 @@ export class ProfileNostr {
     private nostrPool: NostrPool
   ) { }
 
-  loadProfilesConfig(pubkeys: Array<string>): Promise<Array<NostrEvent>> {
+  loadProfilesConfig(pubkeys: Array<string>, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
     return this.nostrPool.query([
       {
         authors: pubkeys,
@@ -27,7 +27,7 @@ export class ProfileNostr {
           this.kindDirectMessageList
         ]
       }
-    ]);
+    ], opts);
   }
 
   loadProfileConfig(pubkey: string, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {

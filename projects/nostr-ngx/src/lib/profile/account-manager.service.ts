@@ -27,7 +27,7 @@ export class AccountManagerService {
   //  FIXME: incluir validação verificando se todos eventos pertencem ao pubkey
   //  FIXME: incluir validação dos tipos dos eventos recebido
   async addAccount(pubkey: string, metadata: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
-    const unauthenticated = this.account(pubkey, metadata, relays, ncryptsec);
+    const unauthenticated = this.accountFactory(pubkey, metadata, relays, ncryptsec);
     this.accounts[unauthenticated.pubkey] = unauthenticated
     this.update();
 
@@ -39,9 +39,9 @@ export class AccountManagerService {
     this.update();
   }
 
-  account(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays): Account;
-  account(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
-  account(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Account {
+  accountFactory(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays): Account;
+  accountFactory(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
+  accountFactory(pubkey: string, profile: NostrMetadata | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Account {
     //  FIXME: should load picture and cast into base64
     // TODO: include a config to define a default image or a random image generator function
     const picture = profile && profile.picture || '';
