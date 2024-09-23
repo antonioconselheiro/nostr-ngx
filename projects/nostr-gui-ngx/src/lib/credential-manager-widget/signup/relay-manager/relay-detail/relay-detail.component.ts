@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { Account, ProfileService } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { TRelayManagerSteps } from '../relay-manager-steps.type';
-import { ProfileService } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -21,7 +20,7 @@ export class RelayDetailComponent implements OnInit {
   relay!: string;
 
   loadedDetails: RelayInformation | null = null;
-  loadedContactProfile: NostrMetadata | null = null;
+  loadedContactProfile: Account | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
   numberFormat = '1.0-0';
@@ -44,7 +43,7 @@ export class RelayDetailComponent implements OnInit {
   private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
       this.profileService
-        .get(details.pubkey)
+        .getAccount(details.pubkey)
         .then(profile => this.loadedContactProfile = profile)
     }
   }

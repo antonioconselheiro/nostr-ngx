@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { Account, appConfig } from '@belomonte/nostr-ngx';
 import { ProfilePicture } from '../../domain/profile-picture.interface';
-import { UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-profile-picture',
@@ -8,13 +8,11 @@ import { UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 })
 export class ProfilePictureComponent {
 
-  static defaultPicture = '/assets/profile/default-profile.png'; 
-
   @Input()
   profile: ProfilePicture | null = null;
 
   @Input()
-  account: UnauthenticatedAccount | null = null;
+  account: Account | null = null;
 
   getPicture(): string {
     if (this.profile && this.profile.picture) {
@@ -22,7 +20,7 @@ export class ProfilePictureComponent {
     } else if (this.account && this.account.picture) {
       return this.account.picture;
     } else {
-      return ProfilePictureComponent.defaultPicture;
+      return appConfig.defaultProfile.picture;
     }
   }
 

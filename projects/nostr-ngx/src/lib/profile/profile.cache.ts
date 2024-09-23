@@ -61,7 +61,7 @@ export class ProfileCache {
     tx.store.delete(metadata.pubkey);
   }
 
-  async add(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<Array<NostrMetadata>> {
+  async add(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<Array<[NostrMetadata, NostrEvent & { kind: 0 }]>> {
     //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
@@ -76,7 +76,7 @@ export class ProfileCache {
   protected async addSingle(
     metadataEvent: NostrEvent & { kind: 0 },
     tx:  IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">
-  ): Promise<NostrMetadata> {
+  ): Promise<[NostrMetadata, NostrEvent & { kind: 0 }]> {
     const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
     this.cache.set(metadataEvent.pubkey, {
       ...metadata,
@@ -92,7 +92,7 @@ export class ProfileCache {
       metadata
     });
 
-    return Promise.resolve(metadata);
+    return Promise.resolve([metadata, metadataEvent]);
   }
   
   get(pubkey: string): NostrMetadata | null;
