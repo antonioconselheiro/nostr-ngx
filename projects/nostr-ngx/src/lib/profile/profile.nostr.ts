@@ -15,41 +15,6 @@ export class ProfileNostr {
     private nostrPool: NostrPool
   ) { }
 
-  /**
-   * @param authors array of pubkey, hexadecimal
-   * @param opts optional request options
-   * @returns metadata event
-   */
-  async loadProfile(pubkey: string, opts?: NPoolRequestOptions): Promise<NostrEvent & { kind: 0 }> {
-    //  FIXME: aplicar schemas
-    //  FIXME: applicar filtros de bloqueio
-    const [event] = await this.nostrPool.query([
-      {
-        kinds: [kinds.Metadata],
-        authors: [pubkey],
-        limit: 1
-      },
-    ], opts);
-
-    return Promise.resolve(event as NostrEvent & { kind: 0 });
-  }
-
-  /**
-   * @param authors array of pubkey, hexadecimal
-   * @param opts optional request options
-   * @returns metadata event
-   */
-  loadProfiles(authors: Array<string>, opts?: NPoolRequestOptions): Promise<Array<NostrEvent & { kind: 0 }>> {
-    //  FIXME: aplicar schemas
-    //  FIXME: applicar filtros de bloqueio
-    return this.nostrPool.query([
-      {
-        kinds: [kinds.Metadata],
-        authors
-      }
-    ], opts) as Promise<Array<NostrEvent & { kind: 0 }>>;
-  }
-
   loadProfilesConfig(pubkeys: Array<string>): Promise<Array<NostrEvent>> {
     return this.nostrPool.query([
       {
@@ -101,6 +66,9 @@ export class ProfileNostr {
     ], opts);
   }
 
+  /**
+   * FIXME: maybe should receive and array
+   */
   listenUserConfigUpdates(pubkey: string): Observable<NostrEvent> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio

@@ -6,6 +6,7 @@ import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RouterService } from './router.service';
 
+// TODO: pool must be able to identify relay connection status
 /**
  * "Clients SHOULD open a single websocket connection to each relay and use it for all their subscriptions."
  * https://github.com/nostr-protocol/nips/blob/master/01.md#communication-between-clients-and-relays

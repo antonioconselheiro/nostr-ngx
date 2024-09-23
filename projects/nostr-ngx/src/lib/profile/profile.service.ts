@@ -13,8 +13,17 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
+import { Account } from '../domain/account.interface';
+import { Observable } from 'rxjs';
 
-// TODO: include load and cache of users relay list
+//  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
+//  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
+//  biblioteca deverá entregar a lista de perfis que devem ser escutados?
+
+/**
+ * You should use this class always when you need load users metadata, nip5, relays config events.
+ * This service will control the cache and the interaction with relays.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -23,7 +32,7 @@ export class ProfileService {
   constructor(
     private guard: NostrGuard,
     private configs: ConfigsLocalStorage,
-    private profileApi: ProfileNostr,
+    private profileNostr: ProfileNostr,
     private nostrSigner: NostrSigner,
     private profileCache: ProfileCache,
     private nostrConverter: NostrConverter,
@@ -31,12 +40,23 @@ export class ProfileService {
     private accountManagerStatefull: AccountManagerService
   ) { }
 
-  //  FIXME: must load from cache, except if opts include  ignoreCache=true
-  async get(pubkey: string, opts?: NPoolRequestOptions): Promise<NostrMetadata | null> {
-    const event = await this.profileApi.loadProfile(pubkey, opts);
-    const [metadata] = await this.profileCache.add([event]);
+  getAccount(pubkey: string, opts?: NPoolRequestOptions): Promise<Account | null> {
 
-    return Promise.resolve(metadata || null);
+  }
+
+  listAccounts(pubkeys: Array<string>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+
+  }
+
+  listenUpdates(pubkeys: Array<string>, opts?: NPoolRequestOptions): Observable<Account> {
+
+  }
+
+  /**
+   * use this when you receive a kind 0 event that does not come from this service
+   */
+  cache(profiles: Array<NostrEvent & { kind: 0 }>): Promise<Array<NostrMetadata>> {
+    return this.profileCache.add(profiles);
   }
 
   /**
@@ -44,7 +64,7 @@ export class ProfileService {
    * if loaded from pool, it will be added to cache
    */
   async getFully(pubkey: string, opts?: NPoolRequestOptions): Promise<{ metadata: NostrMetadata | null, relays: NostrUserRelays }> {
-    const events = await this.profileApi.loadProfileConfig(pubkey, opts);
+    const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
     const result: {
       metadata: NostrMetadata | null,
@@ -61,15 +81,6 @@ export class ProfileService {
     return Promise.resolve(result);
   }
 
-  async list(pubkeys: string[], opts?: NPoolRequestOptions): Promise<Array<NostrMetadata>> {
-    const events = await this.profileApi.loadProfiles(pubkeys, opts);
-    return this.profileCache.add(events);
-  }
-
-  cache(profiles: Array<NostrEvent & { kind: 0 }>): Promise<Array<NostrMetadata>> {
-    return this.profileCache.add(profiles);
-  }
-
   //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount | null> {
     const user = this.nostrConverter.convertNsecToNpub(nsec);
@@ -82,7 +93,7 @@ export class ProfileService {
   }
 
   async loadAccountRelayConfig(pubkey: string): Promise<NostrUserRelays> {
-    const events = await this.profileApi.loadProfileConfig(pubkey);
+    const events = await this.profileNostr.loadProfileConfig(pubkey);
     const config = this.relayConverter.convertEventsToRelayConfig(events);
 
     return Promise.resolve(config[pubkey]);
