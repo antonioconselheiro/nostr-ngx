@@ -36,7 +36,7 @@ export * from './lib/nostr-media/file-upload.type';
 export * from './lib/nostr-media/nostr-media.module';
 export * from './lib/config-storage/nostr-config.module';
 export * from './lib/config-storage/profile-session.storage';
-export * from './lib/config-storage/app.config';
+export * from './lib/config-storage/nostr.config';
 export * from './lib/config-storage/accounts-local.storage';
 export * from './lib/configs/nostr-user-relays.interface';
 export * from './lib/configs/nostr-config.interface';

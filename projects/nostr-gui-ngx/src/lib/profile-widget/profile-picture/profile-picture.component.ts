@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { Account, appConfig } from '@belomonte/nostr-ngx';
+import { Component, Input, Inject } from '@angular/core';
+import { Account, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
 import { ProfilePicture } from '../../domain/profile-picture.interface';
 
 @Component({
@@ -14,13 +14,17 @@ export class ProfilePictureComponent {
   @Input()
   account: Account | null = null;
 
+  constructor(
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: NostrConfig
+  ) {}
+
   getPicture(): string {
     if (this.profile && this.profile.picture) {
       return this.profile.picture;
     } else if (this.account && this.account.picture) {
       return this.account.picture;
     } else {
-      return appConfig.defaultProfile.picture;
+      return this.nostrConfig.defaultProfile.picture;
     }
   }
 

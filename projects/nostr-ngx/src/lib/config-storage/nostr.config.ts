@@ -1,6 +1,6 @@
 import { NostrConfig } from '../configs/nostr-config.interface';
 
-export const appConfig: NostrConfig = {
+export const nostrConfig: NostrConfig = {
   defaultProfile: {
     picture: '',
     banner: ''

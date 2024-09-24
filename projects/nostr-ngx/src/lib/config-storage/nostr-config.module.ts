@@ -3,7 +3,7 @@ import { ModuleWithProviders, NgModule } from '@angular/core';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { AccountsLocalStorage } from './accounts-local.storage';
-import { appConfig } from './app.config';
+import { nostrConfig } from './nostr.config';
 import { ProfileSessionStorage } from './profile-session.storage';
 
 @NgModule({
@@ -26,16 +26,16 @@ export class NostrConfigModule {
   }): ModuleWithProviders<NostrConfigModule> {
     if (configs.defaultProfile) {
       if (configs.defaultProfile.picture) {
-        appConfig.defaultProfile.picture = configs.defaultProfile.picture;
+        nostrConfig.defaultProfile.picture = configs.defaultProfile.picture;
       }
 
       if (configs.defaultProfile.banner) {
-        appConfig.defaultProfile.banner = configs.defaultProfile.banner;
+        nostrConfig.defaultProfile.banner = configs.defaultProfile.banner;
       }
     }
 
     if (configs.defaultFallback) {
-      appConfig.defaultFallback = configs.defaultFallback;
+      nostrConfig.defaultFallback = configs.defaultFallback;
     }
 
     return {
@@ -43,7 +43,7 @@ export class NostrConfigModule {
       providers: [
         {
           provide: NOSTR_CONFIG_TOKEN,
-          useValue: appConfig
+          useValue: nostrConfig
         }
       ]
     };

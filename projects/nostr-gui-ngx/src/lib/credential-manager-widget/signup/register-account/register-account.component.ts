@@ -25,8 +25,8 @@ export class RegisterAccountComponent implements OnInit {
     url: FormControl<string | null>;
   }>;
 
-  uploadedProfilePicture = this.appConfig.defaultProfile.picture;
-  uploadedBanner = this.appConfig.defaultProfile.banner;
+  uploadedProfilePicture = this.nostrConfig.defaultProfile.picture;
+  uploadedBanner = this.nostrConfig.defaultProfile.banner;
 
   constructor(
     private fb: FormBuilder,
@@ -34,7 +34,7 @@ export class RegisterAccountComponent implements OnInit {
     private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: AuthenticatedAccountObservable,
     private mediaUploader: MediaUploader,
-    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: NostrConfig
   ) { }
 
   ngOnInit(): void {
