@@ -1,6 +1,7 @@
 import { WindowNostr } from 'nostr-tools/nip07';
 
 export * from './lib/injection-token/main-ncache.token';
+export * from './lib/injection-token/nostr-config.token';
 export * from './lib/domain/account.interface';
 export * from './lib/domain/nprofile.type';
 export * from './lib/domain/naddr.type';
@@ -33,14 +34,15 @@ export * from './lib/nostr-media/media.uploader';
 export * from './lib/nostr-media/file-manager.service';
 export * from './lib/nostr-media/file-upload.type';
 export * from './lib/nostr-media/nostr-media.module';
+export * from './lib/config-storage/nostr-config.module';
 export * from './lib/config-storage/profile-session.storage';
-export * from './lib/config-storage/config-storage.module';
+export * from './lib/config-storage/app.config';
 export * from './lib/config-storage/accounts-local.storage';
 export * from './lib/configs/nostr-user-relays.interface';
+export * from './lib/configs/app-config.interface';
 export * from './lib/configs/abstract-browser-storage';
 export * from './lib/configs/nostr-session-config.interface';
 export * from './lib/configs/configs-local.storage';
-export * from './lib/config-storage/app.config';
 export * from './lib/configs/nostr-local-config.interface';
 export * from './lib/configs/configs-session.storage';
 export * from './lib/exceptions/no-credentials-found.error';

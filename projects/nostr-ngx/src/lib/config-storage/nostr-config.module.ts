@@ -1,9 +1,10 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccountsLocalStorage } from './accounts-local.storage';
-import { ProfileSessionStorage } from './profile-session.storage';
-import { appConfig } from './app.config';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 import { RelayRecord } from 'nostr-tools/relay';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
+import { AccountsLocalStorage } from './accounts-local.storage';
+import { appConfig } from './app.config';
+import { ProfileSessionStorage } from './profile-session.storage';
 
 @NgModule({
   imports: [
@@ -14,7 +15,7 @@ import { RelayRecord } from 'nostr-tools/relay';
     ProfileSessionStorage
   ]
 })
-export class ConfigStorageModule {
+export class NostrConfigModule {
 
   static config(configs: {
     defaultProfile?: {
@@ -22,7 +23,7 @@ export class ConfigStorageModule {
       banner?: string;
     },
     defaultFallback?: RelayRecord;
-  }): typeof ConfigStorageModule {
+  }): ModuleWithProviders<NostrConfigModule> {
     if (configs.defaultProfile) {
       if (configs.defaultProfile.picture) {
         appConfig.defaultProfile.picture = configs.defaultProfile.picture;
@@ -37,6 +38,14 @@ export class ConfigStorageModule {
       appConfig.defaultFallback = configs.defaultFallback;
     }
 
-    return this;
+    return {
+      ngModule: NostrConfigModule,
+      providers: [
+        {
+          provide: NOSTR_CONFIG_TOKEN,
+          useValue: appConfig
+        }
+      ]
+    };
   }
 }

@@ -1,12 +1,6 @@
-import { RelayRecord } from 'nostr-tools/relay';
+import { AppConfig } from '../configs/app-config.interface';
 
-export const appConfig: {
-  defaultProfile: {
-    picture: string;
-    banner: string;
-  };
-  defaultFallback: RelayRecord;
-} = {
+export const appConfig: AppConfig = {
   defaultProfile: {
     picture: '',
     banner: ''
