@@ -1,9 +1,9 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { appConfig, AuthenticatedAccountObservable, MediaUploader, NostrPool } from '@belomonte/nostr-ngx';
+import { NostrConfig, AuthenticatedAccountObservable, MediaUploader, NOSTR_CONFIG_TOKEN, NostrPool } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { RegisterAccountEventFactory } from './register-account.event-factory';
-import { NostrMetadata } from '@nostrify/nostrify';
 
 @Component({
   selector: 'nostr-register-account',
@@ -25,15 +25,16 @@ export class RegisterAccountComponent implements OnInit {
     url: FormControl<string | null>;
   }>;
 
-  uploadedProfilePicture = appConfig.defaultProfile.picture;
-  uploadedBanner = appConfig.defaultProfile.banner;
+  uploadedProfilePicture = this.appConfig.defaultProfile.picture;
+  uploadedBanner = this.appConfig.defaultProfile.banner;
 
   constructor(
     private fb: FormBuilder,
     private npool: NostrPool,
     private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: AuthenticatedAccountObservable,
-    private mediaUploader: MediaUploader
+    private mediaUploader: MediaUploader,
+    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
   ) { }
 
   ngOnInit(): void {

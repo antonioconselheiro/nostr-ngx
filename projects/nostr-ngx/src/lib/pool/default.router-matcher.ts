@@ -1,12 +1,13 @@
-import { Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { kinds, NostrEvent } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
+import { NostrConfig } from "../configs/nostr-config.interface";
+import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
 import { NostrGuard } from "../nostr/nostr.guard";
 import { RelayConverter } from "../nostr/relay.converter";
 import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
-import { appConfig } from "../config-storage/app.config";
 
 /**
  * TODO: incluir roteamento para addressed event
@@ -20,7 +21,8 @@ export class DefaultRouterMatcher implements RouterMatcher {
   constructor(
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
-    private relayConfigService: RelayConfigService
+    private relayConfigService: RelayConfigService,
+    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
   ) { }
 
   eventRouter = [
@@ -58,7 +60,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   defaultFallback(): RelayRecord {
-    return appConfig.defaultFallback;
+    return this.appConfig.defaultFallback;
   }
 
   async requestRouter(): Promise<Array<WebSocket['url']>> {

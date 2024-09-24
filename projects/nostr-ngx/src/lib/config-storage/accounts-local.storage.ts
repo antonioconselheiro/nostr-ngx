@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { AbstractBrowserStorage } from '../configs/abstract-browser-storage';
+import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { appConfig } from './app.config';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,12 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
   protected default: NostrLocalConfig = {
     relayFrom: 'none'
   };
+
+  constructor(
+    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
+  ) {
+    super();
+  }
 
   protected getItem(): string | null {
     return localStorage.getItem(this.NOSTR_STORAGE_KEY);
@@ -42,8 +49,8 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
       ncryptsec,
       pubkey,
       npub,
-      picture: appConfig.defaultProfile.picture,
-      //  Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
+      picture: this.appConfig.defaultProfile.picture,
+      //  TODO: Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
       isNip05Valid: false,
       relays
     }

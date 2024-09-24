@@ -1,6 +1,6 @@
 import { RelayRecord } from "nostr-tools/relay";
 
-export interface AppConfig {
+export interface NostrConfig {
   defaultProfile: {
     picture: string;
     banner: string;
