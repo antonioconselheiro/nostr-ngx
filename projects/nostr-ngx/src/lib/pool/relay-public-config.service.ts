@@ -17,7 +17,7 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 /**
  * 1. signer?
  * 2. nip05
- * 3. 
+ * 3. configured fallbacks
  */
 
 /**
