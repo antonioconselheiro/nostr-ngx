@@ -1,7 +1,7 @@
 import { RelayRecord } from "nostr-tools/relay";
 
 export interface NostrConfig {
-  defaultProfile: {
+  defaultProfile?: {
     picture: string;
     banner: string;
   };
@@ -10,7 +10,14 @@ export interface NostrConfig {
    * relays fallback if user has no relay list or if there is no authenticated account,
    * user custom configs from localStorage will override this list 
    */
-  defaultFallback: RelayRecord;
+  defaultFallback?: RelayRecord;
+
+  /**
+   * relays fallback if user has no search relay publically configured,
+   * these relays should help discovery new users and new notes 
+   */
+  searchFallback?: Array<WebSocket['url']>;
+
   bestFor?: {
     /**
      * override the default list of best relays to find events having only the id
@@ -23,15 +30,5 @@ export interface NostrConfig {
      * list (10007), relays for dm (10050) 
      */
     getProfileConfig?: Array<WebSocket['url']>;
-
-    /**
-     * override the default list of best relays to find/discovery new notes
-     */
-    searchNotes?: Array<WebSocket['url']>;
-
-    /**
-     * override the default list of best relays to find/discovery new users
-     */
-    searchProfiles?: Array<WebSocket['url']>;
-  }
+  };
 }

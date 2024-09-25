@@ -22,7 +22,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
     private relayConfigService: RelayPublicConfigService,
-    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
   eventRouter = [
@@ -55,16 +55,16 @@ export class DefaultRouterMatcher implements RouterMatcher {
   // relays para encontrar eventos. Enfim, preciso entender isso para saber se
   // precisarei fazer modificações. 
   ///
-  defaultDiscovery(): Array<WebSocket['url']> {
+  defaultSearch(): Array<WebSocket['url']> {
     return ['wss://purplepag.es'];
   }
 
   defaultFallback(): RelayRecord {
-    return this.appConfig.defaultFallback;
+    return this.nostrConfig.defaultFallback;
   }
 
+  //  TODO: request router não está implementado
   async requestRouter(): Promise<Array<WebSocket['url']>> {
-    return Promise.resolve(['']);
   }
 
   private isDirectMessageEvent(event: NostrEvent): boolean {

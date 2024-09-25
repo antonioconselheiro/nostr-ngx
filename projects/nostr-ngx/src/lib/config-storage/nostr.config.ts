@@ -3,10 +3,6 @@ import { NostrConfig } from '../configs/nostr-config.interface';
 // TODO: config must be updated by path, they must not be all override by a partial object
 // just copied njump relay config
 export const nostrConfig: NostrConfig = {
-  defaultProfile: {
-    picture: '',
-    banner: ''
-  },
   defaultFallback: {
     'wss://nos.lol': {
       read: true, write: true
@@ -18,6 +14,11 @@ export const nostrConfig: NostrConfig = {
       read: true, write: false
     }
   },
+  searchFallback: [
+    "wss://nostr.wine",
+    "wss://relay.nostr.band",
+    "wss://relay.noswhere.com",
+  ],
   bestFor: {
     findJustById: [
       "wss://cache2.primal.net/v1",
@@ -28,16 +29,6 @@ export const nostrConfig: NostrConfig = {
       "wss://purplepag.es",
       "wss://user.kindpag.es",
       "wss://relay.nos.social"
-    ],
-    searchProfiles: [
-      "wss://nostr.wine",
-			"wss://relay.nostr.band",
-			"wss://relay.noswhere.com",
-    ],
-    searchNotes: [
-      "wss://nostr.wine",
-			"wss://relay.nostr.band",
-			"wss://relay.noswhere.com"
     ]
   }
 };
