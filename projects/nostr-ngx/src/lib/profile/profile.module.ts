@@ -5,10 +5,12 @@ import { AuthenticatedAccountObservable } from './authenticated-account.observab
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileService } from './profile.service';
+import { PoolModule } from '../pool/pool.module';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    PoolModule
   ],
   providers: [
     ProfileNostr,

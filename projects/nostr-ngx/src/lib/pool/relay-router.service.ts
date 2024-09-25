@@ -5,7 +5,7 @@ import { ProfilePointer } from 'nostr-tools/nip19';
 import { DefaultRouterMatcher } from './default.router-matcher';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
-import { RelayConfigService } from './relay-config.service';
+import { RelayPublicConfigService } from './relay-public-config.service';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 
@@ -13,11 +13,11 @@ import { NostrGuard } from '../nostr/nostr.guard';
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário
  */
 @Injectable()
-export class RouterService implements NpoolRouterOptions {
+export class RelayRouterService implements NpoolRouterOptions {
 
   constructor(
     private relayConverter: RelayConverter,
-    private relayConfigService: RelayConfigService,
+    private relayConfigService: RelayPublicConfigService,
     private routerMatcher: DefaultRouterMatcher,
     private nostrGuard: NostrGuard
   ) { }

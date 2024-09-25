@@ -15,16 +15,20 @@ import { NostrPool } from './nostr.pool';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 
 /**
- * load each kind of relay config
+ * 1. signer?
+ * 2. nip05
+ * 3. 
+ */
+
+/**
+ * load each kind of relay config event from configured
  */
 @Injectable({
   providedIn: 'root'
 })
-export class RelayConfigService {
+export class RelayPublicConfigService {
 
   //  FIXME: include correct kind when nostr-tools implements nip17.ts
-  readonly kindsBlockedRelayList = 10006;
-  readonly kindsSearchRelayList = 10007;
   readonly kindDirectMessageRelayList = 10050;
 
   constructor(
@@ -47,14 +51,14 @@ export class RelayConfigService {
    */
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
     const local = this.configs.read();
-    const relayFrom = local.relayFrom;
+    const signer = local.signer;
     let config: NostrUserRelays | null = null;
 
-    if (relayFrom === 'signer') {
+    if (signer === 'signer') {
       config = await this.getRelaysFromSigner();
-    } else if (relayFrom === 'localStorage') {
+    } else if (signer === 'localStorage') {
       config = await this.getMainRelaysFromStorage(local);
-    } else if (relayFrom === 'public' && local.currentPubkey) {
+    } else if (signer === 'public' && local.currentPubkey) {
       config = await this.getUserPublicMainRelays(local.currentPubkey);
     }
 

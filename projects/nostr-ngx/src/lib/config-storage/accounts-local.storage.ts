@@ -17,9 +17,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: NostrLocalConfig = {
-    relayFrom: 'none'
-  };
+  protected default: NostrLocalConfig = {};
 
   constructor(
     @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig

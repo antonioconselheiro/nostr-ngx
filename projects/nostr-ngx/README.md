@@ -7,3 +7,7 @@ To use together with `nostr-tools` and `@nostrify/nostrify`.
 
 ## Release
 not released yet
+
+TODO:
+- create an example showing the IdbNCacheModule import;
+- create an example of config module;

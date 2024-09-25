@@ -6,7 +6,7 @@ import { NostrConfig } from "../configs/nostr-config.interface";
 import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
 import { NostrGuard } from "../nostr/nostr.guard";
 import { RelayConverter } from "../nostr/relay.converter";
-import { RelayConfigService } from "./relay-config.service";
+import { RelayPublicConfigService } from "./relay-public-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
 
 /**
@@ -21,7 +21,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   constructor(
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
-    private relayConfigService: RelayConfigService,
+    private relayConfigService: RelayPublicConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
   ) { }
 
@@ -135,8 +135,6 @@ export class DefaultRouterMatcher implements RouterMatcher {
       }
     });
   }
-
-
 
   private isRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: typeof kinds.RelayList } {
     return event.kind === kinds.RelayList;

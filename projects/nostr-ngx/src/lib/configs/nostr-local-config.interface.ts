@@ -5,7 +5,12 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
  * saved in local storage
  */
 export interface NostrLocalConfig {
-  relayFrom: 'none' | 'localStorage' | 'signer' | 'public';
+
+  /**
+   * make app sign using extension, also check
+   * extension relays ou pointer to load relay config
+   */
+  signer?: 'extension';
 
   /**
    * Current user
