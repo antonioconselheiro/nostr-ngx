@@ -20,7 +20,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
   protected default: NostrLocalConfig = {};
 
   constructor(
-    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) {
     super();
   }
@@ -47,7 +47,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
       ncryptsec,
       pubkey,
       npub,
-      picture: this.appConfig.defaultProfile.picture,
+      picture: this.nostrConfig.defaultProfile.picture,
       //  TODO: Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
       isNip05Valid: false,
       relays

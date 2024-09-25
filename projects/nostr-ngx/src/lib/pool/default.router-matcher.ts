@@ -56,7 +56,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   // precisarei fazer modificações. 
   ///
   defaultSearch(): Array<WebSocket['url']> {
-    return ['wss://purplepag.es'];
+    return this.nostrConfig.searchFallback;
   }
 
   defaultFallback(): RelayRecord {
@@ -64,7 +64,9 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   //  TODO: request router não está implementado
+  //  incluir conversor de relay record para outbox
   async requestRouter(): Promise<Array<WebSocket['url']>> {
+    return this.relayConfigService.getCurrentUserRelays();
   }
 
   private isDirectMessageEvent(event: NostrEvent): boolean {

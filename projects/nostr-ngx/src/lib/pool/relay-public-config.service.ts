@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { kinds, nip19 } from 'nostr-tools';
 import { queryProfile } from 'nostr-tools/nip05';
 import { ProfilePointer } from 'nostr-tools/nip19';
@@ -13,6 +13,9 @@ import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrPool } from './nostr.pool';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
+import { ConfigsSessionStorage } from '@belomonte/nostr-ngx';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
+import { NostrConfig } from '../configs/nostr-config.interface';
 
 /**
  * 1. signer?
@@ -32,56 +35,73 @@ export class RelayPublicConfigService {
   readonly kindDirectMessageRelayList = 10050;
 
   constructor(
+    private pool: NostrPool,
     private guard: NostrGuard,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
-    private configs: ConfigsLocalStorage,
-    private pool: NostrPool
+    private configsLocal: ConfigsLocalStorage,
+    private configSession: ConfigsSessionStorage,
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
   /**
    * Override application default relays for unauthenticated
    */
   setLocalRelays(relays: RelayRecord): void {
-    this.configs.patch({ commonRelays: relays });
+    this.configsLocal.patch({ commonRelays: relays });
   }
 
+  // FIXME: solve complexity, divide into more methods
   /**
    * Return relays according to user-customized settings
    */
+  // eslint-disable-next-line complexity
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
-    const local = this.configs.read();
-    const signer = local.signer;
-    let config: NostrUserRelays | null = null;
+    const session = this.configSession.read(),
+      local = this.configsLocal.read(),
+      signer = local.signer;
+    let config: NostrUserRelays | null = null,
+      extensionRelays: RelayRecord | null = null;
 
-    if (signer === 'signer') {
-      config = await this.getRelaysFromSigner();
-    } else if (signer === 'localStorage') {
-      config = await this.getMainRelaysFromStorage(local);
-    } else if (signer === 'public' && local.currentPubkey) {
-      config = await this.getUserPublicMainRelays(local.currentPubkey);
+    const userRelays = session.account?.relays;
+    const nip05 = session.account?.metadata?.nip05;
+    const pubkey = session.account?.pubkey;
+
+    if (userRelays) {
+      return Promise.resolve(userRelays);
     }
 
-    console.info('local configs', local);
-    console.info('result relays', config);
-    return config;
+    if (signer === 'extension') {
+      extensionRelays = await this.getRelaysFromSigner();
+    }
+
+    if (this.guard.isNip05(nip05)) {
+      config = await this.loadMainRelaysFromNIP5(nip05);
+    }
+
+    if (!config && pubkey) {
+      config = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
+    }
+
+    if (!config) {
+      config = this.nostrConfig.defaultFallback;
+    }
+
+    config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
+
+    return Promise.resolve(config);
   }
 
-  private getRelaysFromSigner(): Promise<RelayRecord> {
+  private mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays, extensionRelays: RelayRecord | null): NostrUserRelays {
+    //  TODING: 
+  }
+
+  private getRelaysFromSigner(): Promise<RelayRecord | null> {
     if (window.nostr) {
       return window.nostr.getRelays();
     }
 
-    return Promise.resolve({});
-  }
-
-  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<NostrUserRelays> {
-    const pubkey = local.currentPubkey;
-    if (pubkey) {
-      return Promise.resolve(local.accounts && local.accounts[pubkey].relays || {})
-    }
-
-    return Promise.resolve(local.commonRelays || {});
+    return Promise.resolve(null);
   }
 
   async getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;

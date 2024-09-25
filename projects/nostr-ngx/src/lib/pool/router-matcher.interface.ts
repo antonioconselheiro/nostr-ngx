@@ -5,6 +5,11 @@ import { RelayRecord } from "nostr-tools/relay";
 export interface RouterMatcher {
 
   /**
+   * found relays to publish an event
+   */
+  eventRouter: Array<EventRouterMatcher<NostrEvent>>;
+  
+  /**
    * list of relays when no relay was found
    */
   defaultFallback: () => RelayRecord;
@@ -13,11 +18,6 @@ export interface RouterMatcher {
    * List of relays to find users relay list
    */
   defaultSearch: () => Array<WebSocket['url']>;
-
-  /**
-   * found relays to publish an event
-   */
-  eventRouter: Array<EventRouterMatcher<NostrEvent>>;
 
   /**
    * relays to request
