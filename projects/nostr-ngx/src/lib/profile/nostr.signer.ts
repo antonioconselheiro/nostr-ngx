@@ -6,6 +6,8 @@ import { NSec } from '../domain/nsec.type';
 import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.error';
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NSecCrypto } from '../nostr/nsec.crypto';
+import { ConfigsLocalStorage } from '../configs/configs-local.storage';
+import { WindowNostr } from 'nostr-tools/nip07';
 
 /**
  * Sign Nostr Event according to user authentication settings
@@ -15,12 +17,13 @@ import { NSecCrypto } from '../nostr/nsec.crypto';
 @Injectable({
   providedIn: 'root'
 })
-export class NostrSigner {
+export class NostrSigner implements WindowNostr {
 
   private static inMemoryNsec?: Uint8Array;
 
   constructor(
     private sessionConfigs: ConfigsSessionStorage,
+    private localConfigs: ConfigsLocalStorage,
     private nsecCrypto: NSecCrypto
   ) { }
 
@@ -40,9 +43,13 @@ export class NostrSigner {
       return this.nsecCrypto.encryptNSec(nsec, password);
     }
 
-    const sessionConfig = this.sessionConfigs.read();
-    if (sessionConfig.signer === 'extension') {
-      //  maybe should write a NIP suggestin to include a way to get a ncryptsec from extension 
+    const session = this.sessionConfigs.read();
+    const local = this.localConfigs.read();
+
+    if (local.signer === 'extension') {
+      //  FIXME: maybe should write a NIP suggestin to include a way to get a ncryptsec from extension
+      //  I suggested it in a note, but I'm not popular, I'll be surely ignored:
+      //  nostr:note1d2w2n23kn8vkyr4av5tjg59rrjedvnrr9qdegjvcgpzq94ef0s0spk756r
       return null;
     }
 
@@ -50,8 +57,7 @@ export class NostrSigner {
       return this.nsecCrypto.encryptNSec(NostrSigner.inMemoryNsec, password);
     }
 
-    const session = this.sessionConfigs.read();
-    if (!session.signer && session.nsec) {
+    if (!local.signer && session.nsec) {
       return this.nsecCrypto.encryptNSec(session.nsec, password);
     }
 

@@ -1,27 +1,20 @@
-import { Inject, Injectable } from '@angular/core';
-import { ConfigsSessionStorage } from '@belomonte/nostr-ngx';
+import { Injectable } from '@angular/core';
 import { kinds, nip19 } from 'nostr-tools';
 import { queryProfile } from 'nostr-tools/nip05';
 import { ProfilePointer } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Nip05 } from '../domain/nip05.type';
 import { NProfile } from '../domain/nprofile.type';
 import { NPub } from '../domain/npub.type';
-import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrPool } from './nostr.pool';
-
-/**
- * 1. signer?
- * 2. nip05
- * 3. configured fallbacks
- */
+import { ConfigsSessionStorage } from '../configs/configs-session.storage';
+import { NostrSigner } from '../profile/nostr.signer';
 
 /**
  * load each kind of relay config event from configured
@@ -37,11 +30,11 @@ export class RelayPublicConfigService {
   constructor(
     private pool: NostrPool,
     private guard: NostrGuard,
+    private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private configsLocal: ConfigsLocalStorage,
-    private configSession: ConfigsSessionStorage,
-    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
+    private configSession: ConfigsSessionStorage
   ) { }
 
   /**
@@ -51,7 +44,7 @@ export class RelayPublicConfigService {
     this.configsLocal.patch({ commonRelays: relays });
   }
 
-  // FIXME: solve complexity, divide into more methods
+  // FIXME: solve complexity, divide into more private methods
   /**
    * Return relays according to user-customized settings
    */
@@ -84,12 +77,6 @@ export class RelayPublicConfigService {
     }
 
     config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
-    if (!config) {
-      config = {
-        general: this.nostrConfig.defaultFallback
-      };
-    }
-
     return Promise.resolve(config);
   }
 

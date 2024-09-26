@@ -3,7 +3,7 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { Ncryptsec } from './ncryptsec.type';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { NPub } from './npub.type';
-import { NProfile } from '@belomonte/nostr-ngx';
+import { NProfile } from './nprofile.type';
 
 export interface Account {
   pubkey: string;

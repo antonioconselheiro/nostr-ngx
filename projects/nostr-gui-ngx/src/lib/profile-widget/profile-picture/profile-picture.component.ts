@@ -15,7 +15,7 @@ export class ProfilePictureComponent {
   account: Account | null = null;
 
   constructor(
-    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) {}
 
   getPicture(): string {
