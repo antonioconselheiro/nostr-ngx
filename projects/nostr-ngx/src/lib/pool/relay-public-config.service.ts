@@ -1,21 +1,21 @@
 import { Inject, Injectable } from '@angular/core';
+import { ConfigsSessionStorage } from '@belomonte/nostr-ngx';
 import { kinds, nip19 } from 'nostr-tools';
 import { queryProfile } from 'nostr-tools/nip05';
 import { ProfilePointer } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
+import { normalizeURL } from 'nostr-tools/utils';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
+import { NostrConfig } from '../configs/nostr-config.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Nip05 } from '../domain/nip05.type';
 import { NProfile } from '../domain/nprofile.type';
 import { NPub } from '../domain/npub.type';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrPool } from './nostr.pool';
-import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { ConfigsSessionStorage } from '@belomonte/nostr-ngx';
-import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
-import { NostrConfig } from '../configs/nostr-config.interface';
 
 /**
  * 1. signer?
@@ -83,17 +83,50 @@ export class RelayPublicConfigService {
       config = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
     }
 
-    if (!config) {
-      config = this.nostrConfig.defaultFallback;
-    }
-
     config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
+    if (!config) {
+      config = {
+        general: this.nostrConfig.defaultFallback
+      };
+    }
 
     return Promise.resolve(config);
   }
 
-  private mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays, extensionRelays: RelayRecord | null): NostrUserRelays {
-    //  TODING: 
+  private mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays | null, extensionRelays: RelayRecord | null): NostrUserRelays {
+    config = config || {};
+    if (!extensionRelays) {
+      return config;
+    }
+
+    const generalConfig = config.general;
+    if (!generalConfig) {
+      config.general = extensionRelays;
+      return config;
+    }
+
+    Object.keys(extensionRelays).forEach(relay => {
+      relay = normalizeURL(relay)
+      if (generalConfig[relay]) {
+        if (generalConfig[relay].write || extensionRelays[relay].write) {
+          generalConfig[relay].write = true;
+        } else {
+          generalConfig[relay].write = false;
+        }
+
+        if (generalConfig[relay].read || extensionRelays[relay].read) {
+          generalConfig[relay].read = true;
+        } else {
+          generalConfig[relay].read = false;
+        }
+
+      } else {
+        generalConfig[relay] = extensionRelays[relay];
+      }
+    });
+
+    config.general = generalConfig;
+    return config;
   }
 
   private getRelaysFromSigner(): Promise<RelayRecord | null> {

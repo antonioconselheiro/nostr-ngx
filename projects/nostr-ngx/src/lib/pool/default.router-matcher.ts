@@ -12,7 +12,6 @@ import { RouterMatcher } from "./router-matcher.interface";
 /**
  * TODO: incluir roteamento para addressed event
  * TODO: incluir roteamento para relays de pesquisa (10007)
- * TODO: incluir fallback dos relays para dm para os "read"
  * TODO: no-mvp: incluir roteamento para wiki
  */
 @Injectable()
@@ -63,10 +62,9 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return this.nostrConfig.defaultFallback;
   }
 
-  //  TODO: request router não está implementado
-  //  incluir conversor de relay record para outbox
   async requestRouter(): Promise<Array<WebSocket['url']>> {
-    return this.relayConfigService.getCurrentUserRelays();
+    const mainRelayRecord = await this.relayConfigService.getCurrentUserRelays();
+    return this.relayConverter.extractInboxRelays(mainRelayRecord);
   }
 
   private isDirectMessageEvent(event: NostrEvent): boolean {
