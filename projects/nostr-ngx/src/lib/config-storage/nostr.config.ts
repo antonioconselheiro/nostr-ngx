@@ -31,7 +31,7 @@ export const nostrConfig: Required<NostrConfig> = {
 			"wss://relay.noswhere.com",
 			"wss://relay.damus.io",
     ],
-    getProfileConfig: [
+    findProfileConfig: [
       "wss://purplepag.es",
       "wss://user.kindpag.es",
       "wss://relay.nos.social"

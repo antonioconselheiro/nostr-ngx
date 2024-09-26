@@ -45,10 +45,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
     const pubkey = getPublicKey(data);
     const npub = nip19.npubEncode(pubkey);
     const pointerRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 2);
-    const pointer: ProfilePointer = {
-      pubkey,
-      relays: pointerRelays
-    };
+    const pointer: ProfilePointer = { pubkey, relays: pointerRelays };
     const nprofile = nip19.nprofileEncode(pointer);
 
     const account: UnauthenticatedAccount = {

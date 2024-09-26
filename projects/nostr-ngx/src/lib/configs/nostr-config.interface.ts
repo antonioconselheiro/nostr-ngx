@@ -29,6 +29,6 @@ export interface NostrConfig {
      * metadata (0), relay list (10002), blocked relay list (10006), search relay
      * list (10007), relays for dm (10050) 
      */
-    getProfileConfig?: Array<WebSocket['url']>;
+    findProfileConfig?: Array<WebSocket['url']>;
   };
 }

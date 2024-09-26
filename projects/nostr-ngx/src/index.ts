@@ -18,7 +18,7 @@ export * from './lib/pool/relay-router.service';
 export * from './lib/pool/event-router-matcher.interface';
 export * from './lib/pool/router-matcher.interface';
 export * from './lib/pool/default.router-matcher';
-export * from './lib/pool/relay-public-config.service';
+export * from './lib/pool/relay-config.service';
 export * from './lib/pool/npool-router.options';
 export * from './lib/pool/npool-request.options';
 export * from './lib/pool/facade.npool';

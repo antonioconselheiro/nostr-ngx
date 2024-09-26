@@ -6,7 +6,7 @@ import { NostrConfig } from "../configs/nostr-config.interface";
 import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
 import { NostrGuard } from "../nostr/nostr.guard";
 import { RelayConverter } from "../nostr/relay.converter";
-import { RelayPublicConfigService } from "./relay-public-config.service";
+import { RelayConfigService } from "./relay-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
 
 /**
@@ -20,7 +20,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   constructor(
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
-    private relayConfigService: RelayPublicConfigService,
+    private relayConfigService: RelayConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
