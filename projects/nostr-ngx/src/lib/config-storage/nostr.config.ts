@@ -2,7 +2,13 @@ import { NostrConfig } from '../configs/nostr-config.interface';
 
 // TODO: config must be updated by path, they must not be all override by a partial object
 // just copied njump relay config
-export const nostrConfig: NostrConfig = {
+export const nostrConfig: Required<NostrConfig> = {
+  defaultProfile: {
+    //  FIXME: colcoar uma imagem pequena
+    banner: '',
+    //  FIXME: será que coloco aquele robozinho bacana ou só coloco uma imagem leve?
+    picture: '',
+  },
   defaultFallback: {
     'wss://nos.lol': {
       read: true, write: true

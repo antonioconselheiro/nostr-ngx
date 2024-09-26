@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent, kinds, nip19 } from 'nostr-tools';
+import { ProfilePointer } from 'nostr-tools/nip19';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
+import { NProfile } from '../domain/nprofile.type';
+import { NPub } from '../domain/npub.type';
 import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr/nostr.converter';
@@ -14,9 +17,6 @@ import { AccountManagerService } from './account-manager.service';
 import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { ProfilePointer } from 'nostr-tools/nip19';
-import { NPub } from '../domain/npub.type';
-import { NProfile } from '../domain/nprofile.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -52,8 +52,9 @@ export class ProfileService {
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
     const [[metadata]] = await this.profileCache.add(eventMetadata);
+    const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 2);
+    const account = this.accountManager.accountFactory(pubkey, metadata || null, pointerRelays, record[pubkey]);
 
-    const account = this.accountManager.accountFactory(pubkey, metadata || null, record[pubkey]);
     return Promise.resolve(account);
   }
 
@@ -71,9 +72,15 @@ export class ProfileService {
       }
     });
 
-    return pubkeys.map(pubkey => this.accountManager.accountFactory(
-      pubkey, record[pubkey] && record[pubkey].metadata || null, record[pubkey])
-    );
+    return pubkeys.map(pubkey => {
+      const relays = record[pubkey];
+      const metadata = record[pubkey] && record[pubkey].metadata || null;
+      const pointerRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 2);
+
+      return this.accountManager.accountFactory(
+        pubkey, metadata, pointerRelays, relays
+      );
+    });
   }
 
   getAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
