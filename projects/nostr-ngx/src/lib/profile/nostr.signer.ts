@@ -27,9 +27,13 @@ export class NostrSigner implements WindowNostr {
     private nsecCrypto: NSecCrypto
   ) { }
 
-  login(nsec: NSec): void {
+  login(nsec: NSec, opts?: { saveSession: boolean }): void {
     const { data } = nip19.decode(nsec);
     NostrSigner.inMemoryNsec = data as Uint8Array;
+
+    if (opts?.saveSession) {
+      this.sessionConfigs.patch({ nsec });
+    }
   }
 
   generateNsec(): NSec {
@@ -48,8 +52,7 @@ export class NostrSigner implements WindowNostr {
 
     if (local.signer === 'extension') {
       //  FIXME: maybe should write a NIP suggestin to include a way to get a ncryptsec from extension
-      //  I suggested it in a note, but I'm not popular, I'll be surely ignored:
-      //  nostr:note1d2w2n23kn8vkyr4av5tjg59rrjedvnrr9qdegjvcgpzq94ef0s0spk756r
+      //  https://github.com/nostr-protocol/nips/issues/1516
       return null;
     }
 
