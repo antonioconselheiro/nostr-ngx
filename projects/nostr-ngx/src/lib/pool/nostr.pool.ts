@@ -18,7 +18,7 @@ export class NostrPool extends FacadeNPool {
 
   constructor(
     routerService: RelayRouterService,
-    @Inject(MAIN_NCACHE_TOKEN) protected override readonly ncache: NCache
+    @Inject(MAIN_NCACHE_TOKEN) protected override ncache: NCache
   ) {
     super(routerService, ncache);
   }

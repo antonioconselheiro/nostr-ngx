@@ -195,6 +195,4 @@ export class DefaultRouterMatcher implements RouterMatcher {
     console.log('routing to default, sending updates to relays:', authorWriteRelays);
     return Promise.resolve(authorWriteRelays);
   }
-
-
 }

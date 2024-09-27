@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { NostrEvent, NostrFilter, NRelay, NRelay1 } from '@nostrify/nostrify';
 import { kinds as NostrEventKind } from 'nostr-tools';
 import { ProfilePointer } from 'nostr-tools/nip19';
-import { DefaultRouterMatcher } from './default.router-matcher';
+import { NostrGuard } from '../nostr/nostr.guard';
+import { RelayConverter } from '../nostr/relay.converter';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
 import { RelayLocalConfigService } from './relay-local-config.service';
-import { RelayConverter } from '../nostr/relay.converter';
-import { NostrGuard } from '../nostr/nostr.guard';
+import { RouterMatcher } from './router-matcher.interface';
+import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 
 /**
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário
@@ -18,8 +19,8 @@ export class RelayRouterService implements NpoolRouterOptions {
   constructor(
     private relayConverter: RelayConverter,
     private relayConfigService: RelayLocalConfigService,
-    private routerMatcher: DefaultRouterMatcher,
-    private nostrGuard: NostrGuard
+    private nostrGuard: NostrGuard,
+    @Inject(RELAY_ROUTER_TOKEN) private routerMatcher: RouterMatcher
   ) { }
 
   open(url: WebSocket["url"]): NRelay {

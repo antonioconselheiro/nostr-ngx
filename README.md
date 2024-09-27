@@ -8,4 +8,7 @@ If you code using this lib you automatically become a cypherpunk.
 ## Bring your project to Nostr
 ![Bring your project to Nostr](./assets/bring-your-ngapp-to-nostr.jpg)
 
-not released yet
+This libraries will help you to use nostr protocol with angular.
+
+## Release
+Not released yet
