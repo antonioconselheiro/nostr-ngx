@@ -12,7 +12,6 @@ import { RouterMatcher } from "./router-matcher.interface";
 /**
  * TODO: incluir roteamento para addressed event
  * TODO: incluir roteamento para relays de pesquisa (10007)
- * TODO: incluir fallback dos relays para dm para os "read"
  * TODO: no-mvp: incluir roteamento para wiki
  */
 @Injectable()
@@ -22,7 +21,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
     private relayConfigService: RelayConfigService,
-    @Inject(NOSTR_CONFIG_TOKEN) private appConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
   eventRouter = [
@@ -55,16 +54,17 @@ export class DefaultRouterMatcher implements RouterMatcher {
   // relays para encontrar eventos. Enfim, preciso entender isso para saber se
   // precisarei fazer modificações. 
   ///
-  defaultDiscovery(): Array<WebSocket['url']> {
-    return ['wss://purplepag.es'];
+  defaultSearch(): Array<WebSocket['url']> {
+    return this.nostrConfig.searchFallback;
   }
 
   defaultFallback(): RelayRecord {
-    return this.appConfig.defaultFallback;
+    return this.nostrConfig.defaultFallback;
   }
 
   async requestRouter(): Promise<Array<WebSocket['url']>> {
-    return Promise.resolve(['']);
+    const mainRelayRecord = await this.relayConfigService.getCurrentUserRelays();
+    return this.relayConverter.extractInboxRelays(mainRelayRecord);
   }
 
   private isDirectMessageEvent(event: NostrEvent): boolean {
@@ -135,8 +135,6 @@ export class DefaultRouterMatcher implements RouterMatcher {
       }
     });
   }
-
-
 
   private isRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: typeof kinds.RelayList } {
     return event.kind === kinds.RelayList;

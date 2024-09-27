@@ -4,7 +4,7 @@ import { filter, from, map, Observable, of, takeUntil } from 'rxjs';
 import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
-import { RouterService } from './router.service';
+import { RelayRouterService } from './relay-router.service';
 
 // TODO: pool must be able to identify relay connection status
 /**
@@ -17,7 +17,7 @@ import { RouterService } from './router.service';
 export class NostrPool extends FacadeNPool {
 
   constructor(
-    routerService: RouterService,
+    routerService: RelayRouterService,
     @Inject(MAIN_NCACHE_TOKEN) protected override readonly ncache: NCache
   ) {
     super(routerService, ncache);

@@ -1,21 +1,25 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
+import { NCache } from '@nostrify/nostrify';
 import { kinds, nip19 } from 'nostr-tools';
 import { queryProfile } from 'nostr-tools/nip05';
 import { ProfilePointer } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
+import { normalizeURL } from 'nostr-tools/utils';
 import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { NostrLocalConfig } from '../configs/nostr-local-config.interface';
+import { ConfigsSessionStorage } from '../configs/configs-session.storage';
+import { NostrConfig } from '../configs/nostr-config.interface';
+import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Nip05 } from '../domain/nip05.type';
 import { NProfile } from '../domain/nprofile.type';
 import { NPub } from '../domain/npub.type';
+import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 import { RelayConverter } from '../nostr/relay.converter';
-import { NostrPool } from './nostr.pool';
-import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 
 /**
- * load each kind of relay config
+ * load each kind of relay config event from configured
  */
 @Injectable({
   providedIn: 'root'
@@ -23,61 +27,103 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 export class RelayConfigService {
 
   //  FIXME: include correct kind when nostr-tools implements nip17.ts
-  readonly kindsBlockedRelayList = 10006;
-  readonly kindsSearchRelayList = 10007;
   readonly kindDirectMessageRelayList = 10050;
 
   constructor(
     private guard: NostrGuard,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
-    private configs: ConfigsLocalStorage,
-    private pool: NostrPool
+    private configsLocal: ConfigsLocalStorage,
+    private configSession: ConfigsSessionStorage,
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>,
+    @Inject(MAIN_NCACHE_TOKEN) private ncache: NCache
   ) { }
 
   /**
    * Override application default relays for unauthenticated
    */
   setLocalRelays(relays: RelayRecord): void {
-    this.configs.patch({ commonRelays: relays });
+    this.configsLocal.patch({ commonRelays: relays });
   }
 
+  // FIXME: solve complexity, divide into more private methods
   /**
    * Return relays according to user-customized settings
    */
+  // eslint-disable-next-line complexity
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
-    const local = this.configs.read();
-    const relayFrom = local.relayFrom;
-    let config: NostrUserRelays | null = null;
+    const session = this.configSession.read(),
+      local = this.configsLocal.read(),
+      signer = local.signer;
+    let config: NostrUserRelays | null = null,
+      extensionRelays: RelayRecord | null = null;
 
-    if (relayFrom === 'signer') {
-      config = await this.getRelaysFromSigner();
-    } else if (relayFrom === 'localStorage') {
-      config = await this.getMainRelaysFromStorage(local);
-    } else if (relayFrom === 'public' && local.currentPubkey) {
-      config = await this.getUserPublicMainRelays(local.currentPubkey);
+    const userRelays = session.account?.relays;
+    const nip05 = session.account?.metadata?.nip05;
+    const pubkey = session.account?.pubkey;
+
+    if (userRelays) {
+      return Promise.resolve(userRelays);
     }
 
-    console.info('local configs', local);
-    console.info('result relays', config);
+    if (signer === 'extension') {
+      extensionRelays = await this.getRelaysFromSigner();
+    }
+
+    if (this.guard.isNip05(nip05)) {
+      config = await this.loadMainRelaysFromNIP5(nip05);
+    }
+
+    if (!config && pubkey) {
+      config = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
+    }
+
+    config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
+    return Promise.resolve(config);
+  }
+
+  private mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays | null, extensionRelays: RelayRecord | null): NostrUserRelays {
+    config = config || {};
+    if (!extensionRelays) {
+      return config;
+    }
+
+    const generalConfig = config.general;
+    if (!generalConfig) {
+      config.general = extensionRelays;
+      return config;
+    }
+
+    Object.keys(extensionRelays).forEach(relay => {
+      relay = normalizeURL(relay)
+      if (generalConfig[relay]) {
+        if (generalConfig[relay].write || extensionRelays[relay].write) {
+          generalConfig[relay].write = true;
+        } else {
+          generalConfig[relay].write = false;
+        }
+
+        if (generalConfig[relay].read || extensionRelays[relay].read) {
+          generalConfig[relay].read = true;
+        } else {
+          generalConfig[relay].read = false;
+        }
+
+      } else {
+        generalConfig[relay] = extensionRelays[relay];
+      }
+    });
+
+    config.general = generalConfig;
     return config;
   }
 
-  private getRelaysFromSigner(): Promise<RelayRecord> {
+  private getRelaysFromSigner(): Promise<RelayRecord | null> {
     if (window.nostr) {
       return window.nostr.getRelays();
     }
 
-    return Promise.resolve({});
-  }
-
-  private getMainRelaysFromStorage(local: NostrLocalConfig): Promise<NostrUserRelays> {
-    const pubkey = local.currentPubkey;
-    if (pubkey) {
-      return Promise.resolve(local.accounts && local.accounts[pubkey].relays || {})
-    }
-
-    return Promise.resolve(local.commonRelays || {});
+    return Promise.resolve(null);
   }
 
   async getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;
@@ -101,7 +147,7 @@ export class RelayConfigService {
   async loadMainRelaysFromProfilePointer(pointer: ProfilePointer): Promise<NostrUserRelays | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
-      const [relayListEvent] = await this.pool.query([
+      const [relayListEvent] = await this.ncache.query([
         {
           kinds: [kinds.RelayList],
           authors: [pubkey],
@@ -142,17 +188,14 @@ export class RelayConfigService {
   }
 
   async loadMainRelaysOnlyHavingPubkey(pubkey: string): Promise<NostrUserRelays | null> {
-    const [relayListEvent] = await this.pool.query([
+    const [relayListEvent] = await this.ncache.query([
       {
         kinds: [kinds.RelayList],
         authors: [pubkey],
         limit: 1
       }
     ], {
-      /**
-       * TODO: preciso centralizar isso como configuração
-       */
-      include: ['wss://purplepag.es']
+      include: this.nostrConfig.bestFor.findProfileConfig
     }).catch(() => Promise.resolve([null]));
 
     if (this.guard.isKind(relayListEvent, kinds.RelayList)) {
@@ -258,7 +301,7 @@ export class RelayConfigService {
   async loadRelayListFromProfilePointer(pointer: ProfilePointer, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
-      const [directMessageRelayListEvent] = await this.pool.query([
+      const [directMessageRelayListEvent] = await this.ncache.query([
         {
           kinds: [this.kindDirectMessageRelayList],
           authors: [pubkey],
@@ -371,17 +414,14 @@ export class RelayConfigService {
    */
   loadRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async loadRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
-    const [relayListEvent] = await this.pool.query([
+    const [relayListEvent] = await this.ncache.query([
       {
         kinds: [kind],
         authors: [pubkey],
         limit: 1
       }
     ], {
-      /**
-       * TODO: preciso centralizar isso como configuração
-       */
-      include: ['wss://purplepag.es']
+      include: this.nostrConfig.bestFor.findProfileConfig
     }).catch(() => Promise.resolve([null]));
 
     if (this.guard.isKind(relayListEvent, kind)) {

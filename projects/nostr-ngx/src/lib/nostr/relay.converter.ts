@@ -15,7 +15,7 @@ export class RelayConverter {
 
   constructor(
     private guard: NostrGuard
-  ) {}
+  ) { }
 
   private convertRelayMetadataFromTag(tag: string[]): Array<WebSocket['url']> {
     const relays = tag.filter(relay => isRelayString.test(relay));

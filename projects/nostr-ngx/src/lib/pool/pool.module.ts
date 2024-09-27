@@ -1,14 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { NostrPool } from "./nostr.pool";
 import { NgModule } from "@angular/core";
-import { RouterService } from "./router.service";
+import { RelayRouterService } from "./relay-router.service";
 
 @NgModule({
   imports: [
     CommonModule
   ],
   providers: [
-    RouterService,
+    RelayRouterService,
     NostrPool
   ]
 })

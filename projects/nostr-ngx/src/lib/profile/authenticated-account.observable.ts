@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { AccountsLocalStorage } from '../config-storage/accounts-local.storage';
 import { ProfileSessionStorage } from '../config-storage/profile-session.storage';
 import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
@@ -8,7 +9,6 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
 import { NostrConverter } from '../nostr/nostr.converter';
 import { NSecCrypto } from '../nostr/nsec.crypto';
 import { ProfileService } from './profile.service';
-import { AccountManagerService } from './account-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,10 +17,10 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
 
   constructor(
     private profileService: ProfileService,
-    private accountManager: AccountManagerService,
     private nostrConverter: NostrConverter,
     private nsecCrypto: NSecCrypto,
-    private profileSessionStorage: ProfileSessionStorage
+    private profileSessionStorage: ProfileSessionStorage,
+    private accountLocalStorage: AccountsLocalStorage
   ) {
     const session = profileSessionStorage.read();
     let account: Account | null = null;
@@ -78,7 +78,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
         this.profileSessionStorage.save({ account });
 
         if (signer) {
-          this.profileSessionStorage.patch({ signer });
+          this.accountLocalStorage.patch({ signer });
         }
 
         this.next(account);
