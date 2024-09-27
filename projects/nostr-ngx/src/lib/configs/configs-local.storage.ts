@@ -9,9 +9,7 @@ export class ConfigsLocalStorage extends AbstractBrowserStorage<NostrLocalConfig
 
   private readonly NOSTR_STORAGE_KEY = 'nostr';
 
-  protected default: NostrLocalConfig = {
-    relayFrom: 'none'
-  };
+  protected default: NostrLocalConfig = {};
 
   protected getItem(): string | null {
     return localStorage.getItem(this.NOSTR_STORAGE_KEY);

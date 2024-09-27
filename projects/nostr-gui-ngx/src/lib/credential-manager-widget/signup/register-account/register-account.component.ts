@@ -34,7 +34,7 @@ export class RegisterAccountComponent implements OnInit {
     private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: AuthenticatedAccountObservable,
     private mediaUploader: MediaUploader,
-    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: NostrConfig
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
   ngOnInit(): void {

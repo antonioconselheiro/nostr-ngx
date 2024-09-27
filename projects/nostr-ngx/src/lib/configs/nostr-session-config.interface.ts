@@ -1,11 +1,15 @@
-import { Account } from '../domain/account.interface';
+import { RelayRecord } from 'nostr-tools/relay';
 import { NSec } from '../domain/nsec.type';
+import { Account } from '../domain/account.interface';
 
 /**
  * saved in session storage
  */
 export interface NostrSessionConfig {
-  signer?: 'extension';
+  /**
+   * current user account
+   */
   account?: Account;
+  relays?: RelayRecord;
   nsec?: NSec;
 }

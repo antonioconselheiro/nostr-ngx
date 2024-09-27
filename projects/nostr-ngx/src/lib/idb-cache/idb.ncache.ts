@@ -5,6 +5,13 @@ import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 
 //  TODO: include index by create at
 //  TODO: include index by tag
+//  TODO: include exclusive cache for user config events (0, 10002, 10006, 10007, 10050), other events will change fast in lru, but these must be keep for more time with exclusive memory map
+//  TODO: include default fallback for:
+//  - search Profiles,
+//  - search event JustIds,
+//  - UserSearchRelays, maybe these are best relays to search for users
+//  - NoteSearchRelays, maybe these are best relays to search for publications
+//  - FallbackRelays, for general porpouse
 /**
  * ncache load from indexeddb and keep it syncronized
  */

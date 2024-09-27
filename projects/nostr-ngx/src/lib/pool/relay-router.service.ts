@@ -13,7 +13,7 @@ import { NostrGuard } from '../nostr/nostr.guard';
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário
  */
 @Injectable()
-export class RouterService implements NpoolRouterOptions {
+export class RelayRouterService implements NpoolRouterOptions {
 
   constructor(
     private relayConverter: RelayConverter,
