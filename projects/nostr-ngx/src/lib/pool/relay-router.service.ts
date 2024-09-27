@@ -5,7 +5,7 @@ import { ProfilePointer } from 'nostr-tools/nip19';
 import { DefaultRouterMatcher } from './default.router-matcher';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
-import { RelayConfigService } from './relay-config.service';
+import { RelayLocalConfigService } from './relay-local-config.service';
 import { RelayConverter } from '../nostr/relay.converter';
 import { NostrGuard } from '../nostr/nostr.guard';
 
@@ -17,7 +17,7 @@ export class RelayRouterService implements NpoolRouterOptions {
 
   constructor(
     private relayConverter: RelayConverter,
-    private relayConfigService: RelayConfigService,
+    private relayConfigService: RelayLocalConfigService,
     private routerMatcher: DefaultRouterMatcher,
     private nostrGuard: NostrGuard
   ) { }

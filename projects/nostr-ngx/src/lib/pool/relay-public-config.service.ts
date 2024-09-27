@@ -1,55 +1,44 @@
-import { Inject, Injectable } from '@angular/core';
-import { NCache } from '@nostrify/nostrify';
-import { kinds, nip19 } from 'nostr-tools';
-import { queryProfile } from 'nostr-tools/nip05';
-import { ProfilePointer } from 'nostr-tools/nip19';
-import { RelayRecord } from 'nostr-tools/relay';
-import { normalizeURL } from 'nostr-tools/utils';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { ConfigsSessionStorage } from '../configs/configs-session.storage';
-import { NostrConfig } from '../configs/nostr-config.interface';
-import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { Nip05 } from '../domain/nip05.type';
-import { NProfile } from '../domain/nprofile.type';
-import { NPub } from '../domain/npub.type';
-import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
-import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
-import { NostrConverter } from '../nostr/nostr.converter';
-import { NostrGuard } from '../nostr/nostr.guard';
-import { RelayConverter } from '../nostr/relay.converter';
+import { Inject, Injectable } from "@angular/core";
+import { NostrPool } from "./nostr.pool";
+import { NProfile } from "../domain/nprofile.type";
+import { NPub } from "../domain/npub.type";
+import { Nip05 } from "../domain/nip05.type";
+import { NostrUserRelays } from "../configs/nostr-user-relays.interface";
+import { RelayRecord } from "nostr-tools/relay";
+import { ConfigsLocalStorage } from "../configs/configs-local.storage";
+import { ConfigsSessionStorage } from "../configs/configs-session.storage";
+import { RelayLocalConfigService } from "./relay-local-config.service";
+import { NostrGuard } from "../nostr/nostr.guard";
+import { ProfilePointer } from "nostr-tools/nip19";
+import { kinds, nip19 } from "nostr-tools";
+import { NostrConverter } from "../nostr/nostr.converter";
+import { queryProfile } from "nostr-tools/nip05";
+import { RelayConverter } from "../nostr/relay.converter";
+import { NostrConfig } from "../configs/nostr-config.interface";
+import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
 
 /**
- * load each kind of relay config event from configured
+ * this service offers all possibles ways to load a user relay config
  */
 @Injectable({
   providedIn: 'root'
 })
-export class RelayConfigService {
+export class RelayPublicConfigService {
 
   //  FIXME: include correct kind when nostr-tools implements nip17.ts
   readonly kindDirectMessageRelayList = 10050;
 
   constructor(
     private guard: NostrGuard,
-    private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
+    private nostrConverter: NostrConverter,
     private configsLocal: ConfigsLocalStorage,
     private configSession: ConfigsSessionStorage,
+    private relayLocalConfigService: RelayLocalConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>,
-    @Inject(MAIN_NCACHE_TOKEN) private ncache: NCache
+    private npool: NostrPool
   ) { }
 
-  /**
-   * Override application default relays for unauthenticated
-   */
-  setLocalRelays(relays: RelayRecord): void {
-    this.configsLocal.patch({ commonRelays: relays });
-  }
-
-  // FIXME: solve complexity, divide into more private methods
-  /**
-   * Return relays according to user-customized settings
-   */
   // eslint-disable-next-line complexity
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
     const session = this.configSession.read(),
@@ -67,7 +56,7 @@ export class RelayConfigService {
     }
 
     if (signer === 'extension') {
-      extensionRelays = await this.getRelaysFromSigner();
+      extensionRelays = await this.relayLocalConfigService.getRelaysFromSigner();
     }
 
     if (this.guard.isNip05(nip05)) {
@@ -78,52 +67,8 @@ export class RelayConfigService {
       config = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
     }
 
-    config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
+    config = this.relayLocalConfigService.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
     return Promise.resolve(config);
-  }
-
-  private mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays | null, extensionRelays: RelayRecord | null): NostrUserRelays {
-    config = config || {};
-    if (!extensionRelays) {
-      return config;
-    }
-
-    const generalConfig = config.general;
-    if (!generalConfig) {
-      config.general = extensionRelays;
-      return config;
-    }
-
-    Object.keys(extensionRelays).forEach(relay => {
-      relay = normalizeURL(relay)
-      if (generalConfig[relay]) {
-        if (generalConfig[relay].write || extensionRelays[relay].write) {
-          generalConfig[relay].write = true;
-        } else {
-          generalConfig[relay].write = false;
-        }
-
-        if (generalConfig[relay].read || extensionRelays[relay].read) {
-          generalConfig[relay].read = true;
-        } else {
-          generalConfig[relay].read = false;
-        }
-
-      } else {
-        generalConfig[relay] = extensionRelays[relay];
-      }
-    });
-
-    config.general = generalConfig;
-    return config;
-  }
-
-  private getRelaysFromSigner(): Promise<RelayRecord | null> {
-    if (window.nostr) {
-      return window.nostr.getRelays();
-    }
-
-    return Promise.resolve(null);
   }
 
   async getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;
@@ -147,7 +92,7 @@ export class RelayConfigService {
   async loadMainRelaysFromProfilePointer(pointer: ProfilePointer): Promise<NostrUserRelays | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
-      const [relayListEvent] = await this.ncache.query([
+      const [relayListEvent] = await this.npool.query([
         {
           kinds: [kinds.RelayList],
           authors: [pubkey],
@@ -188,7 +133,7 @@ export class RelayConfigService {
   }
 
   async loadMainRelaysOnlyHavingPubkey(pubkey: string): Promise<NostrUserRelays | null> {
-    const [relayListEvent] = await this.ncache.query([
+    const [relayListEvent] = await this.npool.query([
       {
         kinds: [kinds.RelayList],
         authors: [pubkey],
@@ -205,6 +150,7 @@ export class RelayConfigService {
 
     return Promise.resolve(null);
   }
+
 
   /**
    * @returns user list of blocked relays, using NIP5.
@@ -301,7 +247,7 @@ export class RelayConfigService {
   async loadRelayListFromProfilePointer(pointer: ProfilePointer, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
-      const [directMessageRelayListEvent] = await this.ncache.query([
+      const [directMessageRelayListEvent] = await this.npool.query([
         {
           kinds: [this.kindDirectMessageRelayList],
           authors: [pubkey],
@@ -414,7 +360,7 @@ export class RelayConfigService {
    */
   loadRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async loadRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
-    const [relayListEvent] = await this.ncache.query([
+    const [relayListEvent] = await this.npool.query([
       {
         kinds: [kind],
         authors: [pubkey],

@@ -26,7 +26,6 @@ export class IdbNCache extends NCache {
 
   constructor() {
     super({
-      //  FIXME: make this number configurable to end user
       max: 5000,
       dispose: event => this.delete(event)
     });
