@@ -6,6 +6,6 @@
 If you code using this lib you automatically become a cypherpunk.
 
 ## Bring your project to Nostr
-![Bring your project to Nostr](./assets/nostr%20is%20wild.jpg)
+![Bring your project to Nostr](./assets/bring-your-ngapp-to-nostr.jpg)
 
 not released yet
