@@ -42,12 +42,13 @@ export * from './lib/credential-manager-widget/download-signer/download-signer.m
 export * from './lib/credential-manager-widget/select-account/select-account.component';
 export * from './lib/credential-manager-widget/select-account/select-account.module';
 export * from './lib/svg-render/svg-render.module';
+export * from './lib/svg-render/svg-render.token';
 export * from './lib/svg-render/svg-render.component';
 export * from './lib/svg-render/svg.record';
-export * from './lib/svg-render/svg-render.token';
 export * from './lib/nostr-validators/nostr.validators';
 export * from './lib/nostr-validators/nostr-secret.validator-fn';
 export * from './lib/nostr-validators/confirm-password.validator-fn';
+export * from './lib/camera/camera.component';
 export * from './lib/camera/camera.module';
 export * from './lib/camera/camera-functions.enum';
 export * from './lib/camera/camera.observable';

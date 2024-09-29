@@ -7,6 +7,7 @@ import { CredentialHandlerService } from './credential-handler.service';
 import { SvgRenderModule } from '../svg-render/svg-render.module';
 import { NostrModule } from '@belomonte/nostr-ngx';
 import { QrcodeServiceModule } from '../qrcode-service/qrcode-service.module';
+import { CameraModule } from '../camera/camera.module';
 
 @NgModule({
   imports: [
@@ -14,11 +15,18 @@ import { QrcodeServiceModule } from '../qrcode-service/qrcode-service.module';
     AsyncModalModule,
     SvgRenderModule,
     NostrModule,
+    CameraModule,
     ModalNostrCredentialModule,
     QrcodeServiceModule
   ],
   exports: [
     AsyncModalModule,
+    AsyncModalModule,
+    SvgRenderModule,
+    NostrModule,
+    CameraModule,
+    ModalNostrCredentialModule,
+    QrcodeServiceModule,
     CredentialHandlerComponent
   ],
   declarations: [

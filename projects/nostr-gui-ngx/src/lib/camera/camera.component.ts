@@ -5,7 +5,7 @@ import { CameraFunctions } from './camera-functions.enum';
 import { CameraObservable } from './camera.observable';
 
 @Component({
-  selector: 'tw-camera',
+  selector: 'nostr-camera',
   templateUrl: './camera.component.html',
   styleUrls: ['./camera.component.scss']
 })
@@ -31,9 +31,8 @@ export class CameraComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.camera$.asObservable().subscribe({
       next: status => {
         this.status = status;
-        //  aguardando execução para o próximo tick de processamento,
-        //  para que o video disponível na estrutura do DOM
-        // eslint-disable-next-line ban/ban
+        //  pulando para o final da fila para que o elemento
+        //  de video fique disponível na estrutura do DOM
         setTimeout(() => this.onStatusUpdate(status));
       }
     }));
@@ -70,7 +69,6 @@ export class CameraComponent implements OnInit, OnDestroy {
     return Promise.resolve();
   }
 
-  // eslint-disable-next-line complexity
   close(): void {
     this.stopStreaming();
     this.stopScanning();

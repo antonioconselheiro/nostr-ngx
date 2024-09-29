@@ -7,16 +7,7 @@ import { CameraFunctions } from './camera-functions.enum';
 })
 export class CameraObservable extends Subject<CameraFunctions | null> {
 
-  private static instance: CameraObservable | null = null;
   qrCodeResponse = new Subject<string>();
-
-  constructor() {
-    super();
-    if (!CameraObservable.instance) {
-      CameraObservable.instance = this;
-    }
-    return CameraObservable.instance;
-  }
 
   async readQrCode(): Promise<string> {
     this.next(CameraFunctions.READ_QR_CODE);
