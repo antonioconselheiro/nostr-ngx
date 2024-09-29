@@ -1,1 +1,1 @@
-export type TLoginFormFields = 'nsec' | 'saveNcryptsecLocalStorage' | 'password';
+export type LoginFormFields = 'nsec' | 'saveNcryptsecLocalStorage' | 'password';

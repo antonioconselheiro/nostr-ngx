@@ -1,1 +1,1 @@
-export type TRelayManagerSteps = 'myRelays' | 'relaySearch' | 'relayDetails';
+export type RelayManagerSteps = 'myRelays' | 'relaySearch' | 'relayDetails';

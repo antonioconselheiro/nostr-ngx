@@ -2,19 +2,13 @@
 <form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off" id="accountForm">
   <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
     <input #nsec required name="nsec" maxlength="64" formControlName="nsec" placeholder=" "
-      id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showNSec ? 'text' : 'password'" />
-    <label for="addAccountNsecField">nsec</label>
+      id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" type="password" />
+    <label for="addAccountNsecField">nsec or ncryptsec</label>
 
     <button type="button" title="read nsec from qrcode" (click)="asyncReadQrcodeUsingCamera()"
       class="svgButton">
 
       <nostr-svg-render name="scanQrcode"></nostr-svg-render>
-    </button>
-
-    <button type="button" [attr.title]="showNSec ? 'hide nsec' : 'show nsec'"
-      (click)="showNSec = !showNSec" class="svgButton">
-
-      <nostr-svg-render [name]="showNSec ? 'eyeOff' : 'eye'"></nostr-svg-render>
     </button>
 
     <ng-container *ngIf="submitted && getFormControlErrors('nsec')">
@@ -39,7 +33,7 @@
     <label for="saveNSecEncrypted">Remember account (save encrypted)</label>
   </div>
 
-  <div *ngIf="saveNSecEncrypted.checked" [class.error]="submitted && getFormControlErrors('password')"
+  <div *ngIf="showPasswordField(saveNSecEncrypted.checked, nsec.value)" [class.error]="submitted && getFormControlErrors('password')"
     class="floatingLabel passwordField">
 
     <input #password required name="password" [maxlength]="passwordLength" formControlName="password" placeholder=" "
@@ -68,6 +62,14 @@
 
     <span>
       Back
+    </span>
+  </button>
+
+  <button type="button" title="use signer" class="button secondary iconedButton">
+    <nostr-svg-render class="inlineIcon" name="extension"></nostr-svg-render>
+
+    <span>
+      Use signer
     </span>
   </button>
 

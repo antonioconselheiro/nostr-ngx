@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
-import { TChoosePasswordFields } from './choose-password-fields.type';
+import { ChoosePasswordFields } from './choose-password-fields.type';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { Ncryptsec, NostrSigner } from '@belomonte/nostr-ngx';
 
@@ -72,12 +72,12 @@ export class ChoosePasswordComponent implements OnInit {
     return this.encryptedNsecForm.errors?.[errorName] || false;
   }
 
-  getFormControlErrorStatus(fieldName: TChoosePasswordFields, errorName: string): boolean {
+  getFormControlErrorStatus(fieldName: ChoosePasswordFields, errorName: string): boolean {
     const errors = this.encryptedNsecForm.controls[fieldName].errors || {};
     return errors[errorName] || false;
   }
 
-  showErrors(fieldName: TChoosePasswordFields): boolean {
+  showErrors(fieldName: ChoosePasswordFields): boolean {
     return this.submitted && !!this.encryptedNsecForm.controls[fieldName].errors;
   }
 

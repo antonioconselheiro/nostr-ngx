@@ -1,4 +1,4 @@
-export interface IFileSending {
+export interface FileSending {
   type: 'sending';
   percentage: number;
 }

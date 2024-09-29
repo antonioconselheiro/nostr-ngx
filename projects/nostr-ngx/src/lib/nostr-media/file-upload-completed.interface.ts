@@ -1,6 +1,6 @@
 import { FileMetadataObject } from 'nostr-tools/nip94';
 
-export interface IFileUploadCompleted {
+export interface FileUploadCompleted {
   type: 'complete';
   downloadUrl: string;
   metadata?: FileMetadataObject;

@@ -24,12 +24,12 @@ div.checkbox {
   > [type=checkbox] {
     cursor: pointer;
     display: inline-block;
+    transition: 1s box-shadow;
     border: 2px solid var(--lowContrast);
     width: 22px;
     height: 22px;
     margin: 0 12px;
 
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></svg>');
     background-repeat: no-repeat;
     background-position: 2px;
     background-size: 75%;
@@ -62,6 +62,7 @@ div.checkbox {
     &:checked {
       border: 2px solid var(--primary);
       background-color: var(--primary);
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M9.64 18.952l-5.55-4.861 1.317-1.504 3.951 3.459 8.459-10.948L19.4 6.32 9.64 18.952z"></path></svg>');
 
       &:hover:before {
         box-shadow: 0 0 0 10px var(--imgButtonPrimaryHover);

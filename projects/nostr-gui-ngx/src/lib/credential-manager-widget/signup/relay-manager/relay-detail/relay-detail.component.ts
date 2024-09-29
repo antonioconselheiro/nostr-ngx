@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Account, ProfileService } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
-import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { RelayManagerSteps } from '../relay-manager-steps.type';
 
 @Component({
   selector: 'nostr-relay-detail',
@@ -14,7 +14,7 @@ export class RelayDetailComponent implements OnInit {
   back = new EventEmitter<void>();
 
   @Output()
-  changeRelayStep = new EventEmitter<TRelayManagerSteps>();
+  changeRelayStep = new EventEmitter<RelayManagerSteps>();
 
   @Input()
   relay!: string;

@@ -1,5 +1,5 @@
-import { IFileProcessing } from './file-processing.interface';
-import { IFileSending } from './file-sending.interface';
-import { IFileUploadCompleted } from './file-upload-completed.interface';
+import { FileProcessing } from './file-processing.interface';
+import { FileSending } from './file-sending.interface';
+import { FileUploadCompleted } from './file-upload-completed.interface';
 
-export type TFileUpload = IFileSending | IFileProcessing | IFileUploadCompleted;
+export type FileUpload = FileSending | FileProcessing | FileUploadCompleted;

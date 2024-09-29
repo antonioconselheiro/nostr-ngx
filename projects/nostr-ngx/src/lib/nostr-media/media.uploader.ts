@@ -4,7 +4,7 @@ import { normalizeURL } from 'nostr-tools/utils';
 import { parseEvent } from 'nostr-tools/nip94';
 import { Observable, Subject } from 'rxjs';
 import { FileManagerService } from './file-manager.service';
-import { TFileUpload } from './file-upload.type';
+import { FileUpload } from './file-upload.type';
 import { NostrEvent } from 'nostr-tools';
 
 @Injectable({
@@ -50,8 +50,8 @@ export class MediaUploader {
   uploadFromDialog(
     fileServer: string,
     params?: Omit<OptionalFormDataFields, 'size' | 'content_type'>
-  ): Observable<TFileUpload> {
-    const subject = new Subject<TFileUpload>();
+  ): Observable<FileUpload> {
+    const subject = new Subject<FileUpload>();
     this.getFileFromDialog(fileServer).then(stuffLoaded => {
       if (stuffLoaded.file) {
         this.uploadFileWithAllStuffLoaded(stuffLoaded.serverConfig, stuffLoaded.file, stuffLoaded.fileHash, params).subscribe({
@@ -74,8 +74,8 @@ export class MediaUploader {
     fileServer: string,
     file: File,
     params?: Omit<OptionalFormDataFields, 'size' | 'content_type'>
-  ): Observable<TFileUpload> {
-    const subject = new Subject<TFileUpload>();
+  ): Observable<FileUpload> {
+    const subject = new Subject<FileUpload>();
     readServerConfig(fileServer).then(serverConfig => {
       calculateFileHash(file).then(fileHash => {
         this.uploadFileWithAllStuffLoaded(serverConfig, file, fileHash, params).subscribe({
@@ -94,8 +94,8 @@ export class MediaUploader {
     file: File,
     fileHash: string,
     params?: Omit<OptionalFormDataFields, 'size' | 'content_type'>
-  ): Observable<TFileUpload> {
-    const subject = new Subject<TFileUpload>();
+  ): Observable<FileUpload> {
+    const subject = new Subject<FileUpload>();
     const stream = this.interceptFileToEmitSendingProgress(file, subject);
 
     //  TODO: preciso dar suporte para autenticação via NIP98 e para planos diferentes do free para NIP96
@@ -121,7 +121,7 @@ export class MediaUploader {
   }
 
   private sendCompleteResponse(
-    subject: Subject<TFileUpload>, response: FileUploadResponse, downloadUrl: string
+    subject: Subject<FileUpload>, response: FileUploadResponse, downloadUrl: string
   ): void {
     const nip94Event = response.nip94_event as any as NostrEvent | undefined;
     const metadata = nip94Event ? parseEvent(nip94Event) : undefined;
@@ -157,7 +157,7 @@ export class MediaUploader {
     return Promise.resolve({ file, fileHash, serverConfig });
   }
 
-  private interceptFileToEmitSendingProgress(file: File, subject: Subject<TFileUpload>): File {
+  private interceptFileToEmitSendingProgress(file: File, subject: Subject<FileUpload>): File {
     let uploadedAmount = 0;
     const stream = new ReadableStream({
       start(controller) {
@@ -183,7 +183,7 @@ export class MediaUploader {
     return stream as any as File;
   }
 
-  private listenFileProcessingToEmitProgress(processing_url: string, imageDownloadUrl: string, subject: Subject<TFileUpload>): void {
+  private listenFileProcessingToEmitProgress(processing_url: string, imageDownloadUrl: string, subject: Subject<FileUpload>): void {
     checkFileProcessingStatus(processing_url).then(response => {
       if (response.status === 'success') {
         this.sendCompleteResponse(subject, response, imageDownloadUrl);

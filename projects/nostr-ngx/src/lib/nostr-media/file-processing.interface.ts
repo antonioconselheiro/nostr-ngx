@@ -1,4 +1,4 @@
-export interface IFileProcessing {
+export interface FileProcessing {
   type: 'processing';
   percentage: number;
 }

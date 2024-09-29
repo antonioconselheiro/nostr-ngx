@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
-import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { RelayManagerSteps } from '../relay-manager-steps.type';
 
 /**
  * FIXME: this screen need to show relay current connection
@@ -18,7 +18,7 @@ export class MyRelaysComponent {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  changeRelayStep = new EventEmitter<TRelayManagerSteps>();
+  changeRelayStep = new EventEmitter<RelayManagerSteps>();
 
   @Output()
   relayDetail = new EventEmitter<string>();

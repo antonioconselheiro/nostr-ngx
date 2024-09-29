@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { TRelayManagerSteps } from './relay-manager-steps.type';
+import { RelayManagerSteps } from './relay-manager-steps.type';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
@@ -11,7 +11,7 @@ export class RelayManagerComponent {
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
-  currentStep: TRelayManagerSteps = 'myRelays';
+  currentStep: RelayManagerSteps = 'myRelays';
 
   relayDetail?: string;
 
@@ -19,7 +19,7 @@ export class RelayManagerComponent {
    * which screen we are before come to detail?
    * this will help back button
    */
-  backFromDetailOrigin?: TRelayManagerSteps;
+  backFromDetailOrigin?: RelayManagerSteps;
 
   /**
    * TODO: tlvz esse parâmetro precise ficar centralizado

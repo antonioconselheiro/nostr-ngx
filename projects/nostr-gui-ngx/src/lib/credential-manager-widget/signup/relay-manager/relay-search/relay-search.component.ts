@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
-import { TRelayManagerSteps } from '../relay-manager-steps.type';
+import { RelayManagerSteps } from '../relay-manager-steps.type';
 
 /**
  * Não é MVP
@@ -16,7 +16,7 @@ export class RelaySearchComponent {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  changeRelayStep = new EventEmitter<TRelayManagerSteps>();
+  changeRelayStep = new EventEmitter<RelayManagerSteps>();
 
   @Output()
   relayDetail = new EventEmitter<string>();

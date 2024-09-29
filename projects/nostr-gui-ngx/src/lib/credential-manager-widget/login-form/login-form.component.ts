@@ -4,7 +4,7 @@ import { Account, AccountManagerService, Ncryptsec, NostrConverter, NostrSigner,
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { TLoginFormFields } from './login-form-fields.type';
+import { LoginFormFields } from './login-form-fields.type';
 import { requiredPasswordIfNcryptsecableValidatorFactory } from './required-password-if-ncryptsecable.validator-fn';
 
 @Component({
@@ -16,7 +16,6 @@ export class LoginFormComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  showNSec = false;
   showPassword = false;
 
   @Input()
@@ -68,13 +67,17 @@ export class LoginFormComponent implements OnInit {
     }, this.formOptions);
   }
 
-  getFormControlErrors(fieldName: TLoginFormFields): ValidationErrors | null {
+  getFormControlErrors(fieldName: LoginFormFields): ValidationErrors | null {
     return this.accountForm.controls[fieldName].errors;
   }
 
-  getFormControlErrorStatus(fieldName: TLoginFormFields, error: string): boolean {
+  getFormControlErrorStatus(fieldName: LoginFormFields, error: string): boolean {
     const errors = this.accountForm.controls[fieldName].errors || {};
     return errors[error] || false;
+  }
+
+  showPasswordField(saveNSecEncryptedChecked: boolean, nsecFieldValue: string): boolean {
+    return /^ncryptsec/.test(nsecFieldValue) || saveNSecEncryptedChecked;
   }
 
   async onAddAccountSubmit(event: SubmitEvent): Promise<void> {

@@ -1,1 +1,1 @@
-export type TRegisterAccountFields = 'displayName' | 'bio' | 'picture' | 'banner';
+export type RegisterAccountFields = 'displayName' | 'bio' | 'picture' | 'banner';
