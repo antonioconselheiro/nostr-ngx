@@ -2,11 +2,11 @@
   "name": "@belomonte/nostr-gui-ngx",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^17.3.0",
-    "@angular/core": "^17.3.0",
-    "@belomonte/async-modal-ngx": "^0.1.0",
+    "@angular/common": "^18.1.3",
+    "@angular/core": "^18.1.3",
+    "@belomonte/async-modal-ngx": "^1.0.0",
+    "@nostrify/nostrify": "npm:@jsr/nostrify__nostrify@^0.30.1",
     "nostr-tools": "^2.7.2",
-    "@nostrify/nostrify": "npm:@jsr/nostrify__nostrify@^0.30.0",
     "qrcode": "^1.5.3"
   },
   "dependencies": {

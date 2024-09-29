@@ -21,7 +21,8 @@ export class ProfileCache {
   protected db: Promise<IDBPDatabase<IdbProfileCache>>;
   protected cache = new LRUCache<string, NostrMetadataCached>({
     max: 1000,
-    dispose: metadata => this.onLRUDispose(metadata)
+    dispose: metadata => this.onLRUDispose(metadata),
+    updateAgeOnGet: true
   });
 
   constructor(
