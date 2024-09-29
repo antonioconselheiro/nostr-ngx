@@ -8,6 +8,7 @@ import { RelayRouterService } from './relay-router.service';
 
 // TODO: pool must be able to identify relay connection status
 /**
+ * This class helps you interact with a websocket pool. 
  * "Clients SHOULD open a single websocket connection to each relay and use it for all their subscriptions."
  * https://github.com/nostr-protocol/nips/blob/master/01.md#communication-between-clients-and-relays
  */

@@ -7,33 +7,33 @@ import { SvgRecord } from './svg.record';
   template: ``
 })
 export class SvgRenderComponent implements OnInit {
-  static record = SvgRecord;
 
-  static add(name: keyof typeof SvgRecord, svg: string): void {
-    this.record[name] = svg;
-  }
-  
   @Input()
-  set name(name: keyof typeof SvgRecord) {
+  set name(name: string) {
     this.interceptedName = name;
-    if (this.elementRef.nativeElement) {
-      this.elementRef.nativeElement.innerHTML = SvgRenderComponent.record[name];
-    }
+    this.svgRecord.get(name).then(svg => {
+      if (this.elementRef.nativeElement && svg) {
+        this.elementRef.nativeElement.innerHTML = svg;
+      }
+    });
   }
 
-  get name(): keyof typeof SvgRecord {
+  get name(): string {
     return this.interceptedName;
   }
 
-  private interceptedName!: keyof typeof SvgRecord;
+  private interceptedName!: string;
 
   constructor(
+    private svgRecord: SvgRecord,
     private elementRef: ElementRef<HTMLElement>
   ) { }
 
   ngOnInit(): void {
-    if (this.elementRef.nativeElement) {
-      this.elementRef.nativeElement.innerHTML = SvgRenderComponent.record[this.name];
-    }
+    this.svgRecord.get(this.name).then(svg => {
+      if (this.elementRef.nativeElement && svg) {
+        this.elementRef.nativeElement.innerHTML = svg;
+      }
+    });
   }
 }

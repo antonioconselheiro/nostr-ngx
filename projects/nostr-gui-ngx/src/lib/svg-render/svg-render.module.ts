@@ -1,6 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { SvgRenderComponent } from './svg-render.component';
-import { CommonModule } from '@angular/common';
+import { SVG_RECORD_TOKEN } from './svg-render.token';
+import { SvgRecord } from './svg.record';
 
 @NgModule({
   declarations: [
@@ -11,6 +13,12 @@ import { CommonModule } from '@angular/common';
   ],
   exports: [
     SvgRenderComponent
+  ],
+  providers: [
+    {
+      provide: SVG_RECORD_TOKEN,
+      useClass: SvgRecord
+    }
   ]
 })
 export class SvgRenderModule { }

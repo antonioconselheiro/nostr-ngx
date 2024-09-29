@@ -1,4 +1,3 @@
-
 export * from './lib/domain/profile-picture.interface';
 export * from './lib/domain/creating-account.interface';
 export * from './lib/typing-complete/typing-complete.directive';
@@ -45,6 +44,7 @@ export * from './lib/credential-manager-widget/select-account/select-account.mod
 export * from './lib/svg-render/svg-render.module';
 export * from './lib/svg-render/svg-render.component';
 export * from './lib/svg-render/svg.record';
+export * from './lib/svg-render/svg-render.token';
 export * from './lib/nostr-validators/nostr.validators';
 export * from './lib/nostr-validators/nostr-secret.validator-fn';
 export * from './lib/nostr-validators/confirm-password.validator-fn';
@@ -55,5 +55,6 @@ export * from './lib/qrcode-service/qrcode.service';
 export * from './lib/qrcode-service/qrcode-service.module';
 export * from './lib/loading/loading.component';
 export * from './lib/loading/loading-widget.module';
+
 
 // TODO: incluir meio de configurar a foto de perfil e banner padrão que a biblioteca deve assumir 
