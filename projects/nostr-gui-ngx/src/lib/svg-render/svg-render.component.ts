@@ -1,5 +1,6 @@
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, Input, OnInit } from '@angular/core';
 import { SvgRecord } from './svg.record';
+import { SVG_RECORD_TOKEN } from './svg-render.token';
 
 @Component({
   selector: 'nostr-svg-render',
@@ -25,7 +26,7 @@ export class SvgRenderComponent implements OnInit {
   private interceptedName!: string;
 
   constructor(
-    private svgRecord: SvgRecord,
+    @Inject(SVG_RECORD_TOKEN) private svgRecord: SvgRecord,
     private elementRef: ElementRef<HTMLElement>
   ) { }
 
