@@ -69,7 +69,7 @@ export class ProfileNostr {
   /**
    * FIXME: maybe should receive and array
    */
-  listenUserConfigUpdates(pubkey: string): Observable<NostrEvent> {
+  listenUserConfigUpdates(pubkey: string, opts?: NPoolRequestOptions): Observable<NostrEvent> {
     //  FIXME: aplicar schemas
     //  FIXME: applicar filtros de bloqueio
     return this.nostrPool.observe([
@@ -86,6 +86,7 @@ export class ProfileNostr {
         ]
       }
     ], {
+      ...opts,
       ignoreCache: true
     });
   }

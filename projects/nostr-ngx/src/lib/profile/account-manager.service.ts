@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
+import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { nip19 } from 'nostr-tools';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
-import { NostrConfig } from '../configs/nostr-config.interface';
-import { ProfileSessionStorage } from '../configs/profile-session.storage';
 
 /**
- * manage account objects, manage the account list in localstorage and the current user account in sessionstorage
+ * manage account objects, manage the account list in localstorage
  */
 @Injectable({
   providedIn: 'root'

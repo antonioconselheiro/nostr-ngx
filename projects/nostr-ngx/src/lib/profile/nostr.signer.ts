@@ -9,6 +9,9 @@ import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.erro
 import { NotSupportedBySigner } from '../exceptions/not-supported-by-signer.error';
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
+import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { ProfileService } from './profile.service';
+import { Account } from '../domain/account.interface';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -26,7 +29,8 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
   constructor(
     private sessionConfigs: ProfileSessionStorage,
     private localConfigs: AccountsLocalStorage,
-    private nsecCrypto: NSecCrypto
+    private nsecCrypto: NSecCrypto,
+    private profileService: ProfileService
   ) { }
 
   login(nsec: NSec, opts?: { saveSession: boolean }): void {
@@ -38,52 +42,44 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     }
   }
 
-  async useExtension(): Promise<string> {
+  /**
+   * @param opts request options to load account
+   */
+  async useExtension(opts?: NPoolRequestOptions): Promise<Account> {
     const pubkey = await this.getPublicKey();
     this.localConfigs.patch({
       currentPubkey: pubkey,
       signer: 'extension'
     });
 
-    return Promise.resolve(pubkey);
+    //  FIXME: account must be load using user relays config
+    const account = await this.profileService.getAccount(pubkey, opts);
+    this.sessionConfigs.patch({ account });
+
+    return Promise.resolve(account);
   }
 
   logout(): void {
     this.sessionConfigs.clear();
     this.localConfigs.update(configs => {
       delete configs.signer;
+      delete configs.currentPubkey;
       return configs;
     });
     delete NostrSigner.inMemoryNsec;
   }
 
+  // TODO: to include that, I must remove Omit<, 'getRelays'> from this class implementation
+  //async getNProfile(): Promise<NProfile> {
+  //}
+
   generateNsec(): NSec {
     return nip19.nsecEncode(generateSecretKey());
   }
 
-  //  TODO: maybe I should remove this method?
-  encryptNsec(password: string): Ncryptsec | null;
-  encryptNsec(password: string, nsec: NSec): Ncryptsec; 
-  encryptNsec(password: string, nsec?: NSec): Ncryptsec | null {
-    if (nsec) {
-      return this.nsecCrypto.encryptNSec(nsec, password);
-    }
-
-    const session = this.sessionConfigs.read();
-    const local = this.localConfigs.read();
-
-    if (local.signer === 'extension') {
-      //  TODO: I need to think how to treat this
-      //  extension will never return ncryptsec to client 
-      return null;
-    }
-
+  getInMemoryNCryptsec(password: string): Ncryptsec | null {
     if (NostrSigner.inMemoryNsec) {
       return this.nsecCrypto.encryptNSec(NostrSigner.inMemoryNsec, password);
-    }
-
-    if (!local.signer && session.nsec) {
-      return this.nsecCrypto.encryptNSec(session.nsec, password);
     }
 
     return null;
@@ -191,7 +187,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
         const nsec = await this.getNSec();
         return nip04.decrypt(nsec, pubkey, ciphertext);
       }
-    },
+    }
   };
 
   readonly nip44 = {
@@ -241,7 +237,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
         const conversationKey = nip44.v2.utils.getConversationKey(nsec, pubkey);
         return nip44.v2.decrypt(ciphertext, conversationKey);
       }
-    },
+    }
   };
 
   isSignerError(error: Error): error is NoCredentialsFoundError | NotSupportedBySigner | SignerNotFoundError {

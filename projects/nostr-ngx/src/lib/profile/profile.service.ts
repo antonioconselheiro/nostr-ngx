@@ -11,10 +11,10 @@ import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountManagerService } from './account-manager.service';
-import { NostrSigner } from './nostr.signer';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 
@@ -33,9 +33,9 @@ export class ProfileService {
 
   constructor(
     private guard: NostrGuard,
+    private nsecCrypto: NSecCrypto,
     private localConfigs: AccountsLocalStorage,
     private profileNostr: ProfileNostr,
-    private nostrSigner: NostrSigner,
     private profileCache: ProfileCache,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
@@ -128,7 +128,7 @@ export class ProfileService {
   //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount> {
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
-    const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
+    const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
     const account = await this.getAccount(user.pubkey);
 
     return Promise.resolve({ ...account, ncryptsec });
