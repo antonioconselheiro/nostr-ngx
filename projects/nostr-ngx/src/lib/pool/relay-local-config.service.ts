@@ -57,7 +57,7 @@ export class RelayLocalConfigService {
     }
 
     if (signer === 'extension') {
-      extensionRelays = await this.getRelaysFromSigner();
+      extensionRelays = await this.getRelaysFromExtensionSigner();
     }
 
     if (pubkey) {
@@ -66,6 +66,20 @@ export class RelayLocalConfigService {
 
     config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
     return Promise.resolve(config);
+  }
+
+  async getCurrentUserOutboxRelays(): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getCurrentUserRelays();
+    const outbox = this.relayConverter.extractOutboxRelays(relays);
+
+    return Promise.resolve(outbox);
+  }
+
+  async getCurrentUserInboxRelays(): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getCurrentUserRelays();
+    const inbox = this.relayConverter.extractInboxRelays(relays);
+
+    return Promise.resolve(inbox);
   }
 
   async getUserRelays(pubkey: string): Promise<NostrUserRelays | null> {
@@ -83,6 +97,20 @@ export class RelayLocalConfigService {
     }
 
     return Promise.resolve(null);
+  }
+
+  async getUserOutboxRelays(pubkey: string): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getUserRelays(pubkey);
+    const outbox = this.relayConverter.extractOutboxRelays(relays);
+
+    return Promise.resolve(outbox);
+  }
+
+  async getUserInboxRelays(pubkey: string): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getUserRelays(pubkey);
+    const inbox = this.relayConverter.extractInboxRelays(relays);
+
+    return Promise.resolve(inbox);
   }
 
   mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays | null, extensionRelays: RelayRecord | null): NostrUserRelays {
@@ -121,7 +149,8 @@ export class RelayLocalConfigService {
     return config;
   }
 
-  getRelaysFromSigner(): Promise<RelayRecord | null> {
+  getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {
+    //  accessing like this avoid circular dependency with NostrSigner service
     if (window.nostr) {
       return window.nostr.getRelays();
     }

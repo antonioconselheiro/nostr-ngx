@@ -12,6 +12,9 @@ import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { ProfileService } from './profile.service';
 import { Account } from '../domain/account.interface';
+import { RelayRecord } from 'nostr-tools/relay';
+import { NProfile } from '../domain/nprofile.type';
+import { RelayPublicConfigService } from '../pool/relay-public-config.service';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -22,7 +25,7 @@ import { Account } from '../domain/account.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
+export class NostrSigner implements WindowNostr {
 
   private static inMemoryNsec?: Uint8Array;
 
@@ -30,7 +33,8 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     private sessionConfigs: ProfileSessionStorage,
     private localConfigs: AccountsLocalStorage,
     private nsecCrypto: NSecCrypto,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private relayPublicConfig: RelayPublicConfigService
   ) { }
 
   login(nsec: NSec, opts?: { saveSession: boolean }): void {
@@ -68,10 +72,6 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     });
     delete NostrSigner.inMemoryNsec;
   }
-
-  // TODO: to include that, I must remove Omit<, 'getRelays'> from this class implementation
-  //async getNProfile(): Promise<NProfile> {
-  //}
 
   generateNsec(): NSec {
     return nip19.nsecEncode(generateSecretKey());
@@ -246,5 +246,36 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     }
 
     return false;
+  }
+
+  /**
+   * this method will not return only extension signer relays,
+   * will return all user relays, If you need just extension signer
+   * relays with no aditional relays you must call getRelaysFromExtensionSigner()
+   */
+  async getRelays(): Promise<RelayRecord> {
+    const userRelayConfig = await this.relayPublicConfig.getCurrentUserRelays();
+    if (!userRelayConfig) {
+      return {};
+    }
+
+    return userRelayConfig.general || {};
+  }
+
+  getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {
+    if (window.nostr) {
+      return window.nostr.getRelays();
+    }
+
+    return Promise.resolve(null);
+  }
+
+  async getNProfile(): Promise<NProfile> {
+    const pubkey = await this.getPublicKey();
+    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
+
+    return nip19.nprofileEncode({
+      pubkey, relays
+    });
   }
 }

@@ -56,7 +56,7 @@ export class RelayPublicConfigService {
     }
 
     if (signer === 'extension') {
-      extensionRelays = await this.relayLocalConfigService.getRelaysFromSigner();
+      extensionRelays = await this.relayLocalConfigService.getRelaysFromExtensionSigner();
     }
 
     if (this.guard.isNip05(nip05)) {
@@ -71,10 +71,10 @@ export class RelayPublicConfigService {
     return Promise.resolve(config);
   }
 
-  async getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;
-  async getUserPublicMainRelays(npub: NPub): Promise<NostrUserRelays | null>;
-  async getUserPublicMainRelays(nprofile: NProfile): Promise<NostrUserRelays | null>;
-  async getUserPublicMainRelays(pubkey: string): Promise<NostrUserRelays | null>;
+  getUserPublicMainRelays(nip5: Nip05): Promise<NostrUserRelays | null>;
+  getUserPublicMainRelays(npub: NPub): Promise<NostrUserRelays | null>;
+  getUserPublicMainRelays(nprofile: NProfile): Promise<NostrUserRelays | null>;
+  getUserPublicMainRelays(pubkey: string): Promise<NostrUserRelays | null>;
   async getUserPublicMainRelays(userPublicAddress: string): Promise<NostrUserRelays | null> {
     if (this.guard.isNip05(userPublicAddress)) {
       return this.loadMainRelaysFromNIP5(userPublicAddress);
@@ -87,6 +87,28 @@ export class RelayPublicConfigService {
     }
 
     return Promise.resolve(null);
+  }
+
+  getUserPublicOutboxRelays(nip5: Nip05): Promise<Array<WebSocket['url']>>;
+  getUserPublicOutboxRelays(npub: NPub): Promise<Array<WebSocket['url']>>;
+  getUserPublicOutboxRelays(nprofile: NProfile): Promise<Array<WebSocket['url']>>;
+  getUserPublicOutboxRelays(pubkey: string): Promise<Array<WebSocket['url']>>;
+  async getUserPublicOutboxRelays(userPublicAddress: string): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getUserPublicMainRelays(userPublicAddress);
+    const outbox = this.relayConverter.extractOutboxRelays(relays);
+
+    return Promise.resolve(outbox);
+  }
+
+  getUserPublicInboxRelays(nip5: Nip05): Promise<Array<WebSocket['url']>>;
+  getUserPublicInboxRelays(npub: NPub): Promise<Array<WebSocket['url']>>;
+  getUserPublicInboxRelays(nprofile: NProfile): Promise<Array<WebSocket['url']>>;
+  getUserPublicInboxRelays(pubkey: string): Promise<Array<WebSocket['url']>>;
+  async getUserPublicInboxRelays(userPublicAddress: string): Promise<Array<WebSocket['url']>> {
+    const relays = await this.getUserPublicMainRelays(userPublicAddress);
+    const inbox = this.relayConverter.extractInboxRelays(relays);
+
+    return Promise.resolve(inbox);
   }
 
   async loadMainRelaysFromProfilePointer(pointer: ProfilePointer): Promise<NostrUserRelays | null> {
