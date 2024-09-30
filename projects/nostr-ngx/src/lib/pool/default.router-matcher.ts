@@ -4,8 +4,8 @@ import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
 import { NostrConfig } from "../configs/nostr-config.interface";
 import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
-import { NostrGuard } from "../nostr/nostr.guard";
-import { RelayConverter } from "../nostr/relay.converter";
+import { NostrGuard } from "../nostr-utils/nostr.guard";
+import { RelayConverter } from "../nostr-utils/relay.converter";
 import { RelayLocalConfigService } from "./relay-local-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
 

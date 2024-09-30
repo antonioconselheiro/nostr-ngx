@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { BehaviorSubject } from 'rxjs';
-import { AccountsLocalStorage } from '../config-storage/accounts-local.storage';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
@@ -9,6 +9,7 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
 import { nip19 } from 'nostr-tools';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConfig } from '../configs/nostr-config.interface';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
 
 /**
  * manage account objects, manage the account list in localstorage and the current user account in sessionstorage
@@ -24,8 +25,14 @@ export class AccountManagerService {
 
   constructor(
     private accountsLocalStorage: AccountsLocalStorage,
+    private profileSessionStorage: ProfileSessionStorage,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
+
+  setCurrentAccount(account: Account): void {
+    this.accountsLocalStorage.patch({ currentPubkey: account.pubkey });
+    this.profileSessionStorage.patch({ account });
+  }
 
   async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
     const unauthenticated = this.accounts[account.pubkey] = { ...account, ncryptsec }
@@ -34,7 +41,7 @@ export class AccountManagerService {
     return Promise.resolve(unauthenticated);
   }
 
-  removeAccount(profile: UnauthenticatedAccount): void {
+  removeAccount(profile: Account): void {
     delete this.accounts[profile.pubkey];
     this.update();
   }

@@ -5,7 +5,7 @@ import { LRUCache } from 'lru-cache';
 import { nip19, NostrEvent } from 'nostr-tools';
 import { Nip05 } from '../domain/nip05.type';
 import { NPub } from '../domain/npub.type';
-import { NostrGuard } from '../nostr/nostr.guard';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { IdbProfileCache } from './idb-profile-cache.interface';
 import { NostrMetadataCached } from './nostr-metadata-cached.interface';
 

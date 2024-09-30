@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip04, nip19, nip44, NostrEvent } from 'nostr-tools';
 import { WindowNostr } from 'nostr-tools/nip07';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { ConfigsSessionStorage } from '../configs/configs-session.storage';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
 import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.error';
 import { NotSupportedBySigner } from '../exceptions/not-supported-by-signer.error';
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
-import { NSecCrypto } from '../nostr/nsec.crypto';
+import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -24,8 +24,8 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
   private static inMemoryNsec?: Uint8Array;
 
   constructor(
-    private sessionConfigs: ConfigsSessionStorage,
-    private localConfigs: ConfigsLocalStorage,
+    private sessionConfigs: ProfileSessionStorage,
+    private localConfigs: AccountsLocalStorage,
     private nsecCrypto: NSecCrypto
   ) { }
 
@@ -36,6 +36,16 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     if (opts?.saveSession) {
       this.sessionConfigs.patch({ nsec });
     }
+  }
+
+  async useExtension(): Promise<string> {
+    const pubkey = await this.getPublicKey();
+    this.localConfigs.patch({
+      currentPubkey: pubkey,
+      signer: 'extension'
+    });
+
+    return Promise.resolve(pubkey);
   }
 
   logout(): void {
@@ -51,6 +61,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     return nip19.nsecEncode(generateSecretKey());
   }
 
+  //  TODO: maybe I should remove this method?
   encryptNsec(password: string): Ncryptsec | null;
   encryptNsec(password: string, nsec: NSec): Ncryptsec; 
   encryptNsec(password: string, nsec?: NSec): Ncryptsec | null {
@@ -62,8 +73,8 @@ export class NostrSigner implements Omit<WindowNostr, 'getRelays'> {
     const local = this.localConfigs.read();
 
     if (local.signer === 'extension') {
-      //  FIXME: maybe should write a NIP suggestin to include a way to get a ncryptsec from extension
-      //  https://github.com/nostr-protocol/nips/issues/1516
+      //  TODO: I need to think how to treat this
+      //  extension will never return ncryptsec to client 
       return null;
     }
 

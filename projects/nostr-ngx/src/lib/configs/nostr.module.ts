@@ -15,7 +15,7 @@ import { ProfileSessionStorage } from './profile-session.storage';
     ProfileSessionStorage
   ]
 })
-export class NostrConfigModule {
+export class NostrModule {
 
   static config(configs: {
     defaultProfile?: {
@@ -23,7 +23,7 @@ export class NostrConfigModule {
       banner?: string;
     },
     defaultFallback?: RelayRecord;
-  }): ModuleWithProviders<NostrConfigModule> {
+  }): ModuleWithProviders<NostrModule> {
     if (configs.defaultProfile) {
       if (configs.defaultProfile.picture) {
         nostrConfig.defaultProfile.picture = configs.defaultProfile.picture;
@@ -39,7 +39,7 @@ export class NostrConfigModule {
     }
 
     return {
-      ngModule: NostrConfigModule,
+      ngModule: NostrModule,
       providers: [
         {
           provide: NOSTR_CONFIG_TOKEN,

@@ -1,21 +1,21 @@
 import { Inject, Injectable } from "@angular/core";
-import { NostrPool } from "./nostr.pool";
+import { kinds, nip19 } from "nostr-tools";
+import { queryProfile } from "nostr-tools/nip05";
+import { ProfilePointer } from "nostr-tools/nip19";
+import { RelayRecord } from "nostr-tools/relay";
+import { AccountsLocalStorage } from "../configs/accounts-local.storage";
+import { NostrConfig } from "../configs/nostr-config.interface";
+import { NostrUserRelays } from "../configs/nostr-user-relays.interface";
+import { ProfileSessionStorage } from "../configs/profile-session.storage";
+import { Nip05 } from "../domain/nip05.type";
 import { NProfile } from "../domain/nprofile.type";
 import { NPub } from "../domain/npub.type";
-import { Nip05 } from "../domain/nip05.type";
-import { NostrUserRelays } from "../configs/nostr-user-relays.interface";
-import { RelayRecord } from "nostr-tools/relay";
-import { ConfigsLocalStorage } from "../configs/configs-local.storage";
-import { ConfigsSessionStorage } from "../configs/configs-session.storage";
-import { RelayLocalConfigService } from "./relay-local-config.service";
-import { NostrGuard } from "../nostr/nostr.guard";
-import { ProfilePointer } from "nostr-tools/nip19";
-import { kinds, nip19 } from "nostr-tools";
-import { NostrConverter } from "../nostr/nostr.converter";
-import { queryProfile } from "nostr-tools/nip05";
-import { RelayConverter } from "../nostr/relay.converter";
-import { NostrConfig } from "../configs/nostr-config.interface";
 import { NOSTR_CONFIG_TOKEN } from "../injection-token/nostr-config.token";
+import { NostrConverter } from "../nostr-utils/nostr.converter";
+import { NostrGuard } from "../nostr-utils/nostr.guard";
+import { RelayConverter } from "../nostr-utils/relay.converter";
+import { NostrPool } from "./nostr.pool";
+import { RelayLocalConfigService } from "./relay-local-config.service";
 
 /**
  * this service offers all possibles ways to load a user relay config
@@ -32,8 +32,8 @@ export class RelayPublicConfigService {
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
     private nostrConverter: NostrConverter,
-    private configsLocal: ConfigsLocalStorage,
-    private configSession: ConfigsSessionStorage,
+    private configsLocal: AccountsLocalStorage,
+    private configSession: ProfileSessionStorage,
     private relayLocalConfigService: RelayLocalConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>,
     private npool: NostrPool

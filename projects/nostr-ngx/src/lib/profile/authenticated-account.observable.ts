@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { AccountsLocalStorage } from '../config-storage/accounts-local.storage';
-import { ProfileSessionStorage } from '../config-storage/profile-session.storage';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { NostrConverter } from '../nostr/nostr.converter';
-import { NSecCrypto } from '../nostr/nsec.crypto';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
+import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { ProfileService } from './profile.service';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
 
   authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
-    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     this.profileSessionStorage.clear();
     this.profileSessionStorage.patch({ account });
 
@@ -45,7 +45,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
   }
 
   authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<Account> {
-    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     this.profileSessionStorage.clear();
 
     if (saveNSecInSessionStorage) {
@@ -57,7 +57,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
 
   async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
-    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const account = await this.updateProfile(user.pubkey);
 
     account.ncryptsec = ncryptsec;

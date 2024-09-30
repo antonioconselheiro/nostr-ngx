@@ -2,16 +2,16 @@ import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent, kinds, nip19 } from 'nostr-tools';
 import { ProfilePointer } from 'nostr-tools/nip19';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
 import { NProfile } from '../domain/nprofile.type';
 import { NPub } from '../domain/npub.type';
 import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
-import { NostrConverter } from '../nostr/nostr.converter';
-import { NostrGuard } from '../nostr/nostr.guard';
-import { RelayConverter } from '../nostr/relay.converter';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountManagerService } from './account-manager.service';
 import { NostrSigner } from './nostr.signer';
@@ -33,7 +33,7 @@ export class ProfileService {
 
   constructor(
     private guard: NostrGuard,
-    private configs: ConfigsLocalStorage,
+    private localConfigs: AccountsLocalStorage,
     private profileNostr: ProfileNostr,
     private nostrSigner: NostrSigner,
     private profileCache: ProfileCache,
@@ -127,7 +127,7 @@ export class ProfileService {
 
   //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount> {
-    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
     const account = await this.getAccount(user.pubkey);
 
@@ -138,21 +138,21 @@ export class ProfileService {
    * Include account to login later
    */
   addUnauthenticatedAccount(account: UnauthenticatedAccount): void {
-    const local = this.configs.read();
+    const local = this.localConfigs.read();
     if (!local.accounts) {
       local.accounts = {};
     }
 
     local.accounts[account.pubkey] = account;
-    this.configs.save(local);
+    this.localConfigs.save(local);
   }
 
   removeUnauthenticatedAccount(pubkey: string): void {
-    const local = this.configs.read();
+    const local = this.localConfigs.read();
     if (local.accounts) {
       delete local.accounts[pubkey];
     }
 
-    this.configs.save(local);
+    this.localConfigs.save(local);
   }
 }

@@ -1,7 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { NSecCrypto } from './nsec.crypto';
 import { NostrConverter } from './nostr.converter';
 import { NostrGuard } from './nostr.guard';
@@ -13,9 +11,7 @@ import { NostrGuard } from './nostr.guard';
   providers: [
     NostrGuard,
     NostrConverter,
-    NSecCrypto,
-    ConfigsSessionStorage,
-    ConfigsLocalStorage
+    NSecCrypto
   ]
 })
-export class NostrModule { }
+export class NostrUtilsModule { }

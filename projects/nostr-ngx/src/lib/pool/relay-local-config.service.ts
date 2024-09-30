@@ -3,12 +3,12 @@ import { NCache } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
-import { ConfigsLocalStorage } from '../configs/configs-local.storage';
-import { ConfigsSessionStorage } from '../configs/configs-session.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
-import { NostrGuard } from '../nostr/nostr.guard';
-import { RelayConverter } from '../nostr/relay.converter';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { RelayConverter } from '../nostr-utils/relay.converter';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -25,8 +25,8 @@ export class RelayLocalConfigService {
   constructor(
     private guard: NostrGuard,
     private relayConverter: RelayConverter,
-    private configsLocal: ConfigsLocalStorage,
-    private configSession: ConfigsSessionStorage,
+    private configsLocal: AccountsLocalStorage,
+    private configSession: ProfileSessionStorage,
     @Inject(MAIN_NCACHE_TOKEN) private ncache: NCache
   ) { }
 

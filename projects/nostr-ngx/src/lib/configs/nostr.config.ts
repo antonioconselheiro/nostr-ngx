@@ -1,4 +1,4 @@
-import { NostrConfig } from '../configs/nostr-config.interface';
+import { NostrConfig } from './nostr-config.interface';
 
 // TODO: config must be updated by path, they must not be all override by a partial object
 // just copied njump relay config
