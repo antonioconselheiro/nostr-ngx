@@ -1,14 +1,14 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AuthModalSteps } from '../auth-modal-steps.type';
 import { AuthenticatedAccountObservable, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-authenticate-form',
   templateUrl: './authenticate-form.component.html',
   styleUrl: './authenticate-form.component.scss'
 })
-export class AuthenticateFormComponent implements OnInit, AfterViewInit {
+export class AuthenticateFormComponent implements OnInit {
 
   @Input()
   account: UnauthenticatedAccount | null = null;
@@ -18,9 +18,6 @@ export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   @Output()
   close = new EventEmitter<void>();
-
-  @ViewChild('showPassword')
-  passwordField?: ElementRef;
 
   showPassword = false;
   submitted = false;
@@ -38,10 +35,6 @@ export class AuthenticateFormComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.initForm();
-  }
-
-  ngAfterViewInit(): void {
-    this.passwordField?.nativeElement?.focus();
   }
 
   private initForm(): void {

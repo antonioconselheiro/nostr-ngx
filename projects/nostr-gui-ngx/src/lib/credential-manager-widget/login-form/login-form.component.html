@@ -1,5 +1,5 @@
 <h2 class="title">Login</h2>
-<form [formGroup]="accountForm" (submit)="onAddAccountSubmit($event)" novalidate autocomplete="off" id="accountForm">
+<form [formGroup]="loginForm" (submit)="onLoginSubmit($event)" novalidate autocomplete="off" id="loginForm">
   <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
     <input #nsec required name="nsec" maxlength="64" formControlName="nsec" placeholder=" "
       id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" type="password" />
@@ -73,7 +73,7 @@
     </span>
   </button>
 
-  <button type="submit" title="login" class="button iconedButton" form="accountForm">
+  <button type="submit" title="login" class="button iconedButton" form="loginForm">
     <nostr-svg-render *ngIf="!loading" class="inlineIcon" name="right"></nostr-svg-render>
     <nostr-loading *ngIf="loading"></nostr-loading>
 

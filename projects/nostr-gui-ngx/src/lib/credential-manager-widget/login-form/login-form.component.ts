@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, Ncryptsec, NostrConverter, NostrSigner, NSec, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, AccountsLocalStorage, Ncryptsec, NostrConverter, NostrSigner, NSec, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -35,7 +35,7 @@ export class LoginFormComponent implements OnInit {
     ]
   };
 
-  accountForm!: FormGroup<{
+  loginForm!: FormGroup<{
     nsec: FormControl<string | null>;
     saveNcryptsecLocalStorage: FormControl<boolean | null>;
     password: FormControl<string | null>;
@@ -47,6 +47,7 @@ export class LoginFormComponent implements OnInit {
     private profileService: ProfileService,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
+    private accountsLocalStorage: AccountsLocalStorage,
     private accountManagerService: AccountManagerService
   ) { }
 
@@ -55,24 +56,24 @@ export class LoginFormComponent implements OnInit {
   }
 
   private initForm(): void {
-    this.accountForm = this.fb.group({
+    this.loginForm = this.fb.group({
       nsec: ['', [
         Validators.required.bind(this),
         NostrValidators.nsec
       ]],
 
-      saveNcryptsecLocalStorage: [true],
+      saveNcryptsecLocalStorage: [false],
 
       password: ['']
     }, this.formOptions);
   }
 
   getFormControlErrors(fieldName: LoginFormFields): ValidationErrors | null {
-    return this.accountForm.controls[fieldName].errors;
+    return this.loginForm.controls[fieldName].errors;
   }
 
   getFormControlErrorStatus(fieldName: LoginFormFields, error: string): boolean {
-    const errors = this.accountForm.controls[fieldName].errors || {};
+    const errors = this.loginForm.controls[fieldName].errors || {};
     return errors[error] || false;
   }
 
@@ -80,7 +81,21 @@ export class LoginFormComponent implements OnInit {
     return /^ncryptsec/.test(nsecFieldValue) || saveNSecEncryptedChecked;
   }
 
-  async onAddAccountSubmit(event: SubmitEvent): Promise<void> {
+  async onUseSigner(): Promise<void> {
+    this.accountsLocalStorage.patch({
+      signer: 'extension'
+    });
+
+    if (this.nostrSigner.hasSignerExtension()) {
+      //  TODO: include listener to check account changing in extension
+      const pubkey = await this.nostrSigner.useExtension();
+      const account = await this.profileService.getAccount(pubkey);
+    } else {
+      this.changeStep.next('downloadSigner');
+    }
+  }
+
+  async onLoginSubmit(event: SubmitEvent): Promise<void> {
     event.stopPropagation();
     event.preventDefault();
 
@@ -89,16 +104,16 @@ export class LoginFormComponent implements OnInit {
     }
 
     this.submitted = true;
-    if (!this.accountForm.valid) {
+    if (!this.loginForm.valid) {
       return Promise.resolve();
     }
 
-    const { password, nsec } = this.accountForm.getRawValue() as { password: string, nsec: NSec };
+    const { password, nsec } = this.loginForm.getRawValue() as { password: string, nsec: NSec };
     if (!nsec || !password) {
       return Promise.resolve();
     }
 
-    const user = this.nostrConverter.convertNsecToNpub(nsec);
+    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
 
     this.loading = true;
@@ -113,12 +128,12 @@ export class LoginFormComponent implements OnInit {
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {
     const nsec = await this.camera$.readQrCode();
-    this.accountForm.patchValue({ nsec });
+    this.loginForm.patchValue({ nsec });
     return Promise.resolve();
   }
 
   private async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
-    this.accountForm.reset();
+    this.loginForm.reset();
     const unauthenticatedAccount = await this.accountManagerService.addAccount(account, ncryptsec)
     if (!unauthenticatedAccount) {
       this.changeStep.next('selectAccount');
@@ -128,5 +143,9 @@ export class LoginFormComponent implements OnInit {
     }
 
     return Promise.resolve(unauthenticatedAccount);
+  }
+
+  private setCurrentAccount(): void {
+    
   }
 }

@@ -3,5 +3,5 @@
 [ ] Internacionalization
 [ ] Include screen to Mute Keywords and Lists https://nostrdesign.org/docs/reference-designs/onboarding/
 [ ] Cast scss into a more clean implementation
-[ ] Remove svg record
+[ ] Todos os campos com id devem receber um hash para garantir que esse id nunca se repita nas aplicações que estiverem utilizando a lib
 

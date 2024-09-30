@@ -54,11 +54,6 @@ export class CredentialHandlerService {
       .build();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  downloadCredentials(): void {
-    // TODO:
-  }
-
   downloadSigner(): void {
     this.modalService
       .createModal(ModalNostrCredentialComponent)
