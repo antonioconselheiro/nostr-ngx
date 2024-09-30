@@ -173,6 +173,12 @@ export class RelayPublicConfigService {
     return Promise.resolve(null);
   }
 
+  /**
+   * @param userPublicAddress nip5, npub, nprofile or pubkey
+   * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
+   * @returns a user publically configured relay list
+   */
+  getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
 
   /**
    * @returns user list of blocked relays, using NIP5.
@@ -227,13 +233,6 @@ export class RelayPublicConfigService {
    * @returns user configured relays for direct message, using hexadecimal pubkey.
    */
   getUserRelayList(pubkey: string, kind: 10050): Promise<Array<WebSocket['url']> | null>;
-
-  /**
-   * @param userPublicAddress nip5, npub, nprofile or pubkey
-   * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
-   * @returns a user publically configured relay list
-   */
-  getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
     if (this.guard.isNip05(userPublicAddress)) {
       return this.loadRelayListFromNIP5(userPublicAddress, kind);

@@ -12,3 +12,6 @@ This libraries will help you to use nostr protocol with angular.
 
 ## Release
 Not released yet
+
+TODO
+[ ] Group chat

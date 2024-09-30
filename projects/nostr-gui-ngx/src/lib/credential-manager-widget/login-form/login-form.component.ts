@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, AccountsLocalStorage, Ncryptsec, NostrConverter, NostrSigner, NSec, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, AccountsLocalStorage, Ncryptsec, NostrConverter, NostrSigner, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -45,6 +45,7 @@ export class LoginFormComponent implements OnInit {
     private fb: FormBuilder,
     private camera$: CameraObservable,
     private profileService: ProfileService,
+    private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
     private accountsLocalStorage: AccountsLocalStorage,
@@ -88,8 +89,7 @@ export class LoginFormComponent implements OnInit {
 
     if (this.nostrSigner.hasSignerExtension()) {
       //  TODO: include listener to check account changing in extension
-      const pubkey = await this.nostrSigner.useExtension();
-      const account = await this.profileService.getAccount(pubkey);
+      await this.nostrSigner.useExtension();
     } else {
       this.changeStep.next('downloadSigner');
     }
@@ -114,7 +114,7 @@ export class LoginFormComponent implements OnInit {
     }
 
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
-    const ncrypted = this.nostrSigner.encryptNsec(password, nsec);
+    const ncrypted = this.nsecCrypto.encryptNSec(nsec, password);
 
     this.loading = true;
 
@@ -143,9 +143,5 @@ export class LoginFormComponent implements OnInit {
     }
 
     return Promise.resolve(unauthenticatedAccount);
-  }
-
-  private setCurrentAccount(): void {
-    
   }
 }

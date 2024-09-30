@@ -1,10 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Ncryptsec, NostrSigner, NSecCrypto } from '@belomonte/nostr-ngx';
+import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { ChoosePasswordFields } from './choose-password-fields.type';
-import { CreatingAccount } from '../../../domain/creating-account.interface';
-import { Ncryptsec, NostrSigner } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-choose-password',
@@ -42,6 +42,7 @@ export class ChoosePasswordComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner
   ) { }
 
@@ -64,7 +65,7 @@ export class ChoosePasswordComponent implements OnInit {
   }
 
   updateNcryptsec(password: string): void {
-    const ncryptsec = this.nostrSigner.encryptNsec(password);
+    const ncryptsec = this.nostrSigner.getInMemoryNCryptsec(password);
     this.ncryptsec = ncryptsec;
   }
 

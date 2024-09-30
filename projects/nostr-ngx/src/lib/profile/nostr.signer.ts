@@ -56,7 +56,13 @@ export class NostrSigner implements WindowNostr {
       signer: 'extension'
     });
 
-    //  FIXME: account must be load using user relays config
+    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
+    if (opts) {
+      opts.useOnly = [ ...opts.useOnly || [], ...relays ];
+    } else {
+      opts = { useOnly: relays };
+    }
+
     const account = await this.profileService.getAccount(pubkey, opts);
     this.sessionConfigs.patch({ account });
 
@@ -138,6 +144,15 @@ export class NostrSigner implements WindowNostr {
     } else {
       return Promise.reject(new NoCredentialsFoundError());
     }
+  }
+
+  async getNProfile(): Promise<NProfile> {
+    const pubkey = await this.getPublicKey();
+    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
+
+    return nip19.nprofileEncode({
+      pubkey, relays
+    });
   }
 
   readonly nip04 = {
@@ -268,14 +283,5 @@ export class NostrSigner implements WindowNostr {
     }
 
     return Promise.resolve(null);
-  }
-
-  async getNProfile(): Promise<NProfile> {
-    const pubkey = await this.getPublicKey();
-    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
-
-    return nip19.nprofileEncode({
-      pubkey, relays
-    });
   }
 }

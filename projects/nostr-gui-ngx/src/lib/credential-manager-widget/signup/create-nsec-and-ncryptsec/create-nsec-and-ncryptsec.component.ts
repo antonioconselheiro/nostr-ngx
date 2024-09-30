@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec, NSecCrypto } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -34,6 +34,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     private fb: FormBuilder,
     private qrcodeService: QrcodeService,
     private nostrSigner: NostrSigner,
+    private nsecCrypto: NSecCrypto,
     private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
   ) { }
@@ -45,7 +46,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   private initForm(): void {
     const password = this.creatingAccount?.password || '';
     const nsec = this.nostrSigner.generateNsec();
-    const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
+    const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
 
     this.generateNcryptsecForm = this.fb.group({
       qrcodeTitle: [this.creatingAccount.displayName],
@@ -60,7 +61,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   generateNsec(): void {
     const password = this.creatingAccount?.password || '';
     const nsec = this.nostrSigner.generateNsec();
-    const ncryptsec = this.nostrSigner.encryptNsec(password, nsec);
+    const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
 
     this.generateNcryptsecForm.patchValue({ nsec, ncryptsec });
     this.renderQrcode();
