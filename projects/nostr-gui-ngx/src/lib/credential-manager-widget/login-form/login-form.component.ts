@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, CurrentAccountObservable, Ncryptsec, NostrConverter, NostrSigner, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, CurrentAccountObservable, Ncryptsec, NostrConverter, NostrGuard, NostrSigner, NPub, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -36,19 +36,20 @@ export class LoginFormComponent implements OnInit {
   };
 
   loginForm!: FormGroup<{
-    nsec: FormControl<string | null>;
+    nsec: FormControl<NSec | Ncryptsec | null>;
     saveNcryptsecLocalStorage: FormControl<boolean | null>;
     password: FormControl<string | null>;
   }>;
 
   constructor(
     private fb: FormBuilder,
-    private camera$: CameraObservable,
-    private profileService: ProfileService,
-    private profile$: CurrentAccountObservable,
+    private guard: NostrGuard,
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
+    private camera$: CameraObservable,
     private nostrConverter: NostrConverter,
+    private profileService: ProfileService,
+    private profile$: CurrentAccountObservable,
     private accountManagerService: AccountManagerService
   ) { }
 
@@ -58,7 +59,7 @@ export class LoginFormComponent implements OnInit {
 
   private initForm(): void {
     this.loginForm = this.fb.group({
-      nsec: ['', [
+      nsec: [null as NSec | Ncryptsec | null, [
         Validators.required.bind(this),
         NostrValidators.nsec
       ]],
@@ -89,6 +90,7 @@ export class LoginFormComponent implements OnInit {
     }
   }
 
+  // eslint-disable-next-line complexity
   async onLoginSubmit(event: SubmitEvent): Promise<void> {
     event.stopPropagation();
     event.preventDefault();
@@ -102,19 +104,42 @@ export class LoginFormComponent implements OnInit {
       return Promise.resolve();
     }
 
-    const { password, nsec } = this.loginForm.getRawValue() as { password: string, nsec: NSec };
-    if (!nsec || !password) {
+    const { password, nsec, saveNcryptsecLocalStorage } = this.loginForm.getRawValue();
+    if (!nsec) {
       return Promise.resolve();
     }
-
-    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
-    const ncrypted = this.nsecCrypto.encryptNSec(nsec, password);
 
     this.loading = true;
 
     try {
-      const account = await this.profileService.getAccount(user.pubkey);
-      await this.addAccount(account, ncrypted);
+      let ncrypted: Ncryptsec | undefined = undefined;
+      let account: Account;
+      let user: {
+        npub: NPub;
+        pubkey: string;
+      };
+
+      if (this.guard.isNSec(nsec)) {
+        user = this.nostrConverter.convertNsecToPublicKeys(nsec);
+        if (password) {
+          ncrypted = this.nsecCrypto.encryptNSec(nsec, password);
+        }
+        account = await this.profile$.authenticateWithNSec(nsec, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+      } else if (this.guard.isNcryptsec(nsec) && password) {
+        ncrypted = nsec;
+        user = this.nostrConverter.convertNsecToPublicKeys(this.nsecCrypto.decryptNcryptsec(nsec, password));
+        account = await this.profile$.authenticateWithNcryptsec(ncrypted, password, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+      } else {
+        return Promise.reject(new Error('invalid credential given'));
+      }
+
+
+      if (ncrypted && saveNcryptsecLocalStorage) {
+        if (!account) {
+          account = await this.profileService.getAccount(user.pubkey);
+        }
+        await this.addAccount(account, ncrypted);
+      }
     } finally {
       this.loading = false;
     }
@@ -122,7 +147,10 @@ export class LoginFormComponent implements OnInit {
 
   async asyncReadQrcodeUsingCamera(): Promise<void> {
     const nsec = await this.camera$.readQrCode();
-    this.loginForm.patchValue({ nsec });
+    if (this.guard.isNSec(nsec) || this.guard.isNcryptsec(nsec)) {
+      this.loginForm.patchValue({ nsec });
+    }
+
     return Promise.resolve();
   }
 
