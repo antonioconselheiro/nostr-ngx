@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, AccountsLocalStorage, Ncryptsec, NostrConverter, NostrSigner, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, CurrentAccountObservable, Ncryptsec, NostrConverter, NostrSigner, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
@@ -45,10 +45,10 @@ export class LoginFormComponent implements OnInit {
     private fb: FormBuilder,
     private camera$: CameraObservable,
     private profileService: ProfileService,
+    private profile$: CurrentAccountObservable,
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
     private nostrConverter: NostrConverter,
-    private accountsLocalStorage: AccountsLocalStorage,
     private accountManagerService: AccountManagerService
   ) { }
 
@@ -83,14 +83,8 @@ export class LoginFormComponent implements OnInit {
   }
 
   async onUseSigner(): Promise<void> {
-    this.accountsLocalStorage.patch({
-      signer: 'extension'
-    });
-
-    if (this.nostrSigner.hasSignerExtension()) {
-      //  TODO: include listener to check account changing in extension
-      await this.nostrSigner.useExtension();
-    } else {
+    await this.profile$.useExtension();
+    if (!this.nostrSigner.hasSignerExtension()) {
       this.changeStep.next('downloadSigner');
     }
   }

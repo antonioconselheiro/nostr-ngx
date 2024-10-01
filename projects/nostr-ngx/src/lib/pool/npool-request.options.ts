@@ -11,7 +11,7 @@ export interface NPoolRequestOptions {
   /**
    * Relays to be included in the operation
    */
-  include?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | NProfile>;
+  include?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | NProfile | undefined | null>;
 
   /**
    * Limit operation to these relays

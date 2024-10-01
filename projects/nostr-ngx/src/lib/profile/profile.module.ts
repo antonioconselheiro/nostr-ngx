@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { AccountManagerService } from './account-manager.service';
-import { AuthenticatedAccountObservable } from './authenticated-account.observable';
+import { CurrentAccountObservable } from './current-account.observable';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileService } from './profile.service';
@@ -17,7 +17,7 @@ import { PoolModule } from '../pool/pool.module';
     ProfileCache,
     ProfileService,
     AccountManagerService,
-    AuthenticatedAccountObservable
+    CurrentAccountObservable
   ]
 })
 export class ProfileModule { }

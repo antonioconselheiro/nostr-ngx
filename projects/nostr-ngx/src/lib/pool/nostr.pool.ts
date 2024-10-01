@@ -50,4 +50,46 @@ export class NostrPool extends FacadeNPool {
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
     return super.req(filters, opts);
   }
+
+  mergeOptions(optsA?: NPoolRequestOptions, optsB?: NPoolRequestOptions): NPoolRequestOptions {
+    if (optsA && optsB) {
+      return this.mergeDefinedOptions(optsA, optsB);
+    } else if (optsA) {
+      return optsA;
+    } else if (optsB) {
+      return optsB;
+    } else {
+      return {};
+    }
+  }
+
+  // FIXME: solve cyclomatic complexity for this method by spliting it in minor pieces of logic
+  // eslint-disable-next-line complexity
+  private mergeDefinedOptions(optsA: NPoolRequestOptions, optsB: NPoolRequestOptions): NPoolRequestOptions {
+    const ignoreCache = optsA.ignoreCache || optsB.ignoreCache || false;
+    const include = [ ...optsA.include || [], ...optsB.include || [] ];
+    const useOnly = [ ...optsA.useOnly || [], ...optsB.useOnly || [] ];
+
+    //  FIXME: not the best way of merging it, but solving this is not priority
+    const signal = optsA.signal || optsB.signal;
+
+    const opts: NPoolRequestOptions = {};
+    if (ignoreCache) {
+      opts.ignoreCache = true;
+    }
+
+    if (include.length) {
+      opts.include = include;
+    }
+
+    if (useOnly.length) {
+      opts.useOnly = useOnly;
+    }
+
+    if (signal) {
+      opts.signal = signal;
+    }
+
+    return opts;
+  }
 }

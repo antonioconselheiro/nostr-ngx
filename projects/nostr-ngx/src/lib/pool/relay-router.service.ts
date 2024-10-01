@@ -77,7 +77,7 @@ export class RelayRouterService implements NpoolRouterOptions {
     return new Map(subscriptions);
   }
 
-  private parseRelayList(list?: Array<WebSocket['url'] | NostrEvent | ProfilePointer>): Array<WebSocket["url"]> {
+  private parseRelayList(list?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | undefined | null>): Array<WebSocket["url"]> {
     let parsed = new Array<WebSocket["url"]>;
 
     if (!list?.length) {
@@ -85,7 +85,9 @@ export class RelayRouterService implements NpoolRouterOptions {
     }
 
     list.forEach(stuff => {
-      if (typeof stuff === 'string') {
+      if (!stuff) {
+        return;
+      } else if (typeof stuff === 'string') {
         parsed.push(stuff);
       } else if ('id' in stuff) {
         if (!this.nostrGuard.isKind(stuff, NostrEventKind.RelayList)) {

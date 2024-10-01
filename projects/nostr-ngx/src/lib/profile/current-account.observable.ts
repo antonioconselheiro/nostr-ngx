@@ -8,17 +8,25 @@ import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
+import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { RelayPublicConfigService } from '../pool/relay-public-config.service';
+import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
+import { RelayConverter } from '../nostr-utils/relay.converter';
 
+// TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
   providedIn: 'root'
 })
-export class AuthenticatedAccountObservable extends BehaviorSubject<Account | null> {
+export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
 
   constructor(
+    private nsecCrypto: NSecCrypto,
+    private nostrSigner: NostrSigner,
     private profileService: ProfileService,
     private nostrConverter: NostrConverter,
-    private nsecCrypto: NSecCrypto,
+    private relayConverter: RelayConverter,
+    private relayPublicConfig: RelayPublicConfigService,
     private profileSessionStorage: ProfileSessionStorage,
     private accountLocalStorage: AccountsLocalStorage
   ) {
@@ -31,6 +39,26 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
     super(account);
   }
 
+  /**
+   * @returns account of current authenticated user, return null if there is no user set in signer
+   */
+    async useExtension(opts?: NPoolRequestOptions): Promise<Account | null> {
+      const pubkey = await this.nostrSigner.getPublicKey();
+      this.accountLocalStorage.patch({
+        currentPubkey: pubkey,
+        signer: 'extension'
+      });
+  
+      if (!pubkey) {
+        return Promise.resolve(null);
+      }
+
+      const account = await this.profileService.getAccount(pubkey, opts);
+      this.profileSessionStorage.patch({ account });
+  
+      return Promise.resolve(account);
+    }
+
   authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
@@ -41,7 +69,7 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
       this.profileSessionStorage.patch({ nsec });
     }
 
-    return this.updateProfile(user.pubkey);
+    return this.updateCurrentProfile(user.pubkey);
   }
 
   authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<Account> {
@@ -52,13 +80,13 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
       this.profileSessionStorage.patch({ nsec });
     }
 
-    return this.updateProfile(user.pubkey);
+    return this.updateCurrentProfile(user.pubkey);
   }
 
   async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
-    const account = await this.updateProfile(user.pubkey);
+    const account = await this.updateCurrentProfile(user.pubkey);
 
     account.ncryptsec = ncryptsec;
     this.profileSessionStorage.clear();
@@ -71,16 +99,16 @@ export class AuthenticatedAccountObservable extends BehaviorSubject<Account | nu
     return Promise.resolve(account);
   }
 
-  private updateProfile(pubkey: string, signer?: 'extension'): Promise<Account> {
+  private async updateCurrentProfile(pubkey: string): Promise<Account> {
+    const relays = await this.relayPublicConfig.loadCurrentUserRelays();
+    const outbox = this.relayConverter.extractOutboxRelays(relays?.general || null)
+
     return this.profileService
-      .getAccount(pubkey)
+      .getAccount(pubkey, {
+        include: outbox
+      })
       .then((account) => {
         this.profileSessionStorage.save({ account });
-
-        if (signer) {
-          this.accountLocalStorage.patch({ signer });
-        }
-
         this.next(account);
 
         return Promise.resolve(account);

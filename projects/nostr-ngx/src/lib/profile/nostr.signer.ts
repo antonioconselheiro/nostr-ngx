@@ -1,20 +1,17 @@
 import { Injectable } from '@angular/core';
 import { EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip04, nip19, nip44, NostrEvent } from 'nostr-tools';
 import { WindowNostr } from 'nostr-tools/nip07';
+import { RelayRecord } from 'nostr-tools/relay';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Ncryptsec } from '../domain/ncryptsec.type';
+import { NProfile } from '../domain/nprofile.type';
 import { NSec } from '../domain/nsec.type';
 import { NoCredentialsFoundError } from '../exceptions/no-credentials-found.error';
 import { NotSupportedBySigner } from '../exceptions/not-supported-by-signer.error';
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
-import { NPoolRequestOptions } from '../pool/npool-request.options';
-import { ProfileService } from './profile.service';
-import { Account } from '../domain/account.interface';
-import { RelayRecord } from 'nostr-tools/relay';
-import { NProfile } from '../domain/nprofile.type';
-import { RelayPublicConfigService } from '../pool/relay-public-config.service';
+import { RelayLocalConfigService } from '../pool/relay-local-config.service';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -25,48 +22,24 @@ import { RelayPublicConfigService } from '../pool/relay-public-config.service';
 @Injectable({
   providedIn: 'root'
 })
-export class NostrSigner implements WindowNostr {
+export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelays'> {
 
-  private static inMemoryNsec?: Uint8Array;
+  #inMemoryNsec?: Uint8Array;
 
   constructor(
     private sessionConfigs: ProfileSessionStorage,
     private localConfigs: AccountsLocalStorage,
     private nsecCrypto: NSecCrypto,
-    private profileService: ProfileService,
-    private relayPublicConfig: RelayPublicConfigService
+    private relayLocalConfig: RelayLocalConfigService
   ) { }
 
   login(nsec: NSec, opts?: { saveSession: boolean }): void {
     const { data } = nip19.decode(nsec);
-    NostrSigner.inMemoryNsec = data as Uint8Array;
+    this.#inMemoryNsec = data as Uint8Array;
 
     if (opts?.saveSession) {
       this.sessionConfigs.patch({ nsec });
     }
-  }
-
-  /**
-   * @param opts request options to load account
-   */
-  async useExtension(opts?: NPoolRequestOptions): Promise<Account> {
-    const pubkey = await this.getPublicKey();
-    this.localConfigs.patch({
-      currentPubkey: pubkey,
-      signer: 'extension'
-    });
-
-    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
-    if (opts) {
-      opts.useOnly = [ ...opts.useOnly || [], ...relays ];
-    } else {
-      opts = { useOnly: relays };
-    }
-
-    const account = await this.profileService.getAccount(pubkey, opts);
-    this.sessionConfigs.patch({ account });
-
-    return Promise.resolve(account);
   }
 
   logout(): void {
@@ -76,7 +49,7 @@ export class NostrSigner implements WindowNostr {
       delete configs.currentPubkey;
       return configs;
     });
-    delete NostrSigner.inMemoryNsec;
+    this.#inMemoryNsec = undefined;
   }
 
   generateNsec(): NSec {
@@ -84,8 +57,8 @@ export class NostrSigner implements WindowNostr {
   }
 
   getInMemoryNCryptsec(password: string): Ncryptsec | null {
-    if (NostrSigner.inMemoryNsec) {
-      return this.nsecCrypto.encryptNSec(NostrSigner.inMemoryNsec, password);
+    if (this.#inMemoryNsec) {
+      return this.nsecCrypto.encryptNSec(this.#inMemoryNsec, password);
     }
 
     return null;
@@ -94,15 +67,15 @@ export class NostrSigner implements WindowNostr {
   /**
    * @throws NoCredentialsFoundError
    */
-  private getNSec(): Promise<Uint8Array> {
-    if (NostrSigner.inMemoryNsec) {
-      return Promise.resolve(NostrSigner.inMemoryNsec);
+  #getNSec(): Promise<Uint8Array> {
+    if (this.#inMemoryNsec) {
+      return Promise.resolve(this.#inMemoryNsec);
     }
 
     const { nsec } = this.sessionConfigs.read();
     if (nsec) {
       const { data } = nip19.decode(nsec);
-      NostrSigner.inMemoryNsec = data;
+      this.#inMemoryNsec = data;
     }
 
     return Promise.reject(new SignerNotFoundError());
@@ -134,22 +107,25 @@ export class NostrSigner implements WindowNostr {
   }
 
   private async signWithClient(event: EventTemplate): Promise<NostrEvent> {
-    const nsec = await this.getNSec();
+    const nsec = await this.#getNSec();
     return finalizeEvent(event, nsec);
   }
 
-  getPublicKey(): Promise<string> {
-    if (NostrSigner.inMemoryNsec) {
-      return Promise.resolve(getPublicKey(NostrSigner.inMemoryNsec));
+  getPublicKey(): Promise<string | undefined> {
+    if (this.#inMemoryNsec) {
+      return Promise.resolve(getPublicKey(this.#inMemoryNsec));
     } else {
-      return Promise.reject(new NoCredentialsFoundError());
+      return Promise.resolve(undefined);
     }
   }
 
-  async getNProfile(): Promise<NProfile> {
+  async getNProfile(): Promise<NProfile | undefined> {
     const pubkey = await this.getPublicKey();
-    const relays = await this.relayPublicConfig.getUserPublicOutboxRelays(pubkey);
+    if (!pubkey) {
+      return Promise.resolve(undefined);
+    }
 
+    const relays = await this.relayLocalConfig.getUserOutboxRelays(pubkey);
     return nip19.nprofileEncode({
       pubkey, relays
     });
@@ -175,7 +151,7 @@ export class NostrSigner implements WindowNostr {
           return Promise.reject(new SignerNotFoundError());
         }
       } else {
-        const nsec = await this.getNSec();
+        const nsec = await this.#getNSec();
         return nip04.encrypt(nsec, pubkey, plaintext);
       }
     },
@@ -199,7 +175,7 @@ export class NostrSigner implements WindowNostr {
           return Promise.reject(new SignerNotFoundError());
         }
       } else {
-        const nsec = await this.getNSec();
+        const nsec = await this.#getNSec();
         return nip04.decrypt(nsec, pubkey, ciphertext);
       }
     }
@@ -224,7 +200,7 @@ export class NostrSigner implements WindowNostr {
           return Promise.reject(new SignerNotFoundError());
         }
       } else {
-        const nsec = await this.getNSec();
+        const nsec = await this.#getNSec();
         const conversationKey = nip44.v2.utils.getConversationKey(nsec, pubkey);
         return nip44.v2.encrypt(plaintext, conversationKey);
       }
@@ -248,7 +224,7 @@ export class NostrSigner implements WindowNostr {
           return Promise.reject(new SignerNotFoundError());
         }
       } else {
-        const nsec = await this.getNSec();
+        const nsec = await this.#getNSec();
         const conversationKey = nip44.v2.utils.getConversationKey(nsec, pubkey);
         return nip44.v2.decrypt(ciphertext, conversationKey);
       }
@@ -268,13 +244,13 @@ export class NostrSigner implements WindowNostr {
    * will return all user relays, If you need just extension signer
    * relays with no aditional relays you must call getRelaysFromExtensionSigner()
    */
-  async getRelays(): Promise<RelayRecord> {
-    const userRelayConfig = await this.relayPublicConfig.getCurrentUserRelays();
+  async getRelays(): Promise<RelayRecord | null> {
+    const userRelayConfig = await this.relayLocalConfig.getCurrentUserRelays();
     if (!userRelayConfig) {
-      return {};
+      return null;
     }
 
-    return userRelayConfig.general || {};
+    return userRelayConfig.general || null;
   }
 
   getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {

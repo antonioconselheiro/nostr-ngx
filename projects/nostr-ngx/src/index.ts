@@ -53,7 +53,7 @@ export * from './lib/nostr-utils/nsec.crypto';
 export * from './lib/nostr-utils/nostr.guard';
 export * from './lib/profile/profile.service';
 export * from './lib/profile/profile.module';
-export * from './lib/profile/authenticated-account.observable';
+export * from './lib/profile/current-account.observable';
 export * from './lib/profile/nostr.signer';
 export * from './lib/profile/nostr-metadata-cached.interface';
 export * from './lib/profile/account-manager.service';
