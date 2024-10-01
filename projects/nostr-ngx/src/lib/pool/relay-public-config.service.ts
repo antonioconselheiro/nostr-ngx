@@ -47,15 +47,21 @@ export class RelayPublicConfigService {
    */
   // eslint-disable-next-line complexity
   async loadCurrentUserRelays(): Promise<NostrUserRelays | null> {
+    //  FIXME: TODO: TODOING: preciso revisar esse método inteiro
+    //  o carremaneto de todas as configurações deve ser feito com um único método,
+    //  com todas as entradas de endereço publicos possiveis (pubkey, npub, nprofile, nip5)
     const session = this.configSession.read(),
       local = this.configsLocal.read(),
       signer = local.signer;
-    let config: NostrUserRelays | null = null,
+    let directMessage: Array<WebSocket['url']> | null | undefined,
+      search: Array<WebSocket['url']> | null | undefined,
+      blocked: Array<WebSocket['url']> | null | undefined,
+      general: RelayRecord | null | undefined = null,
       extensionRelays: RelayRecord | null = null;
 
     const userRelays = session.account?.relays;
-    const nip05 = session.account?.metadata?.nip05;
-    const pubkey = session.account?.pubkey;
+    // const nip05 = session.account?.metadata?.nip05;
+    const pubkey = local.currentPubkey;
 
     if (userRelays) {
       return Promise.resolve(userRelays);
@@ -65,16 +71,25 @@ export class RelayPublicConfigService {
       extensionRelays = await this.relayLocalConfigService.getRelaysFromExtensionSigner();
     }
 
-    if (this.guard.isNip05(nip05)) {
-      config = await this.loadMainRelaysFromNIP5(nip05);
+    // if (this.guard.isNip05(nip05)) {
+    //   general = await this.loadMainRelaysFromNIP5(nip05);
+    // }
+
+    if (pubkey) {
+      //  FIXME: must join all in one filter
+      general = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
+      directMessage = await this.loadRelayListOnlyHavingPubkey(pubkey, 10050);
+      search = await this.loadRelayListOnlyHavingPubkey(pubkey, 10007);
+      blocked = await this.loadRelayListOnlyHavingPubkey(pubkey, 10006);
     }
 
-    if (!config && pubkey) {
-      config = await this.loadMainRelaysOnlyHavingPubkey(pubkey);
-    }
-
-    config = this.relayLocalConfigService.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
-    return Promise.resolve(config);
+    general = this.relayLocalConfigService.mergeUserRelayConfigToExtensionRelays(general, extensionRelays);
+    return Promise.resolve({
+      general: general || undefined,
+      blocked: blocked || undefined,
+      directMessage: directMessage || undefined,
+      search: search || undefined
+    });
   }
 
   getUserPublicMainRelays(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null>;
@@ -95,7 +110,7 @@ export class RelayPublicConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysFromProfilePointer(pointer: ProfilePointer, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null> {
+  async loadMainRelaysFromProfilePointer(pointer: ProfilePointer, opts?: NPoolRequestOptions): Promise<RelayRecord | null> {
     if (pointer.relays?.length) {
       const { pubkey } = pointer;
       opts = this.npool.mergeOptions(opts, {
@@ -120,11 +135,11 @@ export class RelayPublicConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysFromNprofile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null> {
+  async loadMainRelaysFromNprofile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<RelayRecord | null> {
     return this.loadMainRelaysFromProfilePointer(nip19.decode(nprofile).data, opts);
   }
 
-  async loadMainRelaysFromNIP5(nip5: Nip05, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null> {
+  async loadMainRelaysFromNIP5(nip5: Nip05, opts?: NPoolRequestOptions): Promise<RelayRecord | null> {
     const pointer = await queryProfile(nip5);
 
     if (pointer) {
@@ -134,12 +149,12 @@ export class RelayPublicConfigService {
     return Promise.resolve(null);
   }
 
-  async loadMainRelaysOnlyHavingNpub(npub: NPub, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null> {
+  async loadMainRelaysOnlyHavingNpub(npub: NPub, opts?: NPoolRequestOptions): Promise<RelayRecord | null> {
     const pubkey = this.nostrConverter.casNPubToPubkey(npub);
     return this.loadMainRelaysOnlyHavingPubkey(pubkey, opts);
   }
 
-  async loadMainRelaysOnlyHavingPubkey(pubkey: string, opts?: NPoolRequestOptions): Promise<NostrUserRelays | null> {
+  async loadMainRelaysOnlyHavingPubkey(pubkey: string, opts?: NPoolRequestOptions): Promise<RelayRecord | null> {
     opts = this.npool.mergeOptions(opts, {
       include: this.nostrConfig.bestFor.findProfileConfig
     });

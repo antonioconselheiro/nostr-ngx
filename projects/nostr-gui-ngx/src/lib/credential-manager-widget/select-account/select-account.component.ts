@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AccountManagerService, CurrentAccountObservable, NostrSigner, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../auth-modal-steps.type';
-import { AccountManagerService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-select-account',
@@ -16,9 +16,14 @@ export class SelectAccountComponent {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<UnauthenticatedAccount>();
+  selected = new EventEmitter<UnauthenticatedAccount | null>();
+
+  @Output()
+  close = new EventEmitter<void>();
 
   constructor(
+    private nostrSigner: NostrSigner,
+    private profile$: CurrentAccountObservable,
     private accountManagerService: AccountManagerService
   ) { }
 
@@ -37,5 +42,14 @@ export class SelectAccountComponent {
   selectAccount(account: UnauthenticatedAccount): void {
     this.selected.emit(account);
     this.changeStep.next('authenticate');
+  }
+
+  async onUseSigner(): Promise<void> {
+    await this.profile$.useExtension();
+    if (!this.nostrSigner.hasSignerExtension()) {
+      this.changeStep.next('downloadSigner');
+    }
+
+    this.close.emit();
   }
 }

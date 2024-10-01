@@ -27,9 +27,9 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
   #inMemoryNsec?: Uint8Array;
 
   constructor(
-    private sessionConfigs: ProfileSessionStorage,
-    private localConfigs: AccountsLocalStorage,
     private nsecCrypto: NSecCrypto,
+    private localConfigs: AccountsLocalStorage,
+    private sessionConfigs: ProfileSessionStorage,
     private relayLocalConfig: RelayLocalConfigService
   ) { }
 
@@ -112,11 +112,16 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
   }
 
   getPublicKey(): Promise<string | undefined> {
-    if (this.#inMemoryNsec) {
+    const localConfig = this.localConfigs.read();
+    if (localConfig.signer === 'extension') {
+      if (window.nostr) {
+        return window.nostr.getPublicKey();
+      }
+    } else if (this.#inMemoryNsec) {
       return Promise.resolve(getPublicKey(this.#inMemoryNsec));
-    } else {
-      return Promise.resolve(undefined);
     }
+
+    return Promise.resolve(undefined);
   }
 
   async getNProfile(): Promise<NProfile | undefined> {

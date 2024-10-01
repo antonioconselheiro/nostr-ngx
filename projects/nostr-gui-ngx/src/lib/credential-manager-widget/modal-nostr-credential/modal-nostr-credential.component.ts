@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
-import { AuthModalArguments } from '../auth-modal-arguments.interface';
-import { Subject, Subscription } from 'rxjs';
-import { AuthModalSteps } from '../auth-modal-steps.type';
-import { CreatingAccount } from '../../domain/creating-account.interface';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { AccountManagerService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
+import { Subject, Subscription } from 'rxjs';
+import { CreatingAccount } from '../../domain/creating-account.interface';
+import { AuthModalArguments } from '../auth-modal-arguments.interface';
+import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
   selector: 'nostr-modal-nostr-credential',

@@ -8,11 +8,10 @@ import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
-import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { RelayConverter } from '../nostr-utils/relay.converter';
 import { RelayPublicConfigService } from '../pool/relay-public-config.service';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
-import { RelayConverter } from '../nostr-utils/relay.converter';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
@@ -42,7 +41,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
   /**
    * @returns account of current authenticated user, return null if there is no user set in signer
    */
-    async useExtension(opts?: NPoolRequestOptions): Promise<Account | null> {
+    async useExtension(): Promise<Account | null> {
       const pubkey = await this.nostrSigner.getPublicKey();
       this.accountLocalStorage.patch({
         currentPubkey: pubkey,
@@ -53,10 +52,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
         return Promise.resolve(null);
       }
 
-      const account = await this.profileService.getAccount(pubkey, opts);
-      this.profileSessionStorage.patch({ account });
-  
-      return Promise.resolve(account);
+      return this.updateCurrentProfile(pubkey);
     }
 
   authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {

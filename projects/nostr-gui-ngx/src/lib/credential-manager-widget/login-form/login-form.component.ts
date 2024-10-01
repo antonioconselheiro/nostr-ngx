@@ -25,7 +25,10 @@ export class LoginFormComponent implements OnInit {
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<UnauthenticatedAccount>();
+  selected = new EventEmitter<UnauthenticatedAccount | null>();
+
+  @Output()
+  close = new EventEmitter<void>();
 
   readonly passwordLength = 32;
 
@@ -88,6 +91,8 @@ export class LoginFormComponent implements OnInit {
     if (!this.nostrSigner.hasSignerExtension()) {
       this.changeStep.next('downloadSigner');
     }
+
+    this.close.emit();
   }
 
   // eslint-disable-next-line complexity

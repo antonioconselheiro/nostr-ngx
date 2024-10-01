@@ -64,6 +64,7 @@ export class RelayLocalConfigService {
       config = await this.getUserRelays(pubkey);
     }
 
+    //  FIXME: oh no
     config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
     return Promise.resolve(config);
   }
@@ -82,7 +83,7 @@ export class RelayLocalConfigService {
     return Promise.resolve(inbox);
   }
 
-  async getUserRelays(pubkey: string): Promise<NostrUserRelays | null> {
+  async getUserRelays(pubkey: string): Promise<RelayRecord | null> {
     const [relayListEvent] = await this.ncache.query([
       {
         kinds: [kinds.RelayList],
@@ -113,40 +114,36 @@ export class RelayLocalConfigService {
     return Promise.resolve(inbox);
   }
 
-  mergeUserRelayConfigToExtensionRelays(config: NostrUserRelays | null, extensionRelays: RelayRecord | null): NostrUserRelays {
-    config = config || {};
-    if (!extensionRelays) {
-      return config;
+  mergeUserRelayConfigToExtensionRelays(record: RelayRecord | null | undefined, extensionRelays: RelayRecord | null): RelayRecord | null {
+    if (!extensionRelays || !Object.keys(extensionRelays).length) {
+      return record || null;
     }
 
-    const generalConfig = config.general;
-    if (!generalConfig) {
-      config.general = extensionRelays;
-      return config;
+    if (!record) {
+      return extensionRelays;
     }
 
     Object.keys(extensionRelays).forEach(relay => {
-      relay = normalizeURL(relay)
-      if (generalConfig[relay]) {
-        if (generalConfig[relay].write || extensionRelays[relay].write) {
-          generalConfig[relay].write = true;
+      relay = normalizeURL(relay);
+      if (record[relay]) {
+        if (record[relay].write || extensionRelays[relay].write) {
+          record[relay].write = true;
         } else {
-          generalConfig[relay].write = false;
+          record[relay].write = false;
         }
 
-        if (generalConfig[relay].read || extensionRelays[relay].read) {
-          generalConfig[relay].read = true;
+        if (record[relay].read || extensionRelays[relay].read) {
+          record[relay].read = true;
         } else {
-          generalConfig[relay].read = false;
+          record[relay].read = false;
         }
 
       } else {
-        generalConfig[relay] = extensionRelays[relay];
+        record[relay] = extensionRelays[relay];
       }
     });
 
-    config.general = generalConfig;
-    return config;
+    return record;
   }
 
   getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {
