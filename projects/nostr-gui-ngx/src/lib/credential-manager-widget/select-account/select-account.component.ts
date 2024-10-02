@@ -46,6 +46,7 @@ export class SelectAccountComponent {
 
   async onUseSigner(): Promise<void> {
     await this.profile$.useExtension();
+
     if (!this.nostrSigner.hasSignerExtension()) {
       this.changeStep.next('downloadSigner');
     }

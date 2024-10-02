@@ -52,9 +52,9 @@ export class ProfileService {
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const [{metadata}] = await this.profileCache.add(eventMetadata);
+    const [{metadata = null} = {}] = await this.profileCache.add(eventMetadata);
     const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 3);
-    const account = this.accountManager.accountFactory(pubkey, metadata || null, pointerRelays, record[pubkey]);
+    const account = this.accountManager.accountFactory(pubkey, metadata, pointerRelays, record[pubkey] || {});
 
     return Promise.resolve(account);
   }

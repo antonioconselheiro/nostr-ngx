@@ -87,7 +87,13 @@ export class LoginFormComponent implements OnInit {
   }
 
   async onUseSigner(): Promise<void> {
-    await this.profile$.useExtension();
+    this.loading = true;
+    try {
+      await this.profile$.useExtension();
+    } finally {
+      this.loading = false;
+    }
+
     if (!this.nostrSigner.hasSignerExtension()) {
       this.changeStep.next('downloadSigner');
     }
@@ -145,6 +151,8 @@ export class LoginFormComponent implements OnInit {
         }
         await this.addAccount(account, ncrypted);
       }
+
+      this.close.emit();
     } finally {
       this.loading = false;
     }

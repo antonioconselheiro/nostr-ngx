@@ -27,13 +27,13 @@
     <span>Add existing</span>
   </button>
   
-  <button class="button secondary iconedButton" (click)="changeStep.next('downloadSigner')" title="use nostr signer extension" type="button">
-    <nostr-svg-render class="inlineIcon" name="extension"></nostr-svg-render>
-    <span>Use signer</span>
-  </button>
-  
   <button class="button secondary iconedButton" (click)="changeStep.next('choosePassword')" title="create account" type="button">
     <nostr-svg-render class="inlineIcon" name="plus"></nostr-svg-render>
     <span>Create</span>
+  </button>
+
+  <button class="button iconedButton" (click)="onUseSigner()" title="use nostr signer extension" type="button">
+    <nostr-svg-render class="inlineIcon" name="extension"></nostr-svg-render>
+    <span>Use signer</span>
   </button>
 </footer>
