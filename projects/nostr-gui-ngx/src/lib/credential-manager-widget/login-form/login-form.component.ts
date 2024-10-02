@@ -141,7 +141,7 @@ export class LoginFormComponent implements OnInit {
 
       if (ncrypted && saveNcryptsecLocalStorage) {
         if (!account) {
-          account = await this.profileService.getAccount(user.pubkey);
+          account = await this.profileService.loadAccount(user.pubkey);
         }
         await this.addAccount(account, ncrypted);
       }

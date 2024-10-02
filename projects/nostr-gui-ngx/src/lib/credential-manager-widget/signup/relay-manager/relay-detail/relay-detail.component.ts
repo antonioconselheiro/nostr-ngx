@@ -43,7 +43,7 @@ export class RelayDetailComponent implements OnInit {
   private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
       this.profileService
-        .getAccount(details.pubkey)
+        .loadAccount(details.pubkey)
         .then(profile => this.loadedContactProfile = profile)
     }
   }
