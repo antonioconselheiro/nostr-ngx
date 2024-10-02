@@ -8,7 +8,7 @@ export interface IdbProfileCache extends DBSchema {
     value: {
       pubkey: string;
       metadata: NostrMetadata;
-      nip5?: ProfilePointer;
+      nip5?: ProfilePointer | null;
     };
     indexes: {
       pubkey: string;

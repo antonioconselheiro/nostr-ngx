@@ -8,6 +8,8 @@ import { NPub } from '../domain/npub.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { IdbProfileCache } from './idb-profile-cache.interface';
 import { NostrMetadataCached } from './nostr-metadata-cached.interface';
+import { queryProfile } from 'nostr-tools/nip05';
+import { ProfilePointer } from 'nostr-tools/nip19';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +19,7 @@ export class ProfileCache {
   protected readonly table: 'profileMetadata' = 'profileMetadata';
 
   //  in memory index, map nip5 to pubkey
+  //  getAll data from indexeddb is fastast option, then I index these data in memory
   protected indexedByNip5 = new Map<string, string>();
   protected db: Promise<IDBPDatabase<IdbProfileCache>>;
   protected cache = new LRUCache<string, NostrMetadataCached>({
@@ -36,8 +39,10 @@ export class ProfileCache {
     const profileCache = this;
     return openDB<IdbProfileCache>('NostrProfileCache', 1, {
       upgrade(db) {
-        const profileMetadata = db.createObjectStore(profileCache.table);
-        profileMetadata.createIndex('pubkey', 'pubkey', { unique: true });
+        db.createObjectStore(profileCache.table, {
+          keyPath: 'pubkey',
+          autoIncrement: false
+        });
       }
     });
   }
@@ -76,22 +81,35 @@ export class ProfileCache {
 
   protected async addSingle(
     metadataEvent: NostrEvent & { kind: 0 },
-    tx:  IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">
+    tx: IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">
   ): Promise<[NostrMetadata, NostrEvent & { kind: 0 }]> {
-    const metadata = n.json().pipe(n.metadata()).parse(metadataEvent.content);
+    const metadata = n
+      .json()
+      .pipe(n.metadata())
+      .parse(metadataEvent.content);
+    let nip5Pointer: ProfilePointer | null = null;
+
     this.cache.set(metadataEvent.pubkey, {
       ...metadata,
       pubkey: metadataEvent.pubkey
     });
 
+    try {
+      if (metadata.nip05) {
+        nip5Pointer = await queryProfile(metadata.nip05);
+      }
+    } catch {  }
+
     if (metadata.nip05) {
       this.indexedByNip5.set(metadata.nip05, metadataEvent.pubkey);
     }
 
+    const pubkey = metadataEvent.pubkey;
     await tx.store.put({
-      pubkey: metadataEvent.pubkey,
-      metadata
-    });
+      pubkey,
+      metadata,
+      nip5: nip5Pointer
+    }, pubkey);
 
     return Promise.resolve([metadata, metadataEvent]);
   }
