@@ -17,6 +17,7 @@ import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountManagerService } from './account-manager.service';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { AccountResultset } from './account-resultset.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -51,7 +52,7 @@ export class ProfileService {
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const [[metadata]] = await this.profileCache.add(eventMetadata);
+    const [{metadata}] = await this.profileCache.add(eventMetadata);
     const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 3);
     const account = this.accountManager.accountFactory(pubkey, metadata || null, pointerRelays, record[pubkey]);
 
@@ -65,10 +66,10 @@ export class ProfileService {
     } = this.relayConverter.convertEventsToRelayConfig(events);
     const eventMetadataList = events
       .filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const tupleList = await this.profileCache.add(eventMetadataList);
-    tupleList.forEach(([metadata, eventMetadata]) => {
-      if (record[eventMetadata.pubkey]) {
-        record[eventMetadata.pubkey].metadata = metadata;
+    const resultsetList = await this.profileCache.add(eventMetadataList);
+    resultsetList.forEach(({ metadata, pubkey }) => {
+      if (record[pubkey]) {
+        record[pubkey].metadata = metadata;
       }
     });
 
@@ -121,7 +122,7 @@ export class ProfileService {
   /**
    * use this when you receive a kind 0 event that does not come from this service
    */
-  cache(profiles: Array<NostrEvent & { kind: 0 }>): Promise<Array<[NostrMetadata, NostrEvent & { kind: 0 }]>> {
+  cache(profiles: Array<NostrEvent & { kind: 0 }>): Promise<Array<AccountResultset>> {
     return this.profileCache.add(profiles);
   }
 

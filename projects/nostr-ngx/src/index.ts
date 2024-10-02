@@ -55,10 +55,9 @@ export * from './lib/profile/profile.service';
 export * from './lib/profile/profile.module';
 export * from './lib/profile/current-account.observable';
 export * from './lib/profile/nostr.signer';
-export * from './lib/profile/nostr-metadata-cached.interface';
+export * from './lib/profile/account-resultset.type';
 export * from './lib/profile/account-manager.service';
 export * from './lib/profile/profile.cache';
-export * from './lib/profile/profile-metadata.interface';
 export * from './lib/profile/profile.nostr';
 export * from './lib/profile/idb-profile-cache.interface';
 
