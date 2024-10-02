@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
+import { NSchema as n } from '@nostrify/nostrify';
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { LRUCache } from 'lru-cache';
 import { nip19, NostrEvent } from 'nostr-tools';
+import { queryProfile } from 'nostr-tools/nip05';
+import { ProfilePointer } from 'nostr-tools/nip19';
 import { Nip05 } from '../domain/nip05.type';
 import { NPub } from '../domain/npub.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
-import { NostrMetadataCached } from './nostr-metadata-cached.interface';
-import { queryProfile } from 'nostr-tools/nip05';
-import { ProfilePointer } from 'nostr-tools/nip19';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class ProfileCache {
   //  getAll data from indexeddb is fastast option, then I index these data in memory
   protected indexedByNip5 = new Map<string, string>();
   protected db: Promise<IDBPDatabase<IdbProfileCache>>;
-  protected cache = new LRUCache<string, NostrMetadataCached>({
+  protected cache = new LRUCache<string, AccountResultset>({
     max: 1000,
     dispose: metadata => this.onLRUDispose(metadata),
     updateAgeOnGet: true
@@ -52,26 +52,24 @@ export class ProfileCache {
     const tx = conn.transaction(this.table, 'readonly');
     const all = await tx.store.getAll();
 
-    all.forEach(resultset => this.cache.set(resultset.pubkey, {
-      ...resultset.metadata,
-      pubkey: resultset.pubkey
-    }));
+    all.forEach(resultset => this.cache.set(resultset.pubkey, resultset));
 
     return Promise.resolve();
   }
 
-  protected async onLRUDispose(metadata: NostrMetadataCached): Promise<void> {
+  protected async onLRUDispose(metadata: AccountResultset): Promise<void> {
     //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     tx.store.delete(metadata.pubkey);
   }
 
-  async add(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<Array<[NostrMetadata, NostrEvent & { kind: 0 }]>> {
+  async add(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<Array<AccountResultset>> {
+    const touples = await this.prefetch(metadataEvents);
     //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
-    const queue = metadataEvents.map(event => this.addSingle(event, tx));
+    const queue = touples.map(touple => this.addSingle(touple, tx));
     
     const metadatas = await Promise.all(queue);
     await tx.done;
@@ -79,56 +77,56 @@ export class ProfileCache {
     return Promise.resolve(metadatas);
   }
 
-  protected async addSingle(
-    metadataEvent: NostrEvent & { kind: 0 },
-    tx: IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">
-  ): Promise<[NostrMetadata, NostrEvent & { kind: 0 }]> {
-    const metadata = n
-      .json()
-      .pipe(n.metadata())
-      .parse(metadataEvent.content);
-    let nip5Pointer: ProfilePointer | null = null;
+  protected async prefetch(metadataEvents: Array<NostrEvent & { kind: 0 }>): Promise<Array<AccountResultset>> {
+    const queuee = metadataEvents.map(async (event): Promise<AccountResultset> => {
+      const metadata = n
+        .json()
+        .pipe(n.metadata())
+        .parse(event.content);
+      let nip05Pointer: ProfilePointer | null = null;
+      try {
+        if (metadata.nip05) {
+          nip05Pointer = await queryProfile(metadata.nip05);
+        }
+      } catch {  }
 
-    this.cache.set(metadataEvent.pubkey, {
-      ...metadata,
-      pubkey: metadataEvent.pubkey
-    });
-
-    try {
-      if (metadata.nip05) {
-        nip5Pointer = await queryProfile(metadata.nip05);
+      return {
+        pubkey: event.pubkey, event, metadata, nip05: nip05Pointer
       }
-    } catch {  }
+    })
 
+    return Promise.all(queuee);
+  }
+
+  protected async addSingle(
+    resultset: AccountResultset,
+    tx: IDBPTransaction<IdbProfileCache, ["profileMetadata"], "readwrite">
+  ): Promise<AccountResultset> {
+    const { pubkey, event, metadata } = resultset;
+
+    //  save in lru cache
+    this.cache.set(pubkey, resultset);
+
+    //  bind nip05 to pubkey
     if (metadata.nip05) {
-      this.indexedByNip5.set(metadata.nip05, metadataEvent.pubkey);
+      this.indexedByNip5.set(metadata.nip05, event.pubkey);
     }
 
-    const pubkey = metadataEvent.pubkey;
-    await tx.store.put({
-      pubkey,
-      metadata,
-      nip5: nip5Pointer
-    }, pubkey);
-
-    return Promise.resolve([metadata, metadataEvent]);
+    await tx.store.put(resultset, pubkey);
+    return resultset;
   }
   
-  get(pubkey: string): NostrMetadata | null;
-  get(pubkeys: string[]): NostrMetadata[];
-  get(npub: NPub): NostrMetadata | null;
-  get(npubs: NPub[]): NostrMetadata[];
-  get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null;
-  get(publicAddresses: string[] | string): NostrMetadata | NostrMetadata[] | null {
+  get(pubkey: string): AccountResultset | null;
+  get(pubkeys: string[]): AccountResultset[];
+  get(npub: NPub): AccountResultset | null;
+  get(npubs: NPub[]): AccountResultset[];
+  get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null;
+  get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [ publicAddresses ];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
       .map(pubkey => pubkey && this.cache.get(pubkey) || null)
-      .filter((metadata): metadata is NostrMetadataCached => !!metadata)
-      .map((cached: Partial<NostrMetadataCached>): NostrMetadata => {
-        delete cached.pubkey;
-        return cached;
-      });
+      .filter((metadata): metadata is AccountResultset => !!metadata);
 
     if (publicAddresses instanceof Array) {
       return metadatas;
@@ -137,9 +135,9 @@ export class ProfileCache {
     }
   }
 
-  getByNip5(nip5: Nip05): NostrMetadata | null;
-  getByNip5(nip5s: Nip05[]): NostrMetadata[];
-  getByNip5(nip5s: Nip05 | Nip05[]): NostrMetadata[] | NostrMetadata | null {
+  getByNip5(nip5: Nip05): AccountResultset | null;
+  getByNip5(nip5s: Nip05[]): AccountResultset[];
+  getByNip5(nip5s: Nip05 | Nip05[]): AccountResultset[] | AccountResultset | null {
     if (nip5s instanceof Array) {
       nip5s
         .map(nip5 => this.indexedByNip5.get(nip5))
