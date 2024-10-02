@@ -21,13 +21,13 @@ export class CredentialHandlerService {
       .build();
   }
 
-  addAccount(): void {
+  selectAccount(): void {
     this.modalService
       .createModal(ModalNostrCredentialComponent)
       .setOutletName('nostrCredential')
       .setData({
         title: 'Accounts', // FIXME: change to il8n
-        currentStep: 'authenticate'
+        currentStep: 'selectAccount'
       })
       .build();
   }
@@ -64,5 +64,4 @@ export class CredentialHandlerService {
       })
       .build();
   }
-
 }
