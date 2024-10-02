@@ -46,7 +46,6 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
     this.sessionConfigs.clear();
     this.localConfigs.update(configs => {
       delete configs.signer;
-      delete configs.currentPubkey;
       return configs;
     });
     this.#inMemoryNsec = undefined;

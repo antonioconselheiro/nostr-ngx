@@ -9,7 +9,6 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { RelayPublicConfigService } from '../pool/relay-public-config.service';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
 
@@ -25,7 +24,6 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     private profileService: ProfileService,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
-    private relayPublicConfig: RelayPublicConfigService,
     private profileSessionStorage: ProfileSessionStorage,
     private accountLocalStorage: AccountsLocalStorage
   ) {
@@ -44,7 +42,6 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     async useExtension(): Promise<Account | null> {
       const pubkey = await this.nostrSigner.getPublicKey();
       this.accountLocalStorage.patch({
-        currentPubkey: pubkey,
         signer: 'extension'
       });
   
@@ -96,11 +93,12 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
   }
 
   private async updateCurrentProfile(pubkey: string): Promise<Account> {
-    const relays = await this.relayPublicConfig.loadCurrentUserRelays();
-    const outbox = this.relayConverter.extractOutboxRelays(relays?.general || null)
+    const account = await this.profileService.loadAccount(pubkey);
+    const accountRelays = account.relays.general || null;
+    const outbox = this.relayConverter.extractOutboxRelays(accountRelays)
 
     return this.profileService
-      .getAccount(pubkey, {
+      .loadAccount(pubkey, {
         include: outbox
       })
       .then((account) => {

@@ -13,11 +13,6 @@ export interface NostrLocalConfig {
   signer?: 'extension';
 
   /**
-   * Current user
-   */
-  currentPubkey?: string;
-
-  /**
    * non npub related local configured relays
    */
   commonRelays?: RelayRecord;

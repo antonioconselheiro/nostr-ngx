@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { NCache } from '@nostrify/nostrify';
-import { kinds } from 'nostr-tools';
+import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
@@ -9,6 +9,8 @@ import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
+import { NPub } from '../domain/npub.type';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -24,6 +26,7 @@ export class RelayLocalConfigService {
 
   constructor(
     private guard: NostrGuard,
+    private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private configsLocal: AccountsLocalStorage,
     private configSession: ProfileSessionStorage,
@@ -43,30 +46,68 @@ export class RelayLocalConfigService {
    */
   // eslint-disable-next-line complexity
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
-    const session = this.configSession.read(),
-      local = this.configsLocal.read(),
-      signer = local.signer;
-    let config: NostrUserRelays | null = null,
+    const session = this.configSession.read();
+    const { signer } = this.configsLocal.read();
+    const account = session.account;
+    let userRelays: NostrUserRelays | null = null,
       extensionRelays: RelayRecord | null = null;
 
-    const userRelays = session.account?.relays;
-    const pubkey = session.account?.pubkey;
-
-    if (userRelays) {
-      return Promise.resolve(userRelays);
+    if (account) {
+      const relays = account.relays;
+      if (relays && Object.keys(relays.general || {}).length) {
+        userRelays = relays;
+      } else {
+        const events = await this.findProfileConfig(account.pubkey);
+        const record = this.relayConverter.convertEventsToRelayConfig(events);
+        const relaysConfig = record[account.pubkey];
+        if (relaysConfig) {
+          userRelays = relaysConfig;
+          account.relays = userRelays
+          this.configSession.patch({ account });
+        }
+      }
     }
 
     if (signer === 'extension') {
       extensionRelays = await this.getRelaysFromExtensionSigner();
     }
 
-    if (pubkey) {
-      config = await this.getUserRelays(pubkey);
-    }
-
-    //  FIXME: oh no
-    config = this.mergeUserRelayConfigToExtensionRelays(config, extensionRelays);
+    const config = this.mergeUserRelayConfigToExtensionRelays(userRelays, extensionRelays);
     return Promise.resolve(config);
+  }
+
+  private findProfileConfig(pubkey: string): Promise<Array<NostrEvent>> {
+    return this.ncache.query([
+      {
+        kinds: [kinds.Metadata],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.RelayList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.SearchRelaysList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [kinds.BlockedRelaysList],
+        authors: [pubkey],
+        limit: 1
+      },
+
+      {
+        kinds: [this.kindDirectMessageRelayList],
+        authors: [pubkey],
+        limit: 1
+      }
+    ]);
   }
 
   async getCurrentUserOutboxRelays(): Promise<Array<WebSocket['url']>> {
@@ -114,7 +155,10 @@ export class RelayLocalConfigService {
     return Promise.resolve(inbox);
   }
 
-  mergeUserRelayConfigToExtensionRelays(record: RelayRecord | null | undefined, extensionRelays: RelayRecord | null): RelayRecord | null {
+  mergeUserRelayConfigToExtensionRelays(
+    record: NostrUserRelays | null | undefined,
+    extensionRelays: RelayRecord | null
+  ): NostrUserRelays | null {
     if (!extensionRelays || !Object.keys(extensionRelays).length) {
       return record || null;
     }
@@ -123,23 +167,24 @@ export class RelayLocalConfigService {
       return extensionRelays;
     }
 
-    Object.keys(extensionRelays).forEach(relay => {
+    const general = { ...record.general };
+    Object.keys(general).forEach(relay => {
       relay = normalizeURL(relay);
-      if (record[relay]) {
-        if (record[relay].write || extensionRelays[relay].write) {
-          record[relay].write = true;
+      if (general[relay]) {
+        if (general[relay].write || extensionRelays[relay].write) {
+          general[relay].write = true;
         } else {
-          record[relay].write = false;
+          general[relay].write = false;
         }
 
-        if (record[relay].read || extensionRelays[relay].read) {
-          record[relay].read = true;
+        if (general[relay].read || extensionRelays[relay].read) {
+          general[relay].read = true;
         } else {
-          record[relay].read = false;
+          general[relay].read = false;
         }
 
       } else {
-        record[relay] = extensionRelays[relay];
+        general[relay] = extensionRelays[relay];
       }
     });
 
@@ -155,7 +200,95 @@ export class RelayLocalConfigService {
     return Promise.resolve(null);
   }
 
-  async getUserRelayList(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']>> {
+  /**
+   * @param userPublicAddress nip5, npub, nprofile or pubkey
+   * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
+   * @returns a user publically configured relay list
+   */
+  getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
+
+  /**
+   * @returns user list of blocked relays, using npub.
+   */
+  getUserRelayList(npub: NPub, kind: 10006): Promise<Array<WebSocket['url']> | null>;
+
+
+  /**
+   * @returns user list of blocked relays, using hexadecimal pubkey.
+   */
+  getUserRelayList(pubkey: string, kind: 10006): Promise<Array<WebSocket['url']> | null>;
+
+  /**
+   * @returns user configured relays for search, using npub.
+   */
+  getUserRelayList(npub: NPub, kind: 10007): Promise<Array<WebSocket['url']> | null>;
+
+  /**
+   * @returns user configured relays for search, using hexadecimal pubkey.
+   */
+  getUserRelayList(pubkey: string, kind: 10007): Promise<Array<WebSocket['url']> | null>;
+
+  /**
+   * @returns user configured relays for direct message, using npub.
+   */
+  getUserRelayList(npub: NPub, kind: 10050): Promise<Array<WebSocket['url']> | null>;
+
+  /**
+   * @returns user configured relays for direct message, using hexadecimal pubkey.
+   */
+  getUserRelayList(pubkey: string, kind: 10050): Promise<Array<WebSocket['url']> | null>;
+  async getUserRelayList(userPublicAddress: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
+    if (this.guard.isNPub(userPublicAddress)) {
+      return this.getRelayListOnlyHavingNpub(userPublicAddress, kind);
+    } else if (this.guard.isHexadecimal(userPublicAddress)) {
+      return this.getRelayListOnlyHavingPubkey(userPublicAddress, kind);
+    }
+
+    return Promise.resolve(null);
+  }
+
+  /**
+   * @returns user list of blocked relays, using npub.
+   */
+  getRelayListOnlyHavingNpub(npub: NPub, kind: 10006): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @returns user configured relays for search, using npub.
+   */
+  getRelayListOnlyHavingNpub(npub: NPub, kind: 10007): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @returns user configured relays for direct message, using npub.
+   */
+  getRelayListOnlyHavingNpub(npub: NPub, kind: 10050): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @param nip5 using npub
+   * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
+   * @returns a user publically configured relay list
+   */
+  getRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
+  async getRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
+    const pubkey = this.nostrConverter.casNPubToPubkey(npub);
+    return this.getRelayListOnlyHavingPubkey(pubkey, kind);
+  }
+
+  /**
+ * @returns user list of blocked relays, using hexadecimal pubkey.
+ */
+  getRelayListOnlyHavingPubkey(pubkey: string, kind: 10006): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @returns user configured relays for search, using hexadecimal pubkey.
+   */
+  getRelayListOnlyHavingPubkey(pubkey: string, kind: 10007): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @returns user configured relays for direct message, using hexadecimal pubkey.
+   */
+  getRelayListOnlyHavingPubkey(pubkey: string, kind: 10050): Promise<Array<WebSocket['url']> | null>;
+  /**
+   * @param pubkey using pubkey hexadecimal
+   * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
+   * @returns a user publically configured relay list
+   */
+  getRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
+  async getRelayListOnlyHavingPubkey(pubkey: string, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
     const [relayListEvent] = await this.ncache.query([
       {
         kinds: [kind],
@@ -169,6 +302,6 @@ export class RelayLocalConfigService {
       return Promise.resolve(relayList);
     }
 
-    return Promise.resolve([]);
+    return Promise.resolve(null);
   }
 }

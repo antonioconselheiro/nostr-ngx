@@ -46,13 +46,13 @@ export class ProfileService {
    * load from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  async getAccount(pubkey: string, opts?: NPoolRequestOptions): Promise<Account> {
+  async loadAccount(pubkey: string, opts?: NPoolRequestOptions): Promise<Account> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
     const [[metadata]] = await this.profileCache.add(eventMetadata);
-    const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 2);
+    const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 3);
     const account = this.accountManager.accountFactory(pubkey, metadata || null, pointerRelays, record[pubkey]);
 
     return Promise.resolve(account);
@@ -83,9 +83,9 @@ export class ProfileService {
     });
   }
 
-  getAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
     const { data } = nip19.decode(npub);
-    return this.getAccount(data, opts);
+    return this.loadAccount(data, opts);
   }
 
   listAccountsUsingNPub(npubs: Array<NPub>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
@@ -95,11 +95,11 @@ export class ProfileService {
     }), opts);
   }
   
-  getAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
     const { data } = nip19.decode(nprofile);
     opts = opts || {};
     opts.include = opts.include ? [ ...opts.include, data ] : [ data ];
-    return this.getAccount(data.pubkey, opts);
+    return this.loadAccount(data.pubkey, opts);
   }
 
   listAccountsUsingNProfile(nprofiles: Array<NProfile>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
@@ -129,7 +129,7 @@ export class ProfileService {
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount> {
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
-    const account = await this.getAccount(user.pubkey);
+    const account = await this.loadAccount(user.pubkey);
 
     return Promise.resolve({ ...account, ncryptsec });
   }

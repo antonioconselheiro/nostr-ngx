@@ -10,6 +10,5 @@ export interface NostrSessionConfig {
    * current user account
    */
   account?: Account;
-  relays?: RelayRecord;
   nsec?: NSec;
 }

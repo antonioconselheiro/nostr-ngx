@@ -30,7 +30,6 @@ export class AccountManagerService {
   ) { }
 
   setCurrentAccount(account: Account): void {
-    this.accountsLocalStorage.patch({ currentPubkey: account.pubkey });
     this.profileSessionStorage.patch({ account });
   }
 
