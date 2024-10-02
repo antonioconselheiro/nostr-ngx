@@ -112,7 +112,7 @@ export class ProfileCache {
       this.indexedByNip5.set(metadata.nip05, event.pubkey);
     }
 
-    await tx.store.put(resultset, pubkey);
+    await tx.objectStore(this.table).put(resultset);
     return resultset;
   }
   

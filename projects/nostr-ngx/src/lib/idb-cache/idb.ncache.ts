@@ -18,7 +18,7 @@ import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 export class IdbNCache extends NCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
-
+  protected readonly table: 'nostrEvents' = 'nostrEvents';
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   private kindIndex = new Map<number, Array<string>>();
@@ -31,7 +31,7 @@ export class IdbNCache extends NCache {
     });
     this.db = this.initialize();
     this.db.then(db => {
-      const tx = db.transaction('nostrEvents', 'readonly');
+      const tx = db.transaction(this.table, 'readonly');
       tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
     })
   }
@@ -52,9 +52,9 @@ export class IdbNCache extends NCache {
 
     //  FIXME: mover para um web worker?
     this.db.then(db => {
-      const tx = db.transaction('nostrEvents', 'readwrite');
+      const tx = db.transaction(this.table, 'readwrite');
       Promise.all([
-        tx.store.put(event),
+        tx.objectStore(this.table).put(event),
         tx.done
       ]);
     });
@@ -161,7 +161,7 @@ export class IdbNCache extends NCache {
 
     //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
     this.db.then(db => {
-      const tx = db.transaction('nostrEvents', 'readwrite');
+      const tx = db.transaction(this.table, 'readwrite');
       tx.store.delete(event.id);
     });
 
