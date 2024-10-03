@@ -9,3 +9,4 @@ nostr-gui-ngx
 nostr-ngx
 [ ] incluir cobertura de logs configurável
 [ ] incluir readme docs
+[ ] proxy image module

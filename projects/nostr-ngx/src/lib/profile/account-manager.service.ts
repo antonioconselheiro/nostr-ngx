@@ -53,15 +53,8 @@ export class AccountManagerService {
   accountFactory(resultset: AccountResultset, relays: NostrUserRelays): Promise<Account>;
   accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
   async accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
-    let picture = this.nostrConfig.defaultProfile.picture;
+    const picture = resultset.metadata && resultset.metadata.picture || this.nostrConfig.defaultProfile.picture;
     const { pubkey, metadata } = resultset;
-
-    if (resultset.metadata && resultset.metadata.picture) {
-      try {
-        picture = await this.loadProfilePictureAsBase64(resultset.metadata.picture)
-      } finally { /* empty */ }
-    }
-
     const relayPointer = resultset.nip05 && resultset.nip05.relays && resultset.nip05.relays.length ?
       resultset.nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
 
