@@ -11,6 +11,7 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
+import { NostrMetadata } from '@nostrify/nostrify';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -50,15 +51,34 @@ export class AccountManagerService {
   /**
    * Create an account with user prefetched content
    */
-  accountFactory(resultset: AccountResultset, relays: NostrUserRelays): Promise<Account>;
-  accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
-  async accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
-    const picture = resultset.metadata && resultset.metadata.picture || this.nostrConfig.defaultProfile.picture;
-    const { pubkey, metadata } = resultset;
-    const relayPointer = resultset.nip05 && resultset.nip05.relays && resultset.nip05.relays.length ?
-      resultset.nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
+  accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays): Promise<Account>;
+  accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
+  //  FIXME:
+  // eslint-disable-next-line complexity 
+  async accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
 
-    const npub = nip19.npubEncode(resultset.pubkey);
+    let picture = this.nostrConfig.defaultProfile.picture,
+      metadata: NostrMetadata | null = null,
+      relayPointer: string[] = [],
+      isNip05Valid = false;
+
+    if (resultset) {
+      if (resultset.metadata) {
+        metadata = resultset.metadata;
+        if (resultset.metadata.picture) {
+          picture = resultset.metadata.picture;
+        }
+        
+        if (resultset.nip05) {
+          relayPointer = resultset.nip05.relays || [];
+          isNip05Valid = !!relayPointer.length;
+        }
+      }
+    }
+
+    relayPointer = relayPointer.length ? relayPointer : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
+
+    const npub = nip19.npubEncode(pubkey);
     const nprofile = nip19.nprofileEncode({ pubkey, relays: relayPointer });
     const account: Account = {
       ncryptsec,
@@ -68,7 +88,7 @@ export class AccountManagerService {
       relays,
       pubkey,
       npub,
-      isNip05Valid: !!resultset.nip05?.relays?.length
+      isNip05Valid
     };
 
     return account;

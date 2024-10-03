@@ -11,7 +11,7 @@ export interface Account {
   nprofile: NProfile;
   isNip05Valid: boolean;
   ncryptsec?: Ncryptsec;
-  metadata?: NostrMetadata;
+  metadata: NostrMetadata | null;
 
   /**
    * TODO: mudar esta propriedade para armazenar a imagem em base64, de forma que a

@@ -51,8 +51,8 @@ export class ProfileService {
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const [resultset] = await this.profileCache.add(eventMetadata);
-    const account = this.accountManager.accountFactory(resultset, record[pubkey] || {});
+    const [resultset = null] = await this.profileCache.add(eventMetadata);
+    const account = this.accountManager.accountFactory(pubkey, resultset, record[pubkey] || {});
 
     return Promise.resolve(account);
   }
@@ -81,7 +81,7 @@ export class ProfileService {
       const resultset = resultsetRecord[pubkey];
 
       return this.accountManager.accountFactory(
-        resultset, relays
+        pubkey, resultset, relays
       );
     }));
   }
@@ -97,11 +97,11 @@ export class ProfileService {
       return data;
     }), opts);
   }
-  
+
   loadAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
     const { data } = nip19.decode(nprofile);
     opts = opts || {};
-    opts.include = opts.include ? [ ...opts.include, data ] : [ data ];
+    opts.include = opts.include ? [...opts.include, data] : [data];
     return this.loadAccount(data.pubkey, opts);
   }
 
@@ -113,7 +113,7 @@ export class ProfileService {
       return data.pubkey;
     })
     opts = opts || {};
-    opts.include = opts.include ? [ ...opts.include, ...include ] : include;
+    opts.include = opts.include ? [...opts.include, ...include] : include;
     return this.listAccounts(pubkeys, opts);
   }
 
