@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
+import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
@@ -12,7 +13,7 @@ import { RelayManagerSteps } from '../relay-manager-steps.type';
   templateUrl: './my-relays.component.html',
   styleUrl: './my-relays.component.scss'
 })
-export class MyRelaysComponent {
+export class MyRelaysComponent implements OnInit {
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -29,10 +30,64 @@ export class MyRelaysComponent {
   relayType = 'readwrite';
   newRelayError: 'never' | 'required' | null = null;
 
+  knownRelays: Array<string> = [];
+  filteredKnownRelays: Array<string> = [];
+  extensionRelays: RelayRecord | null = null;
+
   constructor(
     private npool: NostrPool,
+    //  FIXME: tlvz essa tela deva exibir os relays no signer
     private nostrSigner: NostrSigner
   ) { }
+
+  ngOnInit(): void {
+    this.loadKnownRelays();
+    this.getRelaysFromExtensionSigner();
+  }
+
+  private getRelaysFromExtensionSigner(): void {
+    if (this.nostrSigner.hasSignerExtension()) {
+      this.nostrSigner
+        .getRelaysFromExtensionSigner()
+        .then(relays => this.extensionRelays = relays);
+    }
+  }
+  
+  private loadKnownRelays(): void {
+    this.npool.query([
+      {
+        kinds: [ kinds.RecommendRelay ]
+      }
+    ]).then(events => {
+      this.knownRelays = events
+        .map(event => event.content)
+        .filter(relay => /[^ ]+/.test(relay))
+        .map(relay => relay.replace(/^wss?:\/\/|\/$/g, ''))
+        .sort((a, b) => a.localeCompare(b));
+    });
+  }
+
+  filterSuggestions(term: string): void {
+    const maxSuggestions = 7;
+    term = term.replace(/^w?s?s?:?\/?\/?/g, '');
+
+    if (term.length) {
+      const matches: string[] = [];
+      for (let i = 0; i < this.knownRelays.length; i++) {
+        if (new RegExp(term, 'i').test(this.knownRelays[i])) {
+          matches.push(this.knownRelays[i]);
+        }
+
+        if (matches.length >= maxSuggestions) {
+          break;
+        }
+      }
+
+      this.filteredKnownRelays = matches;
+    } else {
+      this.filteredKnownRelays = [];
+    }
+  }
 
   // TODO: review this in internacionalization
   getNewRelayFieldLabel(): string {

@@ -1,29 +1,39 @@
 <h2 class="title">Relay Manager</h2>
 <h3 class="title">Relays are independent nostr servers.</h3>
-<h3 *ngIf="relayType === 'write'" class="title"><strong>Outbox relay</strong> (1-3): you will write, and your friends will read.</h3>
-<h3 *ngIf="relayType === 'read'" class="title"><strong>Inbox relay</strong> (1-3): you will read, and your friends will publish interactions, so this must be writable.</h3>
+<h3 *ngIf="relayType === 'write'" class="title"><strong>Outbox relay</strong>: you will write, and your friends will read.</h3>
+<h3 *ngIf="relayType === 'read'" class="title"><strong>Inbox relay</strong>: you will read, and your friends will publish interactions, so this must be writable.</h3>
 <h3 *ngIf="relayType === 'readwrite'" class="title">You will write into outbox relay and wait replies into inbox relay, your friends will read from your outbox and publish interactions in inbox.</h3>
-<h3 *ngIf="relayType === 'dm'" class="title">Specific relays for private messages.</h3>
+<h3 *ngIf="relayType === 'dm'" class="title">Specific relays to send/receive private messages.</h3>
 
 <form novalidate autocomplete="off">
-  <div class="floatingLabel">
-    <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
-      <option value="write">Outbox</option>
-      <option value="read">Inbox</option>
-      <option value="readwrite">Inbox/Outbox</option>
-      <option value="dm">Direct Message</option>
-    </select>
 
-    <label for="myRelaysRelaysFrom">Save relays</label>
-  </div>
+  <div class="horizontalForm">
+    <div [class.error]="newRelayError" class="floatingLabel">
+      <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" "
+        (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" list="myRelaysKnownRelaysList"
+        nostrListenTypingComplete (typingCompleted)="filterSuggestions(myRelaysNewRelay.value)" />
+      <datalist id="myRelaysKnownRelaysList">
+        <option *ngFor="let relay of filteredKnownRelays" [value]="relay">
+      </datalist>
+      <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
 
-  <div [class.error]="newRelayError" class="floatingLabel">
-    <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " (keydown)="newRelayError = null"
-      (paste)="onPasteRelays($event)" />
-    <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
+      <button type="button" (click)="connect(myRelaysNewRelay)" title="connect" class="svgButton">
+        <nostr-svg-render name="plugConnected"></nostr-svg-render>
+      </button>
 
-    <span *ngIf="newRelayError === 'required'" class="error">Relay address is required (wss://relay.format)</span>
-    <span *ngIf="newRelayError === 'never'" class="error">Write and/or read is required</span>
+      <span *ngIf="newRelayError === 'required'" class="error">Relay address is required (wss://relay.format)</span>
+    </div>
+
+    <div class="floatingLabel">
+      <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
+        <option value="write">Outbox</option>
+        <option value="read">Inbox</option>
+        <option value="readwrite">Inbox/Outbox</option>
+        <option value="dm">Direct Message</option>
+      </select>
+
+      <label for="myRelaysRelaysFrom">Save relays</label>
+    </div>
   </div>
 
   <ul class="relayList">
@@ -32,16 +42,6 @@
       <button class="borderless" (click)="removeRelay(tuple[0])" type="button">✕</button>
     </li>
   </ul>
-
-  <div class="buttonGroup">
-    <button type="button" (click)="connect(myRelaysNewRelay)" title="connect" class="button iconedButton">
-      <nostr-svg-render class="inlineIcon" name="plugConnected"></nostr-svg-render>
-
-      <span>
-        Connect
-      </span>
-    </button>
-  </div>
 </form>
 
 <footer class="buttonGroup">

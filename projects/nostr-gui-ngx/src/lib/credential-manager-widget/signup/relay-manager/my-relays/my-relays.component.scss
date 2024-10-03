@@ -1,3 +1,17 @@
+.horizontalForm {
+  display: flex;
+  width: 100%;
+
+  > .floatingLabel:first-child {
+    margin-right: 1rem;
+    flex: 2;    
+  }
+
+  > .floatingLabel:last-of-type {
+    flex: 1;    
+  }
+}
+
 ul.relayList {
   display: grid;
   grid-template-columns: 1fr 1fr;
