@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
@@ -10,6 +9,8 @@ import { Account } from '../domain/account.interface';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
+import { RelayConverter } from '../nostr-utils/relay.converter';
+import { AccountResultset } from './account-resultset.type';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -24,6 +25,7 @@ export class AccountManagerService {
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
+    private relayConverter: RelayConverter,
     private accountsLocalStorage: AccountsLocalStorage,
     private profileSessionStorage: ProfileSessionStorage,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
@@ -46,32 +48,75 @@ export class AccountManagerService {
   }
 
   /**
-   * Create an account with all user information
-   * 
-   * @param pubkey user pubkey
-   * @param profile user kind 0 metadata
-   * @param relayPointer few relays where can found user relay list, this will be used to create nprofile
-   * @param relays user full relay config
+   * Create an account with user prefetched content
    */
-  accountFactory(pubkey: string, profile: NostrMetadata | null, relayPointer: Array<WebSocket['url']>, relays: NostrUserRelays): Account;
-  accountFactory(pubkey: string, profile: NostrMetadata | null, relayPointer: Array<WebSocket['url']>, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
-  accountFactory(pubkey: string, profile: NostrMetadata | null, relayPointer: Array<WebSocket['url']>, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Account {
-    //  FIXME: should load picture and cast into base64
-    const picture = profile && profile.picture || this.nostrConfig.defaultProfile.picture;
-    const npub = nip19.npubEncode(pubkey);
+  accountFactory(resultset: AccountResultset, relays: NostrUserRelays): Promise<Account>;
+  accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
+  async accountFactory(resultset: AccountResultset, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
+    let picture = this.nostrConfig.defaultProfile.picture;
+    const { pubkey, metadata } = resultset;
+
+    if (resultset.metadata && resultset.metadata.picture) {
+      try {
+        picture = await this.loadProfilePictureAsBase64(resultset.metadata.picture)
+      } finally { /* empty */ }
+    }
+
+    const relayPointer = resultset.nip05 && resultset.nip05.relays && resultset.nip05.relays.length ?
+      resultset.nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
+
+    const npub = nip19.npubEncode(resultset.pubkey);
     const nprofile = nip19.nprofileEncode({ pubkey, relays: relayPointer });
     const account: Account = {
-      picture,
       ncryptsec,
+      nprofile,
+      metadata,
+      picture,
+      relays,
       pubkey,
       npub,
-      nprofile,
-      relays,
-      //  FIXME: preciso fazer a validação do NIP05 aqui, preciso deixar no cache a validação
-      isNip05Valid: false
+      isNip05Valid: !!resultset.nip05?.relays?.length
     };
 
     return account;
+  }
+
+  private loadProfilePictureAsBase64(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const maxSize = 64;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const base64Image = canvas.toDataURL('image/png');
+          resolve(base64Image);
+        }
+      };
+
+      img.onerror = (e) => reject(e);
+      img.src = url;
+    });
   }
 
   private update(): void {

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrEvent, kinds, nip19 } from 'nostr-tools';
 import { ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
@@ -15,9 +14,9 @@ import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountManagerService } from './account-manager.service';
+import { AccountResultset } from './account-resultset.type';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { AccountResultset } from './account-resultset.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -35,11 +34,11 @@ export class ProfileService {
   constructor(
     private guard: NostrGuard,
     private nsecCrypto: NSecCrypto,
-    private localConfigs: AccountsLocalStorage,
-    private profileNostr: ProfileNostr,
     private profileCache: ProfileCache,
-    private nostrConverter: NostrConverter,
+    private profileNostr: ProfileNostr,
     private relayConverter: RelayConverter,
+    private nostrConverter: NostrConverter,
+    private localConfigs: AccountsLocalStorage,
     private accountManager: AccountManagerService
   ) { }
 
@@ -52,36 +51,39 @@ export class ProfileService {
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
     const eventMetadata = events.filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
-    const [{metadata = null} = {}] = await this.profileCache.add(eventMetadata);
-    const pointerRelays = this.relayConverter.extractOutboxRelays(record[pubkey]).splice(0, 3);
-    const account = this.accountManager.accountFactory(pubkey, metadata, pointerRelays, record[pubkey] || {});
+    const [resultset] = await this.profileCache.add(eventMetadata);
+    const account = this.accountManager.accountFactory(resultset, record[pubkey] || {});
 
     return Promise.resolve(account);
   }
 
   async listAccounts(pubkeys: Array<string>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
-    const record: {
-      [pubkey: string]: NostrUserRelays & { metadata?: NostrMetadata }
-    } = this.relayConverter.convertEventsToRelayConfig(events);
     const eventMetadataList = events
       .filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
     const resultsetList = await this.profileCache.add(eventMetadataList);
-    resultsetList.forEach(({ metadata, pubkey }) => {
-      if (record[pubkey]) {
-        record[pubkey].metadata = metadata;
+    const relayRecord: {
+      [pubkey: string]: NostrUserRelays
+    } = this.relayConverter.convertEventsToRelayConfig(events);
+
+    const resultsetRecord: {
+      [pubkey: string]: AccountResultset
+    } = {};
+
+    resultsetList.forEach(resultset => {
+      if (resultsetRecord[resultset.pubkey]) {
+        resultsetRecord[resultset.pubkey] = resultset;
       }
     });
 
-    return pubkeys.map(pubkey => {
-      const relays = record[pubkey];
-      const metadata = record[pubkey] && record[pubkey].metadata || null;
-      const pointerRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 2);
+    return Promise.all(pubkeys.map(pubkey => {
+      const relays = relayRecord[pubkey];
+      const resultset = resultsetRecord[pubkey];
 
       return this.accountManager.accountFactory(
-        pubkey, metadata, pointerRelays, relays
+        resultset, relays
       );
-    });
+    }));
   }
 
   loadAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
@@ -115,7 +117,7 @@ export class ProfileService {
     return this.listAccounts(pubkeys, opts);
   }
 
-  // TODO:
+  // TODO: profile must listen current user public updates, so he don't needs f5 to update
   //listenUpdates(pubkeys: Array<string>, opts?: NPoolRequestOptions): Observable<Account> {
   //}
 
