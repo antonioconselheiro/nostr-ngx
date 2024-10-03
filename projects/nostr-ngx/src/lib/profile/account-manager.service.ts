@@ -81,7 +81,16 @@ export class AccountManagerService {
     return account;
   }
 
-  private loadProfilePictureAsBase64(url: string): Promise<string> {
+  async loadProfilePictureAsBase64(url: string): Promise<string> {
+    //  FIXME: must use user configured image proxy
+    const response = await fetch('https://imgproxy.iris.to/insecure/plain/' + url);
+    if (!response.ok) {
+      return Promise.reject(response);
+    }
+    
+    const blob = await response.blob();
+    const imageUrl = URL.createObjectURL(blob);
+
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = function () {
@@ -115,7 +124,7 @@ export class AccountManagerService {
       };
 
       img.onerror = (e) => reject(e);
-      img.src = url;
+      img.src = imageUrl;
     });
   }
 
