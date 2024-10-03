@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ModalService } from '@belomonte/async-modal-ngx';
 import { ModalNostrCredentialComponent } from './modal-nostr-credential/modal-nostr-credential.component';
+import { AccountsLocalStorage } from '@belomonte/nostr-ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -8,17 +9,23 @@ import { ModalNostrCredentialComponent } from './modal-nostr-credential/modal-no
 export class CredentialHandlerService {
 
   constructor(
-    private modalService: ModalService
+    private modalService: ModalService,
+    private accountsLocalStorage: AccountsLocalStorage
   ) { }
 
-  login(): void {
-    this.modalService
-      .createModal(ModalNostrCredentialComponent)
-      .setOutletName('nostrCredential')
-      .setData({
-        title: 'Accounts' // FIXME: change to il8n
-      })
-      .build();
+  start(): void {
+    const { accounts } = this.accountsLocalStorage.read();
+    if (!accounts || !accounts.length) {
+      this.modalService
+        .createModal(ModalNostrCredentialComponent)
+        .setOutletName('nostrCredential')
+        .setData({
+          title: 'Login' // FIXME: change to il8n
+        })
+        .build();
+    } else {
+      this.selectAccount();
+    }
   }
 
   selectAccount(): void {
