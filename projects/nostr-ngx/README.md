@@ -15,3 +15,4 @@ TODO:
 
 TODO:
 [ ] Include choosing relay by relay score 
+[ ] Centralize known network with relays information, including the non connected

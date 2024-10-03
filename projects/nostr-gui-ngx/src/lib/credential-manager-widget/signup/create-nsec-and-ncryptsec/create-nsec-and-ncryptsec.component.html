@@ -3,7 +3,7 @@
 <form [formGroup]="generateNcryptsecForm" id="generateNcryptsecForm" novalidate autocomplete="off">
   <div class="floatingLabel">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
-      id="generateNsecQRCodeTitleField" type="text" placeholder=" " listenTypingComplete
+      id="generateNsecQRCodeTitleField" type="text" placeholder=" " nostrListenTypingComplete
       (typingCompleted)="renderQrcode()" />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>

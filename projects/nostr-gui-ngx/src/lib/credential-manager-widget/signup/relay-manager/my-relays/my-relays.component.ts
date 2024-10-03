@@ -26,10 +26,7 @@ export class MyRelaysComponent {
   connectionStatus = new Map<string, boolean>();
   choosenRelays: RelayRecord = {};
 
-  relaysFrom = 'public';
-  relayWritable = true;
-  relayReadable = true;
-
+  relayType = 'readwrite';
   newRelayError: 'never' | 'required' | null = null;
 
   constructor(
@@ -39,10 +36,14 @@ export class MyRelaysComponent {
 
   // TODO: review this in internacionalization
   getNewRelayFieldLabel(): string {
-    if (this.relayReadable && !this.relayWritable) {
-      return 'New readonly relay';
-    } else if (!this.relayReadable && this.relayWritable) {
-      return 'New writeonly relay';
+    if (this.relayType === 'write') {
+      return 'Writeonly outbox relay';
+    } else if (this.relayType === 'read') {
+      return 'Readonly inbox relay';
+    } else if (this.relayType === 'readwrite') {
+      return 'Read/Write relay';
+    } else if (this.relayType === 'dm') {
+      return 'Private dm relay';
     } else {
       return 'New relay';
     }
@@ -90,9 +91,6 @@ export class MyRelaysComponent {
     const relay = el.value;
     if (!relay) {
       this.newRelayError = 'required';
-      return;
-    } else if (!this.relayWritable && !this.relayReadable) {
-      this.newRelayError = 'never';
       return;
     }
 

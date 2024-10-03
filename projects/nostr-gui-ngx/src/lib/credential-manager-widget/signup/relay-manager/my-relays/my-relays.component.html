@@ -1,26 +1,26 @@
 <h2 class="title">Relay Manager</h2>
 <h3 class="title">Relays are independent nostr servers.</h3>
-<h3 class="title">Having less relays makes you cool.</h3>
+<h3 *ngIf="relayType === 'write'" class="title"><strong>Outbox relay</strong> (1-3): you will write, and your friends will read.</h3>
+<h3 *ngIf="relayType === 'read'" class="title"><strong>Inbox relay</strong> (1-3): you will read, and your friends will publish interactions, so this must be writable.</h3>
+<h3 *ngIf="relayType === 'readwrite'" class="title">You will write into outbox relay and wait replies into inbox relay, your friends will read from your outbox and publish interactions in inbox.</h3>
+<h3 *ngIf="relayType === 'dm'" class="title">Specific relays for private messages.</h3>
 
 <form novalidate autocomplete="off">
+  <div class="floatingLabel">
+    <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
+      <option value="write">Outbox</option>
+      <option value="read">Inbox</option>
+      <option value="readwrite">Inbox/Outbox</option>
+      <option value="dm">Direct Message</option>
+    </select>
+
+    <label for="myRelaysRelaysFrom">Save relays</label>
+  </div>
+
   <div [class.error]="newRelayError" class="floatingLabel">
     <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" " (keydown)="newRelayError = null"
       (paste)="onPasteRelays($event)" />
     <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
-
-    <label role="button" type="button" [class.active]="relayWritable" class="svgButton" for="newRelayRelayWritable"
-      [attr.title]="relayWritable ? 'writeable relay' : 'don\'t write'">
-      <input type="checkbox" [(ngModel)]="relayWritable" name="relayWritable" id="newRelayRelayWritable" [value]="true"
-        (change)="newRelayError = null" />
-      <nostr-svg-render class="inlineIcon" [name]="relayWritable ? 'writable' : 'writableOff'"></nostr-svg-render>
-    </label>
-  
-    <label role="button" type="button" [class.active]="relayReadable" class="svgButton" for="newRelayRelayReadable"
-      [attr.title]="relayReadable ? 'readable relay' : 'don\'t read'">
-      <input type="checkbox" [(ngModel)]="relayReadable" name="relayReadable" id="newRelayRelayReadable" [value]="true"
-        (change)="newRelayError = null" />
-      <nostr-svg-render class="inlineIcon" [name]="relayReadable ? 'eyeglass' : 'eyeglassOff'"></nostr-svg-render>
-    </label>
 
     <span *ngIf="newRelayError === 'required'" class="error">Relay address is required (wss://relay.format)</span>
     <span *ngIf="newRelayError === 'never'" class="error">Write and/or read is required</span>
@@ -41,28 +41,6 @@
         Connect
       </span>
     </button>
-  </div>
-
-  <div class="floatingLabel">
-    <select [(ngModel)]="relaysFrom" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
-      <option value="public">Publically</option>
-      <option value="localStorage">In browser</option>
-    </select>
-
-    <label for="myRelaysRelaysFrom">Save relays</label>
-  </div>
-
-  <div>
-    <!--
-      TODO: NIP-65:
-      https://github.com/nostr-protocol/nips/blob/722ac7a58695a365be0dbb6eccb33ccd7890a8c7/65.md
-    -->
-    <p *ngIf="relaysFrom === 'public'">
-      <strong>Publically</strong>: saves your relays inside your choosen relays
-    </p>
-    <p *ngIf="relaysFrom === 'localStorage'">
-      <strong>In browser</strong>: save your relays in this browser
-    </p>
   </div>
 </form>
 

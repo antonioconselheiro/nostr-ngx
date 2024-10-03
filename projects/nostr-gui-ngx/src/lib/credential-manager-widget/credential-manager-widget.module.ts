@@ -5,7 +5,7 @@ import { ModalNostrCredentialModule } from './modal-nostr-credential/modal-nostr
 import { CredentialHandlerComponent } from './credential-handler/credential-handler.component';
 import { CredentialHandlerService } from './credential-handler.service';
 import { SvgRenderModule } from '../svg-render/svg-render.module';
-import { NostrModule } from '@belomonte/nostr-ngx';
+import { NostrMediaModule, NostrModule } from '@belomonte/nostr-ngx';
 import { QrcodeServiceModule } from '../qrcode-service/qrcode-service.module';
 import { CameraModule } from '../camera/camera.module';
 
@@ -17,7 +17,8 @@ import { CameraModule } from '../camera/camera.module';
     NostrModule,
     CameraModule,
     ModalNostrCredentialModule,
-    QrcodeServiceModule
+    QrcodeServiceModule,
+    NostrMediaModule
   ],
   exports: [
     AsyncModalModule,
@@ -27,6 +28,7 @@ import { CameraModule } from '../camera/camera.module';
     CameraModule,
     ModalNostrCredentialModule,
     QrcodeServiceModule,
+    NostrMediaModule,
     CredentialHandlerComponent
   ],
   declarations: [
