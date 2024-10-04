@@ -1,12 +1,13 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
+import { NostrPool, NostrSigner, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
 
 /**
- * FIXME: this screen need to show relay current connection
+ * FIXME: I need a screen to show relay current connection status
+ * FIXME: maybe I should include block relay list in this screen too... but not sure
  */
 @Component({
   selector: 'nostr-my-relays',
@@ -25,10 +26,13 @@ export class MyRelaysComponent implements OnInit {
   relayDetail = new EventEmitter<string>();
 
   connectionStatus = new Map<string, boolean>();
+
   choosenRelays: RelayRecord = {};
+  choosenPrivateDirectMessageRelays: Array<WebSocket['url']> = [];
+  choosenSearchRelays: Array<WebSocket['url']> = [];
 
   relayType = 'readwrite';
-  newRelayError: 'never' | 'required' | null = null;
+  newRelayError: 'required' | null = null;
 
   knownRelays: Array<string> = [];
   filteredKnownRelays: Array<string> = [];
@@ -36,11 +40,13 @@ export class MyRelaysComponent implements OnInit {
 
   constructor(
     private npool: NostrPool,
+    private relayConfig: RelayLocalConfigService,
     //  FIXME: tlvz essa tela deva exibir os relays no signer
     private nostrSigner: NostrSigner
   ) { }
 
   ngOnInit(): void {
+    this.readUserRelays();
     this.loadKnownRelays();
     this.getRelaysFromExtensionSigner();
   }
@@ -50,6 +56,15 @@ export class MyRelaysComponent implements OnInit {
       this.nostrSigner
         .getRelaysFromExtensionSigner()
         .then(relays => this.extensionRelays = relays);
+    }
+  }
+
+  private async readUserRelays(): Promise<void> {
+    const user = await this.relayConfig.getCurrentUserRelays();
+    if (user) {
+      this.choosenRelays = user.general;
+      this.choosenPrivateDirectMessageRelays = user.directMessage || [];
+      this.choosenSearchRelays = user.search || [];
     }
   }
   
@@ -83,7 +98,7 @@ export class MyRelaysComponent implements OnInit {
   }
 
   filterSuggestions(term: string): void {
-    const maxSuggestions = 30;
+    const maxSuggestions = 15;
     term = term.replace(/^w?s?s?:?\/?\/?/g, '');
 
     if (term.length) {
@@ -141,7 +156,7 @@ export class MyRelaysComponent implements OnInit {
   }
 
   removeRelay(relay: string): void {
-    //this.mainPool.close([relay]);
+    delete this.choosenRelays[relay];
   }
 
   onPasteRelays(event: ClipboardEvent): void {
@@ -166,9 +181,17 @@ export class MyRelaysComponent implements OnInit {
 
     this.newRelayError = null;
     el.value = '';
-    //this.mainPool.ensureRelay(relay, {
-    //  read: this.relayReadable,
-    //  write: this.relayWritable
-    //});
+
+    if (this.relayType === 'write') {
+      this.choosenRelays[relay] = { write: true, read: false };
+    } else if (this.relayType === 'read') {
+      this.choosenRelays[relay] = { write: false, read: true };
+    } else if (this.relayType === 'readwrite') {
+      this.choosenRelays[relay] = { write: true, read: false };
+    } else if (this.relayType === 'dm') {
+      this.choosenPrivateDirectMessageRelays.push(relay);
+    } else if (this.relayType === 'search') {
+      this.choosenSearchRelays.push(relay);
+    }
   }
 }

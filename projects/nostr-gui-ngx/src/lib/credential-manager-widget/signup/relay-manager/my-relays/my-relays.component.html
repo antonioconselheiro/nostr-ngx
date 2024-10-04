@@ -4,9 +4,22 @@
 <h3 *ngIf="relayType === 'read'" class="title"><strong>Inbox relay</strong>: you will read, and your friends will publish interactions, so this must be writable.</h3>
 <h3 *ngIf="relayType === 'readwrite'" class="title">You will write into outbox relay and read replies into inbox relay, your friends will read from your outbox and publish interactions in inbox.</h3>
 <h3 *ngIf="relayType === 'dm'" class="title">Specific relays to send/receive private messages.</h3>
+<h3 *ngIf="relayType === 'search'" class="title">Relays with search specialized api, to find new notes and users.</h3>
 
 <form novalidate autocomplete="off">
   <div class="horizontalForm">
+    <div class="floatingLabel">
+      <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
+        <option value="write">Outbox</option>
+        <option value="read">Inbox</option>
+        <option value="readwrite">Inbox/Outbox</option>
+        <option value="dm">Direct Message</option>
+        <option value="search">Search</option>
+      </select>
+
+      <label for="myRelaysRelaysFrom">Save relays</label>
+    </div>
+
     <div [class.error]="newRelayError" class="floatingLabel">
       <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" "
         (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" list="myRelaysKnownRelaysList"
@@ -21,17 +34,6 @@
       </button>
 
       <span *ngIf="newRelayError === 'required'" class="error">Relay address is required (wss://relay.format)</span>
-    </div>
-
-    <div class="floatingLabel">
-      <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
-        <option value="write">Outbox</option>
-        <option value="read">Inbox</option>
-        <option value="readwrite">Inbox/Outbox</option>
-        <option value="dm">Direct Message</option>
-      </select>
-
-      <label for="myRelaysRelaysFrom">Save relays</label>
     </div>
   </div>
 
