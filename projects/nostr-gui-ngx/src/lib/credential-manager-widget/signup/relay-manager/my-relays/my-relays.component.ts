@@ -177,10 +177,10 @@ export class MyRelaysComponent implements OnInit {
   }
 
   listDefaultRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
-    console.info('this.nostrConfig.defaultFallback', this.nostrConfig.defaultFallback);
+    const fallback = this.nostrConfig.defaultFallback;
     return Object
-      .keys(this.nostrConfig.defaultFallback)
-      .map(relay => [ relay, this.choosenRelays[relay] ]);
+      .keys(fallback)
+      .map(relay => [ relay, fallback[relay] ]);
   }
 
   listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
