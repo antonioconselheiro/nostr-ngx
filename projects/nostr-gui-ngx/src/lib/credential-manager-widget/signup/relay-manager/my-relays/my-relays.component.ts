@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NostrPool, NostrSigner } from '@belomonte/nostr-ngx';
-import { kinds } from 'nostr-tools';
+import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
@@ -59,16 +59,31 @@ export class MyRelaysComponent implements OnInit {
         kinds: [ kinds.RecommendRelay ]
       }
     ]).then(events => {
-      this.knownRelays = events
-        .map(event => event.content)
-        .filter(relay => /[^ ]+/.test(relay))
-        .map(relay => relay.replace(/^wss?:\/\/|\/$/g, ''))
-        .sort((a, b) => a.localeCompare(b));
+      const knownRelays = events
+        .map(event => this.castEventRecomendedRelayToRelay(event))
+        .flat(2)
+        .map(relay => relay.replace(/^wss?:\/\/|\/$/g, ''));
+
+      this.knownRelays = [...new Set(knownRelays)].sort((a, b) => a.localeCompare(b));
     });
   }
 
+  castEventRecomendedRelayToRelay(event: NostrEvent): string[] {
+    if (/(127\.|umbrel.local|npub)/.test(event.content)) {
+      return [];
+    }
+
+    if (/[ ]/.test(event.content)) {
+      return Array.from(event.content.match(/wss:\/\/[^ ]+/g) || []);
+    } else if (/\./.test(event.content)) {
+      return [event.content.replace(/[^ ]*wss:\/\//, 'wss://')];
+    }
+
+    return [];
+  }
+
   filterSuggestions(term: string): void {
-    const maxSuggestions = 7;
+    const maxSuggestions = 30;
     term = term.replace(/^w?s?s?:?\/?\/?/g, '');
 
     if (term.length) {

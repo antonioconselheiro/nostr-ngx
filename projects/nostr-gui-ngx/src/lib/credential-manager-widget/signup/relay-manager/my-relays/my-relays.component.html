@@ -2,20 +2,19 @@
 <h3 class="title">Relays are independent nostr servers.</h3>
 <h3 *ngIf="relayType === 'write'" class="title"><strong>Outbox relay</strong>: you will write, and your friends will read.</h3>
 <h3 *ngIf="relayType === 'read'" class="title"><strong>Inbox relay</strong>: you will read, and your friends will publish interactions, so this must be writable.</h3>
-<h3 *ngIf="relayType === 'readwrite'" class="title">You will write into outbox relay and wait replies into inbox relay, your friends will read from your outbox and publish interactions in inbox.</h3>
+<h3 *ngIf="relayType === 'readwrite'" class="title">You will write into outbox relay and read replies into inbox relay, your friends will read from your outbox and publish interactions in inbox.</h3>
 <h3 *ngIf="relayType === 'dm'" class="title">Specific relays to send/receive private messages.</h3>
 
 <form novalidate autocomplete="off">
-
   <div class="horizontalForm">
     <div [class.error]="newRelayError" class="floatingLabel">
       <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" "
         (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" list="myRelaysKnownRelaysList"
         nostrListenTypingComplete (typingCompleted)="filterSuggestions(myRelaysNewRelay.value)" />
-      <datalist id="myRelaysKnownRelaysList">
-        <option *ngFor="let relay of filteredKnownRelays" [value]="relay">
-      </datalist>
-      <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
+        <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
+        <datalist id="myRelaysKnownRelaysList">
+          <option *ngFor="let relay of filteredKnownRelays" [value]="relay">
+        </datalist>
 
       <button type="button" (click)="connect(myRelaysNewRelay)" title="connect" class="svgButton">
         <nostr-svg-render name="plugConnected"></nostr-svg-render>

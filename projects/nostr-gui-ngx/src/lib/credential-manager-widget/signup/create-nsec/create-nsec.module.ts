@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NostrMediaModule } from '@belomonte/nostr-ngx';
 import { SvgRenderModule } from '../../../svg-render/svg-render.module';
 import { CreateNsecComponent } from './create-nsec.component';
+import { TypingCompleteDirective } from '../../../typing-complete/typing-complete.directive';
 
 @NgModule({
   declarations: [
@@ -11,9 +12,10 @@ import { CreateNsecComponent } from './create-nsec.component';
   ],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     SvgRenderModule,
-    NostrMediaModule
+    NostrMediaModule,
+    ReactiveFormsModule,
+    TypingCompleteDirective
   ],
   exports: [
     CreateNsecComponent

@@ -8,6 +8,7 @@ import { MyRelaysComponent } from './my-relays/my-relays.component';
 import { RelayDetailComponent } from './relay-detail/relay-detail.component';
 import { RelayManagerComponent } from './relay-manager.component';
 import { RelaySearchComponent } from './relay-search/relay-search.component';
+import { TypingCompleteDirective } from '../../../typing-complete/typing-complete.directive';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { RelaySearchComponent } from './relay-search/relay-search.component';
     ReactiveFormsModule,
     FormsModule,
     LoadingWidgetModule,
-    ProfileWidgetModule
+    ProfileWidgetModule,
+    TypingCompleteDirective
   ],
   exports: [
     RelayManagerComponent

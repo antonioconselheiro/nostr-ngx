@@ -4,7 +4,7 @@
   <div class="floatingLabel">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
       id="generateNsecQRCodeTitleField" type="text" placeholder=" " nostrListenTypingComplete 
-      (typingCompleted)="renderQrcode()" autofocus />
+      (typingCompleted)="renderQrcode()" autofocus [timeout]="500" />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
