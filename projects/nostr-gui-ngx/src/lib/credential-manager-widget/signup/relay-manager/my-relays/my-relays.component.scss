@@ -3,11 +3,11 @@
   width: 100%;
 
   > .floatingLabel:first-child {
+    margin-right: 1rem;
     flex: 1;    
   }
   
   > .floatingLabel:last-of-type {
-    margin-right: 1rem;
     flex: 2;
   }
 }

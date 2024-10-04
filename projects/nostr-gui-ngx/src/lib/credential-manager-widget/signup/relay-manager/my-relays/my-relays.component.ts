@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { NostrPool, NostrSigner, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
@@ -41,6 +41,7 @@ export class MyRelaysComponent implements OnInit {
   constructor(
     private npool: NostrPool,
     private relayConfig: RelayLocalConfigService,
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>,
     //  FIXME: tlvz essa tela deva exibir os relays no signer
     private nostrSigner: NostrSigner
   ) { }
@@ -153,10 +154,33 @@ export class MyRelaysComponent implements OnInit {
     return relay;
   }
 
-  listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
+  hasRelayInExtension(): boolean {
+    if (!this.extensionRelays) {
+      return false;
+    }
+
+    return !!Object.keys(this.extensionRelays).length;
+  }
+
+  listExtensionRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
+    if (!this.extensionRelays) {
+      return [];
+    }
+
     return Object
-      .keys(this.choosenRelays)
+      .keys(this.extensionRelays)
       .map(relay => [ relay, this.choosenRelays[relay] ]);
+  }
+
+  listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
+    const hasRelays = !!Object.keys(this.choosenRelays).length;
+    if (hasRelays) {
+      return Object
+        .keys(this.choosenRelays)
+        .map(relay => [ relay, this.choosenRelays[relay] ]);
+    } else {
+      return this.nostrConfig.defaultFallback;
+    }
   }
 
   removeRelay(relay: string): void {
