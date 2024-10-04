@@ -45,3 +45,10 @@ ul.relayList {
     }
   }
 }
+
+fieldset {
+  margin: 1rem 0;
+  display: block;
+  border-radius: 7px;
+  border-color: var(--separator);
+}

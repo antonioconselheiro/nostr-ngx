@@ -129,7 +129,7 @@ export class MyRelaysComponent implements OnInit {
     } else if (this.relayType === 'readwrite') {
       return 'Read/Write relay';
     } else if (this.relayType === 'dm') {
-      return 'Private dm relay';
+      return 'Private direct message relay';
     } else if (this.relayType === 'search') {
       return 'Search relay';
     } else {
@@ -172,15 +172,21 @@ export class MyRelaysComponent implements OnInit {
       .map(relay => [ relay, this.choosenRelays[relay] ]);
   }
 
+  hasRelays(): boolean {
+    return !!Object.keys(this.choosenRelays).length;
+  }
+
+  listDefaultRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
+    console.info('this.nostrConfig.defaultFallback', this.nostrConfig.defaultFallback);
+    return Object
+      .keys(this.nostrConfig.defaultFallback)
+      .map(relay => [ relay, this.choosenRelays[relay] ]);
+  }
+
   listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
-    const hasRelays = !!Object.keys(this.choosenRelays).length;
-    if (hasRelays) {
-      return Object
-        .keys(this.choosenRelays)
-        .map(relay => [ relay, this.choosenRelays[relay] ]);
-    } else {
-      return this.nostrConfig.defaultFallback;
-    }
+    return Object
+      .keys(this.choosenRelays)
+      .map(relay => [ relay, this.choosenRelays[relay] ]);
   }
 
   removeRelay(relay: string): void {
