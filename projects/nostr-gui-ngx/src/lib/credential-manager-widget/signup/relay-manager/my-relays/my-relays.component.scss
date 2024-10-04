@@ -3,12 +3,12 @@
   width: 100%;
 
   > .floatingLabel:first-child {
-    margin-right: 1rem;
-    flex: 2;    
-  }
-
-  > .floatingLabel:last-of-type {
     flex: 1;    
+  }
+  
+  > .floatingLabel:last-of-type {
+    margin-right: 1rem;
+    flex: 2;
   }
 }
 
@@ -24,6 +24,11 @@ ul.relayList {
 
   >li {
     margin: .5rem;
+
+    .removeButton {
+      color: white;
+      background-color: transparent;
+    }
     
     &.connected:before {
       background-color: rgb(0, 204, 0);

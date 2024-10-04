@@ -129,14 +129,18 @@ export class MyRelaysComponent implements OnInit {
       return 'Read/Write relay';
     } else if (this.relayType === 'dm') {
       return 'Private dm relay';
+    } else if (this.relayType === 'search') {
+      return 'Search relay';
     } else {
       return 'New relay';
     }
   }
 
   formatRelayMetadata(relay: string, record: {
-    read: boolean;
-    write: boolean;
+    read?: boolean;
+    write?: boolean;
+    dm?: true;
+    search?: true;
   }): string {
     if (record.write && record.read) {
       return `${relay} (read/write)`;
@@ -187,7 +191,7 @@ export class MyRelaysComponent implements OnInit {
     } else if (this.relayType === 'read') {
       this.choosenRelays[relay] = { write: false, read: true };
     } else if (this.relayType === 'readwrite') {
-      this.choosenRelays[relay] = { write: true, read: false };
+      this.choosenRelays[relay] = { write: true, read: true };
     } else if (this.relayType === 'dm') {
       this.choosenPrivateDirectMessageRelays.push(relay);
     } else if (this.relayType === 'search') {
