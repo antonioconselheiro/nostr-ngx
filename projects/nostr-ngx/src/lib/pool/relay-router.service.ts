@@ -35,20 +35,23 @@ export class RelayRouterService implements NpoolRouterOptions {
       }
     }
 
-    const relayHint = this.parseRelayList(opts?.include);
+    const include = this.parseRelayList(opts?.include);
     const router = this.routerMatcher.eventRouter.find(matcher => (matcher.matcher && matcher.matcher(event) || !matcher.matcher) && matcher.router);
     let relays: Array<WebSocket["url"]> = [];
     if (router) {
       relays = await router.router(event);
     }
 
-    const routes = [...relayHint, ...relays];
+    const routes = [...include, ...relays];
     if (routes.length) {
+      console.info(`routing event to `, routes, event);
       return Promise.resolve(routes);
     } else {
-      return this.relayConverter.extractOutboxRelays({
+      const outbox = this.relayConverter.extractOutboxRelays({
         general: this.routerMatcher.defaultFallback()
       });
+      console.info(`routing event to `, outbox, event);
+      return outbox;
     }
   }
 
