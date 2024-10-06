@@ -60,6 +60,7 @@ export * from './lib/profile/account-resultset.type';
 export * from './lib/profile/account-manager.service';
 export * from './lib/profile/profile.cache';
 export * from './lib/profile/profile.nostr';
+export * from './lib/profile/profile-event.factory';
 export * from './lib/profile/idb-profile-cache.interface';
 
 declare global {

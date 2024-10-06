@@ -51,14 +51,14 @@
     <legend>Public Network</legend>
     <ul class="relayList">
 
-      <ng-container *ngIf="hasRelays()">
+      <ng-container *ngIf="hasMainRelayList()">
         <li  *ngFor="let tuple of listRelays()" class="connected">
           <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
           <button class="borderless removeButton" (click)="removeRelay(tuple[0])" type="button">✕</button>
         </li>
       </ng-container>
 
-      <ng-container *ngIf="!hasRelays()">
+      <ng-container *ngIf="!hasMainRelayList()">
         <li  *ngFor="let tuple of listDefaultRelays()" class="connected">
           <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
         </li>
@@ -108,7 +108,7 @@
     </span>
   </button>
 
-  <button (click)="saveChoosenRelays()" *ngIf="!hasRelays()" type="button"
+  <button (click)="saveChosenRelays()" *ngIf="!hasRelays()" type="button"
     title="save" class="button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
@@ -41,6 +41,7 @@ export class MyRelaysComponent implements OnInit {
   constructor(
     private npool: NostrPool,
     private nostrSigner: NostrSigner,
+    private profileEventFactory: ProfileEventFactory,
     private relayConfig: RelayLocalConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
@@ -175,12 +176,16 @@ export class MyRelaysComponent implements OnInit {
       .map(relay => [ relay, this.chosenRelays[relay] ]);
   }
 
+  hasMainRelayList(): boolean {
+    return !!Object.keys(this.chosenRelays).length;
+  }
+
   hasRelays(): boolean {
-    const outboxInbox = !!Object.keys(this.chosenRelays).length;
+    const mainRelayList = this.hasMainRelayList();
     const hasDm = !!this.chosenPrivateDirectMessageRelays.length;
     const hasSearch = !!this.chosenSearchRelays.length;
 
-    return (outboxInbox && hasDm && hasSearch);
+    return (mainRelayList || hasDm || hasSearch);
   }
 
   listDefaultRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
@@ -253,13 +258,41 @@ export class MyRelaysComponent implements OnInit {
   }
 
   async saveChosenRelays(): Promise<void> {
+    let record: RelayRecord;
+    if (this.hasMainRelayList()) {
+      record = this.chosenRelays;
+    } else {
+      record = this.nostrConfig.defaultFallback;
+    }
+
+    const relayListEvent = this.profileEventFactory.createRelayEvent(record);
+    await this.npool.event(relayListEvent);
+    if (this.chosenPrivateDirectMessageRelays.length) {
+      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.chosenPrivateDirectMessageRelays);
+      await this.npool.event(privateDMRelayListEvent);
+    }
+
+    if (this.chosenSearchRelays.length) {
+      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.chosenSearchRelays);
+      await this.npool.event(searchRelayListEvent);
+    }
+
     this.changeStep.next('registerAccount');
   }
 
+  //  TODO: incluir mecanismo de loading que bloqueie todos os campos e botões
   async saveDefaultRelays(): Promise<void> {
     const { defaultFallback, searchFallback } = this.nostrConfig;
-    
+
+    const relayListEvent = this.profileEventFactory.createRelayEvent(defaultFallback);
+    await this.npool.event(relayListEvent);
+
+    if (searchFallback.length) {
+      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(searchFallback);
+      await this.npool.event(searchRelayListEvent);
+    }
 
     this.changeStep.next('registerAccount');
+    return Promise.resolve();
   }
 }

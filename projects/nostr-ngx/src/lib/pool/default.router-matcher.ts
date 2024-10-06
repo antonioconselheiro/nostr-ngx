@@ -16,7 +16,7 @@ import { RouterMatcher } from "./router-matcher.interface";
  */
 
 /**
- * Default router matcher is the library default implementation of RouterMatcher.
+ * Default Router Matcher is the default implementation of RouterMatcher.
  * Why you need that? https://mikedilger.com/gossip-model/
  */
 @Injectable()
