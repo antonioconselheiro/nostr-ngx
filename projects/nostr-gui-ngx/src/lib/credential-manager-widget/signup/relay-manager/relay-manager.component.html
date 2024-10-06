@@ -1,5 +1,6 @@
 <nostr-my-relays
   *ngIf="currentStep === 'myRelays'"
+  [contextObservable]="contextObservable"
   (relayDetail)="showRelayDetail($event)"
   (changeStep)="changeStep.next($event)"
   (changeRelayStep)="currentStep = $event"

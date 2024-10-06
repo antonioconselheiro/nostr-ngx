@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RelayManagerSteps } from './relay-manager-steps.type';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'nostr-relay-manager',
@@ -10,6 +11,9 @@ export class RelayManagerComponent {
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
+
+  @Input()
+  contextObservable!: Observable<unknown>;
 
   currentStep: RelayManagerSteps = 'myRelays';
 

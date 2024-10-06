@@ -1,11 +1,12 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays } from '@belomonte/nostr-ngx';
+import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
 import { normalizeURL } from 'nostr-tools/utils';
 import { RelayConfig } from './relay-config.interface';
+import { Observable, Subscription } from 'rxjs';
 
 /**
  * FIXME: I need a screen to show relay current connection status
@@ -16,7 +17,7 @@ import { RelayConfig } from './relay-config.interface';
   templateUrl: './my-relays.component.html',
   styleUrl: './my-relays.component.scss'
 })
-export class MyRelaysComponent implements OnInit {
+export class MyRelaysComponent implements OnInit, OnDestroy {
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
@@ -27,9 +28,12 @@ export class MyRelaysComponent implements OnInit {
   @Output()
   relayDetail = new EventEmitter<string>();
 
+  @Input()
+  contextObservable!: Observable<unknown>;
+
   connectionStatus = new Map<string, boolean>();
 
-  unsavedChosen: NostrUserRelays = {};
+  unsavedConfig: NostrUserRelays = {};
 
   relayType = 'readwrite';
   newRelayError: 'required' | null = null;
@@ -38,10 +42,13 @@ export class MyRelaysComponent implements OnInit {
   filteredKnownRelays: Array<string> = [];
   extensionRelays: RelayRecord | null = null;
 
+  private subscriptions = new Subscription();
+
   constructor(
     private npool: NostrPool,
     private nostrSigner: NostrSigner,
     private profileEventFactory: ProfileEventFactory,
+    private profileSessionStorage: ProfileSessionStorage,
     private relayConfig: RelayLocalConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
@@ -50,6 +57,17 @@ export class MyRelaysComponent implements OnInit {
     this.readUserRelays();
     this.loadKnownRelays();
     this.getRelaysFromExtensionSigner();
+    this.listenOnModalClose();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private listenOnModalClose(): void {
+    this.subscriptions.add(
+      this.contextObservable.subscribe(() => this.cleanFormStorage())
+    );
   }
 
   private getRelaysFromExtensionSigner(): void {
@@ -61,9 +79,15 @@ export class MyRelaysComponent implements OnInit {
   }
 
   private async readUserRelays(): Promise<void> {
+    const session = this.profileSessionStorage.read();
+    if (session.unsaveRelayConfig) {
+      this.unsavedConfig = session.unsaveRelayConfig;
+      return Promise.resolve();
+    }
+
     const user = await this.relayConfig.getCurrentUserRelays();
     if (user) {
-      this.unsavedChosen = user;
+      this.unsavedConfig = user;
     }
   }
 
@@ -176,20 +200,20 @@ export class MyRelaysComponent implements OnInit {
   }
 
   private hasMainRelayList(): boolean {
-    return this.unsavedChosen.general && !!Object.keys(this.unsavedChosen.general).length;
+    return this.unsavedConfig.general && !!Object.keys(this.unsavedConfig.general).length;
   }
 
   hasRelays(): boolean {
     const mainRelayList = this.hasMainRelayList();
-    const hasDm = !!this.unsavedChosen.directMessage?.length;
-    const hasSearch = !!this.unsavedChosen.search?.length;
+    const hasDm = !!this.unsavedConfig.directMessage?.length;
+    const hasSearch = !!this.unsavedConfig.search?.length;
 
     return (mainRelayList || hasDm || hasSearch);
   }
 
   listRelays(): Array<[string, RelayConfig]> {
     const configs: { [relay: WebSocket['url']]: RelayConfig } = {};
-    const general = this.unsavedChosen.general;
+    const general = this.unsavedConfig.general;
     if (this.hasMainRelayList() && general) {
       Object
         .keys(general)
@@ -204,12 +228,12 @@ export class MyRelaysComponent implements OnInit {
         });
     }
 
-    this.unsavedChosen.directMessage?.forEach(relay => {
+    this.unsavedConfig.directMessage?.forEach(relay => {
       configs[relay] = configs[relay] ? configs[relay] : {};
       configs[relay].dm = true;
     });
 
-    this.unsavedChosen.search?.forEach(relay => {
+    this.unsavedConfig.search?.forEach(relay => {
       configs[relay] = configs[relay] ? configs[relay] : {};
       configs[relay].search = true;
     });
@@ -218,23 +242,23 @@ export class MyRelaysComponent implements OnInit {
   }
 
   removeRelay(relay: string): void {
-    if (this.unsavedChosen.general) {
-      delete this.unsavedChosen.general[relay];
+    if (this.unsavedConfig.general) {
+      delete this.unsavedConfig.general[relay];
     }
 
     const notFound = -1;
     let index = -1;
-    if (this.unsavedChosen.directMessage) {
-      index = this.unsavedChosen.directMessage.indexOf(relay);
+    if (this.unsavedConfig.directMessage) {
+      index = this.unsavedConfig.directMessage.indexOf(relay);
       if (index !== notFound) {
-        this.unsavedChosen.directMessage.splice(index, 1);
+        this.unsavedConfig.directMessage.splice(index, 1);
       }
     }
 
-    if (this.unsavedChosen.search) {
-      index = this.unsavedChosen.search.indexOf(relay);
+    if (this.unsavedConfig.search) {
+      index = this.unsavedConfig.search.indexOf(relay);
       if (index !== notFound) {
-        this.unsavedChosen.search.splice(index, 1);
+        this.unsavedConfig.search.splice(index, 1);
       }
     }
   }
@@ -272,43 +296,61 @@ export class MyRelaysComponent implements OnInit {
     this.newRelayError = null;
     el.value = '';
 
-    this.unsavedChosen.general = this.unsavedChosen.general ?? {};
-    this.unsavedChosen.directMessage = this.unsavedChosen.directMessage ?? [];
-    this.unsavedChosen.search = this.unsavedChosen.search ?? [];
+    this.unsavedConfig.general = this.unsavedConfig.general ?? {};
+    this.unsavedConfig.directMessage = this.unsavedConfig.directMessage ?? [];
+    this.unsavedConfig.search = this.unsavedConfig.search ?? [];
 
     if (this.relayType === 'write') {
-      this.unsavedChosen.general[relay] = { write: true, read: false };
+      this.unsavedConfig.general[relay] = { write: true, read: false };
     } else if (this.relayType === 'read') {
-      this.unsavedChosen.general[relay] = { write: false, read: true };
+      this.unsavedConfig.general[relay] = { write: false, read: true };
     } else if (this.relayType === 'readwrite') {
-      this.unsavedChosen.general[relay] = { write: true, read: true };
+      this.unsavedConfig.general[relay] = { write: true, read: true };
     } else if (this.relayType === 'dm') {
-      this.unsavedChosen.directMessage.push(relay);
+      this.unsavedConfig.directMessage.push(relay);
     } else if (this.relayType === 'search') {
-      this.unsavedChosen.search.push(relay);
+      this.unsavedConfig.search.push(relay);
     }
+
+    this.profileSessionStorage.patch({
+      unsaveRelayConfig: this.unsavedConfig
+    });
+  }
+
+  private cleanFormStorage(): void {
+    this.profileSessionStorage.update(session => {
+      delete session.unsaveRelayConfig;
+      return session;
+    });
+  }
+
+  cancel(): void {
+    this.cleanFormStorage();
+    //  FIXME: this could be not the first screen, accound to the situations
+    this.changeStep.next('selectAccount');
   }
 
   async saveChosenRelays(): Promise<void> {
     let record: RelayRecord;
     if (this.hasMainRelayList()) {
-      record = this.unsavedChosen.general;
+      record = this.unsavedConfig.general;
     } else {
       record = this.nostrConfig.defaultFallback;
     }
 
     const relayListEvent = this.profileEventFactory.createRelayEvent(record);
     await this.npool.event(relayListEvent);
-    if (this.unsavedChosen.directMessage?.length) {
-      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedChosen.directMessage);
+    if (this.unsavedConfig.directMessage?.length) {
+      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedConfig.directMessage);
       await this.npool.event(privateDMRelayListEvent);
     }
 
-    if (this.unsavedChosen.search?.length) {
-      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.unsavedChosen.search);
+    if (this.unsavedConfig.search?.length) {
+      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.unsavedConfig.search);
       await this.npool.event(searchRelayListEvent);
     }
 
+    this.cleanFormStorage();
     this.changeStep.next('registerAccount');
     return Promise.resolve();
   }
@@ -325,6 +367,7 @@ export class MyRelaysComponent implements OnInit {
       await this.npool.event(searchRelayListEvent);
     }
 
+    this.cleanFormStorage();
     this.changeStep.next('registerAccount');
     return Promise.resolve();
   }
