@@ -3,16 +3,16 @@
 //  este componente scss não pode ser apenas de seu componente angular
 //  pois contém elementos gerados de string como filhos e scss associado ao componente
 //  limita o scss ao html do template
-.profile-container {
+.profileContainer {
 
   .userInfo,
-  .additional-information {
+  .additionalInformation {
     padding: 0 1rem;
   }
 
   .bio,
-  .follow-container,
-  .edit-profile-container {
+  .followContainer,
+  .editProfileContainer {
     padding: 1rem;
   }
 
@@ -24,7 +24,7 @@
     margin-top: 2rem;
   }
 
-  .edit-profile-container {
+  .editProfileContainer {
     display: flex;
     height: 35px;
     justify-content: spaceBetween;
@@ -59,7 +59,7 @@
     margin: 2px 0;
   }
 
-  .additional-information {
+  .additionalInformation {
     display: flex;
 
     > * {
@@ -83,7 +83,7 @@
     }
   }
 
-  .follow-container {
+  .followContainer {
     a {
       strong {
         color: var(--contrast);
