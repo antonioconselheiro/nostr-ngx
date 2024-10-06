@@ -25,40 +25,89 @@ export class ProfileEventFactory {
   }
 
   createRelayEvent(relayRecord: RelayRecord, currentEvent?: NostrEvent): Promise<NostrEvent> {
+    let content = '';
+    let tags: string[][] = [];
+    
+    if (currentEvent) {
+      content = currentEvent.content;
+      tags = currentEvent.tags.filter(([type]) => type !== 'r');
+    }
+
+    Object.keys(relayRecord).forEach(relay => {
+      const config = relayRecord[relay];
+      if (config.read && config.write) {
+        tags.push([ 'r', relay ]);
+      } else if (config.read) {
+        tags.push([ 'r', relay, 'read' ]);
+      } else if (config.write) {
+        tags.push([ 'r', relay, 'write' ]);
+      }
+    });
+
     const event: NostrRawEvent = {
       kind: kinds.RelayList,
-      content: '',
-      tags: []
+      content,
+      tags
     };
 
     return this.nostrSigner.signEvent(event);
   }
 
   createSearchRelayListEvent(searchList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+    let content = '';
+    let tags: string[][] = [];
+    
+    if (currentEvent) {
+      content = currentEvent.content;
+      tags = currentEvent.tags.filter(([type]) => type !== 'relays');
+    }
+
+    tags.push([ 'relays', ...searchList ]);
+
     const event: NostrRawEvent = {
       kind: kinds.SearchRelaysList,
-      tags: [],
-      content: ''
+      content,
+      tags
     };
 
     return this.nostrSigner.signEvent(event);
   }
 
   createPrivateDirectMessageListEvent(privateDmList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+    let content = '';
+    let tags: string[][] = [];
+    
+    if (currentEvent) {
+      content = currentEvent.content;
+      tags = currentEvent.tags.filter(([type]) => type !== 'relays');
+    }
+
+    tags.push([ 'relays', ...privateDmList ]);
+
     const event: NostrRawEvent = {
       kind: 10_050,
-      tags: [],
-      content: ''
+      content,
+      tags
     };
 
     return this.nostrSigner.signEvent(event);
   }
 
   createBlockedRelayListEvent(blockedRelayList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+    let content = '';
+    let tags: string[][] = [];
+    
+    if (currentEvent) {
+      content = currentEvent.content;
+      tags = currentEvent.tags.filter(([type]) => type !== 'relays');
+    }
+
+    tags.push([ 'relays', ...blockedRelayList ]);
+
     const event: NostrRawEvent = {
       kind: kinds.BlockedRelaysList,
-      tags: [],
-      content: ''
+      content,
+      tags
     };
 
     return this.nostrSigner.signEvent(event);

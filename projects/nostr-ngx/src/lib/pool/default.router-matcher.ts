@@ -14,6 +14,11 @@ import { RouterMatcher } from "./router-matcher.interface";
  * TODO: incluir roteamento para relays de pesquisa (10007)
  * TODO: no-mvp: incluir roteamento para wiki
  */
+
+/**
+ * Default router matcher is the library default implementation of RouterMatcher.
+ * Why you need that? https://mikedilger.com/gossip-model/
+ */
 @Injectable()
 export class DefaultRouterMatcher implements RouterMatcher {
 

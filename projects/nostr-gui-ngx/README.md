@@ -13,6 +13,7 @@ TODO:
 [ ] Internacionalization
 [ ] Integrate with nostr.watch to provide better relay search mechanics
 [ ] User blocked relay list
+[ ] Group chat
 
 Documentar sobre:
 - Como configurar os relays padrão utilizados no client
