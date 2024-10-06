@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { NostrConfig, CurrentAccountObservable, MediaUploader, NOSTR_CONFIG_TOKEN, NostrPool } from '@belomonte/nostr-ngx';
+import { CurrentAccountObservable, MediaUploader, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
-import { RegisterAccountEventFactory } from './register-account.event-factory';
 
 @Component({
   selector: 'nostr-register-account',
@@ -31,8 +30,8 @@ export class RegisterAccountComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private npool: NostrPool,
-    private registerAccountEventFactory: RegisterAccountEventFactory,
     private profile$: CurrentAccountObservable,
+    private profileEventFactory: ProfileEventFactory,
     private mediaUploader: MediaUploader,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
@@ -106,7 +105,7 @@ export class RegisterAccountComponent implements OnInit {
     const raw = this.registerAccount.getRawValue();
     const account = this.profile$.getValue();
     const updatedProfile = this.castRawValueIntoProfileMetadata(account?.metadata || null, raw);
-    this.registerAccountEventFactory
+    this.profileEventFactory
       .createProfileMetadata(updatedProfile)
       .then(nostrEvent => this.npool.event(nostrEvent));
   }

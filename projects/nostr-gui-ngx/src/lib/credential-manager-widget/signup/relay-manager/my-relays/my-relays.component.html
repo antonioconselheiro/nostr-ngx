@@ -8,7 +8,7 @@
 
 <form novalidate autocomplete="off">
   <div class="horizontalForm">
-    <div class="floatingLabel">
+    <div class="fieldWrapper">
       <select [(ngModel)]="relayType" name="relaysFrom" id="myRelaysRelaysFrom" placeholder=" ">
         <option value="write">Outbox</option>
         <option value="read">Inbox</option>
@@ -20,10 +20,10 @@
       <label for="myRelaysRelaysFrom">Save relays</label>
     </div>
 
-    <div [class.error]="newRelayError" class="floatingLabel">
+    <div [class.error]="newRelayError" class="fieldWrapper">
       <input type="text" #myRelaysNewRelay name="newRelay" id="myRelaysNewRelay" placeholder=" "
         (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" list="myRelaysKnownRelaysList"
-        nostrListenTypingComplete (typingCompleted)="filterSuggestions(myRelaysNewRelay.value)" />
+        nostrListenTypingComplete (typingCompleted)="filterSuggestions(myRelaysNewRelay.value)" autocomplete="off" />
         <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
         <datalist id="myRelaysKnownRelaysList">
           <option *ngFor="let relay of filteredKnownRelays" [value]="relay">
@@ -64,14 +64,14 @@
         </li>
       </ng-container>
   
-      <li *ngFor="let dm of choosenPrivateDirectMessageRelays" class="connected">
+      <li *ngFor="let dm of chosenPrivateDirectMessageRelays" class="connected">
         <a (click)="relayDetail.next(dm)" tabindex>{{formatRelayMetadata(dm, { dm: true })}}</a>
-        <button class="borderless removeButton" (click)="removeRelay(dm)" type="button">✕</button>
+        <button class="borderless removeButton" (click)="removePrivateDirectMessageRelay(dm)" type="button">✕</button>
       </li>
   
-      <li *ngFor="let search of choosenSearchRelays" class="connected">
+      <li *ngFor="let search of chosenSearchRelays" class="connected">
         <a (click)="relayDetail.next(search)" tabindex>{{formatRelayMetadata(search, { search: true })}}</a>
-        <button class="borderless removeButton" (click)="removeRelay(search)" type="button">✕</button>
+        <button class="borderless removeButton" (click)="removeSearchRelay(search)" type="button">✕</button>
       </li>
     </ul>
   </fieldset>
@@ -99,8 +99,8 @@
   </button>
   -->
 
-  <button (click)="changeStep.next('registerAccount')" type="button" title="save"
-    [class.secondary]="listRelays().length" class="button iconedButton" form="generateNcryptsecForm">
+  <button (click)="saveDefaultRelays()" type="button" title="save"
+    [class.secondary]="!hasRelays()" class="button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 
     <span>
@@ -108,7 +108,7 @@
     </span>
   </button>
 
-  <button (click)="changeStep.next('registerAccount')" *ngIf="listRelays().length" type="button"
+  <button (click)="saveChoosenRelays()" *ngIf="!hasRelays()" type="button"
     title="save" class="button iconedButton" form="generateNcryptsecForm">
     <nostr-svg-render class="inlineIcon" name="right"></nostr-svg-render>
 

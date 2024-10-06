@@ -6,6 +6,7 @@ import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileService } from './profile.service';
 import { PoolModule } from '../pool/pool.module';
+import { ProfileEventFactory } from './profile-event.factory';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { PoolModule } from '../pool/pool.module';
     ProfileNostr,
     ProfileCache,
     ProfileService,
+    ProfileEventFactory,
     AccountManagerService,
     CurrentAccountObservable
   ]

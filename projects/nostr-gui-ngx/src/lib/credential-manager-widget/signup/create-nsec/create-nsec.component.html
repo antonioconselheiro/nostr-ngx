@@ -1,14 +1,14 @@
 <h2 class="title">Create account</h2>
 
 <form [formGroup]="generateNsecForm" novalidate autocomplete="off">
-  <div class="floatingLabel">
+  <div class="fieldWrapper">
     <input #qrcodeTitle name="qrcodeTitle" maxlength="32" formControlName="qrcodeTitle"
       id="generateNsecQRCodeTitleField" type="text" placeholder=" " nostrListenTypingComplete 
       (typingCompleted)="renderQrcode()" autofocus [timeout]="500" />
     <label for="generateNsecQRCodeTitleField">QRCode Title</label>
   </div>
 
-  <div class="floatingLabel">
+  <div class="fieldWrapper">
     <input #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField" readonly
       type="password" placeholder=" " />
     <label for="generateNsecField">nsec</label>

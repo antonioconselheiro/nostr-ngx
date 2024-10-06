@@ -12,6 +12,8 @@ import { NotSupportedBySigner } from '../exceptions/not-supported-by-signer.erro
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayLocalConfigService } from '../pool/relay-local-config.service';
+import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
+import { nostrDate } from '../tools/nostr-date.fn';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -85,10 +87,17 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
   }
 
   /**
+   * Sign nostr event using current user configs.
+   * If `created_at` property is not present, it'll be set with current date time.
+   * 
    * @throws NoCredentialsFoundError
    * @throws SignerNotFoundError
    */
-  signEvent(event: EventTemplate): Promise<NostrEvent> {
+  signEvent(event: EventTemplate | NostrRawEvent): Promise<NostrEvent> {
+    if (!('created_at' in event)) {
+      event = { ...event, created_at: nostrDate() };
+    }
+
     const localConfig = this.localConfigs.read();
     if (localConfig.signer === 'extension') {
       return this.signWithSigner(event);

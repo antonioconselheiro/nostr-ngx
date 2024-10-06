@@ -13,6 +13,7 @@ export * from './lib/domain/nsec.type';
 export * from './lib/domain/unauthenticated-account.interface';
 export * from './lib/domain/npub.type';
 export * from './lib/domain/nevent.type';
+export * from './lib/domain/nostr-raw-event.interface';
 export * from './lib/pool/pool.module';
 export * from './lib/pool/relay-router.service';
 export * from './lib/pool/event-router-matcher.interface';

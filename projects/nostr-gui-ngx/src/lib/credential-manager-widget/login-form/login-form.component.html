@@ -1,6 +1,6 @@
 <h2 class="title">Login</h2>
 <form [formGroup]="loginForm" (submit)="onLoginSubmit($event)" novalidate autocomplete="off" id="loginForm">
-  <div [class.error]="submitted && getFormControlErrors('nsec')" class="floatingLabel">
+  <div [class.error]="submitted && getFormControlErrors('nsec')" class="fieldWrapper">
     <input #nsec required name="nsec" maxlength="64" formControlName="nsec" placeholder=" "
       id="addAccountNsecField" [attr.readonly]="loading ? 'readonly' : null" type="password" />
     <label for="addAccountNsecField">nsec or ncryptsec</label>
@@ -34,7 +34,7 @@
   </div>
 
   <div *ngIf="showPasswordField(saveNSecEncrypted.checked, nsec.value)" [class.error]="submitted && getFormControlErrors('password')"
-    class="floatingLabel passwordField">
+    class="fieldWrapper passwordField">
 
     <input #password required name="password" [maxlength]="passwordLength" formControlName="password" placeholder=" "
       id="addAccountPasswordField" [attr.readonly]="loading ? 'readonly' : null" [attr.type]="showPassword ? 'text' : 'password'" />

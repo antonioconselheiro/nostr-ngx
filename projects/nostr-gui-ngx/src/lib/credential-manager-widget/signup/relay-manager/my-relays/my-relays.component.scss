@@ -2,12 +2,12 @@
   display: flex;
   width: 100%;
 
-  > .floatingLabel:first-child {
+  > .fieldWrapper:first-child {
     margin-right: 1rem;
     flex: 1;    
   }
   
-  > .floatingLabel:last-of-type {
+  > .fieldWrapper:last-of-type {
     flex: 2;
   }
 }
@@ -46,6 +46,7 @@ ul.relayList {
   }
 }
 
+/** FIXME: centralize it, this was already used in other places */
 fieldset {
   margin: 1rem 0;
   display: block;

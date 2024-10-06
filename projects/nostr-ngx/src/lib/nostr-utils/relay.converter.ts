@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { kinds, NostrEvent } from 'nostr-tools';
-import { isRelayString } from './is-relay-string.regex';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { NostrGuard } from './nostr.guard';
 import { Account } from '../domain/account.interface';
+import { isRelayString } from './is-relay-string.regex';
+import { NostrGuard } from './nostr.guard';
 
 @Injectable({
   providedIn: 'root'

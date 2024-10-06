@@ -1,5 +1,12 @@
 @import 'styles/themes/defaults';
+
 @import 'styles/themes/blue';
+@import 'styles/themes/green';
+@import 'styles/themes/magenta';
+@import 'styles/themes/orange';
+@import 'styles/themes/yellow';
+@import 'styles/themes/purple';
+
 @import 'styles/themes/light';
 @import 'styles/themes/dark';
 @import 'styles/themes/darker';
@@ -9,7 +16,7 @@
 @import 'styles/components/forms/borderless';
 @import 'styles/components/forms/svg-button';
 @import 'styles/components/forms/button-group';
-@import 'styles/components/forms/floating-label';
+@import 'styles/components/forms/field-wrapper';
 @import 'styles/components/forms/radio-checkbox';
 @import 'styles/components/forms/inline-icon';
 

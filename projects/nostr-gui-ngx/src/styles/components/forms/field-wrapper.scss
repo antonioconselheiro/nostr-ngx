@@ -5,11 +5,11 @@
 /// You can show form erros.
 /// 
 /// @group Components
-/// @class floatingLabel
+/// @class fieldWrapper
 /// 
 /// @example
 /// ```
-/// <div class="floatingLabel">
+/// <div class="fieldWrapper">
 ///   <input
 ///     required
 ///     type="password"
@@ -27,7 +27,7 @@
 ///
 /// @example
 /// ```
-/// <div class="floatingLabel error">
+/// <div class="fieldWrapper error">
 ///   <input
 ///     required
 ///     type="password"
@@ -44,7 +44,7 @@
 ///   <span class="error">nsec is required</span>
 /// </div>
 /// ```
-.floatingLabel {
+.fieldWrapper {
   display: flex;
   align-items: center;
   position: relative;
@@ -90,6 +90,11 @@
     height: 100%;
     padding-top: 1.25rem;
     resize: none;
+  }
+
+  /** remove datalist arrow */
+  [list]::-webkit-calendar-picker-indicator {
+    display: none;
   }
 
   input,

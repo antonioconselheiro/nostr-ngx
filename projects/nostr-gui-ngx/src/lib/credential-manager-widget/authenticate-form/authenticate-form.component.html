@@ -13,7 +13,7 @@
 </section>
 
 <form [formGroup]="authenticateForm" id="authenticateForm" (submit)="onAuthenticateSubmit($event)" novalidate autocomplete="off">
-  <div [class.error]="showErrors()" class="floatingLabel">
+  <div [class.error]="showErrors()" class="fieldWrapper">
     <input #password name="password" [maxlength]="passwordLength" formControlName="password" id="authenticatePasswordField"
       [attr.type]="showPassword ? 'text' : 'password'" placeholder=" " />
 

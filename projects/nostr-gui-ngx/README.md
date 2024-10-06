@@ -9,6 +9,11 @@ To use with `nostr-ngx`
 ## Release
 not released yet
 
+TODO:
+[ ] Internacionalization
+[ ] Integrate with nostr.watch to provide better relay search mechanics
+[ ] User blocked relay list
+
 Documentar sobre:
 - Como configurar os relays padrão utilizados no client
 - Como configurar a foto de perfil e banner padrão do client 
