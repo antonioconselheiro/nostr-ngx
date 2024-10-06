@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec, NSecCrypto } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -19,9 +19,9 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   @Input()
   creatingAccount!: CreatingAccount;
 
-  showNsec = false;
   submitted = false;
-
+  
+  showNcryptsec = false;
   ncryptsecQRCode = '';
 
   generateNcryptsecForm!: FormGroup<{
@@ -35,6 +35,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     private qrcodeService: QrcodeService,
     private nostrSigner: NostrSigner,
     private nsecCrypto: NSecCrypto,
+    private profileSessionStorage: ProfileSessionStorage,
     private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
   ) { }
@@ -108,9 +109,11 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
 
   finalize(): void {
     const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
-    if (this.generateNcryptsecForm.valid && nsec && ncryptsec && this.creatingAccount.displayName) {
-      const metadata: NostrMetadata = { display_name: this.creatingAccount.displayName };
-      this.accountsLocalStorage.addNewAccount(nsec, ncryptsec, {}, metadata);
+    if (this.generateNcryptsecForm.valid && nsec && ncryptsec) {
+      const metadata: NostrMetadata = { display_name: this.creatingAccount.displayName || '' };
+      const account = this.accountsLocalStorage.addNewAccount(nsec, ncryptsec, {}, metadata);
+
+      this.profileSessionStorage.patch({ account });
       this.changeStep.next('relayManager');
     }
   }

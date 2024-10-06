@@ -11,6 +11,8 @@ import { Observable, Subscription } from 'rxjs';
 /**
  * FIXME: I need a screen to show relay current connection status
  * FIXME: maybe I should include block relay list in this screen too... but not sure
+ * TODO: include message when showing relays are not from user, but from unsaved session
+ * TODO: include message when user include more then 3 relays for write or read
  */
 @Component({
   selector: 'nostr-my-relays',
@@ -107,7 +109,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   }
 
   castEventRecomendedRelayToRelay(event: NostrEvent): string[] {
-    if (/(127\.|umbrel.local|npub)/.test(event.content)) {
+    if (/(127\.|umbrel.local|npub|(\/[^ ]+){5})/.test(event.content)) {
       return [];
     }
 
