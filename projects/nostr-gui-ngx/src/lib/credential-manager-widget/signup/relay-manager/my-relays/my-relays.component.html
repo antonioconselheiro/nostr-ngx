@@ -25,8 +25,8 @@
         (keydown)="newRelayError = null" (paste)="onPasteRelays($event)" list="myRelaysKnownRelaysList"
         nostrListenTypingComplete (typingCompleted)="filterSuggestions(myRelaysNewRelay.value)" autocomplete="off" />
         <label for="myRelaysNewRelay">{{getNewRelayFieldLabel()}}</label>
-        <datalist id="myRelaysKnownRelaysList">
-          <option *ngFor="let relay of filteredKnownRelays" [value]="relay">
+        <datalist *ngIf="showRelaySuggestion()" id="myRelaysKnownRelaysList">
+          <option *ngFor="let relay of filteredKnownRelays" [value]="relay" (click)="connect({ value: relay })">
         </datalist>
 
       <button type="button" (click)="connect(myRelaysNewRelay)" title="connect" class="svgButton">
@@ -50,28 +50,9 @@
   <fieldset>
     <legend>Public Network</legend>
     <ul class="relayList">
-
-      <ng-container *ngIf="hasMainRelayList()">
-        <li  *ngFor="let tuple of listRelays()" class="connected">
-          <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
-          <button class="borderless removeButton" (click)="removeRelay(tuple[0])" type="button">✕</button>
-        </li>
-      </ng-container>
-
-      <ng-container *ngIf="!hasMainRelayList()">
-        <li  *ngFor="let tuple of listDefaultRelays()" class="connected">
-          <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
-        </li>
-      </ng-container>
-  
-      <li *ngFor="let dm of chosenPrivateDirectMessageRelays" class="connected">
-        <a (click)="relayDetail.next(dm)" tabindex>{{formatRelayMetadata(dm, { dm: true })}}</a>
-        <button class="borderless removeButton" (click)="removePrivateDirectMessageRelay(dm)" type="button">✕</button>
-      </li>
-  
-      <li *ngFor="let search of chosenSearchRelays" class="connected">
-        <a (click)="relayDetail.next(search)" tabindex>{{formatRelayMetadata(search, { search: true })}}</a>
-        <button class="borderless removeButton" (click)="removeSearchRelay(search)" type="button">✕</button>
+      <li *ngFor="let tuple of listRelays()" class="connected">
+        <a (click)="relayDetail.next(tuple[0])" tabindex>{{formatRelayMetadata(tuple[0], tuple[1])}}</a>
+        <button *ngIf="!tuple[1].default" class="borderless removeButton" (click)="removeRelay(tuple[0])" type="button">✕</button>
       </li>
     </ul>
   </fieldset>

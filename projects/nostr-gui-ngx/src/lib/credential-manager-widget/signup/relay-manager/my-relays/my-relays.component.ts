@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory } from '@belomonte/nostr-ngx';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
+import { normalizeURL } from 'nostr-tools/utils';
+import { RelayConfig } from './relay-config.interface';
 
 /**
  * FIXME: I need a screen to show relay current connection status
@@ -27,9 +29,7 @@ export class MyRelaysComponent implements OnInit {
 
   connectionStatus = new Map<string, boolean>();
 
-  chosenRelays: RelayRecord = {};
-  chosenPrivateDirectMessageRelays: Array<WebSocket['url']> = [];
-  chosenSearchRelays: Array<WebSocket['url']> = [];
+  unsavedChosen: NostrUserRelays = {};
 
   relayType = 'readwrite';
   newRelayError: 'required' | null = null;
@@ -63,16 +63,14 @@ export class MyRelaysComponent implements OnInit {
   private async readUserRelays(): Promise<void> {
     const user = await this.relayConfig.getCurrentUserRelays();
     if (user) {
-      this.chosenRelays = user.general;
-      this.chosenPrivateDirectMessageRelays = user.directMessage || [];
-      this.chosenSearchRelays = user.search || [];
+      this.unsavedChosen = user;
     }
   }
-  
+
   private loadKnownRelays(): void {
     this.npool.query([
       {
-        kinds: [ kinds.RecommendRelay ]
+        kinds: [kinds.RecommendRelay]
       }
     ]).then(events => {
       const knownRelays = events
@@ -137,25 +135,25 @@ export class MyRelaysComponent implements OnInit {
     }
   }
 
-  formatRelayMetadata(relay: string, record: {
-    read?: boolean;
-    write?: boolean;
-    dm?: true;
-    search?: true;
-  }): string {
-    if (record.write && record.read) {
-      return `${relay} (read/write)`;
-    } else if (record.write) {
-      return `${relay} (write)`;
-    } else if (record.read) {
-      return `${relay} (read)`;
-    } else if (record.dm) {
-      return `${relay} (private dm)`;
-    } else if (record.search) {
-      return `${relay} (search)`;
+  formatRelayMetadata(relay: string, config: RelayConfig): string {
+    const types: string[] = [];
+    if (config.read) {
+      types.push('read');
     }
 
-    return relay;
+    if (config.write) {
+      types.push('write');
+    }
+
+    if (config.dm) {
+      types.push('dm');
+    }
+
+    if (config.search) {
+      types.push('search');
+    }
+
+    return `${relay} (${types.join('/')})`;
   }
 
   hasRelayInExtension(): boolean {
@@ -166,76 +164,106 @@ export class MyRelaysComponent implements OnInit {
     return !!Object.keys(this.extensionRelays).length;
   }
 
-  listExtensionRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
-    if (!this.extensionRelays) {
+  listExtensionRelays(): Array<[string, { read: boolean; write: boolean; }]> {
+    const extension = this.extensionRelays;
+    if (!extension) {
       return [];
     }
 
     return Object
-      .keys(this.extensionRelays)
-      .map(relay => [ relay, this.chosenRelays[relay] ]);
+      .keys(extension)
+      .map(relay => [relay, extension[relay]]);
   }
 
-  hasMainRelayList(): boolean {
-    return !!Object.keys(this.chosenRelays).length;
+  private hasMainRelayList(): boolean {
+    return this.unsavedChosen.general && !!Object.keys(this.unsavedChosen.general).length;
   }
 
   hasRelays(): boolean {
     const mainRelayList = this.hasMainRelayList();
-    const hasDm = !!this.chosenPrivateDirectMessageRelays.length;
-    const hasSearch = !!this.chosenSearchRelays.length;
+    const hasDm = !!this.unsavedChosen.directMessage?.length;
+    const hasSearch = !!this.unsavedChosen.search?.length;
 
     return (mainRelayList || hasDm || hasSearch);
   }
 
-  listDefaultRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
-    const fallback = this.nostrConfig.defaultFallback;
-    return Object
-      .keys(fallback)
-      .map(relay => [ relay, fallback[relay] ]);
-  }
+  listRelays(): Array<[string, RelayConfig]> {
+    const configs: { [relay: WebSocket['url']]: RelayConfig } = {};
+    const general = this.unsavedChosen.general;
+    if (this.hasMainRelayList() && general) {
+      Object
+        .keys(general)
+        .forEach(relay => configs[relay] = general[relay]);
+    } else {
+      const defaultFallback = this.nostrConfig.defaultFallback;
+      Object
+        .keys(defaultFallback)
+        .forEach(relay => configs[relay] = {
+          default: true,
+          ...defaultFallback[relay]
+        });
+    }
 
-  listRelays(): Array<[ string, { read: boolean; write: boolean; } ]> {
-    return Object
-      .keys(this.chosenRelays)
-      .map(relay => [ relay, this.chosenRelays[relay] ]);
+    this.unsavedChosen.directMessage?.forEach(relay => {
+      configs[relay] = configs[relay] ? configs[relay] : {};
+      configs[relay].dm = true;
+    });
+
+    this.unsavedChosen.search?.forEach(relay => {
+      configs[relay] = configs[relay] ? configs[relay] : {};
+      configs[relay].search = true;
+    });
+
+    return Object.keys(configs).map(relay => [relay, configs[relay]])
   }
 
   removeRelay(relay: string): void {
-    delete this.chosenRelays[relay];
-  }
-
-  removePrivateDirectMessageRelay(relay: string): void {
-    const notFound = -1;
-    const index = this.chosenPrivateDirectMessageRelays.indexOf(relay);
-    if (index !== notFound) {
-      this.chosenPrivateDirectMessageRelays.splice(index, 1);
+    if (this.unsavedChosen.general) {
+      delete this.unsavedChosen.general[relay];
     }
-  }
 
-  removeSearchRelay(relay: string): void {
     const notFound = -1;
-    const index = this.chosenSearchRelays.indexOf(relay);
-    if (index !== notFound) {
-      this.chosenSearchRelays.splice(index, 1);
+    let index = -1;
+    if (this.unsavedChosen.directMessage) {
+      index = this.unsavedChosen.directMessage.indexOf(relay);
+      if (index !== notFound) {
+        this.unsavedChosen.directMessage.splice(index, 1);
+      }
+    }
+
+    if (this.unsavedChosen.search) {
+      index = this.unsavedChosen.search.indexOf(relay);
+      if (index !== notFound) {
+        this.unsavedChosen.search.splice(index, 1);
+      }
     }
   }
 
   onPasteRelays(event: ClipboardEvent): void {
     const clipboardData = event.clipboardData;
+    const separators = /[\n;,]/;
     if (clipboardData) {
       const relays = clipboardData.getData('text');
-      if (/[\n;,]/.test(relays)) {
+      if (separators.test(relays)) {
         event.preventDefault();
         event.stopPropagation();
 
-        relays.split(/[,;\n]/).map(relay => this.connect({ value: relay.trim() }));
+        relays
+          .split(separators)
+          .map(relay => this.connect({ value: relay.trim() }));
       }
     }
   }
 
+  showRelaySuggestion(): boolean {
+    return [
+      'write', 'relay', 'readwrite'
+    ].includes(this.relayType);
+  }
+
+  // eslint-disable-next-line complexity
   connect(el: { value: string }): void {
-    const relay = el.value;
+    const relay = normalizeURL(el.value);
     if (!relay) {
       this.newRelayError = 'required';
       return;
@@ -244,40 +272,45 @@ export class MyRelaysComponent implements OnInit {
     this.newRelayError = null;
     el.value = '';
 
+    this.unsavedChosen.general = this.unsavedChosen.general ?? {};
+    this.unsavedChosen.directMessage = this.unsavedChosen.directMessage ?? [];
+    this.unsavedChosen.search = this.unsavedChosen.search ?? [];
+
     if (this.relayType === 'write') {
-      this.chosenRelays[relay] = { write: true, read: false };
+      this.unsavedChosen.general[relay] = { write: true, read: false };
     } else if (this.relayType === 'read') {
-      this.chosenRelays[relay] = { write: false, read: true };
+      this.unsavedChosen.general[relay] = { write: false, read: true };
     } else if (this.relayType === 'readwrite') {
-      this.chosenRelays[relay] = { write: true, read: true };
+      this.unsavedChosen.general[relay] = { write: true, read: true };
     } else if (this.relayType === 'dm') {
-      this.chosenPrivateDirectMessageRelays.push(relay);
+      this.unsavedChosen.directMessage.push(relay);
     } else if (this.relayType === 'search') {
-      this.chosenSearchRelays.push(relay);
+      this.unsavedChosen.search.push(relay);
     }
   }
 
   async saveChosenRelays(): Promise<void> {
     let record: RelayRecord;
     if (this.hasMainRelayList()) {
-      record = this.chosenRelays;
+      record = this.unsavedChosen.general;
     } else {
       record = this.nostrConfig.defaultFallback;
     }
 
     const relayListEvent = this.profileEventFactory.createRelayEvent(record);
     await this.npool.event(relayListEvent);
-    if (this.chosenPrivateDirectMessageRelays.length) {
-      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.chosenPrivateDirectMessageRelays);
+    if (this.unsavedChosen.directMessage?.length) {
+      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedChosen.directMessage);
       await this.npool.event(privateDMRelayListEvent);
     }
 
-    if (this.chosenSearchRelays.length) {
-      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.chosenSearchRelays);
+    if (this.unsavedChosen.search?.length) {
+      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.unsavedChosen.search);
       await this.npool.event(searchRelayListEvent);
     }
 
     this.changeStep.next('registerAccount');
+    return Promise.resolve();
   }
 
   //  TODO: incluir mecanismo de loading que bloqueie todos os campos e botões
