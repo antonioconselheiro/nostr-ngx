@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Ncryptsec, NostrSigner } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, Ncryptsec, NostrSigner, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { NostrValidators } from '../../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -42,6 +42,8 @@ export class ChoosePasswordComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private accountsLocalStorage: AccountsLocalStorage,
+    private profileSessionStorage: ProfileSessionStorage,
     private nostrSigner: NostrSigner
   ) { }
 
@@ -87,6 +89,15 @@ export class ChoosePasswordComponent implements OnInit {
         this.encryptedNsecForm.errors['confirmPasswordRequired'] ||
         this.encryptedNsecForm.errors['confirmPasswordInvalid']
       );
+  }
+
+  back(): void {
+    this.profileSessionStorage.clear();
+    if (this.accountsLocalStorage.accounts()) {
+      this.changeStep.next('selectAccount')
+    } else {
+      this.changeStep.next('login');
+    }
   }
 
   onSubmit(): void {

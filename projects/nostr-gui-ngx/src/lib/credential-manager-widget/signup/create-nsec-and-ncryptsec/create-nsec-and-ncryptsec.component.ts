@@ -107,6 +107,15 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     }
   }
 
+  cancel(): void {
+    this.profileSessionStorage.clear();
+    if (this.accountsLocalStorage.accounts()) {
+      this.changeStep.next('selectAccount')
+    } else {
+      this.changeStep.next('login');
+    }
+  }
+
   finalize(): void {
     const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec && ncryptsec) {

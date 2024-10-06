@@ -20,7 +20,7 @@ export class CredentialHandlerService {
         .createModal(ModalNostrCredentialComponent)
         .setOutletName('nostrCredential')
         .setData({
-          title: 'Login' // FIXME: change to il8n
+          title: 'Accounts' // FIXME: change to il8n
         })
         .build();
     } else {

@@ -40,6 +40,10 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
     delete localStorage[this.NOSTR_STORAGE_KEY];
   }
 
+  accounts(): number {
+    return Object.keys(this.read().accounts || {}).length;
+  }
+
   addNewAccount(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata: NostrMetadata | null): UnauthenticatedAccount {
     const { data } = nip19.decode(nsec);
     const pubkey = getPublicKey(data);

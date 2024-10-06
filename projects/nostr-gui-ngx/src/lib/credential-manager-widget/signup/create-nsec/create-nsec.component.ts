@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { FileManagerService, NostrSigner, NSec } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, NostrSigner, NSec, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
@@ -27,6 +27,8 @@ export class CreateNsecComponent implements OnInit {
     private fb: FormBuilder,
     private nostrSigner: NostrSigner,
     private qrcodeService: QrcodeService,
+    private profileSessionStorage: ProfileSessionStorage,
+    private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -72,6 +74,15 @@ export class CreateNsecComponent implements OnInit {
     const qrcodeTitle = this.generateNsecForm.get('qrcodeTitle')?.value;
     const filename = this.qrcodeService.generateFileName(`nsec qrcode - ${qrcodeTitle}`);
     this.fileManagerService.save(this.nsecQRCode, filename);
+  }
+
+  cancel(): void {
+    this.profileSessionStorage.clear();
+    if (this.accountsLocalStorage.accounts()) {
+      this.changeStep.next('selectAccount')
+    } else {
+      this.changeStep.next('login');
+    }
   }
 
   login(): void {

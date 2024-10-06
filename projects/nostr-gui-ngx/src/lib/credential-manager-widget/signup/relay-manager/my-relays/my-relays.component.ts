@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage, AccountsLocalStorage } from '@belomonte/nostr-ngx';
 import { kinds, NostrEvent } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
@@ -50,6 +50,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     private npool: NostrPool,
     private nostrSigner: NostrSigner,
     private profileEventFactory: ProfileEventFactory,
+    private accountsLocalStorage: AccountsLocalStorage,
     private profileSessionStorage: ProfileSessionStorage,
     private relayConfig: RelayLocalConfigService,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
@@ -328,8 +329,11 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
   cancel(): void {
     this.cleanFormStorage();
-    //  FIXME: this could be not the first screen, accound to the situations
-    this.changeStep.next('selectAccount');
+    if (this.accountsLocalStorage.accounts()) {
+      this.changeStep.next('selectAccount')
+    } else {
+      this.changeStep.next('login');
+    }
   }
 
   async saveChosenRelays(): Promise<void> {
