@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '@nostrify/nostrify';
-import { filter, finalize, from, map, Observable, takeUntil } from 'rxjs';
+import { finalize, Observable, Subject } from 'rxjs';
 import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
@@ -24,46 +24,30 @@ export class NostrPool extends FacadeNPool {
     super(routerService, ncache);
   }
 
-  //  TODO: verificar se a incrição e desinscrição estão funcionando corretamente
   observe(filters: Array<NostrFilter>): Observable<NostrEvent> {
     console.info('[[subscribe filter]]', filters);
     const abort = new AbortController();
-    const observable = from(this.req(filters, abort));
-    const relayClosed$ = observable.pipe(
-      filter(([kind]) => kind === 'CLOSED')
-    );
+    const subject = new Subject<NostrEvent>();
 
-    observable.subscribe({
-      next: event => {
-        console.debug('[DEBUG] something found by filters:', filters, 'event:', event);
-      },
-      error: error => {
-        console.debug('[DEBUG] ERROR received from filters:', filters, 'error:', error);
-      },
-      complete: () => {
-        console.debug('[DEBUG] Filter completed:', filters);
+    (async () => {
+      for await (const msg of this.req(filters, abort)) {
+        if (msg[0] === 'CLOSED') {
+          subject.error(msg);
+          break;
+        } else if (msg[0] === 'EVENT') {
+          subject.next(msg[2]);
+        }
       }
-    });
-
-    relayClosed$.subscribe(() => {
-      console.info('[[unsubscribe filter]]', filters);
-      abort.abort();
-    });
+    })();
   
-    return observable
+    return subject
+      .asObservable()
       .pipe(
         finalize(() => {
           console.info('[[unsubscribe filter]]', filters);
           abort.abort();
         })
-      )
-      .pipe(
-        filter(([kind]) => kind === 'EVENT'),
-        takeUntil(relayClosed$),
-      ).pipe(map(([,,event]) => {
-        console.info('[[filter found event]]', event, filters)
-        return event as NostrEvent;
-      }));
+      );
   }
 
   override req(
