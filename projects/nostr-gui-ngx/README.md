@@ -14,6 +14,7 @@ TODO:
 [ ] Integrate with nostr.watch to provide better relay search mechanics
 [ ] User blocked relay list
 [ ] Group chat
+[ ] Support SSR
 
 Documentar sobre:
 - Como configurar os relays padrão utilizados no client

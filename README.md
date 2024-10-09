@@ -10,5 +10,8 @@ If you code using this lib you automatically become a cypherpunk.
 
 This libraries will help you to use nostr protocol with angular.
 
+- [Nostr ngx](./projects/nostr-ngx/README.md)
+- [Nostr GUI ngx](./projects/nostr-gui-ngx/README.md)
+
 ## Release
 Not released yet
