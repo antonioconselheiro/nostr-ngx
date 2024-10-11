@@ -3,6 +3,9 @@ import { Machina } from '@nostrify/nostrify/utils';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
 
+//  TODO: incluir mecânica de COUNT personalizada que dê suporte a tratamento de erros para versões que não suportam
+//  NIP45 e respondem com NOTICE o filtro de COUNT ao invés de CLOSED: https://github.com/soapbox-pub/nostrify/issues/3
+
 /**
  * controls the relation between main npool and the cache system (provided ncache and nstore)
  */
@@ -23,11 +26,7 @@ export class FacadeNPool extends NPool {
     filters: NostrFilter[],
     opts?: NPoolRequestOptions,
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
-    //  FIXME? the following code is a copy of npool code, with opts being send to reqRouter,
-    //  I will remove this if this suggestion get accepted:
-    //  https://github.com/soapbox-pub/nostrify/issues/2
     const controller = new AbortController();
-    //  FIXME: AbortSignal.any is throwing build erro e__e
     const signal = opts?.signal ? (AbortSignal as any).any([opts.signal, controller.signal]) : controller.signal;
 
     const routes = await this.getOpts().reqRouter(filters, opts);

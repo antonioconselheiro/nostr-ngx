@@ -17,9 +17,9 @@ import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 export class RelayRouterService implements NpoolRouterOptions {
 
   constructor(
+    private nostrGuard: NostrGuard,
     private relayConverter: RelayConverter,
     private relayConfigService: RelayLocalConfigService,
-    private nostrGuard: NostrGuard,
     @Inject(RELAY_ROUTER_TOKEN) private routerMatcher: RouterMatcher
   ) { }
 
@@ -27,6 +27,10 @@ export class RelayRouterService implements NpoolRouterOptions {
     return new NRelay1(url);
   }
 
+  //  TODO: deve-se ler primeiro do `include` (relay hint) e depois deve-se verificar se os eventos
+  //  retornados atingiram o limit, se sim, então encerra-se, se não, deve se consultar o resto dos
+  //  relays da pool e tratar deduplicação
+  //  TODO: https://github.com/soapbox-pub/nostrify/issues/2 
   async eventRouter(event: NostrEvent, opts?: NPoolRequestOptions): Promise<Array<WebSocket["url"]>> {
     if (opts?.useOnly) {
       const usingOnly = this.parseRelayList(opts?.useOnly);
