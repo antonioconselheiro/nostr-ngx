@@ -24,13 +24,15 @@ export class NostrPool extends FacadeNPool {
     super(routerService, ncache);
   }
 
-  observe(filters: Array<NostrFilter>): Observable<NostrEvent> {
+  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEvent> {
     console.info('[[subscribe filter]]', filters);
-    const abort = new AbortController();
+    const controller = new AbortController();
+    const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
+    opts.signal = signal;
     const subject = new Subject<NostrEvent>();
 
     (async () => {
-      for await (const msg of this.req(filters, abort)) {
+      for await (const msg of this.req(filters, opts)) {
         if (msg[0] === 'CLOSED') {
           subject.error(msg);
           break;
@@ -45,7 +47,7 @@ export class NostrPool extends FacadeNPool {
       .pipe(
         finalize(() => {
           console.info('[[unsubscribe filter]]', filters);
-          abort.abort();
+          controller.abort();
         })
       );
   }
@@ -75,11 +77,20 @@ export class NostrPool extends FacadeNPool {
     const ignoreCache = optsA.ignoreCache || optsB.ignoreCache || false;
     const include = [ ...optsA.include || [], ...optsB.include || [] ];
     const useOnly = [ ...optsA.useOnly || [], ...optsB.useOnly || [] ];
-
-    //  FIXME: not the best way of merging it, but solving this is not priority
-    const signal = optsA.signal || optsB.signal;
+    let signal: AbortSignal | null = null;
+    if (optsA.signal && optsB.signal) {
+      signal = AbortSignal.any([optsA.signal, optsB.signal]);
+    } else if (optsA.signal) {
+      signal = optsA.signal;
+    } else if (optsB.signal) {
+      signal = optsB.signal;
+    }
 
     const opts: NPoolRequestOptions = {};
+    if (signal) {
+      opts.signal = signal;
+    }
+
     if (ignoreCache) {
       opts.ignoreCache = true;
     }
@@ -90,10 +101,6 @@ export class NostrPool extends FacadeNPool {
 
     if (useOnly.length) {
       opts.useOnly = useOnly;
-    }
-
-    if (signal) {
-      opts.signal = signal;
     }
 
     return opts;

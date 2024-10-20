@@ -8,7 +8,7 @@ import { NSec } from '../domain/nsec.type';
 import { NPub } from '../domain/npub.type';
 import { Ncryptsec } from '../domain/ncryptsec.type';
 import { Note } from '../domain/note.type';
-import { NostrEvent } from 'nostr-tools';
+import { NostrEvent, verifyEvent } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +45,14 @@ export class NostrGuard {
 
   isNip05(value?: string | null): value is Nip05 {
     return NIP05_REGEX.test(value || '');
+  }
+
+  isNostrEvent(event: unknown): event is NostrEvent {
+    if (event && typeof event === 'object') {
+      return verifyEvent(event as any)
+    }
+
+    return false;
   }
 
   isKind<T extends number>(event: NostrEvent | null, kind: T | T[]): event is NostrEvent & { kind: T } {

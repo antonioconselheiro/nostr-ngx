@@ -266,7 +266,7 @@ export class RelayLocalConfigService {
    */
   getRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null>;
   async getRelayListOnlyHavingNpub(npub: NPub, kind: 10006 | 10007 | 10050): Promise<Array<WebSocket['url']> | null> {
-    const pubkey = this.nostrConverter.casNPubToPubkey(npub);
+    const pubkey = this.nostrConverter.convertNPubToPubkey(npub);
     return this.getRelayListOnlyHavingPubkey(pubkey, kind);
   }
 
