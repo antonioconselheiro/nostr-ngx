@@ -6,7 +6,7 @@
     "@angular/core": "^18.1.3",
     "@belomonte/async-modal-ngx": "^1.0.0",
     "@nostrify/nostrify": "npm:@jsr/nostrify__nostrify@^0.30.1",
-    "nostr-tools": "^2.7.2",
+    "nostr-tools": "^2.8.1",
     "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.3"
   },

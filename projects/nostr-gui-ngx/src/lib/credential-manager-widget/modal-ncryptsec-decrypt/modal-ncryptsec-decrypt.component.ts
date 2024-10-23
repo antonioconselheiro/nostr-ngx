@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
-import { Ncryptsec, NSec } from '@belomonte/nostr-ngx';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 import { Subject } from 'rxjs';
 
 @Component({

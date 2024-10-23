@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { kinds, NostrEvent } from 'nostr-tools';
+import { kinds } from 'nostr-tools';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { NostrPool } from '../pool/nostr.pool';
 import { Observable } from 'rxjs';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'

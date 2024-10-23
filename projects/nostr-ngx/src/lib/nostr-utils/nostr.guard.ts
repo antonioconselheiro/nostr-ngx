@@ -1,14 +1,8 @@
 import { Injectable } from '@angular/core';
-import { NIP05_REGEX } from 'nostr-tools/nip05';
-import { Nip05 } from '../domain/nip05.type';
-import { NProfile } from '../domain/nprofile.type';
-import { NEvent } from '../domain/nevent.type';
-import { NAddr } from '../domain/naddr.type';
-import { NSec } from '../domain/nsec.type';
-import { NPub } from '../domain/npub.type';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { Note } from '../domain/note.type';
-import { NostrEvent, verifyEvent } from 'nostr-tools';
+import { verifyEvent } from 'nostr-tools';
+import { isNip05, Nip05 } from 'nostr-tools/nip05';
+import { NAddr, Ncryptsec, NEvent, NostrTypeGuard, Note, NProfile, NPub, NSec } from 'nostr-tools/nip19';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,46 +10,46 @@ import { NostrEvent, verifyEvent } from 'nostr-tools';
 export class NostrGuard {
 
   isNProfile(value?: string | null): value is NProfile {
-    return /^nprofile1[a-z\d]+$/.test(value || '');
+    return NostrTypeGuard.isNProfile(value);
   }
 
   isNEvent(value?: string | null): value is NEvent {
-    return /^nevent1[a-z\d]+$/.test(value || '');
+    return NostrTypeGuard.isNEvent(value);
   }
 
   isNAddr(value?: string | null): value is NAddr {
-    return /^naddr1[a-z\d]+$/.test(value || '');
+    return NostrTypeGuard.isNAddr(value);
   }
 
   isNSec(value?: string | null): value is NSec {
-    return /^nsec1[a-z\d]{58}$/.test(value || '');
+    return NostrTypeGuard.isNSec(value);
   }
 
   isNPub(value?: string | null): value is NPub {
-    return /^npub1[a-z\d]{58}$/.test(value || '');
+    return NostrTypeGuard.isNPub(value);
   }
 
   isNote(value?: string | null): value is Note {
-    return /^note1[a-z\d]+$/.test(value || '');
+    return NostrTypeGuard.isNote(value);
   }
 
   isNcryptsec(value?: string | null): value is Ncryptsec {
-    return /^ncryptsec1[a-z\d]+$/.test(value || '');
+    return NostrTypeGuard.isNcryptsec(value);
   }
 
   isNip05(value?: string | null): value is Nip05 {
-    return NIP05_REGEX.test(value || '');
+    return isNip05(value);
   }
 
   isNostrEvent(event: unknown): event is NostrEvent {
     if (event && typeof event === 'object') {
-      return verifyEvent(event as any)
+      return verifyEvent(event as any);
     }
 
     return false;
   }
 
-  isKind<T extends number>(event: NostrEvent | null, kind: T | T[]): event is NostrEvent & { kind: T } {
+  isKind<T extends number>(event: NostrEvent | null, kind: T | T[]): event is NostrEvent<T> {
     const kindAsArray: number[] = kind instanceof Array ? kind : [ kind ];
     return event && kindAsArray.includes(event.kind) || false;
   }

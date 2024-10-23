@@ -1,7 +1,8 @@
-import { NCache, NostrEvent, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
+import { NCache, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 //  TODO: incluir mecânica de COUNT personalizada que dê suporte a tratamento de erros para versões que não suportam
 //  NIP45 e respondem com NOTICE o filtro de COUNT ao invés de CLOSED: https://github.com/soapbox-pub/nostrify/issues/3

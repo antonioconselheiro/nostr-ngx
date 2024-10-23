@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { getPublicKey, nip19 } from 'nostr-tools';
-import { NPub } from '../domain/npub.type';
-import { NSec } from '../domain/nsec.type';
 import { NostrPublicUser } from '../domain/nostr-public-user.interface';
+import { NPub, NSec } from 'nostr-tools/nip19';
 
 @Injectable({
   providedIn: 'root'

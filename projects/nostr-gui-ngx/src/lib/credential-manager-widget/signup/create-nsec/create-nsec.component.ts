@@ -1,8 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, NostrSigner, NSec, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, NostrSigner, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
+import { NSec } from 'nostr-tools/nip19';
 
 @Component({
   selector: 'nostr-create-nsec',

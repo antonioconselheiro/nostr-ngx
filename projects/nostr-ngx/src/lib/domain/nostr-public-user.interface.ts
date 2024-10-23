@@ -1,5 +1,4 @@
-import { NProfile } from "./nprofile.type";
-import { NPub } from "./npub.type";
+import { NProfile, NPub } from "nostr-tools/nip19";
 
 export interface NostrPublicUser {
   pubkey: string;

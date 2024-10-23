@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { nip19 } from 'nostr-tools';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 import * as nip49 from 'nostr-tools/nip49';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NSec } from '../domain/nsec.type';
 
 // FIXME: find a better name for these type of service
 @Injectable({

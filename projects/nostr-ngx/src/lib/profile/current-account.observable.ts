@@ -3,14 +3,13 @@ import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account.interface';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({

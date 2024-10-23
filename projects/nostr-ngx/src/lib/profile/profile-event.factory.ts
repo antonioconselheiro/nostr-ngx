@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { kinds, NostrEvent } from 'nostr-tools';
+import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'

@@ -1,9 +1,7 @@
 
 import { NostrMetadata } from '@nostrify/nostrify';
-import { Ncryptsec } from './ncryptsec.type';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { NPub } from './npub.type';
-import { NProfile } from './nprofile.type';
+import { Ncryptsec, NProfile, NPub } from 'nostr-tools/nip19';
 
 export interface Account {
   pubkey: string;

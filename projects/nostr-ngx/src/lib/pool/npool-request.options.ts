@@ -1,6 +1,5 @@
 import { NostrEvent } from '@nostrify/nostrify';
-import { ProfilePointer } from 'nostr-tools/nip19';
-import { NProfile } from '../domain/nprofile.type';
+import { NProfile, ProfilePointer } from 'nostr-tools/nip19';
 
 export interface NPoolRequestOptions {
   /**

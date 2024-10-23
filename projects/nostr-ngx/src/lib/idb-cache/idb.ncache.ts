@@ -1,7 +1,8 @@
-import { NCache, NostrEvent, NostrFilter, NSet } from '@nostrify/nostrify';
+import { NCache, NostrFilter, NSet } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 //  TODO: include index by create at
 //  TODO: include index by tag

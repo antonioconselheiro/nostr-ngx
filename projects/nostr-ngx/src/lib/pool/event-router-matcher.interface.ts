@@ -1,4 +1,4 @@
-import { NostrEvent } from "nostr-tools";
+import { NostrEvent } from "../domain/nostr-event.interface";
 
 export interface EventRouterMatcher<T extends NostrEvent> {
   /**

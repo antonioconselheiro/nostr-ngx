@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage, AccountsLocalStorage } from '@belomonte/nostr-ngx';
-import { kinds, NostrEvent } from 'nostr-tools';
+import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage, AccountsLocalStorage, NostrEvent } from '@belomonte/nostr-ngx';
+import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
@@ -203,7 +203,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   }
 
   private hasMainRelayList(): boolean {
-    return this.unsavedConfig.general && !!Object.keys(this.unsavedConfig.general).length;
+    return this.unsavedConfig.general && !!Object.keys(this.unsavedConfig.general).length || false;
   }
 
   hasRelays(): boolean {
@@ -344,15 +344,15 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
       record = this.nostrConfig.defaultFallback;
     }
 
-    const relayListEvent = this.profileEventFactory.createRelayEvent(record);
+    const relayListEvent = await this.profileEventFactory.createRelayEvent(record);
     await this.npool.event(relayListEvent);
     if (this.unsavedConfig.directMessage?.length) {
-      const privateDMRelayListEvent = this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedConfig.directMessage);
+      const privateDMRelayListEvent = await this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedConfig.directMessage);
       await this.npool.event(privateDMRelayListEvent);
     }
 
     if (this.unsavedConfig.search?.length) {
-      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(this.unsavedConfig.search);
+      const searchRelayListEvent = await this.profileEventFactory.createSearchRelayListEvent(this.unsavedConfig.search);
       await this.npool.event(searchRelayListEvent);
     }
 
@@ -365,11 +365,11 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   async saveDefaultRelays(): Promise<void> {
     const { defaultFallback, searchFallback } = this.nostrConfig;
 
-    const relayListEvent = this.profileEventFactory.createRelayEvent(defaultFallback);
+    const relayListEvent = await this.profileEventFactory.createRelayEvent(defaultFallback);
     await this.npool.event(relayListEvent);
 
     if (searchFallback.length) {
-      const searchRelayListEvent = this.profileEventFactory.createSearchRelayListEvent(searchFallback);
+      const searchRelayListEvent = await this.profileEventFactory.createSearchRelayListEvent(searchFallback);
       await this.npool.event(searchRelayListEvent);
     }
 

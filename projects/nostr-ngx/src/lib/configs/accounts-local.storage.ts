@@ -5,12 +5,10 @@ import { AbstractBrowserStorage } from './abstract-browser-storage';
 import { NostrConfig } from './nostr-config.interface';
 import { NostrLocalConfig } from './nostr-local-config.interface';
 import { NostrUserRelays } from './nostr-user-relays.interface';
-import { Ncryptsec } from '../domain/ncryptsec.type';
-import { NSec } from '../domain/nsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { ProfilePointer } from 'nostr-tools/nip19';
+import { Ncryptsec, NSec, ProfilePointer } from 'nostr-tools/nip19';
 
 @Injectable({
   providedIn: 'root'

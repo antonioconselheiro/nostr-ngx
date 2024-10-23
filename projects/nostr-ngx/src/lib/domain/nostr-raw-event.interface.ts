@@ -1,3 +1,3 @@
-import { NostrEvent } from 'nostr-tools';
+import { NostrEvent } from './nostr-event.interface';
 
 export type NostrRawEvent = Pick<NostrEvent, 'kind' | 'tags' | 'content'>;

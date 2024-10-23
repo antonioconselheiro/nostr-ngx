@@ -6,12 +6,12 @@ import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account.interface';
-import { Ncryptsec } from '../domain/ncryptsec.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { Ncryptsec } from 'nostr-tools/nip19';
 
 /**
  * manage account objects, manage the account list in localstorage

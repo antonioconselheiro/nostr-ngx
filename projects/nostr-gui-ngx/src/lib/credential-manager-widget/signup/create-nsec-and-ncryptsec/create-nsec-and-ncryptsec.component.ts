@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, Ncryptsec, NostrSigner, NSec, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 
 @Component({
   selector: 'nostr-create-nsec-and-ncryptsec',

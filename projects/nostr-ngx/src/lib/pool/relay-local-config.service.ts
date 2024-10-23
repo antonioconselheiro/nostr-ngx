@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { NCache } from '@nostrify/nostrify';
-import { kinds, NostrEvent } from 'nostr-tools';
+import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
@@ -9,8 +9,9 @@ import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
-import { NPub } from '../domain/npub.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
+import { NPub } from 'nostr-tools/nip19';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 // this service is used by pool, so it should never import the pool.
 /**

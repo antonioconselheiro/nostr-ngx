@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, CurrentAccountObservable, Ncryptsec, NostrConverter, NostrGuard, NostrSigner, NPub, NSec, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, CurrentAccountObservable, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
 import { AuthModalSteps } from '../auth-modal-steps.type';
