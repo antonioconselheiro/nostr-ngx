@@ -5,10 +5,12 @@ import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { AccountsLocalStorage } from './accounts-local.storage';
 import { nostrConfig } from './nostr.config';
 import { ProfileSessionStorage } from './profile-session.storage';
+import { NostrUtilsModule } from '../nostr-utils/nostr-utils.module';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    NostrUtilsModule
   ],
   providers: [
     AccountsLocalStorage,

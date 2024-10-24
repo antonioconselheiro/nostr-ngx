@@ -7,19 +7,19 @@ import { NostrSessionConfig } from './nostr-session-config.interface';
 })
 export class ProfileSessionStorage extends AbstractBrowserStorage<NostrSessionConfig> {
 
-  private readonly NOSTR_STORAGE_KEY = 'nostr';
+  private readonly nostrStorageKey = 'nostr';
 
   protected default: NostrSessionConfig = {};
 
   protected getItem(): string | null {
-    return sessionStorage.getItem(this.NOSTR_STORAGE_KEY);
+    return sessionStorage.getItem(this.nostrStorageKey);
   }
 
   protected setItem(serializedObject: string): void {
-    sessionStorage.setItem(this.NOSTR_STORAGE_KEY, serializedObject);
+    sessionStorage.setItem(this.nostrStorageKey, serializedObject);
   }
 
   override clear(): void {
-    delete sessionStorage[this.NOSTR_STORAGE_KEY];
+    delete sessionStorage[this.nostrStorageKey];
   }
 }

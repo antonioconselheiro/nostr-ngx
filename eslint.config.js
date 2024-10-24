@@ -57,21 +57,37 @@ module.exports = tseslint.config(
       ],
       "@angular-eslint/no-output-native": "off",
       "@typescript-eslint/naming-convention": [
-        "warn",
+        "error",
+        {
+          "selector": [
+            "typeProperty",
+            "objectLiteralProperty"
+          ],
+          "custom": {
+            "regex": "(^#[a-z\\d]+|^[a-z_\\d]+$|^[a-z\\d]+([A-Z\\d][a-z\\d]*)*$|^wss?://[a-z\\d]+(\\.[a-z\\d]+)+$)",
+            "match": true
+          },
+          "format": null
+        },
         {
           "selector": [
             "classProperty",
-            "objectLiteralProperty",
-            "typeProperty",
             "classMethod",
             "objectLiteralMethod",
             "typeMethod",
-            "accessor",
-            "enumMember"
+            "accessor"
           ],
           "format": [
             "camelCase",
-            "PascalCase",
+            "PascalCase"
+          ]
+        },
+
+        {
+          "selector": [
+            "enumMember"
+          ],
+          "format": [
             "UPPER_CASE"
           ]
         }

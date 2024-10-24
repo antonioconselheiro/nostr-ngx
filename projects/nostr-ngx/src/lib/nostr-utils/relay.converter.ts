@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { kinds, NostrEvent } from 'nostr-tools';
+import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
 import { isRelayString } from './is-relay-string.regex';
 import { NostrGuard } from './nostr.guard';
+import { RelayList } from 'nostr-tools/kinds';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +43,7 @@ export class RelayConverter {
     return list;
   }
 
-  convertRelayListEventToRelayRecord(event: NostrEvent & { kind: typeof kinds.RelayList }): RelayRecord {
+  convertRelayListEventToRelayRecord(event: NostrEvent<RelayList>): RelayRecord {
     const record: RelayRecord = {};
     const relayTags = event.tags.filter(([type]) => type === 'r');
     relayTags.forEach(([, relay, config]) => {

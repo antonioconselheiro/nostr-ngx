@@ -15,7 +15,7 @@ import { Ncryptsec, NSec, ProfilePointer } from 'nostr-tools/nip19';
 })
 export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfig> {
 
-  private readonly NOSTR_STORAGE_KEY = 'nostr';
+  private readonly nostrStorageKey = 'nostr';
 
   protected default: NostrLocalConfig = {};
 
@@ -27,15 +27,15 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
   }
 
   protected getItem(): string | null {
-    return localStorage.getItem(this.NOSTR_STORAGE_KEY);
+    return localStorage.getItem(this.nostrStorageKey);
   }
 
   protected setItem(serializedObject: string): void {
-    localStorage.setItem(this.NOSTR_STORAGE_KEY, serializedObject);
+    localStorage.setItem(this.nostrStorageKey, serializedObject);
   }
 
   override clear(): void {
-    delete localStorage[this.NOSTR_STORAGE_KEY];
+    delete localStorage[this.nostrStorageKey];
   }
 
   accounts(): number {

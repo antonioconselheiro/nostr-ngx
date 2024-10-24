@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@angular/core";
-import { kinds, NostrEvent } from "nostr-tools";
+import { kinds } from "nostr-tools";
 import { ProfilePointer } from "nostr-tools/nip19";
 import { RelayRecord } from "nostr-tools/relay";
 import { NostrConfig } from "../configs/nostr-config.interface";
@@ -8,6 +8,8 @@ import { NostrGuard } from "../nostr-utils/nostr.guard";
 import { RelayConverter } from "../nostr-utils/relay.converter";
 import { RelayLocalConfigService } from "./relay-local-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
+import { NostrEvent } from "../domain/nostr-event.interface";
+import { DirectMessageRelaysList, RelayList } from "nostr-tools/kinds";
 
 /**
  * TODO: incluir roteamento para addressed event
@@ -73,9 +75,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private isDirectMessageEvent(event: NostrEvent): boolean {
-    //  FIXME: include correct kind when nostr-tools implements nip17.ts
-    const kindPrivateDirectMessage = 14;
-    return event.kind === kinds.EncryptedDirectMessage || event.kind === kindPrivateDirectMessage;
+    return event.kind === kinds.EncryptedDirectMessage || event.kind === kinds.PrivateDirectMessage;
   }
 
   private async routesToDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
@@ -147,14 +147,14 @@ export class DefaultRouterMatcher implements RouterMatcher {
     });
   }
 
-  private isRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: typeof kinds.RelayList } {
+  private isRelayListEvent(event: NostrEvent): event is NostrEvent<RelayList> {
     return event.kind === kinds.RelayList;
   }
 
   /**
    * Update old write relays and new write relays
    */
-  private async routerToUpdateMainRelayList(event: NostrEvent & { kind: typeof kinds.RelayList }): Promise<Array<WebSocket['url']>> {
+  private async routerToUpdateMainRelayList(event: NostrEvent<RelayList>): Promise<Array<WebSocket['url']>> {
     //  Updating old relay list helps users listen to these knows you don't use this relay anymore.
     //  It will load the last published relay list from ncache or from indexeddb, if user is editing
     //  relay list the event will be surely loaded
@@ -166,14 +166,14 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return Promise.resolve(relayList);
   }
 
-  private isDirectMessageRelayListEvent(event: NostrEvent): event is NostrEvent & { kind: 10050 } {
+  private isDirectMessageRelayListEvent(event: NostrEvent): event is NostrEvent<DirectMessageRelaysList> {
     return this.guard.isKind(event, this.relayConfigService.kindDirectMessageRelayList);
   }
 
   /**
    * this is not for sending private message, is for update relay list for sending private message
    */
-  private async routerToUpdateDirectMessageRelayList(event: NostrEvent & { kind: 10050 }): Promise<Array<WebSocket['url']>> {
+  private async routerToUpdateDirectMessageRelayList(event: NostrEvent<DirectMessageRelaysList>): Promise<Array<WebSocket['url']>> {
     //  load author write relays
     const authorRelayRecord = await this.relayConfigService.getUserRelays(event.pubkey);
     const authorWriteRelays = this.relayConverter.extractRelaysOfRelayRecord(authorRelayRecord, 'write');

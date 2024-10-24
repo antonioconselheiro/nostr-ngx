@@ -1,4 +1,4 @@
-import { RelayRecord } from "nostr-tools/relay";
+import { RelayRecord } from 'nostr-tools/relay';
 
 export interface NostrUserRelays {
   general?: RelayRecord;

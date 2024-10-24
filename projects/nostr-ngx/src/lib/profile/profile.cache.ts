@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { NSchema as n } from '@nostrify/nostrify';
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { LRUCache } from 'lru-cache';
-import { kinds, nip19 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
+import { Metadata } from 'nostr-tools/kinds';
 import { Nip05, queryProfile } from 'nostr-tools/nip05';
 import { NPub, ProfilePointer } from 'nostr-tools/nip19';
+import { NostrEvent } from '../domain/nostr-event.interface';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
-import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -63,7 +64,7 @@ export class ProfileCache {
     tx.store.delete(metadata.pubkey);
   }
 
-  async add(metadataEvents: Array<NostrEvent<typeof kinds.Metadata>>): Promise<Array<AccountResultset>> {
+  async add(metadataEvents: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
     const touples = await this.prefetch(metadataEvents);
     //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
     const db = await this.db;
@@ -76,7 +77,7 @@ export class ProfileCache {
     return Promise.resolve(metadatas);
   }
 
-  protected async prefetch(metadataEvents: Array<NostrEvent<typeof kinds.Metadata>>): Promise<Array<AccountResultset>> {
+  protected async prefetch(metadataEvents: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
     const queuee = metadataEvents.map(async (event): Promise<AccountResultset> => {
       const metadata = n
         .json()

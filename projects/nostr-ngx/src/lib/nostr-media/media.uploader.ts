@@ -5,7 +5,7 @@ import { parseEvent } from 'nostr-tools/nip94';
 import { Observable, Subject } from 'rxjs';
 import { FileManagerService } from './file-manager.service';
 import { FileUpload } from './file-upload.type';
-import { NostrEvent } from 'nostr-tools';
+import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'

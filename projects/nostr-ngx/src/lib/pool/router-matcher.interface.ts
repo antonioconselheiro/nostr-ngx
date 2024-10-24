@@ -1,6 +1,6 @@
-import { NostrEvent } from "../domain/nostr-event.interface";
-import { EventRouterMatcher } from "./event-router-matcher.interface";
-import { RelayRecord } from "nostr-tools/relay";
+import { NostrEvent } from '../domain/nostr-event.interface';
+import { EventRouterMatcher } from './event-router-matcher.interface';
+import { RelayRecord } from 'nostr-tools/relay';
 
 /**
  * The provided implementation of this interface will identify which relay must be used in each situation.
@@ -14,7 +14,7 @@ export interface RouterMatcher {
    * found relays to publish an event
    */
   eventRouter: Array<EventRouterMatcher<NostrEvent>>;
-  
+
   /**
    * list of relays when no relay was found
    */

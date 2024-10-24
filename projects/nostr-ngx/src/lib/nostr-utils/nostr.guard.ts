@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { verifyEvent } from 'nostr-tools';
+import { isKind } from 'nostr-tools/kinds';
 import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { NAddr, Ncryptsec, NEvent, NostrTypeGuard, Note, NProfile, NPub, NSec } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/nostr-event.interface';
 
+/**
+ * A facade to nostr-tools guard tools with some extra util type-guards
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -49,9 +53,8 @@ export class NostrGuard {
     return false;
   }
 
-  isKind<T extends number>(event: NostrEvent | null, kind: T | T[]): event is NostrEvent<T> {
-    const kindAsArray: number[] = kind instanceof Array ? kind : [ kind ];
-    return event && kindAsArray.includes(event.kind) || false;
+  isKind<T extends number>(event: unknown, kind: T | T[]): event is NostrEvent<T> {
+    return isKind(event, kind);
   }
 
   isHexadecimal(stuff: string): boolean {

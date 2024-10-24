@@ -250,7 +250,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
 
     const notFound = -1;
-    let index = -1;
+    let index = notFound;
     if (this.unsavedConfig.directMessage) {
       index = this.unsavedConfig.directMessage.indexOf(relay);
       if (index !== notFound) {
@@ -338,7 +338,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
   async saveChosenRelays(): Promise<void> {
     let record: RelayRecord;
-    if (this.hasMainRelayList()) {
+    if (this.hasMainRelayList() && this.unsavedConfig.general) {
       record = this.unsavedConfig.general;
     } else {
       record = this.nostrConfig.defaultFallback;
