@@ -10,6 +10,7 @@ import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
 import { Ncryptsec, NSec } from 'nostr-tools/nip19';
+import { HexString } from '../domain/hex-string.interface';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
@@ -38,18 +39,18 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
   /**
    * @returns account of current authenticated user, return null if there is no user set in signer
    */
-    async useExtension(): Promise<Account | null> {
-      const pubkey = await this.nostrSigner.getPublicKey();
-      this.accountLocalStorage.patch({
-        signer: 'extension'
-      });
-  
-      if (!pubkey) {
-        return Promise.resolve(null);
-      }
+  async useExtension(): Promise<Account | null> {
+    const pubkey = await this.nostrSigner.getPublicKey();
+    this.accountLocalStorage.patch({
+      signer: 'extension'
+    });
 
-      return this.updateCurrentProfile(pubkey);
+    if (!pubkey) {
+      return Promise.resolve(null);
     }
+
+    return this.updateCurrentProfile(pubkey);
+  }
 
   authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
@@ -91,7 +92,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return Promise.resolve(account);
   }
 
-  private async updateCurrentProfile(pubkey: string): Promise<Account> {
+  private async updateCurrentProfile(pubkey: HexString): Promise<Account> {
     const account = await this.profileService.loadAccount(pubkey);
     const accountRelays = account.relays.general || null;
     const outbox = this.relayConverter.extractOutboxRelays(accountRelays)

@@ -79,10 +79,9 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private async routesToDirectMessage(event: NostrEvent): Promise<Array<WebSocket['url']>> {
-    const dmKind = this.relayConfigService.kindDirectMessageRelayList;
-    const senderDMRelays = await this.relayConfigService.getUserRelayList(event.pubkey, dmKind);
+    const senderDMRelays = await this.relayConfigService.getUserRelayList(event.pubkey, DirectMessageRelaysList);
     const pointers = this.getPTagsAsProfilePointer(event)
-    const fellows = pointers.map(pointer => this.relayConfigService.getUserRelayList(pointer.pubkey, dmKind));
+    const fellows = pointers.map(pointer => this.relayConfigService.getUserRelayList(pointer.pubkey, DirectMessageRelaysList));
     const fellowRelaysFromPointers = pointers.map(pointer => pointer.relays);
     const fellowDMRelays = await Promise.all(fellows);
     const list = new Array<WebSocket['url'] | null>()
@@ -167,7 +166,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   }
 
   private isDirectMessageRelayListEvent(event: NostrEvent): event is NostrEvent<DirectMessageRelaysList> {
-    return this.guard.isKind(event, this.relayConfigService.kindDirectMessageRelayList);
+    return this.guard.isKind(event, DirectMessageRelaysList);
   }
 
   /**
@@ -180,7 +179,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
 
     //  load old direct message author list
     const oldRelayDMList = await this.relayConfigService.getUserRelayList(
-      event.pubkey, this.relayConfigService.kindDirectMessageRelayList
+      event.pubkey, DirectMessageRelaysList
     );
 
     //  get relays from new direct message list

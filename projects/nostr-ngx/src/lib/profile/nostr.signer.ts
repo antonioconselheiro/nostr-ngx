@@ -13,6 +13,7 @@ import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
 import { unixDate } from '../tools/unix-date.fn';
 import { Ncryptsec, NProfile, NSec } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/nostr-event.interface';
+import { HexString } from '../domain/hex-string.interface';
 
 /**
  * Sign Nostr Event according to user authentication settings.
@@ -149,7 +150,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
      * @throws SignerNotFoundError
      * @throws NotSupportedBySigner
      */
-    encrypt: async (pubkey: string, plaintext: string): Promise<string> => {
+    encrypt: async (pubkey: HexString, plaintext: string): Promise<string> => {
       const { signer } = this.localConfigs.read();
       if (signer === 'extension') {
         if (window.nostr) {
@@ -173,7 +174,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
      * @throws SignerNotFoundError
      * @throws NotSupportedBySigner
      */
-    decrypt: async (pubkey: string, ciphertext: string): Promise<string> => {
+    decrypt: async (pubkey: HexString, ciphertext: string): Promise<string> => {
       const { signer } = this.localConfigs.read();
       if (signer === 'extension') {
         if (window.nostr) {
@@ -199,7 +200,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
      * @throws SignerNotFoundError
      * @throws NotSupportedBySigner
      */
-    encrypt: async (pubkey: string, plaintext: string): Promise<string> => {
+    encrypt: async (pubkey: HexString, plaintext: string): Promise<string> => {
       const { signer } = this.localConfigs.read();
       if (signer === 'extension') {
         if (window.nostr) {
@@ -223,7 +224,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
      * @throws SignerNotFoundError
      * @throws NotSupportedBySigner
      */
-    decrypt: async (pubkey: string, ciphertext: string): Promise<string> => {
+    decrypt: async (pubkey: HexString, ciphertext: string): Promise<string> => {
       const { signer } = this.localConfigs.read();
       if (signer === 'extension') {
         if (window.nostr) {
@@ -244,7 +245,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
   };
 
   isSignerError(error: Error): error is NoCredentialsFoundError | NotSupportedBySigner | SignerNotFoundError {
-    if (error instanceof NoCredentialsFoundError || error instanceof  NotSupportedBySigner || error instanceof  SignerNotFoundError) {
+    if (error instanceof NoCredentialsFoundError || error instanceof NotSupportedBySigner || error instanceof SignerNotFoundError) {
       return true;
     }
 

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, CurrentAccountObservable, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountManagerService, CurrentAccountObservable, HexString, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
 import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -128,7 +128,7 @@ export class LoginFormComponent implements OnInit {
       let account: Account;
       let user: {
         npub: NPub;
-        pubkey: string;
+        pubkey: HexString;
       };
 
       if (this.guard.isNSec(nsec)) {

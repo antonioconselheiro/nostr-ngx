@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { kinds } from 'nostr-tools';
+import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
+import { HexString } from '../domain/hex-string.interface';
+import { NostrEvent } from '../domain/nostr-event.interface';
 import { isRelayString } from './is-relay-string.regex';
 import { NostrGuard } from './nostr.guard';
-import { RelayList } from 'nostr-tools/kinds';
-import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RelayConverter {
-
-  private readonly kindDirectMessageList = 10050;
 
   constructor(
     private guard: NostrGuard
@@ -32,13 +31,13 @@ export class RelayConverter {
     return list;
   }
 
-  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 }): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent & { kind: 10007 }): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent & { kind: 10050 }): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 | 10007 | 10050 }): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent & { kind: 10006 | 10007 | 10050 }): Array<WebSocket['url']> {
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList>): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent<SearchRelaysList>): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent<DirectMessageRelaysList>): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<WebSocket['url']>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<WebSocket['url']> {
     let list: Array<WebSocket['url']> = [];
-    event.tags.forEach(tag => list = [ ...list, ...this.convertRelayMetadataFromTag(tag) ]);
+    event.tags.forEach(tag => list = [...list, ...this.convertRelayMetadataFromTag(tag)]);
 
     return list;
   }
@@ -77,7 +76,7 @@ export class RelayConverter {
    * Read tag 'relays' and tag 'r', read either the relay from tag 'e' and from tag 'p'
    */
   convertEventToRelayList(event: NostrEvent): Array<WebSocket['url']> {
-    const shouldIgnore = [ kinds.RelayList ].includes(event.kind);
+    const shouldIgnore = [kinds.RelayList].includes(event.kind);
     if (shouldIgnore) {
       return [];
     }
@@ -110,24 +109,24 @@ export class RelayConverter {
   convertEventsToRelayConfig(
     relayEvents: Array<NostrEvent>,
     patchExistingUser?: Account
-  ): { [pubkey: string]: NostrUserRelays } {
-    const record: { [pubkey: string]: NostrUserRelays } = {};
+  ): { [pubkey: HexString]: NostrUserRelays } {
+    const record: { [pubkey: HexString]: NostrUserRelays } = {};
     if (patchExistingUser) {
       record[patchExistingUser.pubkey] = patchExistingUser.relays;
     }
 
     relayEvents.forEach(event => {
       if (!record[event.pubkey]) {
-        record[event.pubkey] = { };
+        record[event.pubkey] = {};
       }
 
-      if (this.guard.isKind(event, kinds.RelayList)) {
+      if (this.guard.isKind(event, RelayList)) {
         record[event.pubkey].general = this.convertRelayListEventToRelayRecord(event);
-      } else if (this.guard.isKind(event, this.kindDirectMessageList)) {
+      } else if (this.guard.isKind(event, DirectMessageRelaysList)) {
         record[event.pubkey].directMessage = this.convertEventToRelayList(event);
-      } else if (this.guard.isKind(event, kinds.SearchRelaysList)) {
+      } else if (this.guard.isKind(event, SearchRelaysList)) {
         record[event.pubkey].search = this.convertEventToRelayList(event);
-      } else if (this.guard.isKind(event, kinds.BlockedRelaysList)) {
+      } else if (this.guard.isKind(event, BlockedRelaysList)) {
         record[event.pubkey].blocked = this.convertEventToRelayList(event);
       }
     });

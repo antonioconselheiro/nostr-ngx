@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
+import { DirectMessageRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
+import { NostrEvent } from '../domain/nostr-event.interface';
 import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
-import { NostrEvent } from '../domain/nostr-event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,7 @@ export class ProfileEventFactory {
   createRelayEvent(relayRecord: RelayRecord, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
-    
+
     if (currentEvent) {
       content = currentEvent.content;
       tags = currentEvent.tags.filter(([type]) => type !== 'r');
@@ -37,11 +38,11 @@ export class ProfileEventFactory {
     Object.keys(relayRecord).forEach(relay => {
       const config = relayRecord[relay];
       if (config.read && config.write) {
-        tags.push([ 'r', relay ]);
+        tags.push(['r', relay]);
       } else if (config.read) {
-        tags.push([ 'r', relay, 'read' ]);
+        tags.push(['r', relay, 'read']);
       } else if (config.write) {
-        tags.push([ 'r', relay, 'write' ]);
+        tags.push(['r', relay, 'write']);
       }
     });
 
@@ -57,13 +58,13 @@ export class ProfileEventFactory {
   createSearchRelayListEvent(searchList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
-    
+
     if (currentEvent) {
       content = currentEvent.content;
       tags = currentEvent.tags.filter(([type]) => type !== 'relays');
     }
 
-    tags.push([ 'relays', ...searchList ]);
+    tags.push(['relays', ...searchList]);
 
     const event: NostrRawEvent = {
       kind: kinds.SearchRelaysList,
@@ -77,16 +78,16 @@ export class ProfileEventFactory {
   createPrivateDirectMessageListEvent(privateDmList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
-    
+
     if (currentEvent) {
       content = currentEvent.content;
       tags = currentEvent.tags.filter(([type]) => type !== 'relays');
     }
 
-    tags.push([ 'relays', ...privateDmList ]);
+    tags.push(['relays', ...privateDmList]);
 
     const event: NostrRawEvent = {
-      kind: 10_050,
+      kind: DirectMessageRelaysList,
       content,
       tags
     };
@@ -97,13 +98,13 @@ export class ProfileEventFactory {
   createBlockedRelayListEvent(blockedRelayList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
-    
+
     if (currentEvent) {
       content = currentEvent.content;
       tags = currentEvent.tags.filter(([type]) => type !== 'relays');
     }
 
-    tags.push([ 'relays', ...blockedRelayList ]);
+    tags.push(['relays', ...blockedRelayList]);
 
     const event: NostrRawEvent = {
       kind: kinds.BlockedRelaysList,

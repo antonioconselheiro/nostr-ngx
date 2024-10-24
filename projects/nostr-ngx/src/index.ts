@@ -8,6 +8,7 @@ export * from './lib/domain/nostr-public-user.interface';
 export * from './lib/domain/nostr-raw-event.interface';
 export * from './lib/domain/relay-list.event-kind';
 export * from './lib/domain/nostr-event.interface';
+export * from './lib/domain/hex-string.interface';
 export * from './lib/domain/unauthenticated-account.interface';
 export * from './lib/pool/relay-router.service';
 export * from './lib/pool/relay-local-config.service';

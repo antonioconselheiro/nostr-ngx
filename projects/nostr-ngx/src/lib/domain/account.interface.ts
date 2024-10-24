@@ -2,9 +2,10 @@
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Ncryptsec, NProfile, NPub } from 'nostr-tools/nip19';
+import { HexString } from './hex-string.interface';
 
 export interface Account {
-  pubkey: string;
+  pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;
   isNip05Valid: boolean;

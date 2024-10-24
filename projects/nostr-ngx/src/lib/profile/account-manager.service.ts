@@ -12,6 +12,7 @@ import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { Ncryptsec } from 'nostr-tools/nip19';
+import { HexString } from '../domain/hex-string.interface';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -51,11 +52,11 @@ export class AccountManagerService {
   /**
    * Create an account with user prefetched content
    */
-  accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays): Promise<Account>;
-  accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): Promise<Account>;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
   //  FIXME:
   // eslint-disable-next-line complexity 
-  async accountFactory(pubkey: string, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
+  async accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
 
     let picture = this.nostrConfig.defaultProfile.picture,
       metadata: NostrMetadata | null = null,
@@ -68,7 +69,7 @@ export class AccountManagerService {
         if (resultset.metadata.picture) {
           picture = resultset.metadata.picture;
         }
-        
+
         if (resultset.nip05) {
           relayPointer = resultset.nip05.relays || [];
           isNip05Valid = !!relayPointer.length;
@@ -100,7 +101,7 @@ export class AccountManagerService {
     if (!response.ok) {
       return Promise.reject(response);
     }
-    
+
     const blob = await response.blob();
     const imageUrl = URL.createObjectURL(blob);
 

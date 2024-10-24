@@ -16,6 +16,7 @@ import { AccountManagerService } from './account-manager.service';
 import { AccountResultset } from './account-resultset.type';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { HexString } from '../domain/hex-string.interface';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -45,7 +46,7 @@ export class ProfileService {
    * load from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  async loadAccount(pubkey: string, opts?: NPoolRequestOptions): Promise<Account> {
+  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<Account> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
@@ -56,17 +57,17 @@ export class ProfileService {
     return Promise.resolve(account);
   }
 
-  async listAccounts(pubkeys: Array<string>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+  async listAccounts(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
     const eventMetadataList = events
       .filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
     const resultsetList = await this.profileCache.add(eventMetadataList);
     const relayRecord: {
-      [pubkey: string]: NostrUserRelays
+      [pubkey: HexString]: NostrUserRelays
     } = this.relayConverter.convertEventsToRelayConfig(events);
 
     const resultsetRecord: {
-      [pubkey: string]: AccountResultset
+      [pubkey: HexString]: AccountResultset
     } = {};
 
     resultsetList.forEach(resultset => {
@@ -149,7 +150,7 @@ export class ProfileService {
     this.localConfigs.save(local);
   }
 
-  removeUnauthenticatedAccount(pubkey: string): void {
+  removeUnauthenticatedAccount(pubkey: HexString): void {
     const local = this.localConfigs.read();
     if (local.accounts) {
       delete local.accounts[pubkey];

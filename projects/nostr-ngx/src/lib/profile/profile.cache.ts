@@ -10,6 +10,7 @@ import { NostrEvent } from '../domain/nostr-event.interface';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
+import { HexString } from '../domain/hex-string.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,7 @@ export class ProfileCache {
 
   constructor(
     protected guard: NostrGuard
-  )  {
+  ) {
     this.db = this.initialize();
     this.load(this.db);
   }
@@ -70,7 +71,7 @@ export class ProfileCache {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     const queue = touples.map(touple => this.addSingle(touple, tx));
-    
+
     const metadatas = await Promise.all(queue);
     await tx.done;
 
@@ -88,7 +89,7 @@ export class ProfileCache {
         if (metadata.nip05) {
           nip05Pointer = await queryProfile(metadata.nip05);
         }
-      } catch {  }
+      } catch { }
 
       return {
         pubkey: event.pubkey, event, metadata, nip05: nip05Pointer
@@ -115,14 +116,14 @@ export class ProfileCache {
     await tx.objectStore(this.table).put(resultset);
     return resultset;
   }
-  
-  get(pubkey: string): AccountResultset | null;
-  get(pubkeys: string[]): AccountResultset[];
+
+  get(pubkey: HexString): AccountResultset | null;
+  get(pubkeys: HexString[]): AccountResultset[];
   get(npub: NPub): AccountResultset | null;
   get(npubs: NPub[]): AccountResultset[];
   get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null;
   get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null {
-    publicAddresses = publicAddresses instanceof Array ? publicAddresses : [ publicAddresses ];
+    publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
       .map(pubkey => pubkey && this.cache.get(pubkey) || null)

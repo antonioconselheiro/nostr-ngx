@@ -3,6 +3,7 @@ import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 import { NostrEvent } from '../domain/nostr-event.interface';
+import { HexString } from '../domain/hex-string.interface';
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -22,8 +23,8 @@ export class IdbNCache extends NCache {
   protected readonly table: 'nostrEvents' = 'nostrEvents';
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
-  private kindIndex = new Map<number, Array<string>>();
-  private authorIndex = new Map<string, Array<string>>();
+  private kindIndex = new Map<number, Array<HexString>>();
+  private authorIndex = new Map<HexString, Array<HexString>>();
 
   constructor() {
     super({
@@ -106,7 +107,7 @@ export class IdbNCache extends NCache {
   }
 
   private querySingleFilter(filter: NostrFilter, nset: NSet): void {
-    let ids: string[] = [];
+    let ids: HexString[] = [];
     if (filter.ids?.length) {
       ids = filter.ids;
     } else if (filter.kinds?.length) {
