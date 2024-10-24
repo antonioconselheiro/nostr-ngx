@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, NostrSigner, RelayLocalConfigService, ProfileEventFactory, NostrUserRelays, ProfileSessionStorage, AccountsLocalStorage, NostrEvent } from '@belomonte/nostr-ngx';
-import { kinds } from 'nostr-tools';
+import { AccountsLocalStorage, NOSTR_CONFIG_TOKEN, NostrConfig, NostrEvent, NostrGuard, NostrPool, NostrSigner, NostrUserRelays, ProfileEventFactory, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { RecommendRelay } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
+import { normalizeURL } from 'nostr-tools/utils';
+import { Observable, Subscription } from 'rxjs';
 import { AuthModalSteps } from '../../../auth-modal-steps.type';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
-import { normalizeURL } from 'nostr-tools/utils';
 import { RelayConfig } from './relay-config.interface';
-import { Observable, Subscription } from 'rxjs';
 
 /**
  * FIXME: I need a screen to show relay current connection status
@@ -47,6 +47,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(
+    private guard: NostrGuard,
     private npool: NostrPool,
     private nostrSigner: NostrSigner,
     private profileEventFactory: ProfileEventFactory,
@@ -97,10 +98,11 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   private loadKnownRelays(): void {
     this.npool.query([
       {
-        kinds: [kinds.RecommendRelay]
+        kinds: [RecommendRelay]
       }
     ]).then(events => {
       const knownRelays = events
+        .filter(event => this.guard.isKind(event, RecommendRelay))
         .map(event => this.castEventRecomendedRelayToRelay(event))
         .flat(2)
         .map(relay => relay.replace(/^wss?:\/\/|\/$/g, ''));
@@ -109,7 +111,8 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     });
   }
 
-  castEventRecomendedRelayToRelay(event: NostrEvent): string[] {
+  castEventRecomendedRelayToRelay(event: NostrEvent<RecommendRelay>): string[] {
+    //  FIXME: think in a best way to filter good recommended relays
     if (/(127\.|umbrel.local|npub|(\/[^ ]+){5})/.test(event.content)) {
       return [];
     }

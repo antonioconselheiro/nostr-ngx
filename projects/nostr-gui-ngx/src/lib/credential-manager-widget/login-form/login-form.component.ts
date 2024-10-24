@@ -84,7 +84,7 @@ export class LoginFormComponent implements OnInit {
   }
 
   showPasswordField(saveNSecEncryptedChecked: boolean, nsecFieldValue: string): boolean {
-    return /^ncryptsec/.test(nsecFieldValue) || saveNSecEncryptedChecked;
+    return this.guard.isNcryptsec(nsecFieldValue) || saveNSecEncryptedChecked;
   }
 
   async onUseSigner(): Promise<void> {
