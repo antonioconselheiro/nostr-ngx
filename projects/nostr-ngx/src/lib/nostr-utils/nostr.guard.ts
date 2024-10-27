@@ -61,4 +61,12 @@ export class NostrGuard {
   isHexadecimal(stuff: string): stuff is HexString {
     return /^[a-f\d]+$/.test(stuff);
   }
+
+  isSerializedNostrEvent(serialized: string): boolean {
+    try {
+      return verifyEvent(JSON.parse(serialized));
+    } catch {
+      return false;
+    }
+  }
 }

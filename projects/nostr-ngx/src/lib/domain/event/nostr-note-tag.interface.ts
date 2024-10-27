@@ -7,7 +7,6 @@ import { NostrTagPointerRelated } from "./nostr-tag-pointer-related.interface";
  *
  * General basic tags:
  * https://github.com/nostr-protocol/nips/blob/dde8c81a87f01131ed2eec0dd653cd5b79900b82/01.md
- * 
  */
 export type NostrNoteTag = NostrCommonTag |
   NostrTagPointerRelated<'p'> |
