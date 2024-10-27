@@ -1,13 +1,10 @@
-import { verifiedSymbol } from 'nostr-tools'
-import { HexString } from './hex-string.interface';
+import { verifiedSymbol } from "nostr-tools";
+import { HexString } from "./hex-string.type";
 
-//  why this class exists?
-//  https://github.com/nbd-wtf/nostr-tools/pull/448
-//  https://github.com/soapbox-pub/nostrify/issues/5
 /**
- * Nostr Event
+ * Nostr NIP01 event
  */
-export interface NostrEvent<T extends number = number> {
+export interface NostrNip1Event<Kind extends number = number> {
   /** 32-bytes lowercase hex-encoded sha256 of the serialized event data. */
   id: HexString;
   /** 32-bytes lowercase hex-encoded public key of the event creator */
@@ -15,7 +12,7 @@ export interface NostrEvent<T extends number = number> {
   /** Unix timestamp in seconds. */
   created_at: number;
   /** Integer between 0 and 65535. */
-  kind: T;
+  kind: Kind;
   /** Matrix of arbitrary strings. */
   tags: string[][];
   /** Arbitrary string. */

@@ -1,6 +1,6 @@
 import { DBSchema } from 'idb';
-import { NostrEvent } from '../domain/nostr-event.interface';
-import { HexString } from '../domain/hex-string.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 export interface IdbNostrEventCache extends DBSchema {
   nostrEvents: {

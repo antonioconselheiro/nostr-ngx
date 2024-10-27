@@ -3,8 +3,8 @@ import { verifyEvent } from 'nostr-tools';
 import { isKind } from 'nostr-tools/kinds';
 import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { NAddr, Ncryptsec, NEvent, NostrTypeGuard, Note, NProfile, NPub, NSec } from 'nostr-tools/nip19';
-import { NostrEvent } from '../domain/nostr-event.interface';
-import { HexString } from '../domain/hex-string.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 /**
  * A facade to nostr-tools guard tools with some extra util type-guards

@@ -12,6 +12,9 @@ not released yet
 TODO:
 - create an example showing the IdbNCacheModule import;
 - create an example of config module;
+- document the hard types;
+- document the view-model mapper;
+- create example of each overridable service;
 
 TODO:
 [ ] Include choosing relay by relay score 

@@ -1,5 +1,5 @@
 import { NProfile, NPub } from 'nostr-tools/nip19';
-import { HexString } from './hex-string.interface';
+import { HexString } from './event/hex-string.type';
 
 export interface NostrPublicUser {
   pubkey: HexString;

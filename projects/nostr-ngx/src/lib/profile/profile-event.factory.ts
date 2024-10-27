@@ -3,8 +3,8 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
 import { DirectMessageRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
-import { NostrEvent } from '../domain/nostr-event.interface';
-import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
 
 @Injectable({

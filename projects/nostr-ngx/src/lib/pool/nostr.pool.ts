@@ -5,7 +5,7 @@ import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RelayRouterService } from './relay-router.service';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 
 // TODO: pool must be able to identify relay connection status
 /**

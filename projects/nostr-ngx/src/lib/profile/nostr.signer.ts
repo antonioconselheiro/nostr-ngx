@@ -9,11 +9,11 @@ import { NotSupportedBySigner } from '../exceptions/not-supported-by-signer.erro
 import { SignerNotFoundError } from '../exceptions/signer-not-found.error';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayLocalConfigService } from '../pool/relay-local-config.service';
-import { NostrRawEvent } from '../domain/nostr-raw-event.interface';
+import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { unixDate } from '../tools/unix-date.fn';
 import { Ncryptsec, NProfile, NSec } from 'nostr-tools/nip19';
-import { NostrEvent } from '../domain/nostr-event.interface';
-import { HexString } from '../domain/hex-string.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 /**
  * Sign Nostr Event according to user authentication settings.

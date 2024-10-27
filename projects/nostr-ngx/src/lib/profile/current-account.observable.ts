@@ -10,7 +10,7 @@ import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
 import { Ncryptsec, NSec } from 'nostr-tools/nip19';
-import { HexString } from '../domain/hex-string.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({

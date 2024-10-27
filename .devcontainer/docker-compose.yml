@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   nostr-ngx-dev:
     image: nostr-ngx-dev

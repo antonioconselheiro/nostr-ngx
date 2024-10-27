@@ -5,7 +5,7 @@ import { NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
@@ -16,7 +16,7 @@ import { AccountManagerService } from './account-manager.service';
 import { AccountResultset } from './account-resultset.type';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { HexString } from '../domain/hex-string.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a

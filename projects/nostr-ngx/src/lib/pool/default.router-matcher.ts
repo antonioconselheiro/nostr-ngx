@@ -8,7 +8,7 @@ import { NostrGuard } from "../nostr-utils/nostr.guard";
 import { RelayConverter } from "../nostr-utils/relay.converter";
 import { RelayLocalConfigService } from "./relay-local-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
-import { NostrEvent } from "../domain/nostr-event.interface";
+import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { DirectMessageRelaysList, RelayList } from "nostr-tools/kinds";
 
 /**

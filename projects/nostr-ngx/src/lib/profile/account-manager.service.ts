@@ -12,7 +12,7 @@ import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { Ncryptsec } from 'nostr-tools/nip19';
-import { HexString } from '../domain/hex-string.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 /**
  * manage account objects, manage the account list in localstorage

@@ -4,8 +4,8 @@ import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
-import { HexString } from '../domain/hex-string.interface';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { HexString } from '../domain/event/hex-string.type';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { isRelayString } from './is-relay-string.regex';
 import { NostrGuard } from './nostr.guard';
 

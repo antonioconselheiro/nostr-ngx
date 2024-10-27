@@ -6,11 +6,11 @@ import { nip19 } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
 import { Nip05, queryProfile } from 'nostr-tools/nip05';
 import { NPub, ProfilePointer } from 'nostr-tools/nip19';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
-import { HexString } from '../domain/hex-string.interface';
+import { HexString } from '../domain/event/hex-string.type';
 
 @Injectable({
   providedIn: 'root'

@@ -1,4 +1,4 @@
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { EventRouterMatcher } from './event-router-matcher.interface';
 import { RelayRecord } from 'nostr-tools/relay';
 

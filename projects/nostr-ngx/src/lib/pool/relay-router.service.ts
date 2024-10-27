@@ -9,7 +9,7 @@ import { NpoolRouterOptions } from './npool-router.options';
 import { RelayLocalConfigService } from './relay-local-config.service';
 import { RouterMatcher } from './router-matcher.interface';
 import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 
 /**
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário

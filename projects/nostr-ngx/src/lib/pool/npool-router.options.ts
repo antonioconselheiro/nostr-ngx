@@ -1,6 +1,6 @@
 import { NostrFilter, NPoolOpts } from '@nostrify/nostrify';
 import { NPoolRequestOptions } from './npool-request.options';
-import { NostrEvent } from '../domain/nostr-event.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
 
 export interface NpoolRouterOptions extends NPoolOpts {
 
