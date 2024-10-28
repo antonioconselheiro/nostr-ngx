@@ -1,5 +1,5 @@
 import { verifiedSymbol } from "nostr-tools";
-import { HexString } from "./hex-string.type";
+import { HexString } from "./primitive/hex-string.type";
 import { NostrEventTags } from "./nostr-event-tags.array";
 import { NostrStrictTags } from "./nostr-strict-tags.array";
 import { StrictTagKinds } from "./strict-tag-kinds.type";

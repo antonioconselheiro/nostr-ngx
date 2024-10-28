@@ -2,7 +2,7 @@
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Ncryptsec, NProfile, NPub } from 'nostr-tools/nip19';
-import { HexString } from './event/hex-string.type';
+import { HexString } from './event/primitive/hex-string.type';
 
 export interface Account {
   pubkey: HexString;

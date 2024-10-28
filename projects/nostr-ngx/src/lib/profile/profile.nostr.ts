@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BlockedRelaysList, DirectMessageRelaysList, Metadata, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { Observable } from 'rxjs';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrPool } from '../pool/nostr.pool';
 import { NPoolRequestOptions } from '../pool/npool-request.options';

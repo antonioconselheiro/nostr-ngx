@@ -13,7 +13,7 @@ import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NPub } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { BlockedRelaysList, DirectMessageRelaysList, SearchRelaysList } from 'nostr-tools/kinds';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 
 // this service is used by pool, so it should never import the pool.
 /**

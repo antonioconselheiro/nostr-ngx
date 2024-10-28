@@ -16,7 +16,7 @@ import { AccountManagerService } from './account-manager.service';
 import { AccountResultset } from './account-resultset.type';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a

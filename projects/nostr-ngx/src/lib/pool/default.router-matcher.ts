@@ -15,6 +15,7 @@ import { DirectMessageRelaysList, RelayList } from "nostr-tools/kinds";
  * TODO: incluir roteamento para addressed event
  * TODO: incluir roteamento para relays de pesquisa (10007)
  * TODO: no-mvp: incluir roteamento para wiki
+ * TODO: 9734 should not be sent to relays: https://github.com/nostr-protocol/nips/blob/dde8c81a87f01131ed2eec0dd653cd5b79900b82/57.md#appendix-b-zap-request-http-request
  */
 
 /**

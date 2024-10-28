@@ -10,7 +10,7 @@ import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 
 @Injectable({
   providedIn: 'root'

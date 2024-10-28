@@ -1,5 +1,5 @@
 import { verifiedSymbol } from "nostr-tools";
-import { HexString } from "./hex-string.type";
+import { HexString } from "./primitive/hex-string.type";
 
 /**
  * Nostr NIP01 event

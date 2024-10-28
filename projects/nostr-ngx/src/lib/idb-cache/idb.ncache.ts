@@ -3,7 +3,7 @@ import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 
 //  TODO: include index by create at
 //  TODO: include index by tag

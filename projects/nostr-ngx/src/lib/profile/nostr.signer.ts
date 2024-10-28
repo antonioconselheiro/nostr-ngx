@@ -13,7 +13,7 @@ import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { unixDate } from '../tools/unix-date.fn';
 import { Ncryptsec, NProfile, NSec } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { HexString } from '../domain/event/hex-string.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 
 /**
  * Sign Nostr Event according to user authentication settings.
