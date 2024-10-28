@@ -89,7 +89,8 @@ export class RelayConverter {
           tagValues.forEach(relay => relaysFound.push(relay));
           break;
         case 'r':
-          if (tagValues[0]) {
+          //  TODO: add kind 17 WebsiteReaction in nostr-tools
+          if (tagValues[0] && !this.guard.isKind(event, 17)) {
             relaysFound.push(tagValues[0]);
           }
           break;

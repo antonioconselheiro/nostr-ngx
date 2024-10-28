@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { NCache, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '@nostrify/nostrify';
 import { finalize, Observable, Subject } from 'rxjs';
-import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
+import { LOCAL_CACHE_TOKEN } from '../injection-token/local-cache.token';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RelayRouterService } from './relay-router.service';
@@ -20,7 +20,7 @@ export class NostrPool extends FacadeNPool {
 
   constructor(
     routerService: RelayRouterService,
-    @Inject(MAIN_NCACHE_TOKEN) protected override ncache: NCache
+    @Inject(LOCAL_CACHE_TOKEN) protected override ncache: NCache
   ) {
     super(routerService, ncache);
   }

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IdbNCache } from './idb.ncache';
-import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
+import { LOCAL_CACHE_TOKEN } from '../injection-token/local-cache.token';
 
 @NgModule({
   imports: [
@@ -9,7 +9,7 @@ import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
   ],
   providers: [
     {
-      provide: MAIN_NCACHE_TOKEN,
+      provide: LOCAL_CACHE_TOKEN,
       useClass: IdbNCache
     }
   ]

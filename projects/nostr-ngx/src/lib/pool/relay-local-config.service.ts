@@ -4,7 +4,7 @@ import { kinds } from 'nostr-tools';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { MAIN_NCACHE_TOKEN } from '../injection-token/main-ncache.token';
+import { LOCAL_CACHE_TOKEN } from '../injection-token/local-cache.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
@@ -30,7 +30,7 @@ export class RelayLocalConfigService {
     private relayConverter: RelayConverter,
     private configsLocal: AccountsLocalStorage,
     private configSession: ProfileSessionStorage,
-    @Inject(MAIN_NCACHE_TOKEN) private ncache: NCache
+    @Inject(LOCAL_CACHE_TOKEN) private ncache: NCache
   ) { }
 
   /**

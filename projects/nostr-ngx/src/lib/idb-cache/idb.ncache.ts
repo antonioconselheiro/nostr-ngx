@@ -1,9 +1,10 @@
-import { NCache, NostrFilter, NSet } from '@nostrify/nostrify';
+import { NostrFilter, NSet } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
-import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { InMemoryNCache } from '../injection-token/in-memory.ncache';
+import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -17,7 +18,7 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 /**
  * ncache load from indexeddb and keep it syncronized
  */
-export class IdbNCache extends NCache {
+export class IdbNCache extends InMemoryNCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
   protected readonly table: 'nostrEvents' = 'nostrEvents';
