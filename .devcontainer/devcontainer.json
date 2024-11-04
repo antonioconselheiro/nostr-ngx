@@ -5,6 +5,7 @@
   ],
   "service": "nostr-ngx-dev",
 	"workspaceFolder": "/nostr-ngx",
+  "postCreateCommand": "./.devcontainer/auth.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [
