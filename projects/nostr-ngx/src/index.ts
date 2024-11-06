@@ -1,7 +1,7 @@
 import { WindowNostr } from 'nostr-tools/nip07';
 
 export * from './lib/injection-token/local-cache.token';
-export * from './lib/injection-token/in-memory.ncache'
+export * from './lib/in-memory/in-memory.ncache'
 export * from './lib/injection-token/nostr-config.token'
 export * from './lib/injection-token/relay-router.token'
 export * from './lib/injection-token/local-cache.token'

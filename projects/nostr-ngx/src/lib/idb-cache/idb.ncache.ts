@@ -3,12 +3,12 @@ import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { InMemoryNCache } from '../injection-token/in-memory.ncache';
+import { InMemoryNCache } from '../in-memory/in-memory.ncache';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 
 //  TODO: include index by create at
 //  TODO: include index by tag
-//  TODO: include exclusive cache for user config events (0, 10002, 10006, 10007, 10050), other events will change fast in lru, but these must be keep for more time with exclusive memory map
+//  TODO: include exclusive cache for user config events (0, 10002, 10006, 10007, 10050), other events will change fast in lru, but these must be keep for more time with exclusive memory map. (when implements this, include custom get method to read from the correct cache)
 //  TODO: include default fallback for:
 //  - search Profiles,
 //  - search event JustIds,
