@@ -28,10 +28,7 @@ export class IdbNCache extends InMemoryNCache {
   private authorIndex = new Map<HexString, Array<HexString>>();
 
   constructor() {
-    super({
-      max: 5000,
-      dispose: event => this.delete(event)
-    });
+    super();
     this.db = this.initialize();
     this.db.then(db => {
       const tx = db.transaction(this.table, 'readonly');

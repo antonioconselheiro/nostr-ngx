@@ -9,6 +9,7 @@ export class InMemoryNCache extends NCache {
   
   constructor() {
     super(new LRUCache<HexString, NostrEvent>({
+      //  TODO: make this configurable
       max: 5000,
       dispose: event => this.delete(event)
     }));
