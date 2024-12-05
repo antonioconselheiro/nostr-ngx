@@ -1,7 +1,7 @@
-import { HexString } from "../primitive/hex-string.type";
-import { NostrEventRelation } from "../nostr-event-relation.interface";
-import { TagPointer } from "./tag-pointer.type";
-import { TagReference } from "./tag-reference.type";
+import { HexString } from '../primitive/hex-string.type';
+import { NostrEventRelation } from '../nostr-event-relation.interface';
+import { TagPointer } from './tag-pointer.type';
+import { TagReference } from './tag-reference.type';
 
 /**
  * Pointer Related
@@ -12,7 +12,8 @@ import { TagReference } from "./tag-reference.type";
  * format [type, hex string, optional relay address, optional event relation kind ]
  * 
  * References:
- * https://github.com/nostr-protocol/nips/blob/dde8c81a87f01131ed2eec0dd653cd5b79900b82/01.md
+ * https://github.com/nostr-protocol/nips/blob/master/01.md
+ * https://github.com/nostr-protocol/nips/blob/master/10.md
  */
 export type TagPointerRelated<Type extends string> = TagReference<Type> |
   TagPointer<Type> |

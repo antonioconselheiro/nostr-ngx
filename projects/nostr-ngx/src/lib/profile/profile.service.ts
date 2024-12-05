@@ -60,7 +60,7 @@ export class ProfileService {
   async listAccounts(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
     const eventMetadataList = events
-      .filter((event): event is NostrEvent & { kind: 0 } => this.guard.isKind(event, kinds.Metadata));
+      .filter((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata));
     const resultsetList = await this.profileCache.add(eventMetadataList);
     const relayRecord: {
       [pubkey: HexString]: NostrUserRelays
