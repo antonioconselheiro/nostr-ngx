@@ -78,7 +78,7 @@
       <div class="userInfo">
         <span class="userName">
           {{loadedContactProfile?.metadata?.display_name}}
-          <span *ngIf="loadedContactProfile.isNip05Valid" class="userVerified"></span>
+          <span *ngIf="loadedContactProfile?.nip05?.valid" class="userVerified"></span>
         </span>
         <span *ngIf="loadedContactProfile?.metadata?.nip05" class="userNip5">{{loadedContactProfile?.metadata?.nip05}}</span>
       </div>

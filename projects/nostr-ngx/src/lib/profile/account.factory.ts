@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { Ncryptsec, nprofileEncode, npubEncode } from 'nostr-tools/nip19';
+import { decode, Ncryptsec, nprofileEncode, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountNip05 } from '../domain/account-nip05.interface';
@@ -10,6 +10,7 @@ import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interf
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
+import { getPublicKey } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,30 @@ export class AccountFactory {
     private relayConverter: RelayConverter,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
+
+  accountFactoryFromNSec(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata: NostrMetadata | null): UnauthenticatedAccount {
+    const { data } = decode(nsec);
+    const pubkey = getPublicKey(data);
+    const npub = npubEncode(pubkey);
+    const pointerRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 2);
+    const pointer: ProfilePointer = { pubkey, relays: pointerRelays };
+    const nprofile = nprofileEncode(pointer);
+
+    const account: UnauthenticatedAccount = {
+      metadata,
+      ncryptsec,
+      pubkey,
+      npub,
+      nprofile,
+      displayName: metadata?.display_name || metadata?.name || '',
+      picture: this.nostrConfig.defaultProfile.picture,
+      //  TODO: Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
+      nip05: null,
+      relays
+    }
+
+    return account;
+  }
 
   /**
    * Create an account with user prefetched content

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -33,10 +33,11 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private qrcodeService: QrcodeService,
-    private nostrSigner: NostrSigner,
     private nsecCrypto: NSecCrypto,
+    private nostrSigner: NostrSigner,
+    private qrcodeService: QrcodeService,
     private profileSessionStorage: ProfileSessionStorage,
+    private accountFactory: AccountFactory,
     private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
   ) { }
@@ -121,8 +122,9 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec && ncryptsec) {
       const metadata: NostrMetadata = { display_name: this.creatingAccount.displayName || '' };
-      const account = this.accountsLocalStorage.addNewAccount(nsec, ncryptsec, {}, metadata);
-
+      const account = this.accountFactory.accountFactoryFromNSec(nsec, ncryptsec, {}, metadata);
+      
+      this.accountsLocalStorage.addAccount(account);
       this.profileSessionStorage.patch({ account });
       this.changeStep.next('relayManager');
     }

@@ -85,6 +85,7 @@ export * from './lib/profile/profile.cache';
 export * from './lib/profile/current-account.observable';
 export * from './lib/profile/profile.nostr';
 export * from './lib/profile/idb-profile-cache.interface';
+export * from './lib/profile/account.factory';
 
 declare global {
   interface Window {
