@@ -4,6 +4,7 @@ export * from './lib/injection-token/nostr-config.token';
 export * from './lib/injection-token/relay-router.token';
 export * from './lib/injection-token/local-cache.token';
 export * from './lib/domain/account.interface';
+export * from './lib/domain/account-nip05.interface';
 export * from './lib/domain/nostr-public-user.interface';
 export * from './lib/domain/relay-list.event-kind';
 export * from './lib/domain/event/nostr-nip1-event.interface';

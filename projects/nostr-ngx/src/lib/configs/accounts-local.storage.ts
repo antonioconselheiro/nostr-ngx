@@ -56,9 +56,10 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
       pubkey,
       npub,
       nprofile,
+      displayName: metadata?.display_name || metadata?.name || '',
       picture: this.nostrConfig.defaultProfile.picture,
       //  TODO: Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
-      isNip05Valid: false,
+      nip05: null,
       relays
     }
 

@@ -6,17 +6,17 @@ import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
-import { AccountManagerService } from './account-manager.service';
 import { AccountResultset } from './account-resultset.type';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { HexString } from '../domain/event/primitive/hex-string.type';
+import { AccountFactory } from './account.factory';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -39,7 +39,7 @@ export class ProfileService {
     private relayConverter: RelayConverter,
     private nostrConverter: NostrConverter,
     private localConfigs: AccountsLocalStorage,
-    private accountManager: AccountManagerService
+    private accountFactory: AccountFactory
   ) { }
 
   /**
@@ -52,7 +52,7 @@ export class ProfileService {
 
     const eventMetadata = events.filter((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata));
     const [resultset = null] = await this.profileCache.add(eventMetadata);
-    const account = this.accountManager.accountFactory(pubkey, resultset, record[pubkey] || {});
+    const account = this.accountFactory.accountFactory(pubkey, resultset, record[pubkey] || {});
 
     return Promise.resolve(account);
   }
@@ -80,7 +80,7 @@ export class ProfileService {
       const relays = relayRecord[pubkey];
       const resultset = resultsetRecord[pubkey];
 
-      return this.accountManager.accountFactory(
+      return this.accountFactory.accountFactory(
         pubkey, resultset, relays
       );
     }));
@@ -128,7 +128,6 @@ export class ProfileService {
     return this.profileCache.add(profiles);
   }
 
-  //  FIXME: revisar este método para que ele retorne uma instância completa do unauthenticated account
   async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount> {
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
