@@ -80,6 +80,16 @@ export class ProfileCache {
 
   protected async prefetch(metadataEvents: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
     const queuee = metadataEvents.map(async (event): Promise<AccountResultset> => {
+      //  FIXME: eu preciso incluir uma maneira de forçar a atualização de informações da conta para
+      //  fluxos de excessão onde os dados devem ser realmente recarregados e não lidos do cache.
+      //  No geral o cache ajuda muito evitar reconsultas quando uma conta aparece no seu feed por que
+      //  te deu um like ou fez um comentário em alguma coisa, mas quando se abre o perfil do usuário
+      //  devemos consultar buscando as informações mais atuais sobre seu perfil, foto e nip05
+      const resultset = this.cache.get(event.pubkey);
+      if (resultset) {
+        return resultset;
+      }
+      
       const metadata = n
         .json()
         .pipe(n.metadata())

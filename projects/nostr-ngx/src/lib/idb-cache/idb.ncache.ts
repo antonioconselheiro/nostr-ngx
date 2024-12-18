@@ -5,6 +5,7 @@ import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { InMemoryNCache } from '../in-memory/in-memory.ncache';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
+import { Injectable } from '@angular/core';
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -18,6 +19,9 @@ import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 /**
  * ncache load from indexeddb and keep it syncronized
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class IdbNCache extends InMemoryNCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');

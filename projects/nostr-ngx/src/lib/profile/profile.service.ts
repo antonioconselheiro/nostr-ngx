@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { kinds, nip19 } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
-import { NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
+import { NProfile, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
@@ -14,9 +14,9 @@ import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountResultset } from './account-resultset.type';
+import { AccountFactory } from './account.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { AccountFactory } from './account.factory';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -84,18 +84,6 @@ export class ProfileService {
         pubkey, resultset, relays
       );
     }));
-  }
-
-  loadAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
-    const { data } = nip19.decode(npub);
-    return this.loadAccount(data, opts);
-  }
-
-  listAccountsUsingNPub(npubs: Array<NPub>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
-    return this.listAccounts(npubs.map(npub => {
-      const { data } = nip19.decode(npub);
-      return data;
-    }), opts);
   }
 
   loadAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
