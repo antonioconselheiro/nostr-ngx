@@ -5,12 +5,12 @@ import { LRUCache } from 'lru-cache';
 import { nip19 } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
 import { Nip05, queryProfile } from 'nostr-tools/nip05';
-import { NPub, ProfilePointer } from 'nostr-tools/nip19';
+import { NPub } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountResultset } from './account-resultset.type';
 import { IdbProfileCache } from './idb-profile-cache.interface';
-import { HexString } from '../domain/event/primitive/hex-string.type';
 
 @Injectable({
   providedIn: 'root'
@@ -78,35 +78,37 @@ export class ProfileCache {
     return Promise.resolve(metadatas);
   }
 
-  protected async prefetch(metadataEvents: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
-    const queuee = metadataEvents.map(async (event): Promise<AccountResultset> => {
+  protected prefetch(metadataEvents: Array<NostrEvent<Metadata>>): Array<AccountResultset> {
+    return metadataEvents.map((event): AccountResultset => {
       //  FIXME: eu preciso incluir uma maneira de forçar a atualização de informações da conta para
       //  fluxos de excessão onde os dados devem ser realmente recarregados e não lidos do cache.
       //  No geral o cache ajuda muito evitar reconsultas quando uma conta aparece no seu feed por que
       //  te deu um like ou fez um comentário em alguma coisa, mas quando se abre o perfil do usuário
       //  devemos consultar buscando as informações mais atuais sobre seu perfil, foto e nip05
-      const resultset = this.cache.get(event.pubkey);
+      let resultset = this.cache.get(event.pubkey);
       if (resultset) {
         return resultset;
       }
-      
+
       const metadata = n
         .json()
         .pipe(n.metadata())
         .parse(event.content);
-      let nip05Pointer: ProfilePointer | null = null;
+
+      resultset = {
+        pubkey: event.pubkey, event, metadata, nip05: null
+      };
+
       try {
-        if (metadata.nip05) {
-          nip05Pointer = await queryProfile(metadata.nip05);
+        if (metadata.nip05 && metadata.nip05.trim()) {
+          //  estou carregando as informações de nip05 desta maneira pois encadea-las para carregar tornará tudo lento
+          queryProfile(metadata.nip05)
+            .then(nip05Pointer => resultset.nip05 = nip05Pointer);
         }
       } catch { }
 
-      return {
-        pubkey: event.pubkey, event, metadata, nip05: nip05Pointer
-      }
-    })
-
-    return Promise.all(queuee);
+      return resultset;
+    });
   }
 
   protected async addSingle(

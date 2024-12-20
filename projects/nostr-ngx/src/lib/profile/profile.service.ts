@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { kinds, nip19 } from 'nostr-tools';
 import { Metadata } from 'nostr-tools/kinds';
-import { NProfile, NSec, ProfilePointer } from 'nostr-tools/nip19';
+import { NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account.interface';
@@ -84,6 +84,11 @@ export class ProfileService {
         pubkey, resultset, relays
       );
     }));
+  }
+
+  loadAccountUsingNPub(npub: NPub, opts?: NPoolRequestOptions): Promise<Account> {
+    const { data } = nip19.decode(npub);
+    return this.loadAccount(data, opts);
   }
 
   loadAccountUsingNProfile(nprofile: NProfile, opts?: NPoolRequestOptions): Promise<Account> {
