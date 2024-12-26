@@ -20,9 +20,11 @@
 @import 'styles/components/forms/radio-checkbox';
 @import 'styles/components/forms/inline-icon';
 
-@import 'styles/components/modal';
+@import 'styles/components/colors';
 @import 'styles/components/header-backable';
+@import 'styles/components/heading';
 @import 'styles/components/list-menu';
+@import 'styles/components/modal';
 @import 'styles/components/profile-container';
 @import 'styles/components/profile-picture';
 @import 'styles/components/raw-link';
@@ -30,6 +32,5 @@
 @import 'styles/components/unauthenticated-account';
 @import 'styles/components/user-info';
 @import 'styles/components/verified';
-@import 'styles/components/heading';
 
 @import 'styles/tools/hidden';
