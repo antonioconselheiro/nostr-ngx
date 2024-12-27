@@ -21,7 +21,7 @@ button.svgButton {
   display: flex;
   align-items: center;
   cursor: pointer;
-  background-color: var(--base);
+  background-color: transparent;
   color: var(--primaryText);
   transition: background-color .3s;
   -webkit-tap-highlight-color: transparent;
@@ -91,7 +91,6 @@ button.svgButton {
 
     &:hover,
     &:active,
-    &:focus,
     &:has(> input:checked),
     &.active {
       &:not(.borderless) {
