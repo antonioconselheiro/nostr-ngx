@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
-import { Account } from '../domain/account.interface';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { Account } from '../domain/account/account.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
 import { ProfileService } from './profile.service';
-import { Ncryptsec, NSec } from 'nostr-tools/nip19';
-import { HexString } from '../domain/event/primitive/hex-string.type';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
@@ -49,7 +49,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
       return Promise.resolve(null);
     }
 
-    return this.updateCurrentProfile(pubkey);
+    return this.loadCurrentProfile(pubkey);
   }
 
   authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {
@@ -62,7 +62,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
       this.profileSessionStorage.patch({ nsec });
     }
 
-    return this.updateCurrentProfile(user.pubkey);
+    return this.loadCurrentProfile(user.pubkey);
   }
 
   authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<Account> {
@@ -73,13 +73,13 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
       this.profileSessionStorage.patch({ nsec });
     }
 
-    return this.updateCurrentProfile(user.pubkey);
+    return this.loadCurrentProfile(user.pubkey);
   }
 
   async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
-    const account = await this.updateCurrentProfile(user.pubkey);
+    const account = await this.loadCurrentProfile(user.pubkey);
 
     account.ncryptsec = ncryptsec;
     this.profileSessionStorage.clear();
@@ -92,7 +92,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return Promise.resolve(account);
   }
 
-  private async updateCurrentProfile(pubkey: HexString): Promise<Account> {
+  private async loadCurrentProfile(pubkey: HexString): Promise<Account> {
     const account = await this.profileService.loadAccount(pubkey);
     const accountRelays = account.relays.general || null;
     const outbox = this.relayConverter.extractOutboxRelays(accountRelays)

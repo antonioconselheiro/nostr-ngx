@@ -1,5 +1,6 @@
 import { NSec } from 'nostr-tools/nip19';
-import { Account } from '../domain/account.interface';
+import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { NostrUserRelays } from './nostr-user-relays.interface';
 
 /**
@@ -9,7 +10,7 @@ export interface NostrSessionConfig {
   /**
    * current user account
    */
-  account?: Account;
+  account?: AccountDeepLoaded | UnauthenticatedAccount;
   nsec?: NSec;
 
   /**

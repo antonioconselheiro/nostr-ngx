@@ -4,10 +4,10 @@ import { Metadata } from 'nostr-tools/kinds';
 import { NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { Account } from '../domain/account.interface';
+import { Account } from '../domain/account/account.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
@@ -17,6 +17,8 @@ import { AccountResultset } from './account-resultset.type';
 import { AccountFactory } from './account.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { AccountEssentialLoaded } from '../domain/account/account-essential-loaded.interface';
+import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -46,7 +48,7 @@ export class ProfileService {
    * load from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<Account> {
+  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssentialLoaded> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
@@ -55,6 +57,10 @@ export class ProfileService {
     const account = this.accountFactory.accountFactory(pubkey, resultset, record[pubkey] || {});
 
     return Promise.resolve(account);
+  }
+
+  async loadAccountDeeply(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountDeepLoaded> {
+
   }
 
   async listAccounts(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
@@ -126,7 +132,7 @@ export class ProfileService {
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
     const account = await this.loadAccount(user.pubkey);
 
-    return Promise.resolve({ ...account, ncryptsec });
+    return Promise.resolve({ ...account, ncryptsec, state: 'authenticable' });
   }
 
   /**

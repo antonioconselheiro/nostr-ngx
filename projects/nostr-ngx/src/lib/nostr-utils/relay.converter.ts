@@ -3,9 +3,10 @@ import { kinds } from 'nostr-tools';
 import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { Account } from '../domain/account.interface';
-import { HexString } from '../domain/event/primitive/hex-string.type';
+import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { isRelayString } from './is-relay-string.regex';
 import { NostrGuard } from './nostr.guard';
 
@@ -109,7 +110,7 @@ export class RelayConverter {
 
   convertEventsToRelayConfig(
     relayEvents: Array<NostrEvent>,
-    patchExistingUser?: Account
+    patchExistingUser?: AccountDeepLoaded | UnauthenticatedAccount
   ): { [pubkey: HexString]: NostrUserRelays } {
     const record: { [pubkey: HexString]: NostrUserRelays } = {};
     if (patchExistingUser) {

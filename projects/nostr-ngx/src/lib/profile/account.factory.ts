@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { getPublicKey } from 'nostr-tools';
 import { decode, Ncryptsec, nprofileEncode, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { AccountNip05 } from '../domain/account-nip05.interface';
-import { Account } from '../domain/account.interface';
+import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
+import { AccountNip05 } from '../domain/account/account-nip05.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
-import { getPublicKey } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -36,8 +36,10 @@ export class AccountFactory {
       pubkey,
       npub,
       nprofile,
+      state: 'authenticable',
       displayName: metadata?.display_name || metadata?.name || '',
       picture: this.nostrConfig.defaultProfile.picture,
+      banner: this.nostrConfig.defaultProfile.banner,
       //  TODO: Nip05 precisa ser validado aqui e sua validação precisa ficar em cache
       nip05: null,
       relays
@@ -49,14 +51,20 @@ export class AccountFactory {
   /**
    * Create an account with user prefetched content
    */
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): Promise<Account>;
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount>;
-  async accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): Promise<Account> {
-    let picture = this.nostrConfig.defaultProfile.picture;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountDeepLoaded;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
+  // eslint-disable-next-line complexity
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): AccountDeepLoaded | UnauthenticatedAccount {
+    let picture = this.nostrConfig.defaultProfile.picture,
+      banner = this.nostrConfig.defaultProfile.banner;
     const metadata = resultset?.metadata || null;
 
     if (metadata?.picture) {
       picture = metadata.picture;
+    }
+
+    if (metadata?.banner) {
+      banner = metadata.banner;
     }
 
     const npub = npubEncode(pubkey);
@@ -67,17 +75,22 @@ export class AccountFactory {
     const nostrProfileRelays = nip05.relays.length ? nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
 
-    const account: Account = {
+    let account: UnauthenticatedAccount | AccountDeepLoaded = {
       displayName,
-      ncryptsec,
+      state: 'deep',
       nprofile,
       metadata,
       picture,
+      banner,
       relays,
       nip05,
       pubkey,
       npub
     };
+
+    if (ncryptsec) {
+      account = { ...account, ncryptsec, state: 'authenticable' };
+    }
 
     return account;
   }

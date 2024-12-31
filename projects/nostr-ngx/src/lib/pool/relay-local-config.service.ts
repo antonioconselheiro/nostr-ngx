@@ -212,7 +212,6 @@ export class RelayLocalConfigService {
    */
   getUserRelayList(npub: NPub, kind: BlockedRelaysList): Promise<Array<WebSocket['url']> | null>;
 
-
   /**
    * @returns user list of blocked relays, using hexadecimal pubkey.
    */

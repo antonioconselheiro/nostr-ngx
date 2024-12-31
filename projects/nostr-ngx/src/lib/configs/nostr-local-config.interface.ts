@@ -1,5 +1,5 @@
 import { RelayRecord } from 'nostr-tools/relay';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 
 /**
  * saved in local storage

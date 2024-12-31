@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { AbstractBrowserStorage } from './abstract-browser-storage';
 import { NostrLocalConfig } from './nostr-local-config.interface';
 

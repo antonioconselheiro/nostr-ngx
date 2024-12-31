@@ -3,8 +3,8 @@ import { Ncryptsec } from 'nostr-tools/nip19';
 import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
-import { Account } from '../domain/account.interface';
-import { UnauthenticatedAccount } from '../domain/unauthenticated-account.interface';
+import { Account } from '../domain/account/account.interface';
+import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 
 /**
  * manage account objects, manage the account list in localstorage

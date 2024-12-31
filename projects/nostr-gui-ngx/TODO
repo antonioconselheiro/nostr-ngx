@@ -1,6 +1,6 @@
 [ ] Conectar tela de configuração dos relays na mainpool
 [ ] Include customizable qrcode scan/camera support
-[ ] Include screen to Mute Keywords and Lists https://nostrdesign.org/docs/reference-designs/onboarding/
+[ ] Include screen to Mute Keywords (ignore event by filter) and Lists https://nostrdesign.org/docs/reference-designs/onboarding/
 [ ] Cast scss into a more clean implementation
 [ ] Todos os campos com id devem receber um hash para garantir que esse id nunca se repita nas aplicações que estiverem utilizando a lib
 [ ] Incluir indicador de que você já incluiu o máximo de relays necessários
