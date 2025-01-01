@@ -1,9 +1,9 @@
 
-import { AccountDeepLoaded } from './account-deep-loaded.interface';
-import { AccountEssentialLoaded } from './account-essential-loaded.interface';
-import { AccountFullLoaded } from './account-full-loaded.interface';
+import { AccountComplete } from './account-complete.interface';
+import { AccountEssential } from './account-essential.interface';
+import { AccountPointable } from './account-pointable.interface';
 import { AccountNotLoaded } from './account-not-loaded.interface';
-import { AccountViewingLoaded } from './account-viewing-loaded.interface';
+import { AccountViewable } from './account-viewable.interface';
 import { UnauthenticatedAccount } from './unauthenticated-account.interface';
 
-export type Account = AccountNotLoaded | AccountEssentialLoaded | AccountViewingLoaded | AccountFullLoaded | AccountDeepLoaded | UnauthenticatedAccount;
+export type Account = AccountNotLoaded | AccountEssential | AccountViewable | AccountPointable | AccountComplete | UnauthenticatedAccount;

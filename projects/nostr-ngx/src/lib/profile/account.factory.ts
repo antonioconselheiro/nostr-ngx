@@ -5,12 +5,12 @@ import { Metadata } from 'nostr-tools/kinds';
 import { decode, Ncryptsec, nprofileEncode, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
-import { AccountEssentialLoaded } from '../domain/account/account-essential-loaded.interface';
-import { AccountFullLoaded } from '../domain/account/account-full-loaded.interface';
-import { AccountNip05 } from '../domain/account/account-nip05.interface';
+import { AccountComplete } from '../domain/account/account-complete.interface';
+import { AccountEssential } from '../domain/account/account-essential.interface';
+import { AccountPointable } from '../domain/account/account-pointable.interface';
+import { AccountNip05Pointer } from '../domain/account/account-nip05-pointer.type';
 import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
-import { AccountViewingLoaded } from '../domain/account/account-viewing-loaded.interface';
+import { AccountViewable } from '../domain/account/account-viewable.interface';
 import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
@@ -52,7 +52,7 @@ export class AccountFactory {
    * @param metadata NostrMetadata parsed from metadata event
    * @returns AccountEssentialLoaded, Account
    */
-  accountEssentialFactory(pubkey: HexString, relays: NostrUserRelays, metadata: NostrMetadata | null): AccountEssentialLoaded {
+  accountEssentialFactory(pubkey: HexString, relays: NostrUserRelays, metadata: NostrMetadata | null): AccountEssential {
     //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
     const nostrProfileRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
@@ -79,7 +79,7 @@ export class AccountFactory {
    * @param relays 
    * @returns AccountFullLoaded, Account
    */
-  accountFullFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountFullLoaded {
+  accountPointableFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountPointable {
     const metadata = resultset?.metadata || null;
 
     const npub = npubEncode(pubkey);
@@ -101,44 +101,18 @@ export class AccountFactory {
       npub
     };
   }
-  
-  // eslint-disable-next-line complexity
-  accountViewingFactory(): AccountViewingLoaded {
-    let picture = this.nostrConfig.defaultProfile.picture,
-      banner = this.nostrConfig.defaultProfile.banner;
-    const metadata = resultset?.metadata || null;
+
+  accountViewableFactory(account: AccountPointable, metadata: NostrMetadata | null): AccountViewable {
+    let picture = this.nostrConfig.defaultProfile.picture;
 
     if (metadata?.picture) {
       picture = metadata.picture;
     }
 
-    if (metadata?.banner) {
-      banner = metadata.banner;
-    }
-
-    const npub = npubEncode(pubkey);
-    const displayName = metadata?.display_name || metadata?.name || '';
-    const nip05 = this.getPointerDetails(resultset);
-
-    //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
-    const nostrProfileRelays = nip05.relays.length ? nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
-    const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
-
-    return {
-      displayName,
-      state: 'viewing',
-      nprofile,
-      metadata,
-      picture,
-      banner,
-      relays,
-      nip05,
-      pubkey,
-      npub
-    };
+    return { ...account, picture, state: 'viewing' };
   }
   
-  accountDeepFactory(): AccountDeepLoaded {
+  accountCompleteFactory(): AccountComplete {
 
   }
 
@@ -175,10 +149,10 @@ export class AccountFactory {
   /**
    * Create an account with user prefetched content
    */
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountEssentialLoaded;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountEssential;
   accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
   // eslint-disable-next-line complexity
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): AccountEssentialLoaded | UnauthenticatedAccount {
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): AccountEssential | UnauthenticatedAccount {
     let picture = this.nostrConfig.defaultProfile.picture,
       banner = this.nostrConfig.defaultProfile.banner;
     const metadata = resultset?.metadata || null;
@@ -199,7 +173,7 @@ export class AccountFactory {
     const nostrProfileRelays = nip05.relays.length ? nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
 
-    let account: UnauthenticatedAccount | AccountDeepLoaded = {
+    let account: UnauthenticatedAccount | AccountComplete = {
       displayName,
       state: 'deep',
       nprofile,
@@ -239,7 +213,7 @@ export class AccountFactory {
     return resultset;
   }
 
-  private getPointerDetails(resultset: AccountResultset | null): AccountNip05 {
+  private getPointerDetails(resultset: AccountResultset | null): AccountNip05Pointer {
     const metadata: NostrMetadata | null = resultset?.metadata || null;
     let relays: string[] = [],
       address: string | null = null,

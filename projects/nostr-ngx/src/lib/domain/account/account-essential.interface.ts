@@ -6,7 +6,7 @@ import { HexString } from '../event/primitive/hex-string.type';
 /**
  * account with pubkey, metadata and settings events loaded
  */
-export interface AccountEssentialLoaded {
+export interface AccountEssential {
   pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;

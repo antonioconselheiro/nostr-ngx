@@ -17,8 +17,8 @@ import { AccountResultset } from './account-resultset.type';
 import { AccountFactory } from './account.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { AccountEssentialLoaded } from '../domain/account/account-essential-loaded.interface';
-import { AccountDeepLoaded } from '../domain/account/account-deep-loaded.interface';
+import { AccountEssential } from '../domain/account/account-essential.interface';
+import { AccountComplete } from '../domain/account/account-complete.interface';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -48,7 +48,7 @@ export class ProfileService {
    * load from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssentialLoaded> {
+  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
@@ -59,7 +59,7 @@ export class ProfileService {
     return Promise.resolve(account);
   }
 
-  async loadAccountDeeply(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountDeepLoaded> {
+  async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
 
   }
 

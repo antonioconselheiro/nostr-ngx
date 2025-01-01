@@ -1,7 +1,7 @@
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
-import { AccountNip05 } from './account-nip05.interface';
+import { AccountNip05Pointer } from './account-nip05-pointer.type';
 import { HexString } from '../event/primitive/hex-string.type';
 
 /**
@@ -18,12 +18,12 @@ import { HexString } from '../event/primitive/hex-string.type';
  * unauthenticated accounts, in this cache there will be accounts
  * stored with more details, but it is a cache under user control.
  */
-export interface AccountDeepLoaded {
+export interface AccountComplete {
   pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;
-  state: 'deep';
-  nip05: AccountNip05 | null;
+  state: 'complete';
+  nip05: AccountNip05Pointer | null;
   metadata: NostrMetadata | null;
   displayName: string;
   picture: string;

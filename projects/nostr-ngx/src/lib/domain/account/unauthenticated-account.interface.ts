@@ -1,7 +1,7 @@
 import { NostrMetadata } from '@nostrify/nostrify';
 import { Ncryptsec, NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
-import { AccountNip05 } from './account-nip05.interface';
+import { AccountNip05Pointer } from './account-nip05-pointer.type';
 import { HexString } from '../event/primitive/hex-string.type';
 
 /**
@@ -12,7 +12,7 @@ export interface UnauthenticatedAccount {
   npub: NPub;
   nprofile: NProfile;
   state: 'authenticable';
-  nip05: AccountNip05 | null;  
+  nip05: AccountNip05Pointer | null;  
   ncryptsec: Ncryptsec;
   metadata: NostrMetadata | null;
   displayName: string;
