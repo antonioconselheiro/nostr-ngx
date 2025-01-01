@@ -18,6 +18,5 @@ export interface AccountFullLoaded {
   nip05: AccountNip05 | null;
   metadata: NostrMetadata | null;
   displayName: string;
-  picture: string;
   relays: NostrUserRelays;
 }
