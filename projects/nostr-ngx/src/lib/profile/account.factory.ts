@@ -102,22 +102,16 @@ export class AccountFactory {
     };
   }
 
-  accountViewableFactory(account: AccountPointable, metadata: NostrMetadata | null): AccountViewable {
-    let picture = this.nostrConfig.defaultProfile.picture;
-
-    if (metadata?.picture) {
-      picture = metadata.picture;
-    }
-
-    return { ...account, picture, state: 'viewing' };
+  accountViewableFactory(account: AccountPointable, profilePictureBase64: string): AccountViewable {
+    return { ...account, picture: profilePictureBase64, state: 'viewing' };
   }
   
-  accountCompleteFactory(): AccountComplete {
-
+  accountCompleteFactory(account: AccountViewable, bannerBase64: string): AccountComplete {
+    return { ...account, banner: bannerBase64, state: 'complete' };
   }
 
-  accountUnauthenticatedFactory(): UnauthenticatedAccount {
-
+  accountUnauthenticatedFactory(account: AccountComplete, ncryptsec: Ncryptsec): UnauthenticatedAccount {
+    return { ...account, ncryptsec, state: 'authenticable' };
   }
 
   accountFactoryFromNSec(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata: NostrMetadata | null): UnauthenticatedAccount {
@@ -193,7 +187,7 @@ export class AccountFactory {
     return account;
   }
 
-  private async accountResultsetFactory(event: NostrEvent<Metadata>): Promise<AccountResultset> {
+  async accountResultsetFactory(event: NostrEvent<Metadata>): Promise<AccountResultset> {
     const metadata = n
       .json()
       .pipe(n.metadata())

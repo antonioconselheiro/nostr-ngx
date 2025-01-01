@@ -63,6 +63,27 @@ export class ProfileService {
 
   }
 
+  loadAccountEssential(): Promise<AccountEssential> {
+
+  }
+
+  loadAccountPointable(): Promise<AccountPointable> {
+
+  }
+
+  loadAccountViewable(): Promise<AccountViewable> {
+
+  }
+
+  loadAccountComplete(): Promise<AccountComplete> {
+
+  }
+
+  loadAccountUnauthenticated(): Promise<UnauthenticatedAccount> {
+
+  }
+
+
   async listAccounts(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
     const eventMetadataList = events
