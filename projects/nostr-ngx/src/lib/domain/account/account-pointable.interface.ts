@@ -14,7 +14,7 @@ export interface AccountPointable {
   pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;
-  state: 'full';
+  state: 'pointable';
   nip05: AccountNip05Pointer | null;
   metadata: NostrMetadata | null;
   displayName: string;

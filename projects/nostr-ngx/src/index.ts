@@ -81,7 +81,7 @@ export * from './lib/configs/nostr-local-config.interface';
 export * from './lib/exceptions/no-credentials-found.error';
 export * from './lib/exceptions/not-supported-by-signer.error';
 export * from './lib/exceptions/signer-not-found.error';
-export * from './lib/profile/profile.service';
+export * from './lib/profile/profile.proxy';
 export * from './lib/profile/profile-event.factory';
 export * from './lib/profile/profile.module';
 export * from './lib/profile/nostr.signer';
@@ -90,7 +90,7 @@ export * from './lib/profile/account-resultset.type';
 export * from './lib/profile/profile.cache';
 export * from './lib/profile/current-account.observable';
 export * from './lib/profile/profile.nostr';
-export * from './lib/profile/idb-profile-cache.interface';
+export * from './lib/profile/idb-account-cache.interface';
 export * from './lib/profile/account.factory';
 
 declare global {

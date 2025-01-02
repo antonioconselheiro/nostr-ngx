@@ -31,7 +31,7 @@ import { AccountComplete } from '../domain/account/account-complete.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class ProfileService {
+export class ProfileProxy {
 
   constructor(
     private guard: NostrGuard,
@@ -59,27 +59,45 @@ export class ProfileService {
     return Promise.resolve(account);
   }
 
-  async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
+  /**
+   * load events related to pubkey and compose account object
+   * pubkey + relay + metadata
+   */
+  loadAccountEssential(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+    if (!opts || !opts.ignoreCache) {
+      this.profileCache.get(pubkey);
+    }
+  }
+
+  /**
+   * load events related to pubkey and load nip05, then compose account object
+   * pubkey + relay + metadata + nip05
+   */
+  loadAccountPointable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountPointable> {
 
   }
 
-  loadAccountEssential(): Promise<AccountEssential> {
+  /**
+   * load events related to pubkey, load nip05 and profile image, then compose account object
+   * pubkey + relay + metadata + nip05 + profile image base64
+   */
+  loadAccountViewable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountViewable> {
 
   }
 
-  loadAccountPointable(): Promise<AccountPointable> {
+  /**
+   * load every possible info to compose account, including banner
+   * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64
+   */
+  loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
 
   }
 
-  loadAccountViewable(): Promise<AccountViewable> {
-
-  }
-
-  loadAccountComplete(): Promise<AccountComplete> {
-
-  }
-
-  loadAccountUnauthenticated(): Promise<UnauthenticatedAccount> {
+  /**
+   * load every possible info to compose account object and include a ncryptsec
+   * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64 + ncryptsec
+   */
+  loadAccountUnauthenticated(pubkey: HexString, opts?: NPoolRequestOptions): Promise<UnauthenticatedAccount> {
 
   }
 

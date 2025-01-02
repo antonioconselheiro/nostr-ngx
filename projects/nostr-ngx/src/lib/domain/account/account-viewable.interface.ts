@@ -12,7 +12,7 @@ export interface AccountViewable {
   pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;
-  state: 'viewing';
+  state: 'viewable';
   metadata: NostrMetadata | null;
   nip05: AccountNip05Pointer | null;
   displayName: string;

@@ -6,7 +6,7 @@ import { CurrentAccountObservable } from './current-account.observable';
 import { ProfileEventFactory } from './profile-event.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { ProfileService } from './profile.service';
+import { ProfileProxy } from './profile.proxy';
 import { AccountFactory } from './account.factory';
 
 @NgModule({
@@ -18,7 +18,7 @@ import { AccountFactory } from './account.factory';
     ProfileNostr,
     ProfileCache,
     AccountFactory,
-    ProfileService,
+    ProfileProxy,
     ProfileEventFactory,
     AccountManagerService,
     CurrentAccountObservable

@@ -10,7 +10,7 @@ import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
-import { ProfileService } from './profile.service';
+import { ProfileProxy } from './profile.proxy';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
@@ -21,7 +21,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
   constructor(
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
-    private profileService: ProfileService,
+    private profileService: ProfileProxy,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private profileSessionStorage: ProfileSessionStorage,
