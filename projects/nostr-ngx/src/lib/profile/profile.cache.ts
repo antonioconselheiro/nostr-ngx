@@ -2,17 +2,15 @@ import { Injectable } from '@angular/core';
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 import { LRUCache } from 'lru-cache';
 import { nip19 } from 'nostr-tools';
-import { Metadata } from 'nostr-tools/kinds';
 import { Nip05 } from 'nostr-tools/nip05';
 import { NPub } from 'nostr-tools/nip19';
+import { AccountCacheable } from '../domain/account/account-cacheable.type';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
-import { AccountResultset } from './account-resultset.type';
 import { IdbAccountCache } from './idb-account-cache.interface';
 
 @Injectable({
@@ -32,7 +30,10 @@ export class ProfileCache {
    */
   protected cacheAccountComplete = new LRUCache<string, AccountComplete>({
     max: 7,
-    dispose: account => this.onLRUDisposeComplete(account),
+    //  TODO: como a quantidade de itens aqui é bem menor que o cache geral, os perfis em cache irão mudar com maior frequência,
+    //  minha ideia então é envia-los ao cache maior (cacheAccount) sem as propriedades de perfil e banner em base64, removendo
+    //  essas propriedades também do cache persistente (idbindex)
+    dispose: account => this.onLRUDispose(account),
     updateAgeOnGet: true
   });
 
@@ -40,8 +41,11 @@ export class ProfileCache {
    * this cache include all loaded account data and profile image base64, this account data are ready to be rendered in the document
    */
   protected cacheAccountViewable = new LRUCache<string, AccountViewable>({
-    max: 40,
-    dispose: account => this.onLRUDisposeViewable(account),
+    max: 70,
+    //  TODO: como a quantidade de itens aqui é bem menor que o cache geral, os perfis em cache irão mudar com maior frequência,
+    //  minha ideia então é envia-los ao cache maior (cacheAccount) sem as propriedades de perfil e banner em base64, removendo
+    //  essas propriedades também do cache persistente (idbindex)
+    dispose: account => this.onLRUDispose(account),
     updateAgeOnGet: true
   });
 
@@ -50,7 +54,7 @@ export class ProfileCache {
    */
   protected cacheAccount = new LRUCache<string, AccountEssential | AccountPointable>({
     max: 1000,
-    dispose: account => this.onLRUDisposeEssentialAndPointable(account),
+    dispose: account => this.onLRUDispose(account),
     updateAgeOnGet: true
   });
 
@@ -91,26 +95,15 @@ export class ProfileCache {
     return Promise.resolve();
   }
 
-  protected async onLRUDisposeEssentialAndPointable(account: AccountEssential | AccountPointable): Promise<void> {
-
-  }
-
-  protected async onLRUDisposeViewable(account: AccountViewable): Promise<void> {
-
-  }
-
-  protected async onLRUDisposeComplete(account: AccountComplete): Promise<void> {
-
-  }
-
-  protected async onLRUDispose(metadata: AccountResultset): Promise<void> {
+  protected async onLRUDispose(metadata: AccountEssential | AccountPointable | AccountComplete | AccountViewable): Promise<void> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     tx.store.delete(metadata.pubkey);
   }
 
-  async add(metadataEvents: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
-    const touples = await this.prefetch(metadataEvents);
+  async add(
+    touples: Array<AccountComplete | AccountEssential | AccountPointable | AccountViewable>
+  ): Promise<Array<AccountComplete | AccountEssential | AccountPointable | AccountViewable>> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     const queue = touples.map(touple => this.addSingle(touple, tx));
@@ -122,34 +115,40 @@ export class ProfileCache {
   }
 
   protected async addSingle(
-    resultset: AccountEssential | AccountPointable | AccountViewable | AccountComplete,
+    account: AccountCacheable,
     tx: IDBPTransaction<IdbAccountCache, ["accounts"], "readwrite">
-  ): Promise<AccountEssential | AccountPointable | AccountViewable | AccountComplete> {
-    const { pubkey, metadata } = resultset;
+  ): Promise<AccountCacheable> {
+    const { pubkey, metadata } = account;
 
     //  save in lru cache
-    this.cache.set(pubkey, resultset);
+    if (account.state === 'essential' || account.state ===  'pointable') {
+      this.cacheAccount.set(pubkey, account);
+    } else if (account.state === 'viewable') {
+      this.cacheAccountViewable.set(pubkey, account);
+    } else if (account.state === 'complete') {
+      this.cacheAccountComplete.set(pubkey, account);
+    }
 
     //  bind nip05 to pubkey
     if (metadata && metadata.nip05) {
       this.indexedByNip05.set(metadata.nip05, pubkey);
     }
 
-    await tx.objectStore(this.table).put(resultset);
-    return resultset;
+    await tx.objectStore(this.table).put(account);
+    return account;
   }
 
-  get(pubkey: HexString): AccountResultset | null;
-  get(pubkeys: HexString[]): AccountResultset[];
-  get(npub: NPub): AccountResultset | null;
-  get(npubs: NPub[]): AccountResultset[];
-  get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null;
-  get(publicAddresses: string[] | string): AccountResultset | AccountResultset[] | null {
+  get(pubkey: HexString): AccountCacheable | null;
+  get(pubkeys: HexString[]): AccountCacheable[];
+  get(npub: NPub): AccountCacheable | null;
+  get(npubs: NPub[]): AccountCacheable[];
+  get(publicAddresses: string[] | string): AccountCacheable | AccountCacheable[] | null;
+  get(publicAddresses: string[] | string): AccountCacheable | AccountCacheable[] | null {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
-      .map(pubkey => pubkey && this.cache.get(pubkey) || null)
-      .filter((metadata): metadata is AccountResultset => !!metadata);
+      .map(pubkey => pubkey && (this.cacheAccountComplete.get(pubkey) || this.cacheAccountViewable.get(pubkey) || this.cacheAccount.get(pubkey)) || null)
+      .filter((metadata): metadata is AccountCacheable => !!metadata);
 
     if (publicAddresses instanceof Array) {
       return metadatas;
@@ -158,9 +157,9 @@ export class ProfileCache {
     }
   }
 
-  getByNip5(nip5: Nip05): AccountResultset | null;
-  getByNip5(nip5s: Nip05[]): AccountResultset[];
-  getByNip5(nip5s: Nip05 | Nip05[]): AccountResultset[] | AccountResultset | null {
+  getByNip5(nip5: Nip05): AccountCacheable | null;
+  getByNip5(nip5s: Nip05[]): AccountCacheable[];
+  getByNip5(nip5s: Nip05 | Nip05[]): AccountCacheable[] | AccountCacheable | null {
     if (nip5s instanceof Array) {
       nip5s
         .map(nip5 => this.indexedByNip05.get(nip5))
