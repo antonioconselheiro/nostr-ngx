@@ -1,23 +1,20 @@
 import { Inject, Injectable } from '@angular/core';
-import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
+import { NostrMetadata } from '@nostrify/nostrify';
 import { getPublicKey } from 'nostr-tools';
-import { Metadata } from 'nostr-tools/kinds';
 import { decode, Ncryptsec, nprofileEncode, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
-import { AccountPointable } from '../domain/account/account-pointable.interface';
-import { AccountNip05Pointer } from '../domain/account/account-nip05-pointer.type';
+import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
 import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
+import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
-import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountResultset } from './account-resultset.type';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { queryProfile } from 'nostr-tools/nip05';
 
 @Injectable({
   providedIn: 'root'
@@ -52,7 +49,7 @@ export class AccountFactory {
    * @param metadata NostrMetadata parsed from metadata event
    * @returns AccountEssentialLoaded, Account
    */
-  accountEssentialFactory(pubkey: HexString, relays: NostrUserRelays, metadata: NostrMetadata | null): AccountEssential {
+  accountEssentialFactory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays): AccountEssential {
     //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
     const nostrProfileRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
@@ -79,34 +76,25 @@ export class AccountFactory {
    * @param relays 
    * @returns AccountFullLoaded, Account
    */
-  accountPointableFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountPointable {
-    const metadata = resultset?.metadata || null;
-
-    const npub = npubEncode(pubkey);
-    const displayName = metadata?.display_name || metadata?.name || '';
-    const nip05 = this.getPointerDetails(resultset);
+  accountPointableFactory(account: AccountEssential, nip05ProfilePointer: ProfilePointer | null): AccountPointable {
+    const nip05 = this.getPointerDetails(account.metadata, nip05ProfilePointer);
 
     //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
-    const nostrProfileRelays = nip05.relays.length ? nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
-    const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
+    const nostrProfileRelays = nip05ProfilePointer?.relays?.length ?
+      nip05ProfilePointer.relays : this.relayConverter.extractOutboxRelays(account.relays).splice(0, 3);
+    const nprofile = nprofileEncode({
+      pubkey: account.pubkey,
+      relays: nostrProfileRelays
+    });
 
-    return {
-      displayName,
-      state: 'pointable',
-      nprofile,
-      metadata,
-      relays,
-      nip05,
-      pubkey,
-      npub
-    };
+    return { ...account, nprofile, nip05, state: 'pointable' };
   }
 
-  accountViewableFactory(account: AccountPointable, profilePictureBase64: string): AccountViewable {
+  accountViewableFactory(account: AccountPointable, profilePictureBase64: string | null): AccountViewable {
     return { ...account, picture: profilePictureBase64, state: 'viewable' };
   }
   
-  accountCompleteFactory(account: AccountViewable, bannerBase64: string): AccountComplete {
+  accountCompleteFactory(account: AccountViewable, bannerBase64: string | null): AccountComplete {
     return { ...account, banner: bannerBase64, state: 'complete' };
   }
 
@@ -187,37 +175,16 @@ export class AccountFactory {
     return account;
   }
 
-  async accountResultsetFactory(event: NostrEvent<Metadata>): Promise<AccountResultset> {
-    const metadata = n
-      .json()
-      .pipe(n.metadata())
-      .parse(event.content);
-
-    const resultset: AccountResultset = {
-      pubkey: event.pubkey, event, metadata, nip05: null
-    };
-
-    try {
-      if (metadata.nip05 && metadata.nip05.trim()) {
-        const nip05Pointer = await queryProfile(metadata.nip05);
-        resultset.nip05 = nip05Pointer || null;
-      }
-    } catch { }
-
-    return resultset;
-  }
-
-  private getPointerDetails(resultset: AccountResultset | null): AccountNip05Pointer {
-    const metadata: NostrMetadata | null = resultset?.metadata || null;
+  private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {
     let relays: string[] = [],
       address: string | null = null,
       pointer = null;
 
     if (metadata?.nip05) {
       address = metadata.nip05;
-      if (resultset?.nip05) {
-        relays = resultset.nip05.relays || [];
-        pointer = resultset.nip05;
+      if (nip05) {
+        relays = nip05.relays || [];
+        pointer = nip05;
       }
     }
 

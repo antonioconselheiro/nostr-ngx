@@ -1,7 +1,7 @@
 import { NostrMetadata } from '@nostrify/nostrify';
 import { NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
-import { AccountNip05Pointer } from './account-nip05-pointer.type';
+import { AccountNip05Detail } from './account-nip05-detail.type';
 import { HexString } from '../event/primitive/hex-string.type';
 
 /**
@@ -23,10 +23,10 @@ export interface AccountComplete {
   npub: NPub;
   nprofile: NProfile;
   state: 'complete';
-  nip05: AccountNip05Pointer | null;
+  nip05: AccountNip05Detail | null;
   metadata: NostrMetadata | null;
   displayName: string;
-  picture: string;
-  banner: string;
+  picture: string | null;
+  banner: string | null;
   relays: NostrUserRelays;
 }

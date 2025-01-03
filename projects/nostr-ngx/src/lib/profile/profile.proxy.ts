@@ -26,6 +26,7 @@ import { AccountViewable } from '../domain/account/account-viewable.interface';
 import { Nip05Proxy } from './nip05.proxy';
 import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
 import { Nip05 } from "nostr-tools/nip05";
+import { FileManagerService } from '../nostr-media/file-manager.service';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -49,7 +50,8 @@ export class ProfileProxy {
     private relayConverter: RelayConverter,
     private nostrConverter: NostrConverter,
     private localConfigs: AccountsLocalStorage,
-    private accountFactory: AccountFactory
+    private accountFactory: AccountFactory,
+    private fileManagerService: FileManagerService
   ) { }
 
   /**
@@ -88,7 +90,11 @@ export class ProfileProxy {
    * pubkey + relay + metadata
    */
   async loadAccountEssential(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+    const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
+    const record = this.relayConverter.convertEventsToRelayConfig(events);
+    const metadata = this.getProfileMetadata(events);
 
+    return this.accountFactory.accountEssentialFactory(pubkey, metadata, record[pubkey] || {});
   }
 
   /**
@@ -96,7 +102,10 @@ export class ProfileProxy {
    * pubkey + relay + metadata + nip05
    */
   async loadAccountPointable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountPointable> {
+    const accountEssential = await this.loadAccountEssential(pubkey, opts);
+    const nip05 = await this.nip05Proxy.queryProfile(accountEssential.metadata?.nip05 as Nip05);
 
+    return this.accountFactory.accountPointableFactory(accountEssential, nip05);
   }
 
   /**
@@ -104,7 +113,14 @@ export class ProfileProxy {
    * pubkey + relay + metadata + nip05 + profile image base64
    */
   async loadAccountViewable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountViewable> {
+    const accountPointable = await this.loadAccountPointable(pubkey, opts);
+    let profileBase64: string | null = null;
 
+    if (accountPointable.metadata?.picture) {
+      profileBase64 = await this.fileManagerService.linkToBase64(accountPointable.metadata.picture);
+    }
+
+    return this.accountFactory.accountViewableFactory(accountPointable, profileBase64);
   }
 
   /**
@@ -112,16 +128,13 @@ export class ProfileProxy {
    * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64
    */
   async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
-    const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
-    const record = this.relayConverter.convertEventsToRelayConfig(events);
-    const metadata = this.getProfileMetadata(events);
-    const nip05 = await this.nip05Proxy.queryProfile(metadata?.nip05 as Nip05);
+    let bannerBase64: string | null = null;
+    const accountViewable = await this.loadAccountViewable(pubkey, opts);
+    if (accountViewable.metadata?.banner) {
+      bannerBase64 = await this.fileManagerService.linkToBase64(accountViewable.metadata.banner);
+    }
 
-    const account = this.accountFactory.accountFactory(pubkey, {  }, record[pubkey] || {});
-
-    const [resultset = null] = await this.profileCache.add(eventMetadata);
-
-    return Promise.resolve(account);
+    return this.accountFactory.accountCompleteFactory(accountViewable, bannerBase64);
   }
 
   private getProfileMetadata(events: Array<NostrEvent<number>>): NostrMetadata | null {

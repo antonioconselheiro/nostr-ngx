@@ -2,7 +2,7 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
 import { HexString } from '../event/primitive/hex-string.type';
-import { AccountNip05Pointer } from './account-nip05-pointer.type';
+import { AccountNip05Detail } from './account-nip05-detail.type';
 
 /**
  * Account with profile picture and metadata loaded, with this data detail the account can be displayed on screen.
@@ -14,13 +14,8 @@ export interface AccountViewable {
   nprofile: NProfile;
   state: 'viewable';
   metadata: NostrMetadata | null;
-  nip05: AccountNip05Pointer | null;
+  nip05: AccountNip05Detail | null;
   displayName: string;
-
-  /**
-   * TODO: armazenar a imagem em base64, de forma que a
-   * imagem de perfil não dependa de internet ou estabilidade de relay para ser exibida
-   */
-  picture: string;
+  picture: string | null;
   relays: NostrUserRelays;
 }

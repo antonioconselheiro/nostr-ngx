@@ -1,6 +1,6 @@
 import { ProfilePointer } from 'nostr-tools/nip19';
 
-export type AccountNip05Pointer = {
+export type AccountNip05Detail = {
   address: string;
   pointer: ProfilePointer;
   relays: Array<WebSocket['url']>;
