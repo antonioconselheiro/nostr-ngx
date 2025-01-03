@@ -4,7 +4,7 @@ import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { isRelayString } from './is-relay-string.regex';
@@ -110,7 +110,7 @@ export class RelayConverter {
 
   convertEventsToRelayConfig(
     relayEvents: Array<NostrEvent>,
-    patchExistingUser?: AccountComplete | UnauthenticatedAccount
+    patchExistingUser?: AccountComplete | AccountAuthenticable
   ): { [pubkey: HexString]: NostrUserRelays } {
     const record: { [pubkey: HexString]: NostrUserRelays } = {};
     if (patchExistingUser) {

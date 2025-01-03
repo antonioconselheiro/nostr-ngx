@@ -1,0 +1,1 @@
+export type AccountState = 'notloaded' | 'essential' | 'pointable' | 'viewable' | 'complete'

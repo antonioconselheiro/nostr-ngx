@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account/account.interface';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -15,7 +15,7 @@ import { UnauthenticatedAccount } from '../domain/account/unauthenticated-accoun
 export class AccountManagerService {
 
   private accounts = this.accountsLocalStorage.read().accounts || {};
-  private accountsSubject = new BehaviorSubject<UnauthenticatedAccount[]>(Object.values(this.accounts));
+  private accountsSubject = new BehaviorSubject<AccountAuthenticable[]>(Object.values(this.accounts));
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
@@ -27,7 +27,7 @@ export class AccountManagerService {
     this.profileSessionStorage.patch({ account });
   }
 
-  async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
+  async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
     const unauthenticated = this.accounts[account.pubkey] = { ...account, ncryptsec }
     this.update();
 

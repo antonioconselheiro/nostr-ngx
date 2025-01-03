@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account/account.interface';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
@@ -52,7 +52,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return this.loadCurrentProfile(pubkey);
   }
 
-  authenticateAccount(account: UnauthenticatedAccount, password: string, saveNSecInSessionStorage = false): Promise<Account> {
+  authenticateAccount(account: AccountAuthenticable, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     this.profileSessionStorage.clear();

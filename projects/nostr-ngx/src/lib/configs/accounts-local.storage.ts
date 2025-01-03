@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AbstractBrowserStorage } from './abstract-browser-storage';
 import { NostrLocalConfig } from './nostr-local-config.interface';
 
@@ -28,7 +28,7 @@ export class AccountsLocalStorage extends AbstractBrowserStorage<NostrLocalConfi
     return Object.keys(this.read().accounts || {}).length;
   }
 
-  addAccount(account: UnauthenticatedAccount): UnauthenticatedAccount {
+  addAccount(account: AccountAuthenticable): AccountAuthenticable {
     let { accounts } = this.read();
     if (!accounts) {
       accounts = {};

@@ -38,7 +38,7 @@ export * from './lib/domain/account/account-nip05-pointer.type';
 export * from './lib/domain/account/account-not-loaded.interface';
 export * from './lib/domain/account/account-viewable.interface';
 export * from './lib/domain/account/account.interface';
-export * from './lib/domain/account/unauthenticated-account.interface';
+export * from './lib/domain/account/account-authenticable.interface';
 export * from './lib/domain/account/account-nip05-pointer.type';
 export * from './lib/pool/relay-router.service';
 export * from './lib/pool/relay-local-config.service';

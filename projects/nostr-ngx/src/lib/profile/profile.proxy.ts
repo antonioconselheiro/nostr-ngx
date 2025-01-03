@@ -7,7 +7,7 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { Account } from '../domain/account/account.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
@@ -19,6 +19,10 @@ import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
+import { AccountState } from '../domain/account/account-state.type';
+import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
+import { AccountPointable } from '../domain/account/account-pointable.interface';
+import { AccountViewable } from '../domain/account/account-viewable.interface';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -48,7 +52,62 @@ export class ProfileProxy {
    * load from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  async loadAccount(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+  loadAccount(pubkey: HexString, minimalState: 'notloaded', opts?: NPoolRequestOptions): Promise<AccountNotLoaded | AccountEssential | AccountPointable | AccountViewable | AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<AccountEssential | AccountPointable | AccountViewable | AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<AccountPointable | AccountViewable | AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: 'viewable', opts?: NPoolRequestOptions): Promise<AccountViewable | AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account>;
+  async loadAccount(pubkey: HexString, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
+    if (!opts || !opts.ignoreCache) {
+      const account = this.profileCache.get(pubkey);
+      if (account) {
+        return account;
+      }
+    }
+
+    if (minimalState === 'essential') {
+      return this.loadAccountEssential(pubkey, opts);
+    } else if (minimalState === 'pointable') {
+      return this.loadAccountPointable(pubkey, opts);
+    } else if (minimalState === 'viewable') {
+      return this.loadAccountViewable(pubkey, opts);
+    } else if (minimalState === 'complete') {
+      return this.loadAccountComplete(pubkey, opts);
+    }
+
+    return this.accountFactory.accountNotLoadedFactory(pubkey);
+  }
+
+  /**
+   * load events related to pubkey and compose account object
+   * pubkey + relay + metadata
+   */
+  async loadAccountEssential(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+
+  }
+
+  /**
+   * load events related to pubkey and load nip05, then compose account object
+   * pubkey + relay + metadata + nip05
+   */
+  async loadAccountPointable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountPointable> {
+
+  }
+
+  /**
+   * load events related to pubkey, load nip05 and profile image, then compose account object
+   * pubkey + relay + metadata + nip05 + profile image base64
+   */
+  async loadAccountViewable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountViewable> {
+
+  }
+
+  /**
+   * load every possible info to compose account, including banner
+   * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64
+   */
+  async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
 
@@ -60,44 +119,10 @@ export class ProfileProxy {
   }
 
   /**
-   * load events related to pubkey and compose account object
-   * pubkey + relay + metadata
-   */
-  loadAccountEssential(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
-    if (!opts || !opts.ignoreCache) {
-      this.profileCache.get(pubkey);
-    }
-  }
-
-  /**
-   * load events related to pubkey and load nip05, then compose account object
-   * pubkey + relay + metadata + nip05
-   */
-  loadAccountPointable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountPointable> {
-
-  }
-
-  /**
-   * load events related to pubkey, load nip05 and profile image, then compose account object
-   * pubkey + relay + metadata + nip05 + profile image base64
-   */
-  loadAccountViewable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountViewable> {
-
-  }
-
-  /**
-   * load every possible info to compose account, including banner
-   * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64
-   */
-  loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
-
-  }
-
-  /**
    * load every possible info to compose account object and include a ncryptsec
    * pubkey + relay + metadata + nip05 + profile image base64 + banner image base64 + ncryptsec
    */
-  loadAccountUnauthenticated(pubkey: HexString, opts?: NPoolRequestOptions): Promise<UnauthenticatedAccount> {
+  async loadAccountUnauthenticated(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountAuthenticable> {
 
   }
 
@@ -166,7 +191,7 @@ export class ProfileProxy {
     return this.profileCache.add(profiles);
   }
 
-  async loadAccountFromCredentials(nsec: NSec, password: string): Promise<UnauthenticatedAccount> {
+  async loadAccountFromCredentials(nsec: NSec, password: string): Promise<AccountAuthenticable> {
     const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
     const account = await this.loadAccount(user.pubkey);
@@ -177,7 +202,7 @@ export class ProfileProxy {
   /**
    * Include account to login later
    */
-  addUnauthenticatedAccount(account: UnauthenticatedAccount): void {
+  addUnauthenticatedAccount(account: AccountAuthenticable): void {
     const local = this.localConfigs.read();
     if (!local.accounts) {
       local.accounts = {};

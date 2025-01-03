@@ -137,6 +137,9 @@ export class ProfileCache {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     tx.store.delete(account.pubkey);
+    if (account.metadata?.nip05) {
+      this.indexedByNip05.delete(account.metadata.nip05);
+    }
   }
 
   //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais

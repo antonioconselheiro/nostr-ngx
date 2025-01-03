@@ -7,7 +7,7 @@ import { HexString } from '../event/primitive/hex-string.type';
 /**
  * Authenticable account, have all account data loaded and a ncryptsec to user authenticate.
  */
-export interface UnauthenticatedAccount {
+export interface AccountAuthenticable {
   pubkey: HexString;
   npub: NPub;
   nprofile: NProfile;

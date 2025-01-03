@@ -1,6 +1,6 @@
 import { NSec } from 'nostr-tools/nip19';
 import { AccountComplete } from '../domain/account/account-complete.interface';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { NostrUserRelays } from './nostr-user-relays.interface';
 
 /**
@@ -10,7 +10,7 @@ export interface NostrSessionConfig {
   /**
    * current user account
    */
-  account?: AccountComplete | UnauthenticatedAccount;
+  account?: AccountComplete | AccountAuthenticable;
   nsec?: NSec;
 
   /**

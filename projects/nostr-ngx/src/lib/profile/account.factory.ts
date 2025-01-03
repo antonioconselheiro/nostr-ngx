@@ -11,7 +11,7 @@ import { AccountPointable } from '../domain/account/account-pointable.interface'
 import { AccountNip05Pointer } from '../domain/account/account-nip05-pointer.type';
 import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
-import { UnauthenticatedAccount } from '../domain/account/unauthenticated-account.interface';
+import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { RelayConverter } from '../nostr-utils/relay.converter';
@@ -92,7 +92,7 @@ export class AccountFactory {
 
     return {
       displayName,
-      state: 'full',
+      state: 'pointable',
       nprofile,
       metadata,
       relays,
@@ -103,18 +103,18 @@ export class AccountFactory {
   }
 
   accountViewableFactory(account: AccountPointable, profilePictureBase64: string): AccountViewable {
-    return { ...account, picture: profilePictureBase64, state: 'viewing' };
+    return { ...account, picture: profilePictureBase64, state: 'viewable' };
   }
   
   accountCompleteFactory(account: AccountViewable, bannerBase64: string): AccountComplete {
     return { ...account, banner: bannerBase64, state: 'complete' };
   }
 
-  accountUnauthenticatedFactory(account: AccountComplete, ncryptsec: Ncryptsec): UnauthenticatedAccount {
+  accountAuthenticableFactory(account: AccountComplete, ncryptsec: Ncryptsec): AccountAuthenticable {
     return { ...account, ncryptsec, state: 'authenticable' };
   }
 
-  accountFactoryFromNSec(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata: NostrMetadata | null): UnauthenticatedAccount {
+  accountFactoryFromNSec(nsec: NSec, ncryptsec: Ncryptsec, relays: NostrUserRelays, metadata: NostrMetadata | null): AccountAuthenticable {
     const { data } = decode(nsec);
     const pubkey = getPublicKey(data);
     const npub = npubEncode(pubkey);
@@ -122,7 +122,7 @@ export class AccountFactory {
     const pointer: ProfilePointer = { pubkey, relays: pointerRelays };
     const nprofile = nprofileEncode(pointer);
 
-    const account: UnauthenticatedAccount = {
+    const account: AccountAuthenticable = {
       metadata,
       ncryptsec,
       pubkey,
@@ -144,9 +144,9 @@ export class AccountFactory {
    * Create an account with user prefetched content
    */
   accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays): AccountEssential;
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): UnauthenticatedAccount;
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec: Ncryptsec): AccountAuthenticable;
   // eslint-disable-next-line complexity
-  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): AccountEssential | UnauthenticatedAccount {
+  accountFactory(pubkey: HexString, resultset: AccountResultset | null, relays: NostrUserRelays, ncryptsec?: Ncryptsec): AccountEssential | AccountAuthenticable {
     let picture = this.nostrConfig.defaultProfile.picture,
       banner = this.nostrConfig.defaultProfile.banner;
     const metadata = resultset?.metadata || null;
@@ -167,9 +167,9 @@ export class AccountFactory {
     const nostrProfileRelays = nip05.relays.length ? nip05.relays : this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey, relays: nostrProfileRelays });
 
-    let account: UnauthenticatedAccount | AccountComplete = {
+    let account: AccountAuthenticable | AccountComplete = {
       displayName,
-      state: 'deep',
+      state: 'complete',
       nprofile,
       metadata,
       picture,
