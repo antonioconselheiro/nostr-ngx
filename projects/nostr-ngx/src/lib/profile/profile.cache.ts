@@ -33,7 +33,7 @@ export class ProfileCache {
     //  TODO: como a quantidade de itens aqui é bem menor que o cache geral, os perfis em cache irão mudar com maior frequência,
     //  minha ideia então é envia-los ao cache maior (cacheAccount) sem as propriedades de perfil e banner em base64, removendo
     //  essas propriedades também do cache persistente (idbindex)
-    dispose: account => this.onLRUDispose(account),
+    dispose: account => this.fowardToCommonCache(account),
     updateAgeOnGet: true
   });
 
@@ -45,12 +45,12 @@ export class ProfileCache {
     //  TODO: como a quantidade de itens aqui é bem menor que o cache geral, os perfis em cache irão mudar com maior frequência,
     //  minha ideia então é envia-los ao cache maior (cacheAccount) sem as propriedades de perfil e banner em base64, removendo
     //  essas propriedades também do cache persistente (idbindex)
-    dispose: account => this.onLRUDispose(account),
+    dispose: account => this.fowardToCommonCache(account),
     updateAgeOnGet: true
   });
 
   /**
-   * this cache include all basic account loaded data 
+   * this cache include all basic account loaded data
    */
   protected cacheAccount = new LRUCache<string, AccountEssential | AccountPointable>({
     max: 1000,
@@ -95,15 +95,54 @@ export class ProfileCache {
     return Promise.resolve();
   }
 
-  protected async onLRUDispose(metadata: AccountEssential | AccountPointable | AccountComplete | AccountViewable): Promise<void> {
+  //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
+  /**
+   * Cache with images have a smaller amount of available space compared to cache without images,
+   * because the object for the image cache includes base64 images.
+   *
+   * This method removes the images from an expired account and then saves it in the cache with no images.
+   */
+  protected async fowardToCommonCache(account: AccountComplete | AccountViewable): Promise<void> {
+    const {
+      pubkey,
+      npub,
+      nprofile,
+      nip05,
+      metadata,
+      displayName,
+      relays
+    } = account;
+
+    const pointable: AccountPointable = {
+      pubkey,
+      npub,
+      nprofile,
+      state: 'pointable',
+      nip05,
+      metadata,
+      displayName,
+      relays
+    };
+
+    this.cacheAccount.set(pointable.pubkey, pointable);
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
-    tx.store.delete(metadata.pubkey);
+    tx.store.delete(pointable.pubkey);
+    await this.addSingle(pointable, tx);
+    await tx.done;
   }
 
+  //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
+  protected async onLRUDispose(account: AccountCacheable): Promise<void> {
+    const db = await this.db;
+    const tx = db.transaction(this.table, 'readwrite');
+    tx.store.delete(account.pubkey);
+  }
+
+  //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
   async add(
-    touples: Array<AccountComplete | AccountEssential | AccountPointable | AccountViewable>
-  ): Promise<Array<AccountComplete | AccountEssential | AccountPointable | AccountViewable>> {
+    touples: Array<AccountCacheable>
+  ): Promise<Array<AccountCacheable>> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     const queue = touples.map(touple => this.addSingle(touple, tx));
@@ -121,7 +160,7 @@ export class ProfileCache {
     const { pubkey, metadata } = account;
 
     //  save in lru cache
-    if (account.state === 'essential' || account.state ===  'pointable') {
+    if (account.state === 'essential' || account.state === 'pointable') {
       this.cacheAccount.set(pubkey, account);
     } else if (account.state === 'viewable') {
       this.cacheAccountViewable.set(pubkey, account);
@@ -147,7 +186,11 @@ export class ProfileCache {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
-      .map(pubkey => pubkey && (this.cacheAccountComplete.get(pubkey) || this.cacheAccountViewable.get(pubkey) || this.cacheAccount.get(pubkey)) || null)
+      .map(pubkey => pubkey && (
+        this.cacheAccountComplete.get(pubkey) ||
+        this.cacheAccountViewable.get(pubkey) ||
+        this.cacheAccount.get(pubkey)) || null
+      )
       .filter((metadata): metadata is AccountCacheable => !!metadata);
 
     if (publicAddresses instanceof Array) {
@@ -157,16 +200,16 @@ export class ProfileCache {
     }
   }
 
-  getByNip5(nip5: Nip05): AccountCacheable | null;
-  getByNip5(nip5s: Nip05[]): AccountCacheable[];
-  getByNip5(nip5s: Nip05 | Nip05[]): AccountCacheable[] | AccountCacheable | null {
-    if (nip5s instanceof Array) {
-      nip5s
-        .map(nip5 => this.indexedByNip05.get(nip5))
+  getByNip05(nip05: Nip05): AccountCacheable | null;
+  getByNip05(nip05s: Nip05[]): AccountCacheable[];
+  getByNip05(nip05s: Nip05 | Nip05[]): AccountCacheable[] | AccountCacheable | null {
+    if (nip05s instanceof Array) {
+      nip05s
+        .map(nip05 => this.indexedByNip05.get(nip05))
         .map(pubkey => pubkey && this.get(pubkey) || null)
         .filter(metadata => !!metadata);
     } else {
-      const pubkey = this.indexedByNip05.get(nip5s);
+      const pubkey = this.indexedByNip05.get(nip05s);
       if (pubkey) {
         return this.get(pubkey);
       }
