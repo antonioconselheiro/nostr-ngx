@@ -8,6 +8,7 @@ import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileProxy } from './profile.proxy';
 import { AccountFactory } from './account.factory';
+import { Nip05Proxy } from './nip05.proxy';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { AccountFactory } from './account.factory';
     ProfileCache,
     AccountFactory,
     ProfileProxy,
+    Nip05Proxy,
     ProfileEventFactory,
     AccountManagerService,
     CurrentAccountObservable
