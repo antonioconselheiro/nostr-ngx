@@ -23,6 +23,9 @@ import { AccountState } from '../domain/account/account-state.type';
 import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
+import { Nip05Proxy } from './nip05.proxy';
+import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
+import { Nip05 } from "nostr-tools/nip05";
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -39,6 +42,7 @@ export class ProfileProxy {
 
   constructor(
     private guard: NostrGuard,
+    private nip05Proxy: Nip05Proxy,
     private nsecCrypto: NSecCrypto,
     private profileCache: ProfileCache,
     private profileNostr: ProfileNostr,
@@ -110,12 +114,26 @@ export class ProfileProxy {
   async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
     const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
     const record = this.relayConverter.convertEventsToRelayConfig(events);
+    const metadata = this.getProfileMetadata(events);
+    const nip05 = await this.nip05Proxy.queryProfile(metadata?.nip05 as Nip05);
 
-    const eventMetadata = events.filter((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata));
+    const account = this.accountFactory.accountFactory(pubkey, {  }, record[pubkey] || {});
+
     const [resultset = null] = await this.profileCache.add(eventMetadata);
-    const account = this.accountFactory.accountFactory(pubkey, resultset, record[pubkey] || {});
 
     return Promise.resolve(account);
+  }
+
+  private getProfileMetadata(events: Array<NostrEvent<number>>): NostrMetadata | null {
+    const eventMetadata = events.find((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata));
+    if (!eventMetadata) {
+      return null;
+    }
+
+    return n
+      .json()
+      .pipe(n.metadata())
+      .parse(eventMetadata.content);
   }
 
   /**

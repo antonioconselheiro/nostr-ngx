@@ -15,7 +15,11 @@ export class Nip05Proxy {
     [domain: string]: Nip05Resultset
   } = { };
 
-  async queryProfile(nip05: Nip05): Promise<ProfilePointer | null> {
+  async queryProfile(nip05: Nip05 | undefined): Promise<ProfilePointer | null> {
+    if (!nip05) {
+      return null;
+    }
+
     const match = nip05.match(NIP05_REGEX);
     if (!match) return null;
     const [, name = '_', domain] = match;
