@@ -334,19 +334,12 @@ export class ProfileProxy {
     })
     opts = opts || {};
     opts.include = opts.include ? [...opts.include, ...include] : include;
-    return this.loadAccounts(pubkeys, opts);
+    return this.loadAccounts(pubkeys, minimalState, opts);
   }
 
   // TODO: profile must listen current user public updates, so he don't needs f5 to update
   //listenUpdates(pubkeys: Array<string>, opts?: NPoolRequestOptions): Observable<Account> {
   //}
-
-  /**
-   * use this when you receive a kind 0 event that does not come from this service
-   */
-  cache(profiles: Array<NostrEvent<Metadata>>): Promise<Array<AccountResultset>> {
-    return this.profileCache.add(profiles);
-  }
 
   /**
    * Include account to login later

@@ -5,6 +5,8 @@ import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { Account } from '../domain/account/account.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
+import { AccountComplete } from '../domain/account/account-complete.interface';
+import { AccountFactory } from './account.factory';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -19,19 +21,21 @@ export class AccountManagerService {
   accounts$ = this.accountsSubject.asObservable();
 
   constructor(
+    private accountFactory: AccountFactory,
     private accountsLocalStorage: AccountsLocalStorage,
     private profileSessionStorage: ProfileSessionStorage
   ) { }
 
-  setCurrentAccount(account: Account): void {
+  setCurrentAccount(account: AccountComplete | AccountAuthenticable): void {
     this.profileSessionStorage.patch({ account });
   }
 
-  async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
-    const unauthenticated = this.accounts[account.pubkey] = { ...account, ncryptsec }
+  async addAccount(account: AccountComplete, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
+    const authenticable = this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
+    this.accounts[account.pubkey] = authenticable;
     this.update();
 
-    return Promise.resolve(unauthenticated);
+    return Promise.resolve(authenticable);
   }
 
   removeAccount(profile: Account): void {

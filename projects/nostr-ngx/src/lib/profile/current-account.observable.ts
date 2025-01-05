@@ -11,6 +11,8 @@ import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NostrSigner } from './nostr.signer';
 import { ProfileProxy } from './profile.proxy';
+import { AccountComplete } from '../domain/account/account-complete.interface';
+import { AccountFactory } from './account.factory';
 
 // TODO: this service must listen to account changing in signer and update it when it updates
 @Injectable({
@@ -22,6 +24,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
     private profileService: ProfileProxy,
+    private accountFactory: AccountFactory,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private profileSessionStorage: ProfileSessionStorage,
@@ -76,14 +79,14 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return this.loadCurrentProfile(user.pubkey);
   }
 
-  async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<Account> {
+  async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<AccountComplete> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     const account = await this.loadCurrentProfile(user.pubkey);
+    const authenticable = this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
 
-    account.ncryptsec = ncryptsec;
     this.profileSessionStorage.clear();
-    this.profileSessionStorage.save({ account });
+    this.profileSessionStorage.save({ account: authenticable });
 
     if (saveNSecInSessionStorage) {
       this.profileSessionStorage.patch({ nsec });
@@ -92,13 +95,14 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return Promise.resolve(account);
   }
 
-  private async loadCurrentProfile(pubkey: HexString): Promise<Account> {
-    const account = await this.profileService.loadAccount(pubkey);
+  private async loadCurrentProfile(pubkey: HexString): Promise<AccountComplete> {
+    //  FIXME: calling load account twice, this is right? I must reundestood this method
+    const account = await this.profileService.loadAccount(pubkey, 'complete');
     const accountRelays = account.relays.general || null;
     const outbox = this.relayConverter.extractOutboxRelays(accountRelays)
 
     return this.profileService
-      .loadAccount(pubkey, {
+      .loadAccount(pubkey, 'complete', {
         include: outbox
       })
       .then((account) => {
