@@ -18,7 +18,7 @@ import { AccountFactory } from './account.factory';
 @Injectable({
   providedIn: 'root'
 })
-export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
+export class CurrentAccountObservable extends BehaviorSubject<AccountComplete | null> {
 
   constructor(
     private nsecCrypto: NSecCrypto,
@@ -31,7 +31,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     private accountLocalStorage: AccountsLocalStorage
   ) {
     const session = profileSessionStorage.read();
-    let account: Account | null = null;
+    let account: AccountComplete | null = null;
     if (session.account) {
       account = session.account;
     }
@@ -55,20 +55,21 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     return this.loadCurrentProfile(pubkey);
   }
 
-  authenticateAccount(account: AccountAuthenticable, password: string, saveNSecInSessionStorage = false): Promise<Account> {
-    const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
-    const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
+  authenticateAccount(account: AccountAuthenticable, password: string, saveNSecInSessionStorage = false): AccountComplete {
+    const { ncryptsec, ...accountData } = account;
+    const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
+    const complete: AccountComplete = { ...accountData, state: 'complete' };
     this.profileSessionStorage.clear();
-    this.profileSessionStorage.patch({ account });
+    this.profileSessionStorage.patch({ account: complete });
 
     if (saveNSecInSessionStorage) {
       this.profileSessionStorage.patch({ nsec });
     }
 
-    return this.loadCurrentProfile(user.pubkey);
+    return complete;
   }
 
-  authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<Account> {
+  authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<AccountComplete> {
     const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     this.profileSessionStorage.clear();
 
@@ -83,10 +84,9 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
     const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     const account = await this.loadCurrentProfile(user.pubkey);
-    const authenticable = this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
 
     this.profileSessionStorage.clear();
-    this.profileSessionStorage.save({ account: authenticable });
+    this.profileSessionStorage.save({ account });
 
     if (saveNSecInSessionStorage) {
       this.profileSessionStorage.patch({ nsec });

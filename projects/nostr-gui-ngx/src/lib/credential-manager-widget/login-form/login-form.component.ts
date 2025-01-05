@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountManagerService, CurrentAccountObservable, HexString, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { Account, AccountAuthenticable, AccountComplete, AccountManagerService, CurrentAccountObservable, HexString, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileProxy } from '@belomonte/nostr-ngx';
 import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -20,13 +20,13 @@ export class LoginFormComponent implements OnInit {
   showPassword = false;
 
   @Input()
-  accounts: UnauthenticatedAccount[] = [];
+  accounts: AccountAuthenticable[] = [];
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<UnauthenticatedAccount | null>();
+  selected = new EventEmitter<AccountAuthenticable | null>();
 
   @Output()
   close = new EventEmitter<void>();
@@ -52,7 +52,7 @@ export class LoginFormComponent implements OnInit {
     private nostrSigner: NostrSigner,
     private camera$: CameraObservable,
     private nostrConverter: NostrConverter,
-    private profileService: ProfileService,
+    private profileProxy: ProfileProxy,
     private profile$: CurrentAccountObservable,
     private accountManagerService: AccountManagerService
   ) { }
@@ -102,7 +102,6 @@ export class LoginFormComponent implements OnInit {
     this.close.emit();
   }
 
-  // eslint-disable-next-line complexity
   async onLoginSubmit(event: SubmitEvent): Promise<void> {
     event.stopPropagation();
     event.preventDefault();
@@ -125,21 +124,21 @@ export class LoginFormComponent implements OnInit {
 
     try {
       let ncrypted: Ncryptsec | undefined = undefined;
-      let account: Account;
+      let account: AccountComplete;
       let user: {
         npub: NPub;
         pubkey: HexString;
       };
 
       if (this.guard.isNSec(nsec)) {
-        user = this.nostrConverter.convertNsecToPublicKeys(nsec);
+        user = this.nostrConverter.convertNSecToPublicKeys(nsec);
         if (password) {
           ncrypted = this.nsecCrypto.encryptNSec(nsec, password);
         }
         account = await this.profile$.authenticateWithNSec(nsec, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
       } else if (this.guard.isNcryptsec(nsec) && password) {
         ncrypted = nsec;
-        user = this.nostrConverter.convertNsecToPublicKeys(this.nsecCrypto.decryptNcryptsec(nsec, password));
+        user = this.nostrConverter.convertNSecToPublicKeys(this.nsecCrypto.decryptNcryptsec(nsec, password));
         account = await this.profile$.authenticateWithNcryptsec(ncrypted, password, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
       } else {
         return Promise.reject(new Error('invalid credential given'));
@@ -148,7 +147,7 @@ export class LoginFormComponent implements OnInit {
 
       if (ncrypted && saveNcryptsecLocalStorage) {
         if (!account) {
-          account = await this.profileService.loadAccount(user.pubkey);
+          account = await this.profileProxy.loadAccount(user.pubkey, 'complete');
         }
         await this.addAccount(account, ncrypted);
       }
@@ -168,16 +167,16 @@ export class LoginFormComponent implements OnInit {
     return Promise.resolve();
   }
 
-  private async addAccount(account: Account, ncryptsec: Ncryptsec): Promise<UnauthenticatedAccount | null> {
+  private async addAccount(account: AccountComplete, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
     this.loginForm.reset();
-    const unauthenticatedAccount = await this.accountManagerService.addAccount(account, ncryptsec)
-    if (!unauthenticatedAccount) {
+    const authenticableAccount = await this.accountManagerService.addAccount(account, ncryptsec)
+    if (!authenticableAccount) {
       this.changeStep.next('selectAccount');
     } else {
-      this.selected.next(unauthenticatedAccount);
+      this.selected.next(authenticableAccount);
       this.changeStep.next('authenticate');
     }
 
-    return Promise.resolve(unauthenticatedAccount);
+    return Promise.resolve(authenticableAccount);
   }
 }

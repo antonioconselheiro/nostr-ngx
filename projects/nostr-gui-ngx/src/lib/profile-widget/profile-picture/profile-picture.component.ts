@@ -1,5 +1,5 @@
-import { Component, Input, Inject } from '@angular/core';
-import { Account, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
+import { Component, Inject, Input } from '@angular/core';
+import { AccountAuthenticable, AccountComplete, AccountViewable, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
 import { ProfilePicture } from '../../domain/profile-picture.interface';
 
 @Component({
@@ -11,8 +11,11 @@ export class ProfilePictureComponent {
   @Input()
   profile: ProfilePicture | null = null;
 
+  /**
+   * fixme: preciso de tipos que agrupem os account que tem dados comuns
+   */
   @Input()
-  account: Account | null = null;
+  account: AccountViewable | AccountComplete | AccountAuthenticable | null = null;
 
   constructor(
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>

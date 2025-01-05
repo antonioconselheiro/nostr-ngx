@@ -15,7 +15,7 @@ import { HexString } from '../event/primitive/hex-string.type';
  * per access.
  * 
  * There are other user-controlled caches, such as the one for
- * unauthenticated accounts, in this cache there will be accounts
+ * authenticable accounts, in this cache there will be accounts
  * stored with more details, but it is a cache under user control.
  */
 export interface AccountComplete {

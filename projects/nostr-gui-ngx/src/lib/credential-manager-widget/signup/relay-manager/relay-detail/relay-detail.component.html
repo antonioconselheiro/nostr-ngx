@@ -77,10 +77,10 @@
       <nostr-profile-picture [account]="loadedContactProfile"></nostr-profile-picture>
       <div class="userInfo">
         <span class="userName">
-          {{loadedContactProfile?.metadata?.display_name}}
+          {{loadedContactProfile.displayName}}
           <span *ngIf="loadedContactProfile?.nip05?.valid" class="userVerified"></span>
         </span>
-        <span *ngIf="loadedContactProfile?.metadata?.nip05" class="userNip5">{{loadedContactProfile?.metadata?.nip05}}</span>
+        <span *ngIf="loadedContactProfile?.metadata?.nip05" class="userNip5">{{loadedContactProfile.metadata.nip05}}</span>
       </div>
     </section>
   </fieldset>

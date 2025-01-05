@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Account, ProfileService } from '@belomonte/nostr-ngx';
+import { AccountComplete, AccountViewable, ProfileProxy } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
 
@@ -20,13 +20,13 @@ export class RelayDetailComponent implements OnInit {
   relay!: string;
 
   loadedDetails: RelayInformation | null = null;
-  loadedContactProfile: Account | null = null;
+  loadedContactProfile: AccountViewable | AccountComplete | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
   numberFormat = '1.0-0';
 
   constructor(
-    private profileService: ProfileService
+    private profileProxy: ProfileProxy
   ) { }
 
   ngOnInit(): void {
@@ -42,8 +42,8 @@ export class RelayDetailComponent implements OnInit {
 
   private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
-      this.profileService
-        .loadAccount(details.pubkey)
+      this.profileProxy
+        .loadAccount(details.pubkey, 'viewable')
         .then(profile => this.loadedContactProfile = profile)
     }
   }

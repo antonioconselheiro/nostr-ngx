@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
-import { AccountManagerService, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AccountAuthenticable, AccountManagerService } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { Subject, Subscription } from 'rxjs';
 import { CreatingAccount } from '../../domain/creating-account.interface';
@@ -20,9 +20,9 @@ export class ModalNostrCredentialComponent
   response = new Subject<NostrMetadata | null | void>();
 
   auth: NostrMetadata | null = null;
-  accounts: UnauthenticatedAccount[] = [];
+  accounts: AccountAuthenticable[] = [];
 
-  authenticatingAccount: UnauthenticatedAccount | null = null;
+  authenticatingAccount: AccountAuthenticable | null = null;
   creatingAccount: CreatingAccount | null = null;
   currentStep: AuthModalSteps | null = null;
 

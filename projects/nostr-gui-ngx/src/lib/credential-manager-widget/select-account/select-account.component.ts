@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AccountManagerService, CurrentAccountObservable, NostrSigner, UnauthenticatedAccount } from '@belomonte/nostr-ngx';
+import { AccountAuthenticable, AccountManagerService, CurrentAccountObservable, NostrSigner } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
@@ -10,13 +10,13 @@ import { AuthModalSteps } from '../auth-modal-steps.type';
 export class SelectAccountComponent {
 
   @Input()
-  accounts: UnauthenticatedAccount[] = [];
+  accounts: AccountAuthenticable[] = [];
 
   @Output()
   changeStep = new EventEmitter<AuthModalSteps>();
 
   @Output()
-  selected = new EventEmitter<UnauthenticatedAccount | null>();
+  selected = new EventEmitter<AccountAuthenticable | null>();
 
   @Output()
   close = new EventEmitter<void>();
@@ -27,7 +27,7 @@ export class SelectAccountComponent {
     private accountManagerService: AccountManagerService
   ) { }
 
-  logout(account: UnauthenticatedAccount): void {
+  logout(account: AccountAuthenticable): void {
     this.accountManagerService.removeAccount(account);
 
     //  wait the observable send centralizated
@@ -39,7 +39,7 @@ export class SelectAccountComponent {
     });
   }
 
-  selectAccount(account: UnauthenticatedAccount): void {
+  selectAccount(account: AccountAuthenticable): void {
     this.selected.emit(account);
     this.changeStep.next('authenticate');
   }

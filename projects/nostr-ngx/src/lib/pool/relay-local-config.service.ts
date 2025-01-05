@@ -34,7 +34,7 @@ export class RelayLocalConfigService {
   ) { }
 
   /**
-   * Override application default relays for unauthenticated
+   * Override application default relays for authenticable account relays
    */
   setLocalRelays(relays: RelayRecord): void {
     this.configsLocal.patch({ commonRelays: relays });

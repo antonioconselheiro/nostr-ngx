@@ -26,7 +26,7 @@ export class AccountManagerService {
     private profileSessionStorage: ProfileSessionStorage
   ) { }
 
-  setCurrentAccount(account: AccountComplete | AccountAuthenticable): void {
+  setCurrentAccount(account: AccountComplete): void {
     this.profileSessionStorage.patch({ account });
   }
 

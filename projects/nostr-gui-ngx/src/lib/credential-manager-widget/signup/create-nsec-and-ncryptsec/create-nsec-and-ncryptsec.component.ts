@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrConverter, NostrSigner, NSecCrypto, ProfileProxy, ProfileSessionStorage } from '@belomonte/nostr-ngx';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -35,6 +35,8 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     private fb: FormBuilder,
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
+    private profileProxy: ProfileProxy,
+    private nostrConverter: NostrConverter,
     private qrcodeService: QrcodeService,
     private profileSessionStorage: ProfileSessionStorage,
     private accountFactory: AccountFactory,
@@ -122,7 +124,8 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec && ncryptsec) {
       const metadata: NostrMetadata = { display_name: this.creatingAccount.displayName || '' };
-      const account = this.accountFactory.accountFactoryFromNSec(nsec, ncryptsec, {}, metadata);
+      //  FIXME: vou precisar criar um método de factory para criar um autheticable account com parâmetros padrão
+      const account = this.profileProxy.accountFactoryFromNSec(nsec, ncryptsec, {}, metadata);
       
       this.accountsLocalStorage.addAccount(account);
       this.profileSessionStorage.patch({ account });
