@@ -25,6 +25,8 @@ export class ProfileCache {
   protected indexedByNip05 = new Map<string, string>();
   protected db: Promise<IDBPDatabase<IdbAccountCache>>;
 
+  //  FIXME: devo refletir sobre um meio das contas autenticáveis não ficarem neste cache,
+  //  já que estão guardadas no storage, se não será duplicação de dados em cache
   /**
    * this cache include fully loaded account data, including profile and banner images in base64
    */
@@ -143,12 +145,10 @@ export class ProfileCache {
   }
 
   //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
-  async add(
-    touples: Array<AccountCacheable>
-  ): Promise<Array<AccountCacheable>> {
+  async add(accounts: Array<AccountCacheable>): Promise<Array<AccountCacheable>> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
-    const queue = touples.map(touple => this.addSingle(touple, tx));
+    const queue = accounts.map(touple => this.addSingle(touple, tx));
 
     const metadatas = await Promise.all(queue);
     await tx.done;

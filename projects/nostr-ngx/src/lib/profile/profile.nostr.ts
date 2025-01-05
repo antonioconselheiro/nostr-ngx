@@ -16,6 +16,8 @@ export class ProfileNostr {
   ) { }
 
   loadProfilesConfig(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
+    //  FIXME: aplicar schemas para validar o formato do evento
+    //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
       {
         authors: pubkeys,
@@ -31,8 +33,8 @@ export class ProfileNostr {
   }
 
   loadProfileConfig(pubkey: HexString, opts?: NPoolRequestOptions): Promise<Array<NostrEvent>> {
-    //  FIXME: aplicar schemas
-    //  FIXME: applicar filtros de bloqueio
+    //  FIXME: aplicar schemas para validar o formato do evento
+    //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
       {
         kinds: [Metadata],
@@ -70,8 +72,8 @@ export class ProfileNostr {
    * FIXME: maybe should receive and array
    */
   listenUserConfigUpdates(pubkey: HexString, opts?: NPoolRequestOptions): Observable<NostrEvent> {
-    //  FIXME: aplicar schemas
-    //  FIXME: applicar filtros de bloqueio
+    //  FIXME: aplicar schemas para validar o formato do evento
+    //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.observe([
       {
         kinds: [

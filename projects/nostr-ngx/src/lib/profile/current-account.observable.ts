@@ -54,7 +54,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
 
   authenticateAccount(account: AccountAuthenticable, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(account.ncryptsec, password);
-    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
+    const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     this.profileSessionStorage.clear();
     this.profileSessionStorage.patch({ account });
 
@@ -66,7 +66,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
   }
 
   authenticateWithNSec(nsec: NSec, saveNSecInSessionStorage = false): Promise<Account> {
-    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
+    const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     this.profileSessionStorage.clear();
 
     if (saveNSecInSessionStorage) {
@@ -78,7 +78,7 @@ export class CurrentAccountObservable extends BehaviorSubject<Account | null> {
 
   async authenticateWithNcryptsec(ncryptsec: Ncryptsec, password: string, saveNSecInSessionStorage = false): Promise<Account> {
     const nsec = this.nsecCrypto.decryptNcryptsec(ncryptsec, password);
-    const user = this.nostrConverter.convertNsecToPublicKeys(nsec);
+    const user = this.nostrConverter.convertNSecToPublicKeys(nsec);
     const account = await this.loadCurrentProfile(user.pubkey);
 
     account.ncryptsec = ncryptsec;

@@ -8,9 +8,9 @@ import { NPub, NSec } from 'nostr-tools/nip19';
 })
 export class NostrConverter {
 
-  convertNsecToPublicKeys(nostrSecret: NSec): Omit<NostrPublicUser, 'nprofile'>;
-  convertNsecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<WebSocket['url']>): NostrPublicUser;
-  convertNsecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<WebSocket['url']>): NostrPublicUser {
+  convertNSecToPublicKeys(nostrSecret: NSec): Omit<NostrPublicUser, 'nprofile'>;
+  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<WebSocket['url']>): NostrPublicUser;
+  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<WebSocket['url']>): NostrPublicUser {
     const { data } = nip19.decode(nostrSecret);
     const pubkey = getPublicKey(data);
 
