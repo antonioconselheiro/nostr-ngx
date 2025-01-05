@@ -16,7 +16,7 @@ export interface AccountAuthenticable {
   ncryptsec: Ncryptsec;
   metadata: NostrMetadata | null;
   displayName: string;
-  picture: string;
-  banner: string;
+  picture: string | null;
+  banner: string | null;
   relays: NostrUserRelays;
 }

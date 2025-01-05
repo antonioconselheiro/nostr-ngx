@@ -13,7 +13,6 @@ import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
-import { AccountResultset } from './account-resultset.type';
 import { AccountFactory } from './account.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
@@ -156,7 +155,6 @@ export class ProfileProxy {
   async loadAccountUnauthenticated(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountAuthenticable> {
 
   }
-
 
   async listAccounts(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
