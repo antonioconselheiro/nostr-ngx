@@ -71,31 +71,41 @@ export class ProfileProxy {
       }
     }
 
-    if (minimalState === 'essential') {
-      return this.loadAccountEssential(pubkey, opts);
-    } else if (minimalState === 'pointable') {
-      return this.loadAccountPointable(pubkey, opts);
-    } else if (minimalState === 'viewable') {
-      return this.loadAccountViewable(pubkey, opts);
-    } else if (minimalState === 'complete') {
-      return this.loadAccountComplete(pubkey, opts);
+    const calculated = this.accountFactory.accountNotLoadedFactory(pubkey);
+    if (minimalState === 'notloaded') {
+      return calculated;
     }
 
-    return this.accountFactory.accountNotLoadedFactory(pubkey);
+    const essential = await this.loadAccountEssential(calculated, opts);
+    if (minimalState === 'essential') {
+      return essential;
+    }
+
+    const pointable = await this.loadAccountPointable(essential);
+    if (minimalState === 'pointable') {
+      return pointable;
+    }
+
+    const viewable = await this.loadAccountViewable(pointable);
+    if (minimalState === 'viewable') {
+      return viewable;
+    }
+
+    return this.loadAccountComplete(viewable);
   }
 
   /**
    * load events related to pubkey and compose one account object
    * this account contains: pubkey + relay + metadata
    */
-  async loadAccountEssential(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountEssential> {
-    const events = await this.profileNostr.loadProfileConfig(pubkey, opts);
+  async loadAccountEssential(account: AccountNotLoaded, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+    const events = await this.profileNostr.loadProfileConfig(account.pubkey, opts);
     const relayRecord = this.relayConverter.convertEventsToRelayConfig(events);
     const metadataRecord = this.getProfileMetadata(events);
-    const metadata = metadataRecord[pubkey] || null;
-    const relays = relayRecord[pubkey] || {};
+    const metadata = metadataRecord[account.pubkey] || null;
+    const relays = relayRecord[account.pubkey] || {};
 
-    const essential = this.accountFactory.factory(pubkey, metadata, relays);
+    const essential = this.accountFactory.factory(account.pubkey, metadata, relays);
     await this.profileCache.add([essential]);
     return essential;
   }
@@ -104,11 +114,10 @@ export class ProfileProxy {
    * load events related to pubkey and load nip05, then compose one account object
    * this account contains: pubkey + relay + metadata + nip05
    */
-  async loadAccountPointable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountPointable> {
-    const accountEssential = await this.loadAccountEssential(pubkey, opts);
-    const nip05 = await this.nip05Proxy.queryProfile(accountEssential.metadata?.nip05 as Nip05);
+  async loadAccountPointable(account: AccountEssential): Promise<AccountPointable> {
+    const nip05 = await this.nip05Proxy.queryProfile(account.metadata?.nip05 as Nip05);
+    const pointable = this.accountFactory.accountPointableFactory(account, nip05);
 
-    const pointable = this.accountFactory.accountPointableFactory(accountEssential, nip05);
     await this.profileCache.add([pointable]);
     return pointable;
   }
@@ -117,15 +126,14 @@ export class ProfileProxy {
    * load events related to pubkey, load nip05 and profile image, then compose one account object
    * this account contains: pubkey + relay + metadata + nip05 + profile image base64
    */
-  async loadAccountViewable(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountViewable> {
-    const accountPointable = await this.loadAccountPointable(pubkey, opts);
+  async loadAccountViewable(account: AccountPointable): Promise<AccountViewable> {
     let profileBase64: string | null = null;
 
-    if (accountPointable.metadata?.picture) {
-      profileBase64 = await this.fileManagerService.linkToBase64(accountPointable.metadata.picture);
+    if (account.metadata?.picture) {
+      profileBase64 = await this.fileManagerService.linkToBase64(account.metadata.picture);
     }
 
-    const viewable = this.accountFactory.accountViewableFactory(accountPointable, profileBase64);
+    const viewable = this.accountFactory.accountViewableFactory(account, profileBase64);
     await this.profileCache.add([viewable]);
     return viewable;
   }
@@ -134,14 +142,13 @@ export class ProfileProxy {
    * load every possible info to compose one account, including banner
    * this account contains: pubkey + relay + metadata + nip05 + profile image base64 + banner image base64
    */
-  async loadAccountComplete(pubkey: HexString, opts?: NPoolRequestOptions): Promise<AccountComplete> {
+  async loadAccountComplete(account: AccountViewable): Promise<AccountComplete> {
     let bannerBase64: string | null = null;
-    const accountViewable = await this.loadAccountViewable(pubkey, opts);
-    if (accountViewable.metadata?.banner) {
-      bannerBase64 = await this.fileManagerService.linkToBase64(accountViewable.metadata.banner);
+    if (account.metadata?.banner) {
+      bannerBase64 = await this.fileManagerService.linkToBase64(account.metadata.banner);
     }
 
-    const complete = this.accountFactory.accountCompleteFactory(accountViewable, bannerBase64);
+    const complete = this.accountFactory.accountCompleteFactory(account, bannerBase64);
     await this.profileCache.add([complete]);
     return complete;
   }
@@ -151,9 +158,9 @@ export class ProfileProxy {
    * accepts nsec + password or nsec + ncryptsec
    * this account contains: pubkey + relay + metadata + nip05 + profile image base64 + banner image base64 + ncryptsec
    */
-  loadAccountAuthenticableFromNSec(nsec: NSec, password: string, opts?: NPoolRequestOptions): Promise<AccountAuthenticable>;
-  loadAccountAuthenticableFromNSec(nsec: NSec, ncryptsec: Ncryptsec, opts?: NPoolRequestOptions): Promise<AccountAuthenticable>;
-  loadAccountAuthenticableFromNSec(nsec: NSec, cipherParam: string, opts?: NPoolRequestOptions): Promise<AccountAuthenticable> {
+  loadAccountAuthenticableFromNSec(nsec: NSec, password: string): Promise<AccountAuthenticable>;
+  loadAccountAuthenticableFromNSec(nsec: NSec, ncryptsec: Ncryptsec): Promise<AccountAuthenticable>;
+  async loadAccountAuthenticableFromNSec(nsec: NSec, cipherParam: string): Promise<AccountAuthenticable> {
     let ncryptsec: Ncryptsec;
     const publics = this.nostrConverter.convertNSecToPublicKeys(nsec);
 
@@ -163,8 +170,8 @@ export class ProfileProxy {
       ncryptsec = this.nsecCrypto.encryptNSec(nsec, cipherParam);
     }
 
-    const authenticable = this.loadAccountAuthenticable(publics.pubkey, ncryptsec, opts);
-    return authenticable;
+    const complete = await this.loadAccount(publics.pubkey, 'complete');
+    return this.loadAccountAuthenticable(complete, ncryptsec);
   }
 
   /**
@@ -172,9 +179,8 @@ export class ProfileProxy {
    * accepts pubkey + ncryptsec
    * this account contains: pubkey + relay + metadata + nip05 + profile image base64 + banner image base64 + ncryptsec
    */
-  async loadAccountAuthenticable(pubkey: HexString, ncryptsec: Ncryptsec, opts?: NPoolRequestOptions): Promise<AccountAuthenticable> {
-    const complete = await this.loadAccountComplete(pubkey, opts);
-    return this.accountFactory.accountAuthenticableFactory(complete, ncryptsec);
+  async loadAccountAuthenticable(account: AccountComplete, ncryptsec: Ncryptsec): Promise<AccountAuthenticable> {
+    return this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
   }
   
   private getProfileMetadata(events: Array<NostrEvent<number>>): { [pubkey: HexString]: NostrMetadata } {
@@ -210,33 +216,113 @@ export class ProfileProxy {
   loadAccounts(pubkeys: Array<HexString>, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<Array<AccountComplete>>;
   loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>>;
   async loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
-    const events = await this.profileNostr.loadProfilesConfig(pubkeys, opts);
+    const accounts = this.readCache(pubkeys, opts);
+    if (minimalState === 'notloaded') {
+      return accounts;
+    }
+
+    const accountsWithEssentialInfo = await this.patchAccountsToEssential(accounts);
+    if (minimalState === 'essential') {
+      return accountsWithEssentialInfo;
+    }
+
+    const accountsWithPointableInfo = await this.patchAccountsToPointable(accountsWithEssentialInfo);
+    if (minimalState === 'pointable') {
+      return accountsWithPointableInfo;
+    }
+    
+    const accountsWithViewableInfo = await this.patchAccountsToViewable(accountsWithPointableInfo);
+    if (minimalState === 'viewable') {
+      return accountsWithViewableInfo;
+    }
+
+    return this.patchAccountsToComplete(accountsWithViewableInfo);
+  }
+
+  readCache(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Array<Account> {
+    return pubkeys.map(pubkey => {
+      if (!opts || !opts.ignoreCache) {
+        const account = this.profileCache.get(pubkey);
+        if (account) {
+          return account;
+        }
+      }
+
+      return this.accountFactory.accountNotLoadedFactory(pubkey);
+    });
+  }
+
+  async patchAccountsToEssential(accounts: Array<Account>, opts?: NPoolRequestOptions): Promise<Array<AccountEssential | AccountPointable | AccountViewable | AccountComplete>> {
+    const notLoadedPubkeys = accounts
+      .filter(account => account.state === 'notloaded')
+      .map(account => account.pubkey);
+
+    const events = await this.profileNostr.loadProfilesConfig(notLoadedPubkeys, opts);
     const relayRecord = this.relayConverter.convertEventsToRelayConfig(events);
     const metadataRecord = this.getProfileMetadata(events);
 
-    
+    const accountsRecord: { [pubkey: HexString]: AccountEssential | AccountPointable | AccountViewable | AccountComplete } = {};
+    accounts.forEach(account => {
+      if (account.state === 'notloaded') {
+        const metadata = metadataRecord[account.pubkey] || null;
+        const relays = relayRecord[account.pubkey] || {};
 
+        account = this.accountFactory.accountEssentialFactory(account, metadata, relays);
+        accountsRecord[account.pubkey] = account;
+      } else {
+        if (account.state === 'authenticable') {
+          //  FIXME: maybe I should think about that
+          console.warn('authenticable account identified in the cache, this data must be keep in local storage');
+        }
 
-    const resultsetList = await this.profileCache.add(eventMetadataList);
-
-    const resultsetRecord: {
-      [pubkey: HexString]: AccountResultset
-    } = {};
-
-    resultsetList.forEach(resultset => {
-      if (resultsetRecord[resultset.pubkey]) {
-        resultsetRecord[resultset.pubkey] = resultset;
+        accountsRecord[account.pubkey] = account as any as AccountEssential | AccountPointable | AccountViewable | AccountComplete;
       }
+
     });
 
-    return Promise.all(pubkeys.map(pubkey => {
-      const relays = relayRecord[pubkey];
-      const resultset = resultsetRecord[pubkey];
+    return Object.values(accountsRecord);
+  }
 
-      return this.accountFactory.factory(
-        pubkey, resultset, relays
-      );
-    }));
+  async patchAccountsToPointable(accounts: Array<AccountCacheable>): Promise<Array<AccountPointable | AccountViewable | AccountComplete>> {
+    const pointableAccounts = new Array<AccountPointable | AccountViewable | AccountComplete>();
+    for await (const account of accounts) {
+      if (account.state === 'essential') {
+        const pointable = await this.loadAccountPointable(account);
+        pointableAccounts.push(pointable);
+      } else {
+        pointableAccounts.push(account);
+      }
+    }
+
+    return pointableAccounts;
+  }
+
+  async patchAccountsToViewable(accounts: Array<AccountPointable | AccountViewable | AccountComplete>): Promise<Array<AccountViewable | AccountComplete>> {
+    const viewableAccounts = new Array<AccountViewable | AccountComplete>();
+    for await (const account of accounts) {
+      if (account.state === 'pointable') {
+        const pointable = await this.loadAccountViewable(account);
+        viewableAccounts.push(pointable);
+      } else {
+        viewableAccounts.push(account);
+      }
+    }
+
+    return viewableAccounts;
+  }
+
+  async patchAccountsToComplete(accounts: Array<AccountViewable | AccountComplete>): Promise<Array<AccountComplete>> {
+    const completeAccounts = new Array<AccountComplete>();
+    for await (const account of accounts) {
+      if (account.state === 'viewable') {
+        const pointable = await this.loadAccountComplete(account);
+        completeAccounts.push(pointable);
+      } else {
+        completeAccounts.push(account);
+      }
+    }
+
+    return completeAccounts;
   }
 
   loadAccountsUsingNProfile(nprofiles: Array<NProfile>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
