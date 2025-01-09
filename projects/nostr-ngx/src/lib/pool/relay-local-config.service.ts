@@ -1,19 +1,21 @@
 import { Inject, Injectable } from '@angular/core';
 import { NCache } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
+import { BlockedRelaysList, DirectMessageRelaysList, SearchRelaysList } from 'nostr-tools/kinds';
+import { NPub } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
+import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
+import { ProfileSessionStorage } from '../configs/profile-session.storage';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { LOCAL_CACHE_TOKEN } from '../injection-token/local-cache.token';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { AccountsLocalStorage } from '../configs/accounts-local.storage';
-import { ProfileSessionStorage } from '../configs/profile-session.storage';
-import { NostrConverter } from '../nostr-utils/nostr.converter';
-import { NPub } from 'nostr-tools/nip19';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { BlockedRelaysList, DirectMessageRelaysList, SearchRelaysList } from 'nostr-tools/kinds';
-import { HexString } from '../domain/event/primitive/hex-string.type';
+import { NostrConfig } from '../configs/nostr-config.interface';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -30,7 +32,8 @@ export class RelayLocalConfigService {
     private relayConverter: RelayConverter,
     private configsLocal: AccountsLocalStorage,
     private configSession: ProfileSessionStorage,
-    @Inject(LOCAL_CACHE_TOKEN) private ncache: NCache
+    @Inject(LOCAL_CACHE_TOKEN) private ncache: NCache,
+    @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
   /**
@@ -40,11 +43,25 @@ export class RelayLocalConfigService {
     this.configsLocal.patch({ commonRelays: relays });
   }
 
-  // FIXME: solve complexity, divide into more private methods
   /**
-   * Return relays according to user-customized settings
+   * get default relays configured in browser
    */
-  // eslint-disable-next-line complexity
+  getDefaultRelays(): NostrUserRelays {
+    const relays: NostrUserRelays = {};
+    if (this.nostrConfig.defaultFallback) {
+      relays.general = this.nostrConfig.defaultFallback;
+    }
+
+    if (this.nostrConfig.searchFallback) {
+      relays.search = this.nostrConfig.searchFallback;
+    }
+
+    return relays;
+  }
+
+  /**
+   * Return relays according to user-customized settings.
+   */
   async getCurrentUserRelays(): Promise<NostrUserRelays | null> {
     const session = this.configSession.read();
     const { signer } = this.configsLocal.read();

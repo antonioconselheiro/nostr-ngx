@@ -69,9 +69,12 @@ export class AuthenticateFormComponent implements OnInit {
     this.loading = true;
 
     try {
-      this.profiles$.authenticateAccount(account, password ?? '')
-        .then(() => this.close.emit())
-        .finally(() => this.loading = false);
+      this.profiles$.authenticateAccount(account, password ?? '');
+
+      setTimeout(() => {
+        this.close.emit();
+        this.loading = false;
+      }, 0);
     } catch {
       this.loading = false;
       this.authenticateForm.controls.password.setErrors({

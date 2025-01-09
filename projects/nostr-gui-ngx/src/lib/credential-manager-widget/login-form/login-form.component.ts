@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AbstractControlOptions, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { Account, AccountAuthenticable, AccountComplete, AccountManagerService, CurrentAccountObservable, HexString, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileProxy } from '@belomonte/nostr-ngx';
+import { AccountAuthenticable, AccountManagerService, AccountSession, CurrentAccountObservable, HexString, NostrConverter, NostrGuard, NostrSigner, NSecCrypto, ProfileProxy } from '@belomonte/nostr-ngx';
 import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CameraObservable } from '../../camera/camera.observable';
 import { NostrValidators } from '../../nostr-validators/nostr.validators';
@@ -124,7 +124,7 @@ export class LoginFormComponent implements OnInit {
 
     try {
       let ncrypted: Ncryptsec | undefined = undefined;
-      let account: AccountComplete;
+      let account: AccountSession;
       let user: {
         npub: NPub;
         pubkey: HexString;
@@ -135,11 +135,13 @@ export class LoginFormComponent implements OnInit {
         if (password) {
           ncrypted = this.nsecCrypto.encryptNSec(nsec, password);
         }
-        account = await this.profile$.authenticateWithNSec(nsec, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+        // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+        account = await this.profile$.authenticateWithNSec(nsec, true);
       } else if (this.guard.isNcryptsec(nsec) && password) {
         ncrypted = nsec;
         user = this.nostrConverter.convertNSecToPublicKeys(this.nsecCrypto.decryptNcryptsec(nsec, password));
-        account = await this.profile$.authenticateWithNcryptsec(ncrypted, password, true); // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+        // TODO: tlvz deva remover esse true fixo e colocar uma opção para o usuário?
+        account = await this.profile$.authenticateWithNcryptsec(ncrypted, password, true);
       } else {
         return Promise.reject(new Error('invalid credential given'));
       }
@@ -167,7 +169,7 @@ export class LoginFormComponent implements OnInit {
     return Promise.resolve();
   }
 
-  private async addAccount(account: AccountComplete, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
+  private async addAccount(account: AccountSession, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
     this.loginForm.reset();
     const authenticableAccount = await this.accountManagerService.addAccount(account, ncryptsec)
     if (!authenticableAccount) {

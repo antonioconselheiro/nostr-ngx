@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrConverter, NostrSigner, NSecCrypto, ProfileProxy, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { NostrMetadata } from '@nostrify/nostrify';
+import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
-import { NostrMetadata } from '@nostrify/nostrify';
-import { Ncryptsec, NSec } from 'nostr-tools/nip19';
 
 @Component({
   selector: 'nostr-create-nsec-and-ncryptsec',
@@ -35,12 +35,11 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     private fb: FormBuilder,
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
-    private profileProxy: ProfileProxy,
-    private nostrConverter: NostrConverter,
     private qrcodeService: QrcodeService,
-    private profileSessionStorage: ProfileSessionStorage,
     private accountFactory: AccountFactory,
     private accountsLocalStorage: AccountsLocalStorage,
+    private profileSessionStorage: ProfileSessionStorage,
+    private relayLocalConfigService: RelayLocalConfigService,
     private fileManagerService: FileManagerService
   ) { }
 
@@ -120,12 +119,13 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     }
   }
 
-  finalize(): void {
+  async finalize(): Promise<void> {
     const { nsec, ncryptsec } = this.generateNcryptsecForm.getRawValue();
     if (this.generateNcryptsecForm.valid && nsec && ncryptsec) {
       const metadata: NostrMetadata = { display_name: this.creatingAccount.displayName || '' };
-      //  FIXME: vou precisar criar um método de factory para criar um autheticable account com parâmetros padrão
-      const account = this.profileProxy.accountFactoryFromNSec(nsec, ncryptsec, {}, metadata);
+      const relays = await this.relayLocalConfigService.getCurrentUserRelays();
+      const defaultRelays = this.relayLocalConfigService.getDefaultRelays();
+      const account = this.accountFactory.createAccount(nsec, ncryptsec, metadata, relays || defaultRelays);
       
       this.accountsLocalStorage.addAccount(account);
       this.profileSessionStorage.patch({ account });

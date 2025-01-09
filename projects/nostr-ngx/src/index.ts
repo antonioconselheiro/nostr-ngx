@@ -10,6 +10,7 @@ export * from './lib/configs/nostr.config';
 export * from './lib/configs/nostr.module';
 export * from './lib/configs/profile-session.storage';
 export * from './lib/domain/account/account-authenticable.interface';
+export * from './lib/domain/account/account-session.interface';
 export * from './lib/domain/account/account-complete.interface';
 export * from './lib/domain/account/account-essential.interface';
 export * from './lib/domain/account/account-nip05-detail.type';

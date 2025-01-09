@@ -7,6 +7,7 @@ import { Account } from '../domain/account/account.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountFactory } from './account.factory';
+import { AccountSession } from '../domain/account/account-session.interface';
 
 /**
  * manage account objects, manage the account list in localstorage
@@ -30,7 +31,7 @@ export class AccountManagerService {
     this.profileSessionStorage.patch({ account });
   }
 
-  async addAccount(account: AccountComplete, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
+  async addAccount(account: AccountSession, ncryptsec: Ncryptsec): Promise<AccountAuthenticable | null> {
     const authenticable = this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
     this.accounts[account.pubkey] = authenticable;
     this.update();

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { Ncryptsec, nprofileEncode, npubEncode, ProfilePointer } from 'nostr-tools/nip19';
+import { decode, Ncryptsec, nprofileEncode, NPub, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
@@ -12,6 +12,9 @@ import { AccountViewable } from '../domain/account/account-viewable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { Account } from '../domain/account/account.interface';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { AccountSession } from '../domain/account/account-session.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +22,8 @@ import { Account } from '../domain/account/account.interface';
 export class AccountFactory {
 
   constructor(
+    private nostrGuard: NostrGuard,
+    private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter
   ) { }
 
@@ -154,13 +159,37 @@ export class AccountFactory {
    *
    * @returns AccountNotLoaded, Account
    */
-  accountNotLoadedFactory(pubkey: HexString): AccountNotLoaded {
-    const npub = npubEncode(pubkey);
-    return {
-      npub,
-      pubkey,
-      state: 'notloaded'
-    };
+  accountNotLoadedFactory(pubkey: HexString): AccountNotLoaded;
+  accountNotLoadedFactory(npub: NPub): AccountNotLoaded;
+  accountNotLoadedFactory(nsec: NSec): AccountNotLoaded;
+  accountNotLoadedFactory(arg: string): AccountNotLoaded {
+    if (this.nostrGuard.isHexadecimal(arg)) {
+      const npub = npubEncode(arg);
+
+      return {
+        npub,
+        pubkey: arg,
+        state: 'notloaded'
+      };
+    } else if (this.nostrGuard.isNPub(arg)) {
+      const pubkey = String(decode(arg));
+
+      return {
+        npub: arg,
+        pubkey,
+        state: 'notloaded'
+      };
+    } else if (this.nostrGuard.isNSec(arg)) {
+      const publics = this.nostrConverter.convertNSecToPublicKeys(arg);
+
+      return {
+        npub: publics.npub,
+        pubkey: publics.pubkey,
+        state: 'notloaded'
+      };
+    } else {
+      throw new Error('invalid string format given as argument to AccountFactory#accountNotLoadedFactory');
+    }
   }
 
   /**
@@ -247,8 +276,38 @@ export class AccountFactory {
    *
    * @returns AccountComplete, Account
    */
+  accountAuthenticableFactory(account: AccountComplete, ncryptsec: Ncryptsec): AccountAuthenticable;
+  accountAuthenticableFactory(account: AccountSession, ncryptsec: Ncryptsec): AccountAuthenticable;
   accountAuthenticableFactory(account: AccountComplete, ncryptsec: Ncryptsec): AccountAuthenticable {
     return { ...account, ncryptsec, state: 'authenticable' };
+  }
+
+  //  TODO: não inclui meios do nip05 ser incluso logo na primeira criação de conta, preciso pensar em como incluir ele como configuração inicial nas telas de passo a passo para criação de conta 
+  createAccount(nsec: NSec, ncryptsec: Ncryptsec, metadata: NostrMetadata | null, relays: NostrUserRelays, profilePictureBase64?: string | null, bannerBase64?: string | null): AccountAuthenticable {
+    const publics = this.nostrConverter.convertNSecToPublicKeys(nsec);
+    const essential = this.accountEssentialFactory({ ...publics, state: 'notloaded' }, metadata, relays);
+
+    return {
+      ...essential,
+      state: 'authenticable',
+      nip05: null,
+      ncryptsec,
+      metadata,
+      picture: profilePictureBase64 || null,
+      banner: bannerBase64 || null,
+      relays
+    };
+  }
+
+  /**
+   * Cast AccountAuthenticable into AccountComplete by removing authentication properties
+   */
+  convertAuthenticableToComplete(authenticable: AccountAuthenticable): AccountComplete {
+    //  desabilitando por que o objetivo aqui é remover o ncryptsec do objeto, descartando-o
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { ncryptsec, ...account } = authenticable;
+
+    return { ...account, state: 'complete' };
   }
 
   private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {

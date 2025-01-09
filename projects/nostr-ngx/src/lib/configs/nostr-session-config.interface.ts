@@ -1,5 +1,5 @@
 import { NSec } from 'nostr-tools/nip19';
-import { AccountComplete } from '../domain/account/account-complete.interface';
+import { AccountSession } from '../domain/account/account-session.interface';
 import { NostrUserRelays } from './nostr-user-relays.interface';
 
 /**
@@ -9,7 +9,7 @@ export interface NostrSessionConfig {
   /**
    * current user account
    */
-  account?: AccountComplete;
+  account?: AccountSession;
   nsec?: NSec;
 
   /**
