@@ -4,7 +4,7 @@ import { LRUCache } from 'lru-cache';
 import { nip19 } from 'nostr-tools';
 import { Nip05 } from 'nostr-tools/nip05';
 import { NPub } from 'nostr-tools/nip19';
-import { AccountCacheable } from '../domain/account/account-cacheable.type';
+import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';

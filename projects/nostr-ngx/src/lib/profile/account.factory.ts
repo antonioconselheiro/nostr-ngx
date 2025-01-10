@@ -6,7 +6,7 @@ import { AccountAuthenticable } from '../domain/account/account-authenticable.in
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
-import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
+import { AccountCalculated } from '../domain/account/account-calculated.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
@@ -14,7 +14,7 @@ import { RelayConverter } from '../nostr-utils/relay.converter';
 import { Account } from '../domain/account/account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
-import { AccountSession } from '../domain/account/account-session.interface';
+import { AccountSession } from '../domain/account/compose/account-session.type';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +34,7 @@ export class AccountFactory {
    *
    * @returns AccountNot, Account
    */
-  factory(pubkey: HexString): AccountNotLoaded;
+  factory(pubkey: HexString): AccountCalculated;
 
   /**
    * create account object
@@ -159,10 +159,10 @@ export class AccountFactory {
    *
    * @returns AccountNotLoaded, Account
    */
-  accountNotLoadedFactory(pubkey: HexString): AccountNotLoaded;
-  accountNotLoadedFactory(npub: NPub): AccountNotLoaded;
-  accountNotLoadedFactory(nsec: NSec): AccountNotLoaded;
-  accountNotLoadedFactory(arg: string): AccountNotLoaded {
+  accountNotLoadedFactory(pubkey: HexString): AccountCalculated;
+  accountNotLoadedFactory(npub: NPub): AccountCalculated;
+  accountNotLoadedFactory(nsec: NSec): AccountCalculated;
+  accountNotLoadedFactory(arg: string): AccountCalculated {
     if (this.nostrGuard.isHexadecimal(arg)) {
       const npub = npubEncode(arg);
 
@@ -202,7 +202,7 @@ export class AccountFactory {
    *
    * @returns AccountEssential, Account
    */
-  accountEssentialFactory(account: AccountNotLoaded, metadata: NostrMetadata | null, relays: NostrUserRelays): AccountEssential {
+  accountEssentialFactory(account: AccountCalculated, metadata: NostrMetadata | null, relays: NostrUserRelays): AccountEssential {
     //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
     const nostrProfileRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey: account.pubkey, relays: nostrProfileRelays });

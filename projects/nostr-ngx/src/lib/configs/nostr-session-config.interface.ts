@@ -1,5 +1,5 @@
 import { NSec } from 'nostr-tools/nip19';
-import { AccountSession } from '../domain/account/account-session.interface';
+import { AccountSession } from '../domain/account/compose/account-session.type';
 import { NostrUserRelays } from './nostr-user-relays.interface';
 
 /**

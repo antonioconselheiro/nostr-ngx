@@ -8,7 +8,7 @@ import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
-import { AccountNotLoaded } from '../domain/account/account-not-loaded.interface';
+import { AccountCalculated } from '../domain/account/account-calculated.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountState } from '../domain/account/account-state.type';
 import { AccountViewable } from '../domain/account/account-viewable.interface';
@@ -25,7 +25,7 @@ import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { AccountCacheable } from '../domain/account/account-cacheable.type';
+import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -57,7 +57,7 @@ export class ProfileProxy {
    * load one account from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  loadAccount(pubkey: HexString, minimalState: 'notloaded', opts?: NPoolRequestOptions): Promise<AccountNotLoaded | AccountEssential | AccountPointable | AccountViewable | AccountComplete>;
+  loadAccount(pubkey: HexString, minimalState: 'notloaded', opts?: NPoolRequestOptions): Promise<AccountCalculated | AccountEssential | AccountPointable | AccountViewable | AccountComplete>;
   loadAccount(pubkey: HexString, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<AccountEssential | AccountPointable | AccountViewable | AccountComplete>;
   loadAccount(pubkey: HexString, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<AccountPointable | AccountViewable | AccountComplete>;
   loadAccount(pubkey: HexString, minimalState: 'viewable', opts?: NPoolRequestOptions): Promise<AccountViewable | AccountComplete>;
@@ -98,7 +98,7 @@ export class ProfileProxy {
    * load events related to pubkey and compose one account object
    * this account contains: pubkey + relay + metadata
    */
-  async loadAccountEssential(account: AccountNotLoaded, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+  async loadAccountEssential(account: AccountCalculated, opts?: NPoolRequestOptions): Promise<AccountEssential> {
     const events = await this.profileNostr.loadProfileConfig(account.pubkey, opts);
     const relayRecord = this.relayConverter.convertEventsToRelayConfig(events);
     const metadataRecord = this.getProfileMetadata(events);

@@ -7,7 +7,7 @@ import { Account } from '../domain/account/account.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountFactory } from './account.factory';
-import { AccountSession } from '../domain/account/account-session.interface';
+import { AccountSession } from '../domain/account/compose/account-session.type';
 
 /**
  * manage account objects, manage the account list in localstorage

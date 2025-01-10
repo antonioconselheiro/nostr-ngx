@@ -3,7 +3,7 @@ import { kinds } from 'nostr-tools';
 import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
-import { AccountSession } from '../domain/account/account-session.interface';
+import { AccountSession } from '../domain/account/compose/account-session.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { isRelayString } from './is-relay-string.regex';

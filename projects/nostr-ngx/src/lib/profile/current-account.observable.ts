@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
-import { AccountSession } from '../domain/account/account-session.interface';
+import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/account.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
