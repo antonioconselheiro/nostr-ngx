@@ -5,7 +5,6 @@ import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountSession } from '../domain/account/compose/account-session.type';
-import { Account } from '../domain/account/account.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
@@ -42,7 +41,7 @@ export class CurrentAccountObservable extends BehaviorSubject<AccountSession | n
   /**
    * @returns account of current authenticated user, return null if there is no user set in signer
    */
-  async useExtension(): Promise<Account | null> {
+  async useExtension(): Promise<AccountSession | null> {
     const pubkey = await this.nostrSigner.getPublicKey();
     this.accountLocalStorage.patch({
       signer: 'extension'

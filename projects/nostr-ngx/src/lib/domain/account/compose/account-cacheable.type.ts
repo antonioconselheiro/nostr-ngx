@@ -6,6 +6,6 @@ import { AccountViewable } from '../account-viewable.interface';
 
 /**
  * AccountCacheable is the name given for the union type of AccountEssential, AccountPointable,
- * AccountViewable or AccountComplete.
+ * AccountViewable, AccountComplete or AccountAuthenticable.
  */
 export type AccountCacheable = AccountEssential | AccountPointable | AccountViewable | AccountComplete | AccountAuthenticable;

@@ -13,6 +13,9 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { IdbAccountCache } from './idb-account-cache.interface';
 
+//  TODO: pode ser que haja contas disponíveis no local storage com ncryptsec, este serviço deve carrega-los
+//  Objetos AccountAuthenticable no geral devem ser enviados para este serviço afim de evitar requisições
+//  de dados já disponíveis no client. Este serviço não irá salvar o AccountAuthenticable no idbindex.
 @Injectable({
   providedIn: 'root'
 })
@@ -160,6 +163,10 @@ export class ProfileCache {
     account: AccountCacheable,
     tx: IDBPTransaction<IdbAccountCache, ["accounts"], "readwrite">
   ): Promise<AccountCacheable> {
+    if (account.state === 'authenticable') {
+      return Promise.resolve(account);
+    }
+
     const { pubkey, metadata } = account;
 
     //  save in lru cache
@@ -189,7 +196,7 @@ export class ProfileCache {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
-      .map(pubkey => pubkey && (
+      .map((pubkey): AccountCacheable | null => pubkey && (
         this.cacheAccountComplete.get(pubkey) ||
         this.cacheAccountViewable.get(pubkey) ||
         this.cacheAccount.get(pubkey)) || null

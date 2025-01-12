@@ -11,10 +11,13 @@ import { AccountPointable } from '../domain/account/account-pointable.interface'
 import { AccountViewable } from '../domain/account/account-viewable.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { Account } from '../domain/account/account.interface';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { AccountSession } from '../domain/account/compose/account-session.type';
+import { Account } from '../domain/account/compose/account.interface';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
+import { AccountOpenable } from '../domain/account/compose/account-openable.type';
+import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
 
 @Injectable({
   providedIn: 'root'
@@ -119,11 +122,89 @@ export class AccountFactory {
    * 
    * @return Account
    */
-  factory(pubkey: HexString, metadata?: NostrMetadata | null, relays?: NostrUserRelays, nip05ProfilePointer?: ProfilePointer | null, profilePictureBase64?: string | null, bannerBase64?: string | null, ncryptsec?: Ncryptsec): Account;
-  factory(pubkey: HexString, metadata?: NostrMetadata | null, relays?: NostrUserRelays, nip05ProfilePointer?: ProfilePointer | null, profilePictureBase64?: string | null, bannerBase64?: string | null, ncryptsec?: Ncryptsec): Account {
-    const notLoaded = this.accountNotLoadedFactory(pubkey);
+  factory(
+    pubkey: HexString,
+    metadata?: NostrMetadata | null,
+    relays?: NostrUserRelays,
+    nip05ProfilePointer?: ProfilePointer | null,
+    profilePictureBase64?: string | null,
+    bannerBase64?: string | null,
+    ncryptsec?: Ncryptsec
+  ): Account;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null,
+    profilePictureBase64: string | null,
+    bannerBase64: string | null,
+    ncryptsec: Ncryptsec
+  ): AccountAuthenticable;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null,
+    profilePictureBase64: string | null,
+    bannerBase64: string | null,
+    ncryptsec?: Ncryptsec
+  ): AccountSession;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null,
+    profilePictureBase64: string | null,
+    bannerBase64?: string | null,
+    ncryptsec?: Ncryptsec
+  ): AccountRenderable;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null,
+    profilePictureBase64: string | null
+  ): AccountViewable;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null
+  ): AccountPointable;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer: ProfilePointer | null,
+    profilePictureBase64?: string | null,
+    bannerBase64?: string | null,
+    ncryptsec?: Ncryptsec
+  ): AccountOpenable;
+  factory(
+    pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays
+  ): AccountEssential;
+  factory(
+    pubkey: HexString,
+    metadata: NostrMetadata | null,
+    relays: NostrUserRelays,
+    nip05ProfilePointer?: ProfilePointer | null,
+    profilePictureBase64?: string | null,
+    bannerBase64?: string | null,
+    ncryptsec?: Ncryptsec
+  ): AccountCacheable;
+  factory(pubkey: HexString): AccountCalculated;
+  factory(
+    pubkey: HexString,
+    metadata?: NostrMetadata | null,
+    relays?: NostrUserRelays,
+    nip05ProfilePointer?: ProfilePointer | null,
+    profilePictureBase64?: string | null,
+    bannerBase64?: string | null,
+    ncryptsec?: Ncryptsec
+  ): Account {
+    const calculated = this.accountCalculatedFactory(pubkey);
     if (metadata && relays) {
-      const essential = this.accountEssentialFactory(notLoaded, metadata, relays);
+      const essential = this.accountEssentialFactory(calculated, metadata, relays);
 
       if (nip05ProfilePointer) {
         const pointable = this.accountPointableFactory(essential, nip05ProfilePointer);
@@ -149,7 +230,7 @@ export class AccountFactory {
       return essential;
     }
 
-    return notLoaded;
+    return calculated;
   }
 
   /**
@@ -159,17 +240,17 @@ export class AccountFactory {
    *
    * @returns AccountNotLoaded, Account
    */
-  accountNotLoadedFactory(pubkey: HexString): AccountCalculated;
-  accountNotLoadedFactory(npub: NPub): AccountCalculated;
-  accountNotLoadedFactory(nsec: NSec): AccountCalculated;
-  accountNotLoadedFactory(arg: string): AccountCalculated {
+  accountCalculatedFactory(pubkey: HexString): AccountCalculated;
+  accountCalculatedFactory(npub: NPub): AccountCalculated;
+  accountCalculatedFactory(nsec: NSec): AccountCalculated;
+  accountCalculatedFactory(arg: string): AccountCalculated {
     if (this.nostrGuard.isHexadecimal(arg)) {
       const npub = npubEncode(arg);
 
       return {
         npub,
         pubkey: arg,
-        state: 'notloaded'
+        state: 'calculated'
       };
     } else if (this.nostrGuard.isNPub(arg)) {
       const pubkey = String(decode(arg));
@@ -177,7 +258,7 @@ export class AccountFactory {
       return {
         npub: arg,
         pubkey,
-        state: 'notloaded'
+        state: 'calculated'
       };
     } else if (this.nostrGuard.isNSec(arg)) {
       const publics = this.nostrConverter.convertNSecToPublicKeys(arg);
@@ -185,10 +266,10 @@ export class AccountFactory {
       return {
         npub: publics.npub,
         pubkey: publics.pubkey,
-        state: 'notloaded'
+        state: 'calculated'
       };
     } else {
-      throw new Error('invalid string format given as argument to AccountFactory#accountNotLoadedFactory');
+      throw new Error('invalid string format given as argument to AccountFactory#accountCalculatedFactory');
     }
   }
 
@@ -285,7 +366,7 @@ export class AccountFactory {
   //  TODO: não inclui meios do nip05 ser incluso logo na primeira criação de conta, preciso pensar em como incluir ele como configuração inicial nas telas de passo a passo para criação de conta 
   createAccount(nsec: NSec, ncryptsec: Ncryptsec, metadata: NostrMetadata | null, relays: NostrUserRelays, profilePictureBase64?: string | null, bannerBase64?: string | null): AccountAuthenticable {
     const publics = this.nostrConverter.convertNSecToPublicKeys(nsec);
-    const essential = this.accountEssentialFactory({ ...publics, state: 'notloaded' }, metadata, relays);
+    const essential = this.accountEssentialFactory({ ...publics, state: 'calculated' }, metadata, relays);
 
     return {
       ...essential,

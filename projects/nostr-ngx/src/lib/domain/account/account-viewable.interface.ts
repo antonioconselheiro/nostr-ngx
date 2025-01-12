@@ -6,7 +6,8 @@ import { AccountNip05Detail } from './account-nip05-detail.type';
 
 /**
  * Account with profile picture and metadata loaded, with this data detail the account can be displayed on screen.
- * This object has no nip05 data loaded, but if it's identified that user want to navigate into this profile, it's recommended to turn this into 
+ * If you want an interface that represents all renderable account (viewable, complete and authenticable) you must
+ * use the interface AccountRenderable. 
  */
 export interface AccountViewable {
   pubkey: HexString;
