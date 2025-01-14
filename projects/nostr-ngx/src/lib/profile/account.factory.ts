@@ -238,7 +238,7 @@ export class AccountFactory {
    *
    * @param pubkey user hex
    *
-   * @returns AccountNotLoaded, Account
+   * @returns AccountCalculated, Account
    */
   accountCalculatedFactory(pubkey: HexString): AccountCalculated;
   accountCalculatedFactory(npub: NPub): AccountCalculated;
@@ -274,10 +274,10 @@ export class AccountFactory {
   }
 
   /**
-   * derivate essential account from not loaded account
-   * account not loaded + metadata + relays config
+   * derivate essential account from calculated account
+   * account calculated + metadata + relays config
    * 
-   * @param account AccountNotLoaded
+   * @param account AccountCalculated
    * @param metadata NostrUserRelays parsed from user relay lists events
    * @param relays NostrMetadata parsed from metadata event
    *
