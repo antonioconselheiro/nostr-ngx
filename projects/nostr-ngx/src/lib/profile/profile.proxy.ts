@@ -98,6 +98,15 @@ export class ProfileProxy {
     return this.loadAccountComplete(viewable);
   }
 
+  getAccount(pubkey: HexString): Account {
+    const account = this.profileCache.get(pubkey);
+    if (account) {
+      return account;
+    }
+
+    return this.accountFactory.accountCalculatedFactory(pubkey);
+  }
+
   /**
    * load events related to pubkey and compose one account object
    * this account contains: pubkey + relay + metadata
