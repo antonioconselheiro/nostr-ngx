@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { InMemoryNCache } from './in-memory.ncache';
-import { LOCAL_CACHE_TOKEN } from '../injection-token/local-cache.token';
+import { InMemoryEventCache } from './in-memory.event-cache';
+import { LOCAL_EVENT_CACHE_TOKEN } from '../injection-token/local-event-cache.token';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
@@ -9,8 +9,8 @@ import { CommonModule } from '@angular/common';
   ],
   providers: [
     {
-      provide: LOCAL_CACHE_TOKEN,
-      useClass: InMemoryNCache
+      provide: LOCAL_EVENT_CACHE_TOKEN,
+      useClass: InMemoryEventCache
     }
   ]
 })

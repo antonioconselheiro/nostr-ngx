@@ -3,7 +3,7 @@ import { IDBPDatabase, openDB } from 'idb';
 import { matchFilters } from 'nostr-tools';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { InMemoryNCache } from '../in-memory/in-memory.ncache';
+import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 import { Injectable } from '@angular/core';
 
@@ -22,7 +22,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class IdbNCache extends InMemoryNCache {
+export class IdbEventCache extends InMemoryEventCache {
 
   readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
   protected readonly table: 'nostrEvents' = 'nostrEvents';

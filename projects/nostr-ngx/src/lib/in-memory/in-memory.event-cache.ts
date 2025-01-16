@@ -6,7 +6,7 @@ import { Injectable } from "@angular/core";
 import { matchFilters } from "nostr-tools";
 
 @Injectable()
-export class InMemoryNCache extends NCache {
+export class InMemoryEventCache extends NCache {
   
   constructor() {
     super(new LRUCache<HexString, NostrEvent>({

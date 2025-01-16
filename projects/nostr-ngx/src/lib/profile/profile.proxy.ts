@@ -98,6 +98,9 @@ export class ProfileProxy {
     return this.loadAccountComplete(viewable);
   }
 
+  /**
+   * return account from cache or return account in the 'calculated' state
+   */
   getAccount(pubkey: HexString): Account {
     const account = this.profileCache.get(pubkey);
     if (account) {
