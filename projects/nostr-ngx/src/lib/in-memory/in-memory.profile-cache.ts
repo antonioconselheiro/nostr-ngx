@@ -4,17 +4,19 @@ import { AccountRenderable } from "../domain/account/compose/account-renderable.
 import { HexString } from "../domain/event/primitive/hex-string.type";
 
 @Injectable()
-export class InMemoryProfileCache extends NCache {
+export class InMemoryProfileCache {
+
+  protected cache = new LRUCache<HexString, AccountRenderable>({
+    //  TODO: make this configurable
+    max: 1000,
+    dispose: event => this.delete(event)
+  });
   
-  constructor() {
-    super(new LRUCache<HexString, AccountRenderable>({
-      //  TODO: make this configurable
-      max: 5000,
-      dispose: event => this.delete(event)
-    }));
+  delete(account: AccountRenderable): boolean {
+    return this.cache.delete(account.pubkey);
   }
 
-  get(idEvent: HexString): AccountRenderable | null {
-    return this.cache.get(idEvent) || null;
+  get(pubkey: HexString): AccountRenderable | null {
+    return this.cache.get(pubkey) || null;
   }
 }
