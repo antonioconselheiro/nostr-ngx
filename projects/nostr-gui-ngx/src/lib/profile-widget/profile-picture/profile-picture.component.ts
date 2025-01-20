@@ -1,5 +1,5 @@
 import { Component, Inject, Input } from '@angular/core';
-import { AccountCacheable, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
+import { AccountRenderable, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
 import { ProfilePicture } from '../../domain/profile-picture.interface';
 
 @Component({
@@ -15,7 +15,7 @@ export class ProfilePictureComponent {
    * fixme: preciso de tipos que agrupem os account que tem dados comuns
    */
   @Input()
-  account: AccountCacheable | null = null;
+  account: AccountRenderable | null = null;
 
   constructor(
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>

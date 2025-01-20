@@ -8,7 +8,7 @@ import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
-import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountOpenable } from '../domain/account/compose/account-openable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
@@ -158,7 +158,7 @@ export class AccountFactory {
     nip05ProfilePointer?: ProfilePointer | null,
     profilePictureBase64?: string | null,
     ncryptsec?: Ncryptsec
-  ): AccountCacheable;
+  ): AccountRenderable;
   factory(pubkey: HexString): AccountCalculated;
   factory(
     pubkey: HexString,

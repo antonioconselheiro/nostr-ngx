@@ -4,7 +4,7 @@ import { LRUCache } from 'lru-cache';
 import { nip19 } from 'nostr-tools';
 import { Nip05 } from 'nostr-tools/nip05';
 import { NPub } from 'nostr-tools/nip19';
-import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { IdbAccountCache } from './idb-account-cache.interface';
@@ -27,7 +27,7 @@ export class ProfileCache {
   /**
    * this cache include all basic account loaded data
    */
-  protected cacheAccount = new LRUCache<string, AccountCacheable>({
+  protected cacheAccount = new LRUCache<string, AccountRenderable>({
     max: 1000,
     dispose: account => this.onLRUDispose(account),
     updateAgeOnGet: true
@@ -64,7 +64,7 @@ export class ProfileCache {
 
 
   //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
-  protected async onLRUDispose(account: AccountCacheable): Promise<void> {
+  protected async onLRUDispose(account: AccountRenderable): Promise<void> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     tx.store.delete(account.pubkey);
@@ -74,7 +74,7 @@ export class ProfileCache {
   }
 
   //  FIXME: tlvz seja bom incluir logs de debug aqui para identificar se este método está sendo chamado demais
-  async add(accounts: Array<AccountCacheable>): Promise<Array<AccountCacheable>> {
+  async add(accounts: Array<AccountRenderable>): Promise<Array<AccountRenderable>> {
     const db = await this.db;
     const tx = db.transaction(this.table, 'readwrite');
     const queue = accounts.map(touple => this.addSingle(touple, tx));
@@ -86,9 +86,9 @@ export class ProfileCache {
   }
 
   protected async addSingle(
-    account: AccountCacheable,
+    account: AccountRenderable,
     tx: IDBPTransaction<IdbAccountCache, ["accounts"], "readwrite">
-  ): Promise<AccountCacheable> {
+  ): Promise<AccountRenderable> {
     //  accounts with ncryptsec included surely are saved in another place, they should not be included in indexed db
     if (account.state === 'authenticable') {
       return Promise.resolve(account);
@@ -108,19 +108,19 @@ export class ProfileCache {
     return account;
   }
 
-  get(pubkey: HexString): AccountCacheable | null;
-  get(pubkeys: HexString[]): AccountCacheable[];
-  get(npub: NPub): AccountCacheable | null;
-  get(npubs: NPub[]): AccountCacheable[];
-  get(publicAddresses: string[] | string): AccountCacheable | AccountCacheable[] | null;
-  get(publicAddresses: string[] | string): AccountCacheable | AccountCacheable[] | null {
+  get(pubkey: HexString): AccountRenderable | null;
+  get(pubkeys: HexString[]): AccountRenderable[];
+  get(npub: NPub): AccountRenderable | null;
+  get(npubs: NPub[]): AccountRenderable[];
+  get(publicAddresses: string[] | string): AccountRenderable | AccountRenderable[] | null;
+  get(publicAddresses: string[] | string): AccountRenderable | AccountRenderable[] | null {
     publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
     const metadatas = publicAddresses
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
-      .map((pubkey): AccountCacheable | null => pubkey && (
+      .map((pubkey): AccountRenderable | null => pubkey && (
         this.cacheAccount.get(pubkey)) || null
       )
-      .filter((metadata): metadata is AccountCacheable => !!metadata);
+      .filter((metadata): metadata is AccountRenderable => !!metadata);
 
     if (publicAddresses instanceof Array) {
       return metadatas;
@@ -129,9 +129,9 @@ export class ProfileCache {
     }
   }
 
-  getByNip05(nip05: Nip05): AccountCacheable | null;
-  getByNip05(nip05s: Nip05[]): AccountCacheable[];
-  getByNip05(nip05s: Nip05 | Nip05[]): AccountCacheable[] | AccountCacheable | null {
+  getByNip05(nip05: Nip05): AccountRenderable | null;
+  getByNip05(nip05s: Nip05[]): AccountRenderable[];
+  getByNip05(nip05s: Nip05 | Nip05[]): AccountRenderable[] | AccountRenderable | null {
     if (nip05s instanceof Array) {
       nip05s
         .map(nip05 => this.indexedByNip05.get(nip05))

@@ -18,7 +18,7 @@ export * from './lib/domain/account/account-pointable.interface';
 export * from './lib/domain/account/account-complete.interface';
 export * from './lib/domain/account/compose/account.interface';
 export * from './lib/domain/account/compose/account-openable.type';
-export * from './lib/domain/account/compose/account-cacheable.type';
+export * from './lib/domain/account/compose/account-renderable.type';
 export * from './lib/domain/account/compose/account-session.type';
 export * from './lib/domain/event/nostr-event-relation.interface';
 export * from './lib/domain/event/nostr-event-tags.array';

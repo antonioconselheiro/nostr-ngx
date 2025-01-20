@@ -4,7 +4,7 @@ import { AccountPointable } from '../account-pointable.interface';
 import { AccountComplete } from '../account-complete.interface';
 
 /**
- * AccountCacheable is the name given for the union type of AccountEssential, AccountPointable,
+ * AccountRenderable is the name given for the union type of AccountEssential, AccountPointable,
  * AccountComplete or AccountAuthenticable.
  */
-export type AccountCacheable = AccountEssential | AccountPointable | AccountComplete | AccountAuthenticable;
+export type AccountRenderable = AccountEssential | AccountPointable | AccountComplete | AccountAuthenticable;

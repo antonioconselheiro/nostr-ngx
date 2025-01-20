@@ -11,7 +11,7 @@ import { AccountEssential } from '../domain/account/account-essential.interface'
 import { AccountPointable } from '../domain/account/account-pointable.interface';
 import { AccountState } from '../domain/account/account-state.type';
 import { AccountComplete } from '../domain/account/account-complete.interface';
-import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountOpenable } from '../domain/account/compose/account-openable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
@@ -59,7 +59,7 @@ export class ProfileProxy {
    * if loaded from pool, it will be added to cache
    */
   loadAccount(pubkey: HexString, minimalState: 'calculated', opts?: NPoolRequestOptions): Promise<Account>;
-  loadAccount(pubkey: HexString, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<AccountCacheable>;
+  loadAccount(pubkey: HexString, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<AccountRenderable>;
   loadAccount(pubkey: HexString, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<AccountOpenable>;
   loadAccount(pubkey: HexString, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<AccountSession>;
   loadAccount(pubkey: HexString, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account>;
@@ -202,7 +202,7 @@ export class ProfileProxy {
   }
 
   loadAccounts(pubkeys: Array<HexString>, minimalState: 'calculated', opts?: NPoolRequestOptions): Promise<Array<Account>>;
-  loadAccounts(pubkeys: Array<HexString>, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<Array<AccountCacheable>>;
+  loadAccounts(pubkeys: Array<HexString>, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<Array<AccountRenderable>>;
   loadAccounts(pubkeys: Array<HexString>, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<Array<AccountPointable | AccountComplete>>;
   loadAccounts(pubkeys: Array<HexString>, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<Array<AccountComplete>>;
   loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>>;
@@ -243,7 +243,7 @@ export class ProfileProxy {
     });
   }
 
-  async patchAccountsToEssential(accounts: Array<Account>, opts?: NPoolRequestOptions): Promise<Array<AccountCacheable>> {
+  async patchAccountsToEssential(accounts: Array<Account>, opts?: NPoolRequestOptions): Promise<Array<AccountRenderable>> {
     const notLoadedPubkeys = accounts
       .filter(account => account.state === 'calculated')
       .map(account => account.pubkey);
@@ -252,7 +252,7 @@ export class ProfileProxy {
     const relayRecord = this.relayConverter.convertEventsToRelayConfig(events);
     const metadataRecord = this.getProfileMetadata(events);
 
-    const accountsRecord: { [pubkey: HexString]: AccountCacheable } = {};
+    const accountsRecord: { [pubkey: HexString]: AccountRenderable } = {};
     accounts.forEach(account => {
       if (account.state === 'calculated') {
         const metadata = metadataRecord[account.pubkey] || null;
@@ -269,7 +269,7 @@ export class ProfileProxy {
     return Object.values(accountsRecord);
   }
 
-  async patchAccountsToOpenable(accounts: Array<AccountCacheable>): Promise<Array<AccountOpenable>> {
+  async patchAccountsToOpenable(accounts: Array<AccountRenderable>): Promise<Array<AccountOpenable>> {
     const pointableAccounts = new Array<AccountOpenable>();
     for await (const account of accounts) {
       if (account.state === 'essential') {
