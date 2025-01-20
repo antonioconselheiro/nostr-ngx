@@ -11,7 +11,13 @@ export interface AccountEssential {
   npub: NPub;
   nprofile: NProfile;
   state: 'essential';
+  nip05: null;
   metadata: NostrMetadata | null;
   displayName: string;
   relays: NostrUserRelays;
+
+  /**
+   * Picture is an url string or null
+   */
+  picture: string | null;
 }

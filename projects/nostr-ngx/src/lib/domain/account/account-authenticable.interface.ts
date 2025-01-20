@@ -17,6 +17,5 @@ export interface AccountAuthenticable {
   metadata: NostrMetadata | null;
   displayName: string;
   picture: string | null;
-  banner: string | null;
   relays: NostrUserRelays;
 }

@@ -7,5 +7,7 @@ import { HexString } from '../event/primitive/hex-string.type';
 export interface AccountCalculated {
   pubkey: HexString;
   npub: NPub;
-  state: 'calculated'
+  state: 'calculated';
+  nip05: null;
+  picture: null;
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AccountRenderable, ProfileProxy } from '@belomonte/nostr-ngx';
+import { AccountCacheable, ProfileProxy } from '@belomonte/nostr-ngx';
 import { fetchRelayInformation, RelayInformation } from 'nostr-tools/nip11';
 import { RelayManagerSteps } from '../relay-manager-steps.type';
 
@@ -20,7 +20,7 @@ export class RelayDetailComponent implements OnInit {
   relay!: string;
 
   loadedDetails: RelayInformation | null = null;
-  loadedContactProfile: AccountRenderable | null = null;
+  loadedContactProfile: AccountCacheable | null = null;
 
   // TODO: formatação dos números precisa ser revista na internacionalização
   numberFormat = '1.0-0';
@@ -43,7 +43,7 @@ export class RelayDetailComponent implements OnInit {
   private loadContactAccount(details: RelayInformation): void {
     if (details.pubkey) {
       this.profileProxy
-        .loadAccount(details.pubkey, 'viewable')
+        .loadAccount(details.pubkey, 'essential')
         .then(profile => this.loadedContactProfile = profile)
     }
   }

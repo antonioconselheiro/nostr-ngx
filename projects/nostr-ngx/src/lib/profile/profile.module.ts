@@ -6,7 +6,6 @@ import { AccountFactory } from './account.factory';
 import { CurrentAccountObservable } from './current-account.observable';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileEventFactory } from './profile-event.factory';
-import { ProfileImageFlyweight } from './profile-image.flyweight';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileProxy } from './profile.proxy';
@@ -17,13 +16,12 @@ import { ProfileProxy } from './profile.proxy';
     PoolModule
   ],
   providers: [
+    Nip05Proxy,
     ProfileNostr,
     ProfileCache,
     AccountFactory,
     ProfileProxy,
-    Nip05Proxy,
     ProfileEventFactory,
-    ProfileImageFlyweight,
     AccountManagerService,
     CurrentAccountObservable
   ]

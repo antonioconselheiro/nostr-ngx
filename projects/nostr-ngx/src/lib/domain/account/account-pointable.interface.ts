@@ -19,4 +19,9 @@ export interface AccountPointable {
   metadata: NostrMetadata | null;
   displayName: string;
   relays: NostrUserRelays;
+
+  /**
+   * Picture is an url string or null
+   */
+  picture: string | null;
 }

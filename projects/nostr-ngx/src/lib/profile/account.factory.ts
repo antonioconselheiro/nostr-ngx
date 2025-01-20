@@ -3,21 +3,19 @@ import { NostrMetadata } from '@nostrify/nostrify';
 import { decode, Ncryptsec, nprofileEncode, NPub, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
+import { AccountCalculated } from '../domain/account/account-calculated.interface';
 import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
-import { AccountCalculated } from '../domain/account/account-calculated.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
-import { AccountViewable } from '../domain/account/account-viewable.interface';
-import { HexString } from '../domain/event/primitive/hex-string.type';
-import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrConverter } from '../nostr-utils/nostr.converter';
-import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
+import { AccountOpenable } from '../domain/account/compose/account-openable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
-import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
-import { AccountOpenable } from '../domain/account/compose/account-openable.type';
-import { AccountCacheable } from '../domain/account/compose/account-cacheable.type';
+import { HexString } from '../domain/event/primitive/hex-string.type';
+import { NostrConverter } from '../nostr-utils/nostr.converter';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { RelayConverter } from '../nostr-utils/relay.converter';
 
 @Injectable({
   providedIn: 'root'
@@ -74,24 +72,9 @@ export class AccountFactory {
    * @param nip05ProfilePointer ProfilePointer loaded from nip05 query
    * @param profilePictureBase64 base64 string, loaded using method linkToBase64 from FileManager service
    * 
-   * @return AccountViewable, Account
-   */
-  factory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays, nip05ProfilePointer: ProfilePointer | null, profilePictureBase64: string | null): AccountViewable;
-
-  /**
-   * create account object
-   * pubkey + relays config + metadata + nip05 + base64 picture + base64 banner
-   *
-   * @param pubkey user hex
-   * @param metadata NostrUserRelays parsed from user relay lists events
-   * @param relays NostrMetadata parsed from metadata event
-   * @param nip05ProfilePointer ProfilePointer loaded from nip05 query
-   * @param profilePictureBase64 base64 string, picture loaded using method linkToBase64 from FileManager service
-   * @param bannerBase64 base64 string, banner loaded using method linkToBase64 from FileManager service
-   * 
    * @return AccountComplete, Account
    */
-  factory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays, nip05ProfilePointer: ProfilePointer | null, profilePictureBase64: string | null, bannerBase64: string | null): AccountComplete;
+  factory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays, nip05ProfilePointer: ProfilePointer | null, profilePictureBase64: string | null): AccountComplete;
 
   /**
    * create account object
@@ -102,12 +85,11 @@ export class AccountFactory {
    * @param relays NostrMetadata parsed from metadata event
    * @param nip05ProfilePointer ProfilePointer loaded from nip05 query
    * @param profilePictureBase64 base64 string, picture loaded using method linkToBase64 from FileManager service
-   * @param bannerBase64 base64 string, banner loaded using method linkToBase64 from FileManager service
    * @param ncryptsec cipher from nsec encrypted as ncryptsec
    * 
    * @return AccountAuthenticable, Account
    */
-  factory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays, nip05ProfilePointer: ProfilePointer | null, profilePictureBase64: string | null, bannerBase64: string | null, ncryptsec: Ncryptsec): AccountAuthenticable;
+  factory(pubkey: HexString, metadata: NostrMetadata | null, relays: NostrUserRelays, nip05ProfilePointer: ProfilePointer | null, profilePictureBase64: string | null, ncryptsec: Ncryptsec): AccountAuthenticable;
 
   /**
    * create account object
@@ -117,7 +99,6 @@ export class AccountFactory {
    * @param relays NostrMetadata parsed from metadata event
    * @param nip05ProfilePointer ProfilePointer loaded from nip05 query
    * @param profilePictureBase64 base64 string, picture loaded using method linkToBase64 from FileManager service
-   * @param bannerBase64 base64 string, banner loaded using method linkToBase64 from FileManager service
    * @param ncryptsec cipher from nsec encrypted as ncryptsec
    * 
    * @return Account
@@ -128,7 +109,6 @@ export class AccountFactory {
     relays?: NostrUserRelays,
     nip05ProfilePointer?: ProfilePointer | null,
     profilePictureBase64?: string | null,
-    bannerBase64?: string | null,
     ncryptsec?: Ncryptsec
   ): Account;
   factory(
@@ -137,7 +117,6 @@ export class AccountFactory {
     relays: NostrUserRelays,
     nip05ProfilePointer: ProfilePointer | null,
     profilePictureBase64: string | null,
-    bannerBase64: string | null,
     ncryptsec: Ncryptsec
   ): AccountAuthenticable;
   factory(
@@ -146,7 +125,6 @@ export class AccountFactory {
     relays: NostrUserRelays,
     nip05ProfilePointer: ProfilePointer | null,
     profilePictureBase64: string | null,
-    bannerBase64: string | null,
     ncryptsec?: Ncryptsec
   ): AccountSession;
   factory(
@@ -154,17 +132,8 @@ export class AccountFactory {
     metadata: NostrMetadata | null,
     relays: NostrUserRelays,
     nip05ProfilePointer: ProfilePointer | null,
-    profilePictureBase64: string | null,
-    bannerBase64?: string | null,
-    ncryptsec?: Ncryptsec
-  ): AccountRenderable;
-  factory(
-    pubkey: HexString,
-    metadata: NostrMetadata | null,
-    relays: NostrUserRelays,
-    nip05ProfilePointer: ProfilePointer | null,
     profilePictureBase64: string | null
-  ): AccountViewable;
+  ): AccountComplete;
   factory(
     pubkey: HexString,
     metadata: NostrMetadata | null,
@@ -177,7 +146,6 @@ export class AccountFactory {
     relays: NostrUserRelays,
     nip05ProfilePointer: ProfilePointer | null,
     profilePictureBase64?: string | null,
-    bannerBase64?: string | null,
     ncryptsec?: Ncryptsec
   ): AccountOpenable;
   factory(
@@ -189,7 +157,6 @@ export class AccountFactory {
     relays: NostrUserRelays,
     nip05ProfilePointer?: ProfilePointer | null,
     profilePictureBase64?: string | null,
-    bannerBase64?: string | null,
     ncryptsec?: Ncryptsec
   ): AccountCacheable;
   factory(pubkey: HexString): AccountCalculated;
@@ -199,7 +166,6 @@ export class AccountFactory {
     relays?: NostrUserRelays,
     nip05ProfilePointer?: ProfilePointer | null,
     profilePictureBase64?: string | null,
-    bannerBase64?: string | null,
     ncryptsec?: Ncryptsec
   ): Account {
     const calculated = this.accountCalculatedFactory(pubkey);
@@ -210,18 +176,12 @@ export class AccountFactory {
         const pointable = this.accountPointableFactory(essential, nip05ProfilePointer);
 
         if (profilePictureBase64) {
-          const viewable = this.accountViewableFactory(pointable, profilePictureBase64);
-          if (bannerBase64) {
-            const complete = this.accountCompleteFactory(viewable, bannerBase64);
-
-            if (ncryptsec) {
-              return this.accountAuthenticableFactory(complete, ncryptsec);
-            }
-
-            return complete;
+          const complete = this.accountCompleteFactory(pointable, profilePictureBase64);
+          if (ncryptsec) {
+            return this.accountAuthenticableFactory(complete, ncryptsec);
           }
 
-          return viewable;
+          return complete;
         }
 
         return pointable;
@@ -250,7 +210,9 @@ export class AccountFactory {
       return {
         npub,
         pubkey: arg,
-        state: 'calculated'
+        state: 'calculated',
+        nip05: null,
+        picture: null
       };
     } else if (this.nostrGuard.isNPub(arg)) {
       const pubkey = String(decode(arg));
@@ -258,7 +220,9 @@ export class AccountFactory {
       return {
         npub: arg,
         pubkey,
-        state: 'calculated'
+        state: 'calculated',
+        nip05: null,
+        picture: null
       };
     } else if (this.nostrGuard.isNSec(arg)) {
       const publics = this.nostrConverter.convertNSecToPublicKeys(arg);
@@ -266,7 +230,9 @@ export class AccountFactory {
       return {
         npub: publics.npub,
         pubkey: publics.pubkey,
-        state: 'calculated'
+        state: 'calculated',
+        nip05: null,
+        picture: null
       };
     } else {
       throw new Error('invalid string format given as argument to AccountFactory#accountCalculatedFactory');
@@ -288,6 +254,7 @@ export class AccountFactory {
     const nostrProfileRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey: account.pubkey, relays: nostrProfileRelays });
     const displayName = metadata?.display_name || metadata?.name || '';
+    const picture = metadata?.picture || null;
 
     return {
       ...account,
@@ -295,6 +262,7 @@ export class AccountFactory {
       state: 'essential',
       nprofile,
       metadata,
+      picture,
       relays
     };
   }
@@ -318,39 +286,27 @@ export class AccountFactory {
       pubkey: account.pubkey,
       relays: nostrProfileRelays
     });
+    const picture = account.metadata?.picture || null;
 
-    return { ...account, nprofile, nip05, state: 'pointable' };
+    return { ...account, nprofile, nip05, picture, state: 'pointable' };
   }
 
   /**
-   * derivate viewable account from pointable account
+   * derivate complete loaded account from pointable account
    * account pointable + base64 picture
    *
    * @param account AccountPointable
    * @param profilePictureBase64 base64 string, loaded using method linkToBase64 from FileManager service
    *
-   * @returns AccountViewable, Account
-   */
-  accountViewableFactory(account: AccountPointable, profilePictureBase64: string | null): AccountViewable {
-    return { ...account, picture: profilePictureBase64, state: 'viewable' };
-  }
-
-  /**
-   * derivate complete account from viewable account
-   * account viewable + base64 banner
-   *
-   * @param account AccountViewable
-   * @param bannerBase64 base64 string, banner loaded using method linkToBase64 from FileManager service
-   *
    * @returns AccountComplete, Account
    */
-  accountCompleteFactory(account: AccountViewable, bannerBase64: string | null): AccountComplete {
-    return { ...account, banner: bannerBase64, state: 'complete' };
+  accountCompleteFactory(account: AccountPointable, profilePictureBase64: string | null): AccountComplete {
+    return { ...account, picture: profilePictureBase64, state: 'complete' };
   }
 
   /**
-   * derivate authenticable account from complete account
-   * account complete + ncryptsec
+   * derivate authenticable account from complete loaded account
+   * account complete loaded + ncryptsec
    *
    * @param account AccountComplete
    * @param ncryptsec cipher from nsec encrypted as ncryptsec
@@ -364,9 +320,9 @@ export class AccountFactory {
   }
 
   //  TODO: não inclui meios do nip05 ser incluso logo na primeira criação de conta, preciso pensar em como incluir ele como configuração inicial nas telas de passo a passo para criação de conta 
-  createAccount(nsec: NSec, ncryptsec: Ncryptsec, metadata: NostrMetadata | null, relays: NostrUserRelays, profilePictureBase64?: string | null, bannerBase64?: string | null): AccountAuthenticable {
+  createAccount(nsec: NSec, ncryptsec: Ncryptsec, metadata: NostrMetadata | null, relays: NostrUserRelays, profilePictureBase64?: string | null): AccountAuthenticable {
     const publics = this.nostrConverter.convertNSecToPublicKeys(nsec);
-    const essential = this.accountEssentialFactory({ ...publics, state: 'calculated' }, metadata, relays);
+    const essential = this.accountEssentialFactory({ ...publics, state: 'calculated', nip05: null, picture: null }, metadata, relays);
 
     return {
       ...essential,
@@ -375,20 +331,8 @@ export class AccountFactory {
       ncryptsec,
       metadata,
       picture: profilePictureBase64 || null,
-      banner: bannerBase64 || null,
       relays
     };
-  }
-
-  /**
-   * Cast AccountAuthenticable into AccountComplete by removing authentication properties
-   */
-  convertAuthenticableToComplete(authenticable: AccountAuthenticable): AccountComplete {
-    //  desabilitando por que o objetivo aqui é remover o ncryptsec do objeto, descartando-o
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { ncryptsec, ...account } = authenticable;
-
-    return { ...account, state: 'complete' };
   }
 
   private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {
