@@ -1,21 +1,10 @@
-import { NostrFilter, NSet } from '@nostrify/nostrify';
+import { Injectable } from '@angular/core';
+import { NostrFilter } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
-import { matchFilters } from 'nostr-tools';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { HexString } from '../domain/event/primitive/hex-string.type';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
-import { Injectable } from '@angular/core';
 
-//  TODO: include index by create at
-//  TODO: include index by tag
-//  TODO: include exclusive cache for user config events (0, 10002, 10006, 10007, 10050), other events will change fast in lru, but these must be keep for more time with exclusive memory map. (when implements this, include custom get method to read from the correct cache)
-//  TODO: include default fallback for:
-//  - search Profiles,
-//  - search event JustIds,
-//  - UserSearchRelays, maybe these are best relays to search for users
-//  - NoteSearchRelays, maybe these are best relays to search for publications
-//  - FallbackRelays, for general porpouse
 /**
  * ncache load from indexeddb and keep it syncronized
  */
@@ -23,13 +12,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class IdbEventCache extends InMemoryEventCache {
-
-  readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
+  
   protected readonly table: 'nostrEvents' = 'nostrEvents';
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
-
-  private kindIndex = new Map<number, Array<HexString>>();
-  private authorIndex = new Map<HexString, Array<HexString>>();
 
   constructor() {
     super();
@@ -52,7 +37,7 @@ export class IdbEventCache extends InMemoryEventCache {
   }
 
   override add(event: NostrEvent): this {
-    const me = this.indexInMemory(event);
+    const me = super.add(event);
 
     //  FIXME: mover para um web worker?
     this.db.then(db => {
@@ -66,71 +51,6 @@ export class IdbEventCache extends InMemoryEventCache {
     return me;
   }
 
-  protected indexInMemory(event: NostrEvent): this {
-    const indexedByKind = this.kindIndex.get(event.kind) || [];
-    const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
-
-    indexedByKind.push(event.id);
-    indexedByAuthor.push(event.id);
-
-    this.kindIndex.set(event.kind, indexedByKind);
-    this.authorIndex.set(event.pubkey, indexedByAuthor);
-
-    return super.add(event);
-  }
-
-  override async query(filters: NostrFilter[]): Promise<NostrEvent[]> {
-    if (this.shouldLoadFromIndex(filters)) {
-
-      const nset = new NSet();
-      try {
-        filters.map(filter => this.querySingleFilter(filter, nset));
-      } catch (e) {
-        if (e === this.InMemoryIndexExceptionSymbol) {
-          return super.query(filters);
-        } else {
-          throw e;
-        }
-      }
-      return Array.from(nset);
-    } else {
-
-      return super.query(filters);
-    }
-  }
-
-  private shouldLoadFromIndex(filters: NostrFilter[]): boolean {
-    const shouldNot = filters
-      .map(filter => !!(filter.ids?.length || filter.kinds?.length || filter.authors?.length))
-      //  if there one filter with no indexed property I will need loop everything anyway, so the other filter indexes are ignored
-      .find(isIndexed => !isIndexed);
-
-    return !shouldNot;
-  }
-
-  private querySingleFilter(filter: NostrFilter, nset: NSet): void {
-    let ids: HexString[] = [];
-    if (filter.ids?.length) {
-      ids = filter.ids;
-    } else if (filter.kinds?.length) {
-      ids = filter.kinds.map(kind => this.kindIndex.get(kind) || []).flat(2);
-    } else if (filter.authors?.length) {
-      ids = filter.authors.map(author => this.authorIndex.get(author) || []).flat(2);
-    } else {
-      //  shouldLoadFromIndex should garantee this will never happen, but we never know
-      throw this.InMemoryIndexExceptionSymbol;
-    }
-
-    ids
-      .map(id => this.cache.get(id))
-      .filter((event): event is NostrEvent => event && matchFilters([filter], event) || false)
-      .forEach(event => {
-        if (filter.limit && filter.limit > nset.size) {
-          nset.add(event);
-        }
-      });
-  }
-
   override async remove(filters: NostrFilter[]): Promise<void> {
     const events = await this.query(filters)
     events.forEach(event => this.delete(event));
@@ -140,34 +60,12 @@ export class IdbEventCache extends InMemoryEventCache {
     const removed = super.delete(event);
 
     if (removed) {
-      const indexNotFound = -1;
-      const indexedByKind = this.kindIndex.get(event.kind) || [];
-      const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
-
-      const indexOfByKind = indexedByKind.indexOf(event.id);
-      if (indexOfByKind !== indexNotFound) {
-        indexedByKind.splice(indexOfByKind, 1);
-      }
-
-      if (!indexedByKind.length) {
-        this.kindIndex.delete(event.kind);
-      }
-
-      const indexOfByAuthor = indexedByAuthor.indexOf(event.id);
-      if (indexOfByAuthor !== indexNotFound) {
-        indexedByAuthor.splice(indexOfByAuthor, 1);
-      }
-
-      if (!indexedByAuthor.length) {
-        this.authorIndex.delete(event.pubkey);
-      }
+      //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
+      this.db.then(db => {
+        const tx = db.transaction(this.table, 'readwrite');
+        tx.store.delete(event.id);
+      });
     }
-
-    //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
-    this.db.then(db => {
-      const tx = db.transaction(this.table, 'readwrite');
-      tx.store.delete(event.id);
-    });
 
     return removed;
   }
