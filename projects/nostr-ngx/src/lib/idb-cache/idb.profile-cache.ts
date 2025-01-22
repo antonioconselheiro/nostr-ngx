@@ -17,7 +17,7 @@ export class IdbProfileCache extends InMemoryProfileCache {
     this.db.then(db => {
       const tx = db.transaction(this.table, 'readonly');
       tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
-    })
+    });
   }
 
   protected initialize(): Promise<IDBPDatabase<IdbNostrProfileCache>> {

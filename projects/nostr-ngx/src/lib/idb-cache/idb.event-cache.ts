@@ -16,13 +16,17 @@ export class IdbEventCache extends InMemoryEventCache {
   protected readonly table: 'nostrEvents' = 'nostrEvents';
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
+  private timeoutId: number | null = null;
+  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEvent }> = [];
+  protected flushTimeout = 1000;
+
   constructor() {
     super();
     this.db = this.initialize();
     this.db.then(db => {
       const tx = db.transaction(this.table, 'readonly');
       tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
-    })
+    });
   }
 
   protected initialize(): Promise<IDBPDatabase<IdbNostrEventCache>> {
@@ -32,21 +36,14 @@ export class IdbEventCache extends InMemoryEventCache {
           keyPath: 'id',
           autoIncrement: false
         });
-      },
+      }
     });
   }
 
   override add(event: NostrEvent): this {
     const me = super.add(event);
-
-    //  FIXME: mover para um web worker?
-    this.db.then(db => {
-      const tx = db.transaction(this.table, 'readwrite');
-      Promise.all([
-        tx.objectStore(this.table).put(event),
-        tx.done
-      ]);
-    });
+    this.cacheUpdates.push({ action: 'add', event });
+    this.flush();
 
     return me;
   }
@@ -58,15 +55,43 @@ export class IdbEventCache extends InMemoryEventCache {
 
   override delete(event: NostrEvent): boolean {
     const removed = super.delete(event);
-
+    
     if (removed) {
-      //  FIXME: verificar se faz sentido incluir um webworker para fazer a escrita no indexeddb
-      this.db.then(db => {
-        const tx = db.transaction(this.table, 'readwrite');
-        tx.store.delete(event.id);
-      });
+      this.cacheUpdates.push({ action: 'delete', event });
+      this.flush();
+    }
+    
+    return removed;
+  }
+
+  private flush(): void {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
     }
 
-    return removed;
+    this.timeoutId = +setTimeout(() => this.patchUpdates(), this.flushTimeout);
+  }
+  
+  /**
+   * save changes from memory cache in indexeddb cache
+   */
+  private patchUpdates(): void {
+    this.db.then(db => {
+      const tx = db.transaction(this.table, 'readwrite');
+      const queeue: Array<Promise<any>> = [];
+
+      this.cacheUpdates.forEach(({ action, event }) => {
+        if (action === 'add') {
+          queeue.push(tx.objectStore(this.table).put(event));
+        } else if (action === 'delete') {
+          queeue.push(tx.objectStore(this.table).delete(event.id));
+        }
+      });
+
+      queeue.push(tx.done);
+      this.cacheUpdates = [];
+      Promise.all(queeue);
+    });
   }
 }

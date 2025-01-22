@@ -38,22 +38,24 @@ export class InMemoryEventCache extends NCache {
 
       const nset = new NSet();
       try {
-        filters.map(filter => this.querySingleFilter(filter, nset));
+        filters.forEach(filter => this.querySingleFilter(filter, nset));
       } catch (e) {
         if (e === this.InMemoryIndexExceptionSymbol) {
-          return this.superSyncQuery(filters);
+          console.warn('InMemoryIndexExceptionSymbol was thrown', this.InMemoryIndexExceptionSymbol);
+          return this.queryAll(filters);
         } else {
           throw e;
         }
       }
+
       return Array.from(nset);
     } else {
 
-      return this.superSyncQuery(filters);
+      return this.queryAll(filters);
     }
   }
 
-  private superSyncQuery(filters: NostrFilter[]): NostrEvent[] {
+  private queryAll(filters: NostrFilter[]): NostrEvent[] {
     const events: NostrEvent[] = [];
 
     for (const event of this) {
