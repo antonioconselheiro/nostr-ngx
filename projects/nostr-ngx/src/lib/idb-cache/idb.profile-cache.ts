@@ -3,9 +3,7 @@ import { InMemoryProfileCache } from "../in-memory/in-memory.profile-cache";
 import { IdbNostrProfileCache } from "./idb-nostr-profile-cache.interface";
 import { IDBPDatabase, openDB } from "idb";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class IdbProfileCache extends InMemoryProfileCache {
 
   protected readonly table: 'nostrProfiles' = 'nostrProfiles';

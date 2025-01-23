@@ -8,9 +8,7 @@ import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
 /**
  * ncache load from indexeddb and keep it syncronized
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class IdbEventCache extends InMemoryEventCache {
   
   protected readonly table: 'nostrEvents' = 'nostrEvents';
@@ -79,7 +77,7 @@ export class IdbEventCache extends InMemoryEventCache {
   private patchUpdates(): void {
     this.db.then(db => {
       const tx = db.transaction(this.table, 'readwrite');
-      const queeue: Array<Promise<any>> = [];
+      const queeue: Array<Promise<unknown>> = [];
 
       this.cacheUpdates.forEach(({ action, event }) => {
         if (action === 'add') {

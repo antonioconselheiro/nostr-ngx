@@ -1,9 +1,9 @@
+import { Injectable } from "@angular/core";
 import { NCache, NostrFilter, NSet } from "@nostrify/nostrify";
+import { LRUCache } from "lru-cache";
+import { matchFilters } from "nostr-tools";
 import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
-import { LRUCache } from "lru-cache";
-import { Injectable } from "@angular/core";
-import { matchFilters } from "nostr-tools";
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -12,8 +12,7 @@ import { matchFilters } from "nostr-tools";
 @Injectable()
 export class InMemoryEventCache extends NCache {
 
-  readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
-
+  private readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
   private kindIndex = new Map<number, Array<HexString>>();
   private authorIndex = new Map<HexString, Array<HexString>>();
   
