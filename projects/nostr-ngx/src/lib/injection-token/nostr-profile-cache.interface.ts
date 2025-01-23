@@ -5,7 +5,7 @@ import { NProfile } from 'nostr-tools/nip19';
 
 export interface NostrProfileCache {
   add(account: AccountRenderable): void;
-  delete(account: AccountRenderable): boolean;
+  delete(pubkey: HexString): void;
   get(pubkey: HexString): AccountRenderable | null;
   getByNip05(nip05: Nip05): AccountRenderable | null;
   getByNProfile(nprofile: NProfile): AccountRenderable | null;

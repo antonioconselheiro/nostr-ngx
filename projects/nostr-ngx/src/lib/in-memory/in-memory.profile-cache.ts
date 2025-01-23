@@ -16,22 +16,62 @@ export class InMemoryProfileCache implements NostrProfileCache {
 
   constructor(
     private nostrGuard: NostrGuard
-  ){ }
+  ) { }
 
   protected cache = new LRUCache<HexString, AccountRenderable>({
     //  TODO: make this configurable
     max: 1000,
-    dispose: event => this.delete(event)
+    dispose: event => this.delete(event.pubkey)
   });
 
   add(account: AccountRenderable): void {
-    //  must add to the indexes too
+    this.delete(account.pubkey);
     this.cache.set(account.pubkey, account);
+
+    if (account.nip05?.address) {
+      const address = account.nip05.address;
+      this.nip05Index.set(address, account.pubkey);
+    }
+
+    if (account.nprofile) {
+      this.nprofileIndex.set(account.nprofile, account.pubkey);
+    }
+
+    if (account.displayName) {
+      const firstLetter = this.getFirstLetter(account.displayName);
+      const list = this.fistLetterIndex.get(firstLetter) || [];
+      list.push(account.pubkey);
+      this.fistLetterIndex.set(firstLetter, list);
+    }
   }
   
-  delete(account: AccountRenderable): boolean {
-    //  TODO: must remove from indexes too
-    return this.cache.delete(account.pubkey);
+  delete(pubkey: HexString): void {
+    const account = this.get(pubkey);
+    this.cache.delete(pubkey);
+
+    if (account) {
+      if (account.nip05?.address) {
+        const address = account.nip05.address;
+        this.nip05Index.delete(address);
+      }
+  
+      if (account.nprofile) {
+        this.nprofileIndex.delete(account.nprofile);
+      }
+  
+      if (account.displayName) {
+        const firstLetter = this.getFirstLetter(account.displayName);
+        const list = this.fistLetterIndex.get(firstLetter) || [];
+        const indexNotFound = -1;
+        const index = list.indexOf(account.pubkey);
+
+        if (index !== indexNotFound) {
+          list.splice(index, 1);
+        }
+
+        this.fistLetterIndex.set(firstLetter, list);
+      }
+    }
   }
 
   get(pubkey: HexString): AccountRenderable | null {
@@ -77,10 +117,9 @@ export class InMemoryProfileCache implements NostrProfileCache {
       return [ account ];
     }
 
-    const firstLetter = therm.trim()[0].toLocaleLowerCase();
+    const firstLetter = this.getFirstLetter(therm);
     const pubkeys = this.fistLetterIndex.get(firstLetter) || [];
     const searchableList = pubkeys.map(pubkey => this.get(pubkey));
-
     const firstSuggestions = new Array<AccountRenderable>();
     const secoundSuggestions = new Array<AccountRenderable>();
 
@@ -102,5 +141,9 @@ export class InMemoryProfileCache implements NostrProfileCache {
     });
 
     return [ ...firstSuggestions, ...secoundSuggestions ];
+  }
+
+  private getFirstLetter(therm: string): string {
+    return therm.trim()[0].toLocaleLowerCase();
   }
 }
