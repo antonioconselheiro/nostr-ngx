@@ -10,7 +10,7 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { LOCAL_EVENT_CACHE_TOKEN } from '../injection-token/local-event-cache.token';
+import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
@@ -32,7 +32,7 @@ export class RelayLocalConfigService {
     private relayConverter: RelayConverter,
     private configsLocal: AccountsLocalStorage,
     private configSession: ProfileSessionStorage,
-    @Inject(LOCAL_EVENT_CACHE_TOKEN) private ncache: NCache,
+    @Inject(NOSTR_CACHE_TOKEN) private ncache: NCache,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 

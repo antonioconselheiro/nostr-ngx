@@ -16,6 +16,7 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
+import { isNip05, Nip05 } from 'nostr-tools/nip05';
 
 @Injectable({
   providedIn: 'root'
@@ -337,10 +338,10 @@ export class AccountFactory {
 
   private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {
     let relays: string[] = [],
-      address: string | null = null,
+      address: Nip05 | null = null,
       pointer = null;
 
-    if (metadata?.nip05) {
+    if (isNip05(metadata?.nip05)) {
       address = metadata.nip05;
       if (nip05) {
         relays = nip05.relays || [];

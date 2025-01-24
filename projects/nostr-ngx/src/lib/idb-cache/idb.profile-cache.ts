@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
-import { InMemoryProfileCache } from "../in-memory/in-memory.profile-cache";
-import { IdbNostrProfileCache } from "./idb-nostr-profile-cache.interface";
-import { IDBPDatabase, openDB } from "idb";
+import { Injectable } from '@angular/core';
+import { InMemoryProfileCache } from '../in-memory/in-memory.profile-cache';
+import { IdbNostrProfileCache } from './idb-nostr-profile-cache.interface';
+import { IDBPDatabase, openDB } from 'idb';
 
 @Injectable()
 export class IdbProfileCache extends InMemoryProfileCache {
@@ -14,7 +14,7 @@ export class IdbProfileCache extends InMemoryProfileCache {
     this.db = this.initialize();
     this.db.then(db => {
       const tx = db.transaction(this.table, 'readonly');
-      tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
+      tx.store.getAll().then(all => all.forEach(account => this.add(account)));
     });
   }
 

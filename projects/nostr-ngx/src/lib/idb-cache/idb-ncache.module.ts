@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IdbEventCache } from './idb.event-cache';
-import { LOCAL_EVENT_CACHE_TOKEN } from '../injection-token/local-event-cache.token';
+import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
 
 @NgModule({
   imports: [
@@ -9,7 +9,7 @@ import { LOCAL_EVENT_CACHE_TOKEN } from '../injection-token/local-event-cache.to
   ],
   providers: [
     {
-      provide: LOCAL_EVENT_CACHE_TOKEN,
+      provide: NOSTR_CACHE_TOKEN,
       useClass: IdbEventCache
     }
   ]

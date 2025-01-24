@@ -1,9 +1,7 @@
-import { NgModule } from '@angular/core';
-import { InMemoryEventCache } from './in-memory.event-cache';
-import { LOCAL_EVENT_CACHE_TOKEN } from '../injection-token/local-event-cache.token';
 import { CommonModule } from '@angular/common';
-import { InMemoryProfileCache } from './in-memory.profile-cache';
-import { LOCAL_PROFILE_CACHE_TOKEN } from '../injection-token/local-profile-cache.token';
+import { NgModule } from '@angular/core';
+import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
+import { InMemoryEventCache } from './in-memory.event-cache';
 
 @NgModule({
   imports: [
@@ -11,13 +9,8 @@ import { LOCAL_PROFILE_CACHE_TOKEN } from '../injection-token/local-profile-cach
   ],
   providers: [
     {
-      provide: LOCAL_EVENT_CACHE_TOKEN,
+      provide: NOSTR_CACHE_TOKEN,
       useClass: InMemoryEventCache
-    },
-
-    {
-      provide: LOCAL_PROFILE_CACHE_TOKEN,
-      useClass: InMemoryProfileCache
     }
   ]
 })

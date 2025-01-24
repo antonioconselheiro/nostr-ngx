@@ -1,22 +1,19 @@
 import { Injectable } from '@angular/core';
 import { LRUCache } from 'lru-cache';
-import { Nip05 } from 'nostr-tools/nip05';
-import { NProfile } from 'nostr-tools/nip19';
+import { isNip05, Nip05 } from 'nostr-tools/nip05';
+import { NostrTypeGuard, NProfile } from 'nostr-tools/nip19';
 import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrProfileCache } from '../injection-token/nostr-profile-cache.interface';
-import { NostrGuard } from '../nostr-utils/nostr.guard';
 
 @Injectable()
 export class InMemoryProfileCache implements NostrProfileCache {
 
+  protected readonly isPubkey = /^[a-f\d]{64}$/;
+
   private nip05Index = new Map<Nip05, HexString>();
   private nprofileIndex = new Map<NProfile, HexString>();
   private fistLetterIndex = new Map<string, Array<HexString>>();
-
-  constructor(
-    private nostrGuard: NostrGuard
-  ) { }
 
   protected cache = new LRUCache<HexString, AccountRenderable>({
     //  TODO: make this configurable
@@ -51,8 +48,11 @@ export class InMemoryProfileCache implements NostrProfileCache {
 
     if (account) {
       if (account.nip05?.address) {
-        const address = account.nip05.address;
-        this.nip05Index.delete(address);
+        //  FIXME: check if nip05 set as _ is recognized by this method
+        if (isNip05(account.nip05.address)) {
+          const address = account.nip05.address;
+          this.nip05Index.delete(address);
+        }
       }
   
       if (account.nprofile) {
@@ -101,8 +101,8 @@ export class InMemoryProfileCache implements NostrProfileCache {
       return [];
     }
 
-    const isHex = this.nostrGuard.isHexadecimal(therm);
-    const isNProfile = this.nostrGuard.isNProfile(therm);
+    const isHex = this.isPubkey.test(therm);
+    const isNProfile = NostrTypeGuard.isNProfile(therm);
     let account: AccountRenderable | null = null;
 
     if (isHex && therm.length) {
@@ -121,7 +121,7 @@ export class InMemoryProfileCache implements NostrProfileCache {
     const pubkeys = this.fistLetterIndex.get(firstLetter) || [];
     const searchableList = pubkeys.map(pubkey => this.get(pubkey));
     const firstSuggestions = new Array<AccountRenderable>();
-    const secoundSuggestions = new Array<AccountRenderable>();
+    const secondSuggestions = new Array<AccountRenderable>();
 
     //  first show the accounts that matches the whole therm from begining
     const priorityMatch = new RegExp(`^${therm}`, 'i');
@@ -136,11 +136,11 @@ export class InMemoryProfileCache implements NostrProfileCache {
       if (priorityMatch.test(account.displayName)) {
         firstSuggestions.push(account);
       } else if (secondaryMatch.test(account.displayName)) {
-        secoundSuggestions.push(account);
+        secondSuggestions.push(account);
       }
     });
 
-    return [ ...firstSuggestions, ...secoundSuggestions ];
+    return [ ...firstSuggestions, ...secondSuggestions ];
   }
 
   private getFirstLetter(therm: string): string {

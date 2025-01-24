@@ -56,7 +56,7 @@ export * from './lib/idb-cache/idb-nostr-event-cache.interface';
 export * from './lib/idb-cache/idb.event-cache';
 export * from './lib/in-memory/in-memory.module';
 export * from './lib/in-memory/in-memory.event-cache';
-export * from './lib/injection-token/local-event-cache.token';
+export * from './lib/injection-token/nostr-cache.token';
 export * from './lib/injection-token/nostr-config.token';
 export * from './lib/injection-token/relay-router.token';
 export * from './lib/nostr-media/file-manager.service';
