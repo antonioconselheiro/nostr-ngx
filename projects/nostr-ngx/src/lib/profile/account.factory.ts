@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NostrMetadata } from '@nostrify/nostrify';
+import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { decode, Ncryptsec, nprofileEncode, NPub, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
@@ -8,15 +9,14 @@ import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
-import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountOpenable } from '../domain/account/compose/account-openable.type';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { isNip05, Nip05 } from 'nostr-tools/nip05';
 
 @Injectable({
   providedIn: 'root'
