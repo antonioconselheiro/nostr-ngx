@@ -101,7 +101,7 @@ export class InMemoryEventCache extends NCache {
     this.kindIndex.set(event.kind, indexedByKind);
     this.authorIndex.set(event.pubkey, indexedByAuthor);
 
-    return super.add(event);
+    return this.add(event);
   }
 
   private shouldLoadFromIndex(filters: NostrFilter[]): boolean {

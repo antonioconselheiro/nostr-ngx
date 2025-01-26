@@ -3,7 +3,7 @@ import { NostrFilter } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
-import { IdbNostrEventCache } from './idb-nostr-event-cache.interface';
+import { IdbNostrEventCache } from './idb-nostr-event.interface';
 
 /**
  * ncache load from indexeddb and keep it syncronized
@@ -21,20 +21,25 @@ export class IdbEventCache extends InMemoryEventCache {
   constructor() {
     super();
     this.db = this.initialize();
-    this.db.then(db => {
-      const tx = db.transaction(this.table, 'readonly');
-      tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
-    });
+    this.loadIndexedToMemory();
   }
 
-  protected initialize(): Promise<IDBPDatabase<IdbNostrEventCache>> {
+  private initialize(): Promise<IDBPDatabase<IdbNostrEventCache>> {
+    const me = this;
     return openDB<IdbNostrEventCache>('NostrEventCache', 1, {
       upgrade(db) {
-        db.createObjectStore('nostrEvents', {
+        db.createObjectStore(me.table, {
           keyPath: 'id',
           autoIncrement: false
         });
       }
+    });
+  }
+
+  private loadIndexedToMemory(): void {
+    this.db.then(db => {
+      const tx = db.transaction(this.table, 'readonly');
+      tx.store.getAll().then(all => all.forEach(event => this.indexInMemory(event)));
     });
   }
 
@@ -68,7 +73,7 @@ export class IdbEventCache extends InMemoryEventCache {
       this.timeoutId = null;
     }
 
-    this.timeoutId = +setTimeout(() => this.patchUpdates(), this.flushTimeout);
+    this.timeoutId = Number(setTimeout(() => this.patchUpdates(), this.flushTimeout));
   }
   
   /**

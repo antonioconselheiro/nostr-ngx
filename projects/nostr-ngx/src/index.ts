@@ -52,7 +52,7 @@ export * from './lib/exceptions/no-credentials-found.error';
 export * from './lib/exceptions/not-supported-by-signer.error';
 export * from './lib/exceptions/signer-not-found.error';
 export * from './lib/idb-cache/idb-ncache.module';
-export * from './lib/idb-cache/idb-nostr-event-cache.interface';
+export * from './lib/idb-cache/idb-nostr-profile.interface';
 export * from './lib/idb-cache/idb.event-cache';
 export * from './lib/in-memory/in-memory.module';
 export * from './lib/in-memory/in-memory.event-cache';

@@ -9,4 +9,4 @@ nostr-gui-ngx
 nostr-ngx
 [ ] incluir cobertura de logs configurável
 [ ] incluir readme docs
-[ ] proxy image module
+[ ] proxy image module, um modelo para tratamento de segurança em imagens usadas no client, pode administrar também o acesso a imagemvvia proxy configurado pelo usuário
