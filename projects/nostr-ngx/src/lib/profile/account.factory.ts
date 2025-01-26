@@ -207,31 +207,37 @@ export class AccountFactory {
   accountCalculatedFactory(arg: string): AccountCalculated {
     if (this.nostrGuard.isHexadecimal(arg)) {
       const npub = npubEncode(arg);
+      const displayName = this.generateDisplayNameFromNPub(npub);
 
       return {
         npub,
         pubkey: arg,
         state: 'calculated',
+        displayName,
         nip05: null,
         picture: null
       };
     } else if (this.nostrGuard.isNPub(arg)) {
       const pubkey = String(decode(arg));
+      const displayName = this.generateDisplayNameFromNPub(arg);
 
       return {
         npub: arg,
         pubkey,
         state: 'calculated',
+        displayName,
         nip05: null,
         picture: null
       };
     } else if (this.nostrGuard.isNSec(arg)) {
       const publics = this.nostrConverter.convertNSecToPublicKeys(arg);
+      const displayName = this.generateDisplayNameFromNPub(publics.npub);
 
       return {
         npub: publics.npub,
         pubkey: publics.pubkey,
         state: 'calculated',
+        displayName,
         nip05: null,
         picture: null
       };
@@ -254,7 +260,7 @@ export class AccountFactory {
     //  more then 3 relays will make this problematic (TODO: include link with references for this decision)
     const nostrProfileRelays = this.relayConverter.extractOutboxRelays(relays).splice(0, 3);
     const nprofile = nprofileEncode({ pubkey: account.pubkey, relays: nostrProfileRelays });
-    const displayName = metadata?.display_name || metadata?.name || '';
+    const displayName = metadata?.display_name || metadata?.name || this.generateDisplayNameFromNPub(account.npub);
     const picture = metadata?.picture || null;
 
     return {
@@ -322,8 +328,8 @@ export class AccountFactory {
 
   //  TODO: não inclui meios do nip05 ser incluso logo na primeira criação de conta, preciso pensar em como incluir ele como configuração inicial nas telas de passo a passo para criação de conta 
   createAccount(nsec: NSec, ncryptsec: Ncryptsec, metadata: NostrMetadata | null, relays: NostrUserRelays, profilePictureBase64?: string | null): AccountAuthenticable {
-    const publics = this.nostrConverter.convertNSecToPublicKeys(nsec);
-    const essential = this.accountEssentialFactory({ ...publics, state: 'calculated', nip05: null, picture: null }, metadata, relays);
+    const accountCalculated = this.accountCalculatedFactory(nsec);
+    const essential = this.accountEssentialFactory(accountCalculated, metadata, relays);
 
     return {
       ...essential,
@@ -364,5 +370,9 @@ export class AccountFactory {
       relays,
       valid: false
     }
+  }
+
+  private generateDisplayNameFromNPub(npub: NPub): string {
+    return npub.replace(/(^npub1.{3})(.+)(.{3}$)/, '$1…$3');
   }
 }

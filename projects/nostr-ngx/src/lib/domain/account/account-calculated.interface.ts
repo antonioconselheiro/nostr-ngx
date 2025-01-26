@@ -10,4 +10,5 @@ export interface AccountCalculated {
   state: 'calculated';
   nip05: null;
   picture: null;
+  displayName: string;
 }
