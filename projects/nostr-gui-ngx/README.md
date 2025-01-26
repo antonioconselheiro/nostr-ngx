@@ -4,19 +4,20 @@
 
 # nostr-gui-ngx
 ![nostr is wild](./assets/nostr%20is%20wild-2.jpg)
+
 To use with `nostr-ngx`
 
 ## Release
 not released yet
 
 TODO:
-[ ] Internacionalization
-[ ] Integrate with nostr.watch to provide better relay search mechanics
-[ ] User blocked relay list
-[ ] Group chat
-[ ] Support SSR
+ - [ ] Internacionalization
+ - [ ] Integrate with nostr.watch to provide better relay search mechanics
+ - [ ] User blocked relay list
+ - [ ] Group chat
+ - [ ] Support SSR
 
 Documentar sobre:
 - Como configurar os relays padrão utilizados no client
 - Como configurar a foto de perfil e banner padrão do client 
-- Como configurar o cache em memória (ncache) e o cache persistido (nstore)
+- Como configurar o cache
