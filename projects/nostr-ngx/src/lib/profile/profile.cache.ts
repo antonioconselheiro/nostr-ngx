@@ -108,14 +108,14 @@ export class ProfileCache {
     return account;
   }
 
-  get(pubkey: HexString): AccountRenderable | null;
   get(pubkeys: HexString[]): AccountRenderable[];
-  get(npub: NPub): AccountRenderable | null;
+  get(pubkey: HexString): AccountRenderable | null;
   get(npubs: NPub[]): AccountRenderable[];
+  get(npub: NPub): AccountRenderable | null;
   get(publicAddresses: string[] | string): AccountRenderable | AccountRenderable[] | null;
   get(publicAddresses: string[] | string): AccountRenderable | AccountRenderable[] | null {
-    publicAddresses = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
-    const metadatas = publicAddresses
+    const publicAddressesList = publicAddresses instanceof Array ? publicAddresses : [publicAddresses];
+    const metadatas = publicAddressesList
       .map(publicAddress => this.castPublicAddressToPubkey(publicAddress))
       .map((pubkey): AccountRenderable | null => pubkey && (
         this.cacheAccount.get(pubkey)) || null
@@ -149,7 +149,6 @@ export class ProfileCache {
 
   private castPublicAddressToPubkey(publicAddress: string): string | null {
     if (this.guard.isNPub(publicAddress)) {
-
       const { data } = nip19.decode(publicAddress);
       return data;
     } else if (this.guard.isHexadecimal(publicAddress)) {
