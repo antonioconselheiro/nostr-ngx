@@ -18,11 +18,15 @@ export class ProfilePictureComponent {
   ) { }
 
   getPicture(): string {
-    if (this.account && this.account.picture) {
-      return this.account.picture;
-    } else {
-      return this.nostrConfig.defaultProfile.picture;
+    if (this.account) {
+      if (this.account.pictureBase64) {
+        return this.account.pictureBase64;
+      } else if (this.account.pictureUrl) {
+        return this.account.pictureUrl;
+      }
     }
+
+    return this.nostrConfig.defaultProfile.picture;
   }
 
   getTitle(): string {

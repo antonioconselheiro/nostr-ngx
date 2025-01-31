@@ -27,6 +27,7 @@ import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { Base64String } from '../domain/base64-string.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -134,7 +135,7 @@ export class ProfileProxy {
    * this account contains: pubkey + relay + metadata + nip05 + profile image base64
    */
   async loadAccountComplete(account: AccountPointable): Promise<AccountComplete> {
-    let profileBase64: string | null = null;
+    let profileBase64: Base64String | null = null;
 
     if (account.metadata?.picture) {
       profileBase64 = await this.fileManagerService.linkToBase64(account.metadata.picture);

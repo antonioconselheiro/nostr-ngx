@@ -9,6 +9,15 @@ export interface AccountCalculated {
   npub: NPub;
   state: 'calculated';
   nip05: null;
-  picture: null;
   displayName: string;
+  
+  /**
+   * Picture is a base64 string or null
+   */
+  pictureBase64: null;
+  
+  /**
+   * Picture is an url string or null
+   */
+  pictureUrl: null;
 }

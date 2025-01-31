@@ -17,7 +17,12 @@ export interface AccountEssential {
   relays: NostrUserRelays;
 
   /**
+   * Picture is a base64 string or null
+   */
+  pictureBase64: null;
+
+  /**
    * Picture is an url string or null
    */
-  picture: string | null;
+  pictureUrl: string | null;
 }

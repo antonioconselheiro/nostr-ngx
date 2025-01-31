@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { base64 } from '@scure/base';
+import { Base64String } from '../domain/base64-string.type';
 
 /**
  * TODO: preciso prover meios deste serviço ser substituível
@@ -7,9 +8,23 @@ import { base64 } from '@scure/base';
 @Injectable()
 export class FileManagerService {
 
-  async linkToBase64(url: string): Promise<string | null> {
-    const response = await fetch(url);
-    if (!response.ok) {
+  /**
+   * @param url image public url
+   * @returns image as base64 or null
+   */
+  async linkToBase64(url: string, requireCors = false): Promise<Base64String | null> {
+    let response: Response | null = null;
+    try {
+      if (requireCors) {
+        response = await fetch(url);
+      } else {
+        response = await fetch(url, { mode: 'no-cors' });
+      }
+    } catch (e) {
+      console.warn('failed to load image: ', e);
+    }
+
+    if (!response || !response.ok) {
       return Promise.resolve(null);
     }
 
@@ -17,7 +32,7 @@ export class FileManagerService {
     const reader = new FileReader();
 
     return new Promise(resolve => {
-      reader.onloadend = () => resolve(reader.result ? String(reader.result) : null);
+      reader.onloadend = () => resolve(reader.result ? Base64String(reader.result) : null);
 
       reader.readAsDataURL(blob);
     });
