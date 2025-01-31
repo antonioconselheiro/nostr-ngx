@@ -11,6 +11,12 @@
     "pool": "docker-compose -f pool/docker-compose.yml up",
     "lint": "ng lint --project=nostr-ngx; ng lint --project=nostr-gui-ngx"
   },
+  "keywords": [
+    "angular",
+    "typescript",
+    "ngx",
+    "nostr"
+  ],
   "dependencies": {
     "@angular/animations": "^18.1.3",
     "@angular/common": "^18.1.3",

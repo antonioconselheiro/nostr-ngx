@@ -1,6 +1,12 @@
 {
   "name": "@belomonte/nostr-ngx",
   "version": "0.0.1",
+  "keywords": [
+    "angular",
+    "typescript",
+    "ngx",
+    "nostr"
+  ],
   "peerDependencies": {
     "@angular/common": "^18.1.3",
     "@angular/core": "^18.1.3",
