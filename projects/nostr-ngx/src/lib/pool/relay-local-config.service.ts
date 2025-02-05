@@ -1,21 +1,21 @@
 import { Inject, Injectable } from '@angular/core';
-import { NCache } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
 import { BlockedRelaysList, DirectMessageRelaysList, SearchRelaysList } from 'nostr-tools/kinds';
 import { NPub } from 'nostr-tools/nip19';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
+import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
+import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrConfig } from '../configs/nostr-config.interface';
-import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
+import { NostrCache } from '../injection-token/nostr-cache.interface';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -32,7 +32,7 @@ export class RelayLocalConfigService {
     private relayConverter: RelayConverter,
     private configsLocal: AccountsLocalStorage,
     private configSession: ProfileSessionStorage,
-    @Inject(NOSTR_CACHE_TOKEN) private ncache: NCache,
+    @Inject(NOSTR_CACHE_TOKEN) private nostrCache: NostrCache,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
@@ -94,7 +94,7 @@ export class RelayLocalConfigService {
   }
 
   private findProfileConfig(pubkey: HexString): Promise<Array<NostrEvent>> {
-    return this.ncache.query([
+    return this.nostrCache.query([
       {
         kinds: [kinds.Metadata],
         authors: [pubkey],
@@ -142,7 +142,7 @@ export class RelayLocalConfigService {
   }
 
   async getUserRelays(pubkey: HexString): Promise<RelayRecord | null> {
-    const [relayListEvent] = await this.ncache.query([
+    const [relayListEvent] = await this.nostrCache.query([
       {
         kinds: [kinds.RelayList],
         authors: [pubkey],
@@ -305,7 +305,7 @@ export class RelayLocalConfigService {
    */
   getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<WebSocket['url']> | null>;
   async getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<WebSocket['url']> | null> {
-    const [relayListEvent] = await this.ncache.query([
+    const [relayListEvent] = await this.nostrCache.query([
       {
         kinds: [kind],
         authors: [pubkey],

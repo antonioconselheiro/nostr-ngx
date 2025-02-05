@@ -1,8 +1,9 @@
-import { NCache, NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
+import { NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
 import { Machina } from '@nostrify/nostrify/utils';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
 
 //  TODO: incluir mecânica de COUNT personalizada que dê suporte a tratamento de erros para versões que não suportam
 //  NIP45 e respondem com NOTICE o filtro de COUNT ao invés de CLOSED: https://github.com/soapbox-pub/nostrify/issues/3
@@ -18,7 +19,7 @@ export class FacadeNPool extends NPool {
     /**
      * the main cache
      */
-    protected readonly ncache: NCache
+    protected readonly nostrCache: NostrCache
   ) {
     super(opts);
   }
@@ -87,7 +88,7 @@ export class FacadeNPool extends NPool {
     0) || false;
 
     if (limit) {
-      const memoryCacheResults = await this.ncache.query(filters);
+      const memoryCacheResults = await this.nostrCache.query(filters);
       let results = memoryCacheResults;
       if (memoryCacheResults.length < limit) {
         const nset = new NSet();
@@ -102,7 +103,7 @@ export class FacadeNPool extends NPool {
       return Promise.resolve(results);
     } else {
       const result = await Promise.all([
-        this.ncache.query(filters),
+        this.nostrCache.query(filters),
         super.query(filters, opts),
       ]);
       

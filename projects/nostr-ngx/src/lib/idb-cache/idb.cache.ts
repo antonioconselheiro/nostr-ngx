@@ -6,7 +6,7 @@ import { IdbProfileCache } from './idb.profile-cache';
 @Injectable()
 export class IdbCache extends IdbEventCache implements NostrCache {
   constructor(
-    public profiles: IdbProfileCache 
+    public profiles: IdbProfileCache
   ) {
     super();
   }
