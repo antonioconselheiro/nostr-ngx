@@ -11,6 +11,7 @@ export * from './lib/domain/account/account-pointable.interface';
 export * from './lib/domain/account/account-nip05-detail.type';
 export * from './lib/domain/account/account-complete.interface';
 export * from './lib/domain/account/account-calculated.interface';
+export * from './lib/domain/account/account-raw.interface';
 export * from './lib/domain/account/account-state.type';
 export * from './lib/domain/account/compose/account.interface';
 export * from './lib/domain/account/compose/account-openable.type';

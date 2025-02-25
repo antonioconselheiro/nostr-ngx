@@ -7,14 +7,16 @@ import { Ncryptsec, NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountCalculated } from '../domain/account/account-calculated.interface';
+import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
+import { AccountRaw } from '../domain/account/account-raw.interface';
 import { AccountState } from '../domain/account/account-state.type';
-import { AccountComplete } from '../domain/account/account-complete.interface';
-import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountOpenable } from '../domain/account/compose/account-openable.type';
+import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
+import { Base64String } from '../domain/base64-string.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { FileManagerService } from '../nostr-media/file-manager.service';
@@ -27,7 +29,6 @@ import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { Base64String } from '../domain/base64-string.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -88,6 +89,23 @@ export class ProfileProxy {
     }
 
     return this.loadAccountComplete(pointable);
+  }
+
+  /**
+   * getAccount will never return null, because it will at least return the account calculated if the
+   * account pubkey isn't in the cache.
+   * 
+   * getRawAccount will return just the pubkey with no calculations or cache checks, that can be
+   * considered a lazy load version to avoid processing data when it is not necessary
+   *
+   * @param pubkey 
+   * @returns 
+   */
+  getRawAccount(pubkey: HexString): AccountRaw {
+    return {
+      pubkey,
+      state: 'raw'
+    };
   }
 
   /**

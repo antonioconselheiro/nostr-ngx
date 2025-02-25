@@ -1,1 +1,1 @@
-export type AccountState = 'calculated' | 'essential' | 'pointable' | 'complete' | 'authenticable';
+export type AccountState = 'raw' | 'calculated' | 'essential' | 'pointable' | 'complete' | 'authenticable';
