@@ -9,6 +9,7 @@ import { ProfileEventFactory } from './profile-event.factory';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
 import { ProfileProxy } from './profile.proxy';
+import { AccountGuard } from './account.guard';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { ProfileProxy } from './profile.proxy';
     Nip05Proxy,
     ProfileNostr,
     ProfileCache,
+    AccountGuard,
     AccountFactory,
     ProfileProxy,
     ProfileEventFactory,

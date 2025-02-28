@@ -95,6 +95,7 @@ export * from './lib/profile/profile-event.factory';
 export * from './lib/profile/profile.module';
 export * from './lib/profile/nip05.proxy';
 export * from './lib/profile/idb-account-cache.interface';
+export * from './lib/profile/account.guard';
 export * from './lib/profile/account.factory';
 export * from './lib/profile/nostr.signer';
 export * from './lib/profile/profile.proxy';
