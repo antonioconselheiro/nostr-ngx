@@ -13,6 +13,9 @@ import { AccountAuthenticable } from "../domain/account/account-authenticable.in
 })
 export class AccountGuard {
 
+  /**
+   * @returns account is calculated
+   */
   isCalculated(account: unknown): account is AccountCalculated {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (account.state === 'calculated') {
@@ -23,6 +26,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is essential
+   */
   isEssential(account: unknown): account is AccountEssential {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (account.state === 'essential') {
@@ -33,6 +39,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is pointable
+   */
   isPointable(account: unknown): account is AccountPointable {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (account.state === 'pointable') {
@@ -43,6 +52,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is complete
+   */
   isComplete(account: unknown): account is AccountComplete {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (account.state === 'complete') {
@@ -53,6 +65,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is authenticable
+   */
   isAuthenticable(account: unknown): account is AccountAuthenticable {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (account.state === 'authenticable') {
@@ -63,6 +78,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is complete or more (authenticable) 
+   */
   isSessionGroup(account: unknown): account is AccountSession {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (['complete', 'authenticable'].includes(account.state)) {
@@ -73,6 +91,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is pointable or more (complete, authenticable) 
+   */
   isOpenableGroup(account: unknown): account is AccountOpenable {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (['pointable', 'complete', 'authenticable'].includes(account.state)) {
@@ -83,6 +104,9 @@ export class AccountGuard {
     return false;
   }
 
+  /**
+   * @returns account is essential or more (pointable, complete, authenticable) 
+   */
   isRenderableGroup(account: unknown): account is AccountRenderable {
     if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
       if (['essential', 'pointable', 'complete', 'authenticable'].includes(account.state)) {
