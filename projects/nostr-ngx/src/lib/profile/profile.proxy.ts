@@ -104,7 +104,12 @@ export class ProfileProxy {
   getRawAccount(pubkey: HexString): AccountRaw {
     return {
       pubkey,
-      state: 'raw'
+      npub: null,
+      state: 'raw',
+      displayName: null,
+      nip05: null,
+      pictureBase64: null,
+      pictureUrl: null
     };
   }
 
@@ -264,7 +269,7 @@ export class ProfileProxy {
 
   async patchAccountsToEssential(accounts: Array<Account>, opts?: NPoolRequestOptions): Promise<Array<AccountRenderable>> {
     const notLoadedPubkeys = accounts
-      .filter(account => account.state === 'calculated')
+      .filter(account => [ 'calculated', 'raw' ].includes(account.state))
       .map(account => account.pubkey);
 
     const events = await this.profileNostr.loadProfilesConfig(notLoadedPubkeys, opts);
@@ -273,6 +278,10 @@ export class ProfileProxy {
 
     const accountsRecord: { [pubkey: HexString]: AccountRenderable } = {};
     accounts.forEach(account => {
+      if (account.state === 'raw') {
+        account = this.accountFactory.accountCalculatedFactory(account);
+      }
+
       if (account.state === 'calculated') {
         const metadata = metadataRecord[account.pubkey] || null;
         const relays = relayRecord[account.pubkey] || {};
@@ -282,7 +291,6 @@ export class ProfileProxy {
       } else {
         accountsRecord[account.pubkey] = account;
       }
-
     });
 
     return Object.values(accountsRecord);

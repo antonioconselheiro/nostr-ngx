@@ -14,35 +14,67 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 })
 export class NostrGuard {
 
-  isNProfile(value?: string | null): value is NProfile {
+  isNProfile(value?: unknown): value is NProfile {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNProfile(value);
   }
 
-  isNEvent(value?: string | null): value is NEvent {
+  isNEvent(value?: unknown): value is NEvent {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNEvent(value);
   }
 
-  isNAddr(value?: string | null): value is NAddr {
+  isNAddr(value?: unknown): value is NAddr {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNAddr(value);
   }
 
-  isNSec(value?: string | null): value is NSec {
+  isNSec(value?: unknown): value is NSec {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNSec(value);
   }
 
-  isNPub(value?: string | null): value is NPub {
+  isNPub(value?: unknown): value is NPub {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNPub(value);
   }
 
-  isNote(value?: string | null): value is Note {
+  isNote(value?: unknown): value is Note {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNote(value);
   }
 
-  isNcryptsec(value?: string | null): value is Ncryptsec {
+  isNcryptsec(value?: unknown): value is Ncryptsec {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return NostrTypeGuard.isNcryptsec(value);
   }
 
-  isNip05(value?: string | null): value is Nip05 {
+  isNip05(value?: unknown): value is Nip05 {
+    if (typeof value !== 'string') {
+      return false;
+    }
+
     return isNip05(value);
   }
 
@@ -58,8 +90,8 @@ export class NostrGuard {
     return isKind(event, kind);
   }
 
-  isHexadecimal(stuff: string): stuff is HexString {
-    return /^[a-f\d]+$/.test(stuff);
+  isHexadecimal(stuff: unknown): stuff is HexString {
+    return typeof stuff === 'string' && /^[a-f\d]+$/.test(stuff);
   }
 
   isSerializedNostrEvent(serialized: string): boolean {

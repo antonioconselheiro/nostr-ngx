@@ -7,11 +7,25 @@ import { AccountEssential } from "../domain/account/account-essential.interface"
 import { AccountPointable } from "../domain/account/account-pointable.interface";
 import { AccountComplete } from "../domain/account/account-complete.interface";
 import { AccountAuthenticable } from "../domain/account/account-authenticable.interface";
+import { AccountRaw } from "../domain/account/account-raw.interface";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountGuard {
+
+  /**
+   * @returns account is raw
+   */
+  isRaw(account: unknown): account is AccountRaw {
+    if (account instanceof Object && 'pubkey' in account && 'state' in account && typeof account.state === 'string') {
+      if (account.state === 'raw') {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   /**
    * @returns account is calculated

@@ -30,7 +30,7 @@ export class ProfilePictureComponent {
   }
 
   getTitle(): string {
-    if (this.account) {
+    if (this.account && this.account.displayName) {
       return this.account.displayName;
     }
 

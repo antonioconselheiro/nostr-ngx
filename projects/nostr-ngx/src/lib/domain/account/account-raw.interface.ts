@@ -7,4 +7,9 @@ import { HexString } from "../event/primitive/hex-string.type";
 export interface AccountRaw {
   pubkey: HexString;
   state: 'raw';
+  npub: null;
+  nip05: null;
+  displayName: null;
+  pictureBase64: null;
+  pictureUrl: null;
 }

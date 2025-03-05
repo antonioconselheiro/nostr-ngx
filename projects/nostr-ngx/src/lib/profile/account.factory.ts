@@ -18,6 +18,8 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
+import { AccountRaw } from '../domain/account/account-raw.interface';
+import { AccountGuard } from './account.guard';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +28,7 @@ export class AccountFactory {
 
   constructor(
     private nostrGuard: NostrGuard,
+    private accountGuard: AccountGuard,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter
   ) { }
@@ -205,8 +208,22 @@ export class AccountFactory {
   accountCalculatedFactory(pubkey: HexString): AccountCalculated;
   accountCalculatedFactory(npub: NPub): AccountCalculated;
   accountCalculatedFactory(nsec: NSec): AccountCalculated;
-  accountCalculatedFactory(arg: string): AccountCalculated {
-    if (this.nostrGuard.isHexadecimal(arg)) {
+  accountCalculatedFactory(nsec: AccountRaw): AccountCalculated;
+  accountCalculatedFactory(arg: string | AccountRaw): AccountCalculated {
+    if (this.accountGuard.isRaw(arg)) {
+      const npub = npubEncode(arg.pubkey);
+      const displayName = this.generateDisplayNameFromNPub(npub);
+
+      return {
+        npub,
+        pubkey: arg.pubkey,
+        state: 'calculated',
+        displayName,
+        nip05: null,
+        pictureBase64: null,
+        pictureUrl: null
+      };
+    } else if (this.nostrGuard.isHexadecimal(arg)) {
       const npub = npubEncode(arg);
       const displayName = this.generateDisplayNameFromNPub(npub);
 
