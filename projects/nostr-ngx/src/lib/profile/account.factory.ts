@@ -263,7 +263,7 @@ export class AccountFactory {
         pictureUrl: null
       };
     } else {
-      throw new Error('invalid string format given as argument to AccountFactory#accountCalculatedFactory');
+      throw new Error('invalid string format given as argument to AccountFactory#accountCalculatedFactory', arg);
     }
   }
 

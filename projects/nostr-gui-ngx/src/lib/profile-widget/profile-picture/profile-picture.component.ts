@@ -3,15 +3,21 @@ import { Account, NOSTR_CONFIG_TOKEN, NostrConfig } from '@belomonte/nostr-ngx';
 
 @Component({
   selector: 'nostr-profile-picture',
-  templateUrl: './profile-picture.component.html'
+  templateUrl: './profile-picture.component.html',
+  styleUrls: [
+    './profile-picture.component.scss'
+  ]
 })
 export class ProfilePictureComponent {
 
   /**
-   * fixme: preciso de tipos que agrupem os account que tem dados comuns
+   * FIXME: preciso de tipos que agrupem os account que tem dados comuns
    */
   @Input()
   account: Account | null = null;
+
+  @Input()
+  verticalConnected = false;
 
   constructor(
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>

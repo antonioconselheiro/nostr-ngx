@@ -6,10 +6,18 @@ import { HexString } from "../event/primitive/hex-string.type";
  */
 export interface AccountRaw {
   pubkey: HexString;
-  state: 'raw';
   npub: null;
+  state: 'raw';
   nip05: null;
   displayName: null;
+  
+  /**
+   * Picture is a base64 string or null
+   */
   pictureBase64: null;
+  
+  /**
+   * Picture is an url string or null
+   */
   pictureUrl: null;
 }
