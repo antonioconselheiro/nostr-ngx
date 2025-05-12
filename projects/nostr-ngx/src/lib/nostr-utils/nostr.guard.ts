@@ -14,7 +14,7 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 })
 export class NostrGuard {
 
-  isNProfile(value?: unknown): value is NProfile {
+  static isNProfile(value?: unknown): value is NProfile {
     if (typeof value !== 'string') {
       return false;
     }
@@ -22,7 +22,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNProfile(value);
   }
 
-  isNEvent(value?: unknown): value is NEvent {
+  static isNEvent(value?: unknown): value is NEvent {
     if (typeof value !== 'string') {
       return false;
     }
@@ -30,7 +30,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNEvent(value);
   }
 
-  isNAddr(value?: unknown): value is NAddr {
+  static isNAddr(value?: unknown): value is NAddr {
     if (typeof value !== 'string') {
       return false;
     }
@@ -38,7 +38,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNAddr(value);
   }
 
-  isNSec(value?: unknown): value is NSec {
+  static isNSec(value?: unknown): value is NSec {
     if (typeof value !== 'string') {
       return false;
     }
@@ -46,7 +46,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNSec(value);
   }
 
-  isNPub(value?: unknown): value is NPub {
+  static isNPub(value?: unknown): value is NPub {
     if (typeof value !== 'string') {
       return false;
     }
@@ -54,7 +54,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNPub(value);
   }
 
-  isNote(value?: unknown): value is Note {
+  static isNote(value?: unknown): value is Note {
     if (typeof value !== 'string') {
       return false;
     }
@@ -62,7 +62,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNote(value);
   }
 
-  isNcryptsec(value?: unknown): value is Ncryptsec {
+  static isNcryptsec(value?: unknown): value is Ncryptsec {
     if (typeof value !== 'string') {
       return false;
     }
@@ -70,7 +70,7 @@ export class NostrGuard {
     return NostrTypeGuard.isNcryptsec(value);
   }
 
-  isNip05(value?: unknown): value is Nip05 {
+  static isNip05(value?: unknown): value is Nip05 {
     if (typeof value !== 'string') {
       return false;
     }
@@ -78,7 +78,7 @@ export class NostrGuard {
     return isNip05(value);
   }
 
-  isNostrEvent(event: unknown): event is NostrEvent {
+  static isNostrEvent(event: unknown): event is NostrEvent {
     if (event && typeof event === 'object') {
       return verifyEvent(event as any);
     }
@@ -86,19 +86,67 @@ export class NostrGuard {
     return false;
   }
 
-  isKind<T extends number>(event: unknown, kind: T | T[]): event is NostrEvent<T> {
+  static isKind<T extends number>(event: unknown, kind: T | T[]): event is NostrEvent<T> {
     return isKind(event, kind);
   }
 
-  isHexadecimal(stuff: unknown): stuff is HexString {
+  static isHexadecimal(stuff: unknown): stuff is HexString {
     return typeof stuff === 'string' && /^[a-f\d]+$/.test(stuff);
   }
 
-  isSerializedNostrEvent(serialized: string): boolean {
+  static isSerializedNostrEvent(serialized: string): boolean {
     try {
       return verifyEvent(JSON.parse(serialized));
     } catch {
       return false;
     }
+  }
+
+  isNProfile(value?: unknown): value is NProfile {
+    return NostrGuard.isNProfile(value);
+  }
+
+  isNEvent(value?: unknown): value is NEvent {
+    return NostrGuard.isNEvent(value);
+  }
+
+  isNAddr(value?: unknown): value is NAddr {
+    return NostrGuard.isNAddr(value);
+  }
+
+  isNSec(value?: unknown): value is NSec {
+    return NostrGuard.isNSec(value);
+  }
+
+  isNPub(value?: unknown): value is NPub {
+    return NostrGuard.isNPub(value);
+  }
+
+  isNote(value?: unknown): value is Note {
+    return NostrGuard.isNote(value);
+  }
+
+  isNcryptsec(value?: unknown): value is Ncryptsec {
+    return NostrGuard.isNcryptsec(value);
+  }
+
+  isNip05(value?: unknown): value is Nip05 {
+    return NostrGuard.isNip05(value);
+  }
+
+  isNostrEvent(event: unknown): event is NostrEvent {
+    return NostrGuard.isNostrEvent(event);
+  }
+
+  isKind<T extends number>(event: unknown, kind: T | T[]): event is NostrEvent<T> {
+    return NostrGuard.isKind(event, kind);
+  }
+
+  isHexadecimal(stuff: unknown): stuff is HexString {
+    return NostrGuard.isHexadecimal(stuff);
+  }
+
+  isSerializedNostrEvent(serialized: string): boolean {
+    return NostrGuard.isSerializedNostrEvent(serialized);
   }
 }
