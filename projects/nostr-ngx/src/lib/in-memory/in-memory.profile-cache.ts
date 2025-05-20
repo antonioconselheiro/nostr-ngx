@@ -4,6 +4,7 @@ import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { NostrTypeGuard, NProfile } from 'nostr-tools/nip19';
 import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { indexNotFound } from '../domain/symbol/index-not-found.const';
 import { NostrProfileCache } from '../injection-token/nostr-profile-cache.interface';
 
 @Injectable()
@@ -62,7 +63,6 @@ export class InMemoryProfileCache implements NostrProfileCache {
       if (account.displayName) {
         const firstLetter = this.getFirstLetter(account.displayName);
         const list = this.fistLetterIndex.get(firstLetter) || [];
-        const indexNotFound = -1;
         const index = list.indexOf(account.pubkey);
 
         if (index !== indexNotFound) {

@@ -45,6 +45,7 @@ export * from './lib/domain/event/nostr-event-tags.array';
 export * from './lib/domain/event/primitive/stringified-event.type';
 export * from './lib/domain/event/primitive/hex-string.type';
 export * from './lib/domain/event/primitive/stringified.type';
+export * from './lib/domain/symbol/index-not-found.const';
 export * from './lib/pool/relay-router.service';
 export * from './lib/pool/relay-local-config.service';
 export * from './lib/pool/pool.module';

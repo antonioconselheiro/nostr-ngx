@@ -4,6 +4,7 @@ import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
 import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
+import { indexNotFound } from "../domain/symbol/index-not-found.const";
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -117,7 +118,6 @@ export class InMemoryEventCache extends NCache {
     const removed = super.delete(event);
 
     if (removed) {
-      const indexNotFound = -1;
       const indexedByKind = this.kindIndex.get(event.kind) || [];
       const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
 
