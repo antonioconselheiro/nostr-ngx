@@ -66,7 +66,6 @@ export * from './lib/tools/unix-date.fn';
 export * from './lib/nostr-media/file-sending.interface';
 export * from './lib/nostr-media/file-upload-completed.interface';
 export * from './lib/nostr-media/file-processing.interface';
-export * from './lib/nostr-media/media.uploader';
 export * from './lib/nostr-media/file-manager.service';
 export * from './lib/nostr-media/file-upload.type';
 export * from './lib/nostr-media/nostr-media.module';

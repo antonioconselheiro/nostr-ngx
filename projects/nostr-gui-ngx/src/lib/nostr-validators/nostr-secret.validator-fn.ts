@@ -5,12 +5,13 @@ export function nsecValidatorFactory(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
 
     //  I'm not the 'required' validator
-    if (!control.value) {
+    const value = String(control.value);
+    if (!value) {
       return null;
     }
 
     try {
-      const { type } = nip19.decode(control.value);
+      const { type } = nip19.decode(value);
 
       if (type === 'npub') {
         return {

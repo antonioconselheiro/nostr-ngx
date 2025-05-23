@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
-import { kinds, nip19 } from 'nostr-tools';
+import { kinds } from 'nostr-tools';
+import { decode } from 'nostr-tools/nip19';
 import { Metadata } from 'nostr-tools/kinds';
 import { Nip05 } from "nostr-tools/nip05";
 import { Ncryptsec, NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
@@ -214,12 +215,12 @@ export class ProfileProxy {
   }
 
   loadAccountUsingNPub(npub: NPub, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
-    const { data } = nip19.decode(npub);
+    const { data } = decode(npub);
     return this.loadAccount(data, minimalState, opts);
   }
 
   loadAccountUsingNProfile(nprofile: NProfile, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
-    const { data } = nip19.decode(nprofile);
+    const { data } = decode(nprofile);
     opts = opts || {};
     opts.include = opts.include ? [...opts.include, data] : [data];
     return this.loadAccount(data.pubkey, minimalState, opts);
@@ -327,10 +328,15 @@ export class ProfileProxy {
   loadAccountsUsingNProfile(nprofiles: Array<NProfile>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const include: ProfilePointer[] = [];
     const pubkeys = nprofiles.map(nprofile => {
-      const { data } = nip19.decode(nprofile);
+
+
+
+      const { data } = decode(nprofile);
+      
       include.push(data);
       return data.pubkey;
-    })
+    });
+
     opts = opts || {};
     opts.include = opts.include ? [...opts.include, ...include] : include;
     return this.loadAccounts(pubkeys, minimalState, opts);

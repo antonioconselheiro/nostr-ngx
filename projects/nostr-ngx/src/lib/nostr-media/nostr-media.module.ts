@@ -1,6 +1,5 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MediaUploader } from './media.uploader';
+import { NgModule } from '@angular/core';
 import { FileManagerService } from './file-manager.service';
 
 @NgModule({
@@ -8,7 +7,6 @@ import { FileManagerService } from './file-manager.service';
     CommonModule
   ],
   providers: [
-    MediaUploader,
     FileManagerService
   ]
 })

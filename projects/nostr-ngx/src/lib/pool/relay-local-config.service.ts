@@ -211,7 +211,8 @@ export class RelayLocalConfigService {
   getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {
     //  accessing like this avoid circular dependency with NostrSigner service
     if (window.nostr) {
-      return window.nostr.getRelays();
+      //  FIXME: identificar outra maneira de estabelecer relays em rede privada
+      //  return window.nostr.getRelays();
     }
 
     return Promise.resolve(null);

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CurrentAccountObservable, MediaUploader, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
+import { CurrentAccountObservable, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
@@ -32,7 +32,6 @@ export class RegisterAccountComponent implements OnInit {
     private npool: NostrPool,
     private profile$: CurrentAccountObservable,
     private profileEventFactory: ProfileEventFactory,
-    private mediaUploader: MediaUploader,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }
 
@@ -54,29 +53,31 @@ export class RegisterAccountComponent implements OnInit {
   }
 
   uploadProfilePicture(): void {
-    this.mediaUploader
-      .uploadFromDialog('http://nostr.build', { media_type: 'avatar' })
-      .subscribe({
-        next: status => {
-          if (status.type === 'complete') {
-            this.uploadedProfilePicture = status.downloadUrl;
-            this.registerAccount.patchValue({ picture: status.downloadUrl })
-          }
-        }
-      });
+    //  FIXME: revisar implementação
+    //this.mediaUploader
+    //  .uploadFromDialog('http://nostr.build', { media_type: 'avatar' })
+    //  .subscribe({
+    //    next: status => {
+    //      if (status.type === 'complete') {
+    //        this.uploadedProfilePicture = status.downloadUrl;
+    //        this.registerAccount.patchValue({ picture: status.downloadUrl })
+    //      }
+    //    }
+    //  });
   }
 
   uploadBanner(): void {
-    this.mediaUploader
-      .uploadFromDialog('http://nostr.build', { media_type: 'banner' })
-      .subscribe({
-        next: status => {
-          if (status.type === 'complete') {
-            this.uploadedBanner = status.downloadUrl;
-            this.registerAccount.patchValue({ banner: status.downloadUrl })
-          }
-        }
-      });
+    //  FIXME: revisar implementação
+    //this.mediaUploader
+    //  .uploadFromDialog('http://nostr.build', { media_type: 'banner' })
+    //  .subscribe({
+    //    next: status => {
+    //      if (status.type === 'complete') {
+    //        this.uploadedBanner = status.downloadUrl;
+    //        this.registerAccount.patchValue({ banner: status.downloadUrl })
+    //      }
+    //    }
+    //  });
   }
 
   //  FIXME: aqui não deve ser IProfile, deve ser uma interface do perfil em sua forma original

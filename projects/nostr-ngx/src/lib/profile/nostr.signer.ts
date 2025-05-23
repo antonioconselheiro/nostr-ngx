@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip04, nip19, nip44 } from 'nostr-tools';
+import { EventTemplate, finalizeEvent, generateSecretKey, getPublicKey, nip04, nip19, nip44, VerifiedEvent } from 'nostr-tools';
 import { WindowNostr } from 'nostr-tools/nip07';
 import { RelayRecord } from 'nostr-tools/relay';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
@@ -93,7 +93,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
    * @throws NoCredentialsFoundError
    * @throws SignerNotFoundError
    */
-  signEvent(event: EventTemplate | NostrRawEvent): Promise<NostrEvent> {
+  signEvent(event: EventTemplate | NostrRawEvent): Promise<VerifiedEvent> {
     if (!('created_at' in event)) {
       event = { ...event, created_at: unixDate() };
     }
@@ -106,7 +106,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
     return this.signWithClient(event);
   }
 
-  private signWithSigner(event: EventTemplate): Promise<NostrEvent> {
+  private signWithSigner(event: EventTemplate): Promise<VerifiedEvent> {
     if (window.nostr) {
       return window.nostr.signEvent(event);
     }
@@ -114,7 +114,7 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
     return Promise.reject(new SignerNotFoundError());
   }
 
-  private async signWithClient(event: EventTemplate): Promise<NostrEvent> {
+  private async signWithClient(event: EventTemplate): Promise<VerifiedEvent> {
     const nsec = await this.#getNSec();
     return finalizeEvent(event, nsec);
   }
@@ -268,7 +268,8 @@ export class NostrSigner implements Omit<WindowNostr, 'getPublicKey' | 'getRelay
 
   getRelaysFromExtensionSigner(): Promise<RelayRecord | null> {
     if (window.nostr) {
-      return window.nostr.getRelays();
+      //  FIXME: incluir forma alternativa para definir relays para network privada
+      //  return window.nostr.getRelays();
     }
 
     return Promise.resolve(null);
