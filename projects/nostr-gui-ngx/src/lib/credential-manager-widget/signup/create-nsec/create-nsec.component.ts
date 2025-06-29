@@ -1,9 +1,9 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountsLocalStorage, FileManagerService, NostrSigner, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, FileManagerService, NostrConverter, NostrSigner, ProfileSessionStorage } from '@belomonte/nostr-ngx';
+import { NPub, NSec } from 'nostr-tools/nip19';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
-import { NSec } from 'nostr-tools/nip19';
 
 @Component({
   selector: 'nostr-create-nsec',
@@ -19,6 +19,7 @@ export class CreateNsecComponent implements OnInit {
   generateNsecForm!: FormGroup<{
     qrcodeTitle: FormControl<string | null>;
     nsec: FormControl<NSec | null>;
+    npub: FormControl<NPub | null>;
   }>;
 
   @Output()
@@ -28,6 +29,7 @@ export class CreateNsecComponent implements OnInit {
     private fb: FormBuilder,
     private nostrSigner: NostrSigner,
     private qrcodeService: QrcodeService,
+    private nostrConverter: NostrConverter,
     private profileSessionStorage: ProfileSessionStorage,
     private accountsLocalStorage: AccountsLocalStorage,
     private fileManagerService: FileManagerService
@@ -38,9 +40,13 @@ export class CreateNsecComponent implements OnInit {
   }
 
   private initForm(): void {
+    const nsec = this.nostrSigner.generateNsec();
+    const { npub } = this.nostrConverter.convertNSecToPublicKeys(nsec);
     this.generateNsecForm = this.fb.group({
       qrcodeTitle: ['my nostr account'],
-      nsec: [this.nostrSigner.generateNsec()]
+      nsec: [nsec],
+      npub: [npub]
+
     });
 
     this.renderQrcode();

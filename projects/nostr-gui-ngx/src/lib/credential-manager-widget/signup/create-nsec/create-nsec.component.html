@@ -22,6 +22,12 @@
     </button>
   </div>
 
+  <div class="fieldWrapper">
+    <input #npub name="npub" maxlength="64" formControlName="npub" id="generateNpubField" readonly
+      type="text" placeholder=" " />
+    <label for="generateNpubField">npub</label>
+  </div>
+
   <div>
     <img *ngIf="nsecQRCode" class="qrcode" [src]="nsecQRCode" #qrcode alt="qrcode with your nsec" />
   </div>
