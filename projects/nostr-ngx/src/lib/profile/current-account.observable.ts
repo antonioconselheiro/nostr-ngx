@@ -22,7 +22,7 @@ export class CurrentAccountObservable extends BehaviorSubject<AccountSession | n
   constructor(
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
-    private profileService: ProfileProxy,
+    private profileProxy: ProfileProxy,
     private nostrConverter: NostrConverter,
     private relayConverter: RelayConverter,
     private accountFactory: AccountFactory,
@@ -93,7 +93,7 @@ export class CurrentAccountObservable extends BehaviorSubject<AccountSession | n
   }
 
   private async loadCurrentProfile(pubkey: HexString, ncryptsec?: Ncryptsec): Promise<AccountSession> {
-    let account: AccountSession = await this.profileService.loadAccount(pubkey, 'complete');
+    let account: AccountSession = await this.profileProxy.loadAccount(pubkey, 'complete');
     const accountRelays = account.relays.general || null;
     const outbox = this.relayConverter.extractOutboxRelays(accountRelays);
 
@@ -105,7 +105,7 @@ export class CurrentAccountObservable extends BehaviorSubject<AccountSession | n
      * FIXME: first load account data with client, then now I load it again loaded relays.
      * I must find a way to be sure I'm looking to the latest updated data.
      */
-    return this.profileService
+    return this.profileProxy
       .loadAccount(pubkey, 'complete', {
         include: outbox
       })

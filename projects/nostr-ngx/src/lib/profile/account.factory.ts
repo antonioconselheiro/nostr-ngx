@@ -174,8 +174,8 @@ export class AccountFactory {
     ncryptsec?: Ncryptsec
   ): Account {
     const calculated = this.accountCalculatedFactory(pubkey);
-    if (metadata && relays) {
-      const essential = this.accountEssentialFactory(calculated, metadata, relays);
+    if (relays) {
+      const essential = this.accountEssentialFactory(calculated, metadata || null, relays);
 
       if (nip05ProfilePointer) {
         const pointable = this.accountPointableFactory(essential, nip05ProfilePointer);
