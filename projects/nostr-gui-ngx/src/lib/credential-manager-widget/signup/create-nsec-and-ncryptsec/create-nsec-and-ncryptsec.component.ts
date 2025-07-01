@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrSigner, NSecCrypto, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrConverter, NostrSigner, NSecCrypto, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
-import { Ncryptsec, NSec } from 'nostr-tools/nip19';
+import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
@@ -28,6 +28,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   generateNcryptsecForm!: FormGroup<{
     qrcodeTitle: FormControl<string | null | undefined>;
     nsec: FormControl<NSec | null>;
+    npub: FormControl<NPub | null>;
     ncryptsec: FormControl<Ncryptsec | null>;
   }>;
 
@@ -36,6 +37,7 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
     private nsecCrypto: NSecCrypto,
     private nostrSigner: NostrSigner,
     private qrcodeService: QrcodeService,
+    private nostrConverter: NostrConverter,
     private accountFactory: AccountFactory,
     private accountsLocalStorage: AccountsLocalStorage,
     private profileSessionStorage: ProfileSessionStorage,
@@ -50,11 +52,13 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   private initForm(): void {
     const password = this.creatingAccount?.password || '';
     const nsec = this.nostrSigner.generateNsec();
+    const { npub } = this.nostrConverter.convertNSecToPublicKeys(nsec);
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
 
     this.generateNcryptsecForm = this.fb.group({
       qrcodeTitle: [this.creatingAccount.displayName],
       nsec: [nsec],
+      npub: [npub],
       ncryptsec: [ncryptsec]
     });
 
@@ -65,9 +69,10 @@ export class CreateNsecAndNcryptsecComponent implements OnInit {
   generateNsec(): void {
     const password = this.creatingAccount?.password || '';
     const nsec = this.nostrSigner.generateNsec();
+    const { npub } = this.nostrConverter.convertNSecToPublicKeys(nsec);
     const ncryptsec = this.nsecCrypto.encryptNSec(nsec, password);
 
-    this.generateNcryptsecForm.patchValue({ nsec, ncryptsec });
+    this.generateNcryptsecForm.patchValue({ nsec, npub, ncryptsec });
     this.renderQrcode();
     this.login();
   }

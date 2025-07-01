@@ -46,7 +46,6 @@ export class CreateNsecComponent implements OnInit {
       qrcodeTitle: ['my nostr account'],
       nsec: [nsec],
       npub: [npub]
-
     });
 
     this.renderQrcode();
@@ -55,7 +54,9 @@ export class CreateNsecComponent implements OnInit {
 
   generateNsec(): void {
     const nsec = this.nostrSigner.generateNsec();
-    this.generateNsecForm.patchValue({ nsec });
+    const { npub } = this.nostrConverter.convertNSecToPublicKeys(nsec);
+
+    this.generateNsecForm.patchValue({ nsec, npub });
     this.renderQrcode();
     this.login();
   }

@@ -9,8 +9,8 @@
   </div>
 
   <div class="fieldWrapper">
-    <input type="password" #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecField" readonly placeholder=" " />
-    <label for="generateNsecField">nsec</label>
+    <input type="password" #nsec name="nsec" maxlength="64" formControlName="nsec" id="generateNsecFieldNcryptsecForm" readonly placeholder=" " />
+    <label for="generateNsecFieldNcryptsecForm">nsec</label>
 
     <button (click)="copyNsec()" type="button" title="copy nsec" class="svgButton">
       <nostr-svg-render name="copy"></nostr-svg-render>
@@ -19,6 +19,12 @@
     <button (click)="generateNsec()" type="button" title="generate new nsec" class="svgButton">
       <nostr-svg-render name="repeat"></nostr-svg-render>
     </button>
+  </div>
+
+  <div class="fieldWrapper">
+    <input #npub name="npub" maxlength="64" formControlName="npub" id="generateNpubFieldNcryptsecForm" readonly
+      type="text" placeholder=" " />
+    <label for="generateNpubFieldNcryptsecForm">npub</label>
   </div>
 
   <div class="fieldWrapper">
