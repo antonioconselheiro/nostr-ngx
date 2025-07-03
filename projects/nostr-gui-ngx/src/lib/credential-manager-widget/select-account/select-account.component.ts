@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AccountAuthenticable, AccountManagerService, CurrentAccountObservable, NostrSigner } from '@belomonte/nostr-ngx';
+import { AccountAuthenticable, AccountManagerService, CurrentProfileObservable, NostrSigner } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
@@ -23,7 +23,7 @@ export class SelectAccountComponent {
 
   constructor(
     private nostrSigner: NostrSigner,
-    private profile$: CurrentAccountObservable,
+    private profile$: CurrentProfileObservable,
     private accountManagerService: AccountManagerService
   ) { }
 

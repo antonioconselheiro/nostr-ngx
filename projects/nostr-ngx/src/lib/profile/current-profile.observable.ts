@@ -17,7 +17,7 @@ import { ProfileProxy } from './profile.proxy';
 @Injectable({
   providedIn: 'root'
 })
-export class CurrentAccountObservable extends BehaviorSubject<AccountSession | null> {
+export class CurrentProfileObservable extends BehaviorSubject<AccountSession | null> {
 
   constructor(
     private nsecCrypto: NSecCrypto,

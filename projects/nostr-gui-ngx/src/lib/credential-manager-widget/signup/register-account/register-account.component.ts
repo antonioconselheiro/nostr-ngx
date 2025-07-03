@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CurrentAccountObservable, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
+import { CurrentProfileObservable, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
 import { NostrMetadata } from '@nostrify/nostrify';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
@@ -30,7 +30,7 @@ export class RegisterAccountComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private npool: NostrPool,
-    private profile$: CurrentAccountObservable,
+    private profile$: CurrentProfileObservable,
     private profileEventFactory: ProfileEventFactory,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
   ) { }

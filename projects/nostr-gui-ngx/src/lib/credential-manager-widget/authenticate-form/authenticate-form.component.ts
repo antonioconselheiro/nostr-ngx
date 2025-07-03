@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AccountAuthenticable, CurrentAccountObservable } from '@belomonte/nostr-ngx';
+import { AccountAuthenticable, CurrentProfileObservable } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../auth-modal-steps.type';
 
 @Component({
@@ -30,7 +30,7 @@ export class AuthenticateFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private profiles$: CurrentAccountObservable
+    private profiles$: CurrentProfileObservable
   ) { }
 
   ngOnInit(): void {

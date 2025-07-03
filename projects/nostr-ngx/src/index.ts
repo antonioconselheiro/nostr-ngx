@@ -102,7 +102,7 @@ export * from './lib/profile/profile.proxy';
 export * from './lib/profile/account-manager.service';
 export * from './lib/profile/nip05-resultset.interface';
 export * from './lib/profile/profile.cache';
-export * from './lib/profile/current-account.observable';
+export * from './lib/profile/current-profile.observable';
 export * from './lib/profile/profile.nostr';
 
 declare global {

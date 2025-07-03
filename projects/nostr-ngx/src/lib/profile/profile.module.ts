@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { PoolModule } from '../pool/pool.module';
 import { AccountManagerService } from './account-manager.service';
 import { AccountFactory } from './account.factory';
-import { CurrentAccountObservable } from './current-account.observable';
+import { CurrentProfileObservable } from './current-profile.observable';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileEventFactory } from './profile-event.factory';
 import { ProfileCache } from './profile.cache';
@@ -25,7 +25,7 @@ import { AccountGuard } from './account.guard';
     ProfileProxy,
     ProfileEventFactory,
     AccountManagerService,
-    CurrentAccountObservable
+    CurrentProfileObservable
   ]
 })
 export class ProfileModule { }
