@@ -221,9 +221,13 @@ export class ProfileProxy {
 
   loadAccountUsingNProfile(nprofile: NProfile, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
     const { data } = decode(nprofile);
+    return this.loadAccountUsingProfilePointer(data, minimalState, opts);
+  }
+
+  loadAccountUsingProfilePointer(pointer: ProfilePointer, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
     opts = opts || {};
-    opts.include = opts.include ? [...opts.include, data] : [data];
-    return this.loadAccount(data.pubkey, minimalState, opts);
+    opts.include = opts.include ? [...opts.include, pointer] : [pointer];
+    return this.loadAccount(pointer.pubkey, minimalState, opts);
   }
 
   loadAccounts(pubkeys: Array<HexString>, minimalState: 'calculated', opts?: NPoolRequestOptions): Promise<Array<Account>>;
@@ -328,9 +332,6 @@ export class ProfileProxy {
   loadAccountsUsingNProfile(nprofiles: Array<NProfile>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
     const include: ProfilePointer[] = [];
     const pubkeys = nprofiles.map(nprofile => {
-
-
-
       const { data } = decode(nprofile);
       
       include.push(data);
