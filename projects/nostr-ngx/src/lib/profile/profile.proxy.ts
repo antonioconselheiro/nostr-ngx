@@ -224,6 +224,16 @@ export class ProfileProxy {
     return this.loadAccountUsingProfilePointer(data, minimalState, opts);
   }
 
+  async loadAccountUsingNip05(nip05: Nip05, minimalState: 'pointable' | 'complete' | 'authenticable', opts?: NPoolRequestOptions): Promise<Account | null> {
+    const pointer = await this.nip05Proxy.queryProfile(nip05);
+
+    if (pointer) {
+      return this.loadAccountUsingProfilePointer(pointer, minimalState, opts);
+    } else {
+      return null;
+    }
+  }
+
   loadAccountUsingProfilePointer(pointer: ProfilePointer, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
     opts = opts || {};
     opts.include = opts.include ? [...opts.include, pointer] : [pointer];
