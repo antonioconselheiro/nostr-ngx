@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { decode, Ncryptsec, nprofileEncode, NPub, npubEncode, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
@@ -20,6 +19,7 @@ import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { AccountRaw } from '../domain/account/account-raw.interface';
 import { AccountGuard } from './account.guard';
+import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 
 @Injectable({
   providedIn: 'root'

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { NostrMetadata } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
 import { DirectMessageRelaysList } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
+import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 
 @Injectable({
   providedIn: 'root'

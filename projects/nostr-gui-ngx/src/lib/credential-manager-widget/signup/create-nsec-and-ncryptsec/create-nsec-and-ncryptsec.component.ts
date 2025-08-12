@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrConverter, NostrSigner, NSecCrypto, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { AccountFactory, AccountsLocalStorage, FileManagerService, NostrConverter, NostrMetadata, NostrSigner, NSecCrypto, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { Ncryptsec, NPub, NSec } from 'nostr-tools/nip19';
 import { CreatingAccount } from '../../../domain/creating-account.interface';
 import { QrcodeService } from '../../../qrcode-service/qrcode.service';

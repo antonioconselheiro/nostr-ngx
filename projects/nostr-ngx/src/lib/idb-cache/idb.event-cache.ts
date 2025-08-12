@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { NostrFilter } from '@nostrify/nostrify';
 import { IDBPDatabase, openDB } from 'idb';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event.interface';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 
 /**
  * ncache load from indexeddb and keep it syncronized

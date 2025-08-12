@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
-import { NCache, NostrFilter, NSet } from "@nostrify/nostrify";
 import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
 import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
+import { NCache } from "../domain/nostrify/ncache.type";
+import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
+import { NSet } from "../domain/nostrify/nset.type";
 
 //  TODO: include index by create at
 //  TODO: include index by tag

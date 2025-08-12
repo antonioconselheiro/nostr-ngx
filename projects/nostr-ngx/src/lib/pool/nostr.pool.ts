@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@angular/core';
-import { NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '@nostrify/nostrify';
 import { finalize, Observable, Subject } from 'rxjs';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
@@ -7,6 +6,8 @@ import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RelayRouterService } from './relay-router.service';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 
 // TODO: pool must be able to identify relay connection status
 /**

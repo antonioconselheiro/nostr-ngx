@@ -1,6 +1,9 @@
-import { NostrFilter, NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT, NPool, NSet } from '@nostrify/nostrify';
-import { Machina } from '@nostrify/nostrify/utils';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { Machina } from '../domain/nostrify/machina';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
+import { NPool } from '../domain/nostrify/npool';
+import { NSet } from '../domain/nostrify/nset.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';

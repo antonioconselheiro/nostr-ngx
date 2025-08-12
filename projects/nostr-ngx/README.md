@@ -4,7 +4,7 @@
 
 # nostr-ngx
 ![nostr is wild](./assets/nostr%20is%20wild.jpg)
-To use together with `nostr-tools` and `@nostrify/nostrify`.
+To use together with `nostr-tools`.
 
 ## Release
 not released yet

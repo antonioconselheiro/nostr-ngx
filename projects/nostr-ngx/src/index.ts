@@ -104,6 +104,18 @@ export * from './lib/profile/nip05-resultset.interface';
 export * from './lib/profile/profile.cache';
 export * from './lib/profile/current-profile.observable';
 export * from './lib/profile/profile.nostr';
+export * from './lib/domain/nostrify/nstore.type';
+export * from './lib/domain/nostrify/nostr-filter.type';
+export * from './lib/domain/nostrify/npool';
+export * from './lib/domain/nostrify/nostr-relay-message.type';
+export * from './lib/domain/nostrify/nostr-metadata.type';
+export * from './lib/domain/nostrify/ncache.type';
+export * from './lib/domain/nostrify/nostr-client-message.type';
+export * from './lib/domain/nostrify/machina';
+export * from './lib/domain/nostrify/nkinds';
+export * from './lib/domain/nostrify/nset.type';
+export * from './lib/domain/nostrify/nrelay';
+export * from './lib/domain/nostrify/nrelay1';
 
 declare global {
   interface Window {

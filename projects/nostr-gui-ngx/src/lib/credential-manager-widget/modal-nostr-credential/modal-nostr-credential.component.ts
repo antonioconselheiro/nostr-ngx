@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalableDirective } from '@belomonte/async-modal-ngx';
-import { AccountAuthenticable, AccountManagerService } from '@belomonte/nostr-ngx';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { AccountAuthenticable, AccountManagerService, NostrMetadata } from '@belomonte/nostr-ngx';
 import { Subject, Subscription } from 'rxjs';
 import { CreatingAccount } from '../../domain/creating-account.interface';
 import { AuthModalArguments } from '../auth-modal-arguments.interface';

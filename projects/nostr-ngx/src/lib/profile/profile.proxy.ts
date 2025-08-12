@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NSchema as n, NostrMetadata } from '@nostrify/nostrify';
 import { kinds } from 'nostr-tools';
 import { decode } from 'nostr-tools/nip19';
 import { Metadata } from 'nostr-tools/kinds';
@@ -30,6 +29,7 @@ import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
+import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -205,10 +205,8 @@ export class ProfileProxy {
     events
       .filter((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata))
       .forEach(event => {
-        record[event.pubkey] = n
-        .json()
-        .pipe(n.metadata())
-        .parse(event.content);
+        // FIXME: include metadata validation .pipe(n.metadata())
+        record[event.pubkey] = JSON.parse(event.content);
       });
 
     return record;

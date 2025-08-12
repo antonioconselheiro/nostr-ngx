@@ -1,6 +1,7 @@
-import { NostrFilter, NStore } from '@nostrify/nostrify';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NStore } from '../domain/nostrify/nstore.type';
 import { NostrProfileCache } from './nostr-profile-cache.interface';
 
 /**

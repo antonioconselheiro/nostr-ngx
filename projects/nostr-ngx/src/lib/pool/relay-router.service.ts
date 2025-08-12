@@ -1,15 +1,17 @@
 import { Inject, Injectable } from '@angular/core';
-import { NostrFilter, NRelay, NRelay1 } from '@nostrify/nostrify';
 import { kinds as NostrEventKind } from 'nostr-tools';
 import { ProfilePointer } from 'nostr-tools/nip19';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NRelay } from '../domain/nostrify/nrelay';
+import { NRelay1 } from '../domain/nostrify/nrelay1';
+import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
 import { RelayLocalConfigService } from './relay-local-config.service';
 import { RouterMatcher } from './router-matcher.interface';
-import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
 
 /**
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário

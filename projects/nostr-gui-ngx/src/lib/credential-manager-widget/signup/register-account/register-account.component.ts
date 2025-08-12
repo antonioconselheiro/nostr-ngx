@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CurrentProfileObservable, NOSTR_CONFIG_TOKEN, NostrConfig, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
-import { NostrMetadata } from '@nostrify/nostrify';
+import { CurrentProfileObservable, NOSTR_CONFIG_TOKEN, NostrConfig, NostrMetadata, NostrPool, ProfileEventFactory } from '@belomonte/nostr-ngx';
 import { AuthModalSteps } from '../../auth-modal-steps.type';
 
 @Component({
