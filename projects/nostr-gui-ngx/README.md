@@ -12,7 +12,6 @@ not released yet
 
 TODO:
  - [ ] Internacionalization
- - [ ] Integrate with nostr.watch to provide better relay search mechanics
  - [ ] User blocked relay list
  - [ ] Group chat
  - [ ] Support SSR
