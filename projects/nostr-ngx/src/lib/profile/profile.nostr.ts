@@ -5,6 +5,7 @@ import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrPool } from '../pool/nostr.pool';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { NostrEventResultset } from '../pool/nostr-event-resultset.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +72,7 @@ export class ProfileNostr {
   /**
    * FIXME: maybe should receive and array
    */
-  listenUserConfigUpdates(pubkey: HexString, opts?: NPoolRequestOptions): Observable<NostrEvent> {
+  listenUserConfigUpdates(pubkey: HexString, opts?: NPoolRequestOptions): Observable<NostrEventResultset> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.observe([

@@ -116,6 +116,7 @@ export * from './lib/domain/nostrify/nkinds';
 export * from './lib/domain/nostrify/nset.type';
 export * from './lib/domain/nostrify/nrelay';
 export * from './lib/domain/nostrify/nrelay1';
+export * from './lib/domain/event/relay-domain.interface';
 
 declare global {
   interface Window {

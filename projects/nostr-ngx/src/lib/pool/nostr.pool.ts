@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@angular/core';
 import { finalize, Observable, Subject } from 'rxjs';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
+import { NostrEventResultset } from './nostr-event-resultset.interface';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RelayRouterService } from './relay-router.service';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
-import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 
 // TODO: pool must be able to identify relay connection status
 /**
@@ -27,12 +27,12 @@ export class NostrPool extends FacadeNPool {
     super(routerService, nostrCache);
   }
 
-  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEvent> {
+  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEventResultset> {
     console.info('[[subscribe filter]]', filters);
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
     opts.signal = signal;
-    const subject = new Subject<NostrEvent>();
+    const subject = new Subject<NostrEventResultset>();
 
     (async () => {
       for await (const msg of this.req(filters, opts)) {
@@ -40,7 +40,8 @@ export class NostrPool extends FacadeNPool {
           subject.error(msg);
           break;
         } else if (msg[0] === 'EVENT') {
-          subject.next(msg[2]);
+          //  FIXME: incluir relays de onde o evento foi coletado
+          subject.next({ event: msg[2], origin: [] });
         }
       }
     })();

@@ -5,6 +5,7 @@ import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nos
 import { NPool } from '../domain/nostrify/npool';
 import { NSet } from '../domain/nostrify/nset.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
+import { NostrEventResultset } from './nostr-event-resultset.interface';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
 
@@ -81,7 +82,7 @@ export class FacadeNPool extends NPool {
     );
   }
 
-  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEvent[]> {
+  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEventResultset[]> {
     let limit: number | false = false;
     //  TODO: se o filtro tiver ids a quantidade de ids deve ser considera como limit
     //  FIXME: validar calculo do limite
@@ -103,14 +104,16 @@ export class FacadeNPool extends NPool {
         results = Array.from(nset);
       }
 
-      return Promise.resolve(results);
+      //  FIXME: colocar o retorna dos relays corretamente
+      return Promise.resolve(results.map(event => ({ event, origin: [] })));
     } else {
       const result = await Promise.all([
         this.nostrCache.query(filters),
         super.query(filters, opts),
       ]);
       
-      return result.flat(2)
+      //  FIXME: colocar o retorna dos relays corretamente
+      return result.flat(2).map(event => ({ event, origin: [] }));
     }
   }
 
