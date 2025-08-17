@@ -1,4 +1,5 @@
 import { RelayRecord } from 'nostr-tools/relay';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 export interface NostrConfig {
   defaultProfile?: {
@@ -16,19 +17,19 @@ export interface NostrConfig {
    * relays fallback if user has no search relay publically configured,
    * these relays should help discovery new users and new notes 
    */
-  searchFallback?: Array<WebSocket['url']>;
+  searchFallback?: Array<RelayDomain>;
 
   bestFor?: {
     /**
      * override the default list of best relays to find events having only the id
      */
-    findJustById?: Array<WebSocket['url']>;
+    findJustById?: Array<RelayDomain>;
 
     /**
      * override the default list of best relays to load a pubkey config, like
      * metadata (0), relay list (10002), blocked relay list (10006), search relay
      * list (10007), relays for dm (10050) 
      */
-    findProfileConfig?: Array<WebSocket['url']>;
+    findProfileConfig?: Array<RelayDomain>;
   };
 }

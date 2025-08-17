@@ -1,11 +1,14 @@
 
-import { getFilterLimit, matchFilters, verifyEvent as _verifyEvent, NostrEvent } from 'nostr-tools';
-import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';import { Machina } from './machina';
-import { NostrRelayCLOSED, NostrRelayCOUNT, NostrRelayEOSE, NostrRelayEVENT, NostrRelayNOTICE, NostrRelayOK } from './nostr-relay-message.type';
-import { NRelay } from './nrelay';
+import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
+import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
+import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
+import { RelayDomain } from '../event/relay-domain.interface';
+import { Machina } from './machina';
 import { NostrClientMessage, NostrClientREQ } from './nostr-client-message.type';
 import { NostrFilter } from './nostr-filter.type';
-import { NSet } from './nset.type';
+import { NostrRelayCLOSED, NostrRelayCOUNT, NostrRelayEOSE, NostrRelayEVENT, NostrRelayNOTICE, NostrRelayOK } from './nostr-relay-message.type';
+import { NostrSet } from './nostr-set.type';
+import { NRelay } from './nrelay';
 ;
 
 type EventMap = {
@@ -30,7 +33,7 @@ export class NRelay1 implements NRelay {
   private subscriptions = new Map<string, NostrClientREQ>();
   private ee = new EventTarget();
 
-  constructor(url: string, opts: NRelay1Opts = {}) {
+  constructor(url: RelayDomain, opts: NRelay1Opts = {}) {
     const { auth, backoff = new ExponentialBackoff(1000), verifyEvent = _verifyEvent } = opts;
 
     this.socket = new WebsocketBuilder(url)
@@ -119,15 +122,16 @@ export class NRelay1 implements NRelay {
     }
   }
 
-  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEvent[]> {
-    const events = new NSet();
+  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventOrigins[]> {
+    const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
     if (limit === 0) return [];
 
     for await (const msg of this.req(filters, opts)) {
       if (msg[0] === 'EOSE') break;
-      if (msg[0] === 'EVENT') events.add(msg[2]);
+      //  FIXME: Encontrar um jeito de incluir o relay
+      if (msg[0] === 'EVENT') events.add({ event: msg[2], origin: [] });
       if (msg[0] === 'CLOSED') throw new Error('Subscription closed');
 
       if (events.size >= limit) {
@@ -138,10 +142,11 @@ export class NRelay1 implements NRelay {
     return [...events];
   }
 
-  async event(event: NostrEvent, opts?: { signal?: AbortSignal }): Promise<void> {
-    const result = this.once(`ok:${event.id}`, opts?.signal);
+  async event(origins: NostrEventOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
+    //  FIXME: garantir que o evento seja publicado nos relays descritos
+    const result = this.once(`ok:${origins.event.id}`, opts?.signal);
 
-    this.send(['EVENT', event]);
+    this.send(['EVENT', origins.event]);
 
     const [, , ok, reason] = await result;
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event.interface';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 
 /**
  * ncache load from indexeddb and keep it syncronized
@@ -15,7 +15,7 @@ export class IdbEventCache extends InMemoryEventCache {
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   private timeoutId: number | null = null;
-  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEvent }> = [];
+  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEventOrigins }> = [];
   protected flushTimeout = 1000;
 
   constructor() {
@@ -43,9 +43,9 @@ export class IdbEventCache extends InMemoryEventCache {
     });
   }
 
-  override add(event: NostrEvent): this {
-    const me = super.add(event);
-    this.cacheUpdates.push({ action: 'add', event });
+  override add(origin: NostrEventOrigins): this {
+    const me = super.add(origin);
+    this.cacheUpdates.push({ action: 'add', event: origin });
     this.flush();
 
     return me;
@@ -56,7 +56,7 @@ export class IdbEventCache extends InMemoryEventCache {
     events.forEach(event => this.delete(event));
   }
 
-  override delete(event: NostrEvent): boolean {
+  override delete(event: NostrEventOrigins): boolean {
     const removed = super.delete(event);
     
     if (removed) {
@@ -84,11 +84,11 @@ export class IdbEventCache extends InMemoryEventCache {
       const tx = db.transaction(this.table, 'readwrite');
       const queeue: Array<Promise<unknown>> = [];
 
-      this.cacheUpdates.forEach(({ action, event }) => {
+      this.cacheUpdates.forEach(({ action, event: origins }) => {
         if (action === 'add') {
-          queeue.push(tx.objectStore(this.table).put(event));
+          queeue.push(tx.objectStore(this.table).put(origins));
         } else if (action === 'delete') {
-          queeue.push(tx.objectStore(this.table).delete(event.id));
+          queeue.push(tx.objectStore(this.table).delete(origins.event.id));
         }
       });
 

@@ -6,6 +6,7 @@ import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
 import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +56,7 @@ export class ProfileEventFactory {
     return this.nostrSigner.signEvent(event);
   }
 
-  createSearchRelayListEvent(searchList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+  createSearchRelayListEvent(searchList: Array<RelayDomain>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
 
@@ -75,7 +76,7 @@ export class ProfileEventFactory {
     return this.nostrSigner.signEvent(event);
   }
 
-  createPrivateDirectMessageListEvent(privateDmList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+  createPrivateDirectMessageListEvent(privateDmList: Array<RelayDomain>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
 
@@ -95,7 +96,7 @@ export class ProfileEventFactory {
     return this.nostrSigner.signEvent(event);
   }
 
-  createBlockedRelayListEvent(blockedRelayList: Array<WebSocket['url']>, currentEvent?: NostrEvent): Promise<NostrEvent> {
+  createBlockedRelayListEvent(blockedRelayList: Array<RelayDomain>, currentEvent?: NostrEvent): Promise<NostrEvent> {
     let content = '';
     let tags: string[][] = [];
 

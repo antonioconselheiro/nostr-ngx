@@ -1,8 +1,9 @@
 import { RelayRecord } from 'nostr-tools/relay';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 export interface NostrUserRelays {
   general?: RelayRecord;
-  directMessage?: Array<WebSocket['url']>;
-  search?: Array<WebSocket['url']>;
-  blocked?: Array<WebSocket['url']>;
+  directMessage?: Array<RelayDomain>;
+  search?: Array<RelayDomain>;
+  blocked?: Array<RelayDomain>;
 }

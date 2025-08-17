@@ -2,6 +2,7 @@ import { HexString } from '../primitive/hex-string.type';
 import { NostrEventRelation } from '../nostr-event-relation.interface';
 import { TagPointer } from './tag-pointer.type';
 import { TagReference } from './tag-reference.type';
+import { RelayDomain } from '../relay-domain.interface';
 
 /**
  * Pointer Related
@@ -17,4 +18,4 @@ import { TagReference } from './tag-reference.type';
  */
 export type TagPointerRelated<Type extends string> = TagReference<Type> |
   TagPointer<Type> |
-  [Type, HexString, WebSocket['url'] | '', NostrEventRelation, ...string[]];
+  [Type, HexString, RelayDomain | '', NostrEventRelation, ...string[]];

@@ -1,5 +1,6 @@
 import { NProfile, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 export interface NPoolRequestOptions {
   /**
@@ -10,12 +11,12 @@ export interface NPoolRequestOptions {
   /**
    * Relays to be included in the operation
    */
-  include?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | NProfile | undefined | null>;
+  include?: Array<RelayDomain | NostrEvent | ProfilePointer | NProfile | undefined | null>;
 
   /**
    * Limit operation to these relays
    */
-  useOnly?: Array<WebSocket['url'] | NostrEvent | ProfilePointer | NProfile>;
+  useOnly?: Array<RelayDomain | NostrEvent | ProfilePointer | NProfile>;
 
   /**
    * Force ignore current configured ncache and nstore and request exclusively from relay 

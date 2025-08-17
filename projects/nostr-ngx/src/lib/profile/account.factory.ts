@@ -8,18 +8,19 @@ import { AccountComplete } from '../domain/account/account-complete.interface';
 import { AccountEssential } from '../domain/account/account-essential.interface';
 import { AccountNip05Detail } from '../domain/account/account-nip05-detail.type';
 import { AccountPointable } from '../domain/account/account-pointable.interface';
+import { AccountRaw } from '../domain/account/account-raw.interface';
 import { AccountOpenable } from '../domain/account/compose/account-openable.type';
 import { AccountRenderable } from '../domain/account/compose/account-renderable.type';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
 import { Base64String } from '../domain/base64-string.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { AccountRaw } from '../domain/account/account-raw.interface';
 import { AccountGuard } from './account.guard';
-import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 
 @Injectable({
   providedIn: 'root'
@@ -373,14 +374,14 @@ export class AccountFactory {
   }
 
   private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {
-    let relays: string[] = [],
+    let relays = new Array<RelayDomain>(),
       address: Nip05 | null = null,
       pointer = null;
 
     if (isNip05(metadata?.nip05)) {
       address = metadata.nip05;
       if (nip05) {
-        relays = nip05.relays || [];
+        relays = nip05.relays as RelayDomain[] | undefined || [];
         pointer = nip05;
       }
     }

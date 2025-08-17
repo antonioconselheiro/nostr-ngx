@@ -1,4 +1,5 @@
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 import { EventRouterMatcher } from './event-router-matcher.interface';
 import { RelayRecord } from 'nostr-tools/relay';
 
@@ -23,10 +24,10 @@ export interface RouterMatcher {
   /**
    * List of relays to find users relay list
    */
-  defaultSearch: () => Array<WebSocket['url']>;
+  defaultSearch: () => Array<RelayDomain>;
 
   /**
    * relays to request
    */
-  requestRouter: () => Promise<Array<WebSocket['url']>>;
+  requestRouter: () => Promise<Array<RelayDomain>>;
 }

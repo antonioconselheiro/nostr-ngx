@@ -1,4 +1,5 @@
 import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 export interface EventRouterMatcher<T extends NostrEvent> {
   /**
@@ -9,5 +10,5 @@ export interface EventRouterMatcher<T extends NostrEvent> {
   /**
    * custom routes for this match
    */
-  router: (event: T) => Promise<Array<WebSocket['url']>>;
+  router: (event: T) => Promise<Array<RelayDomain>>;
 }

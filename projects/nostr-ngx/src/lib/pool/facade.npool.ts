@@ -1,11 +1,11 @@
-import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 import { Machina } from '../domain/nostrify/machina';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrPool } from '../domain/nostrify/nostr-pool';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
-import { NPool } from '../domain/nostrify/npool';
-import { NSet } from '../domain/nostrify/nset.type';
+import { NostrSet } from '../domain/nostrify/nostr-set.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
-import { NostrEventResultset } from './nostr-event-resultset.interface';
 import { NPoolRequestOptions } from './npool-request.options';
 import { NpoolRouterOptions } from './npool-router.options';
 
@@ -15,7 +15,7 @@ import { NpoolRouterOptions } from './npool-router.options';
 /**
  * controls the relation between main npool and the cache system (provided ncache and nstore)
  */
-export class FacadeNPool extends NPool {
+export class FacadeNPool extends NostrPool {
 
   constructor(
     opts: NpoolRouterOptions,
@@ -38,8 +38,8 @@ export class FacadeNPool extends NPool {
     const routes = await this.getOpts().reqRouter(filters, opts);
     const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
-    const eoses = new Set<WebSocket['url']>();
-    const closes = new Set<WebSocket['url']>();
+    const eoses = new Set<RelayDomain>();
+    const closes = new Set<RelayDomain>();
 
     for (const url of routes.keys()) {
       const relay = this.relay(url);
@@ -74,15 +74,15 @@ export class FacadeNPool extends NPool {
     }
   }
 
-  override async event(event: NostrEvent, opts?: NPoolRequestOptions): Promise<void> {
-    const relayUrls = await this.getOpts().eventRouter(event, opts);
+  override async event(origins: NostrEventOrigins, opts?: NPoolRequestOptions): Promise<void> {
+    const relayUrls = await this.getOpts().eventRouter(origins, opts);
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).event(event, opts))
+      relayUrls.map((url) => this.relay(url).event(origins, opts))
     );
   }
 
-  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEventResultset[]> {
+  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEventOrigins[]> {
     let limit: number | false = false;
     //  TODO: se o filtro tiver ids a quantidade de ids deve ser considera como limit
     //  FIXME: validar calculo do limite
@@ -95,7 +95,7 @@ export class FacadeNPool extends NPool {
       const memoryCacheResults = await this.nostrCache.query(filters);
       let results = memoryCacheResults;
       if (memoryCacheResults.length < limit) {
-        const nset = new NSet();
+        const nset = new NostrSet();
         memoryCacheResults.forEach(result => nset.add(result));
 
         const poolResults = await super.query(filters, opts);
@@ -104,16 +104,14 @@ export class FacadeNPool extends NPool {
         results = Array.from(nset);
       }
 
-      //  FIXME: colocar o retorna dos relays corretamente
-      return Promise.resolve(results.map(event => ({ event, origin: [] })));
+      return Promise.resolve(results.map(event => event));
     } else {
       const result = await Promise.all([
         this.nostrCache.query(filters),
         super.query(filters, opts),
       ]);
-      
-      //  FIXME: colocar o retorna dos relays corretamente
-      return result.flat(2).map(event => ({ event, origin: [] }));
+
+      return result.flat(2).map(event => event);
     }
   }
 

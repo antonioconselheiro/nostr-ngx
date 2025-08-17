@@ -5,6 +5,7 @@ import { isNip05, Nip05 } from 'nostr-tools/nip05';
 import { NAddr, Ncryptsec, NEvent, NostrTypeGuard, Note, NProfile, NPub, NSec } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
 
 /**
  * A facade to nostr-tools guard tools with some extra util type-guards
@@ -102,6 +103,11 @@ export class NostrGuard {
     }
   }
 
+  static isRelayString(stuff: unknown): stuff is RelayDomain {
+    const isRelayStringRegex = /^wss?:\/\/[^.]+\.[^.]=/;
+    return typeof stuff === 'string' && isRelayStringRegex.test(stuff);
+  }
+
   isNProfile(value?: unknown): value is NProfile {
     return NostrGuard.isNProfile(value);
   }
@@ -148,5 +154,9 @@ export class NostrGuard {
 
   isSerializedNostrEvent(serialized: string): boolean {
     return NostrGuard.isSerializedNostrEvent(serialized);
+  }
+
+  isRelayString(stuff: unknown): stuff is RelayDomain {
+    return NostrGuard.isRelayString(stuff);
   }
 }

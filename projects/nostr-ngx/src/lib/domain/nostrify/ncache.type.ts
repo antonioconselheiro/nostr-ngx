@@ -1,10 +1,10 @@
 import { LRUCache } from 'lru-cache';
 import { matchFilters } from 'nostr-tools';
-import { NSet } from './nset.type';
-import { NostrEvent } from '../event/nostr-event.interface';
-import { NStore } from './nstore.type';
+import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCOUNT } from './nostr-relay-message.type';
+import { NostrSet } from './nostr-set.type';
+import { NostrStore } from './nostr-store.type';
 
 /**
  * Nostr LRU cache based on [`npm:lru-cache`](https://www.npmjs.com/package/lru-cache).
@@ -27,32 +27,33 @@ import { NostrRelayCOUNT } from './nostr-relay-message.type';
  * }
  * ```
  */
-export class NCache extends NSet implements NStore {
-  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEvent>>) {
-    super(new LRUCache<string, NostrEvent>(...args));
+export class NCache extends NostrSet implements NostrStore {
+  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventOrigins>>) {
+    //  FIXME: preciso dar um jeito de harmonizar esta tipagem corretamente
+    super(new LRUCache<string, NostrEventOrigins>(...args) as any as Map<string, NostrEventOrigins>);
   }
 
-  async event(event: NostrEvent): Promise<void> {
+  async event(event: NostrEventOrigins): Promise<void> {
     this.add(event);
   }
 
-  async query(filters: NostrFilter[]): Promise<NostrEvent[]> {
-    const events: NostrEvent[] = [];
+  async query(filters: NostrFilter[]): Promise<NostrEventOrigins[]> {
+    const resultsets: NostrEventOrigins[] = [];
 
-    for (const event of this) {
-      if (matchFilters(filters, event)) {
-        this.cache.get(event.id);
-        events.push(event);
+    for (const resultset of this) {
+      if (matchFilters(filters, resultset.event)) {
+        this.cache.get(resultset.event.id);
+        resultsets.push(resultset);
       }
     }
 
-    return events;
+    return resultsets;
   }
 
   async remove(filters: NostrFilter[]): Promise<void> {
-    for (const event of this) {
-      if (matchFilters(filters, event)) {
-        this.delete(event);
+    for (const resultset of this) {
+      if (matchFilters(filters, resultset.event)) {
+        this.delete(resultset);
       }
     }
   }

@@ -1,7 +1,7 @@
-import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
-import { NStore } from '../domain/nostrify/nstore.type';
+import { NostrStore } from '../domain/nostrify/nostr-store.type';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
 import { NostrProfileCache } from './nostr-profile-cache.interface';
 
 /**
@@ -9,7 +9,7 @@ import { NostrProfileCache } from './nostr-profile-cache.interface';
  * This should help find already loaded profiles and events.
  * The provided implementation will be used by NostrPool.
  */
-export interface NostrCache extends NStore {
+export interface NostrCache extends NostrStore {
 
   /**
    * service focused in cache prefetched user data, the Account object
@@ -19,22 +19,22 @@ export interface NostrCache extends NStore {
   /**
    * get an event from cache if it exists
    */
-  get(idEvent: HexString): NostrEvent | null;
+  get(idEvent: HexString): NostrEventOrigins | null;
 
   /**
    * query cache sync
    */
-  syncQuery(filters: NostrFilter[]): NostrEvent[];
+  syncQuery(filters: NostrFilter[]): NostrEventOrigins[];
 
   /**
    * query cache async
    */
-  query(filters: NostrFilter[]): Promise<NostrEvent[]>;
+  query(filters: NostrFilter[]): Promise<NostrEventOrigins[]>;
   
   /**
    * save event in cache
    */
-  event(event: NostrEvent): Promise<void>;
+  event(event: NostrEventOrigins): Promise<void>;
 
   /**
    * remove event from cache

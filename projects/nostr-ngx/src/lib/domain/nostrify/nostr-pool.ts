@@ -1,11 +1,12 @@
-import { getFilterLimit, NostrEvent } from 'nostr-tools';
+import { getFilterLimit } from 'nostr-tools';
+import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
 import { NpoolRouterOptions } from '../../pool/npool-router.options';
+import { RelayDomain } from '../event/relay-domain.interface';
 import { Machina } from './machina';
-import { NSet } from './nset.type';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from './nostr-relay-message.type';
+import { NostrSet } from './nostr-set.type';
 import { NRelay } from './nrelay';
-import { NKinds } from './nkinds';
 
 /**
  * The `NPool` class is a `NRelay` implementation for connecting to multiple relays.
@@ -36,12 +37,34 @@ import { NKinds } from './nkinds';
  *
  * `pool.req` will only emit an `EOSE` when all relays in its set have emitted an `EOSE`, and likewise for `CLOSED`.
  */
-export class NPool implements NRelay {
-  private relays: Map<WebSocket['url'], NRelay> = new Map();
+export class NostrPool implements NRelay {
+  
+    /** Events are **regular**, which means they're all expected to be stored by relays. */
+  static regular(kind: number): boolean {
+    return (1000 <= kind && kind < 10000) || [1, 2, 4, 5, 6, 7, 8, 16, 40, 41, 42, 43, 44].includes(kind);
+  }
+
+  /** Events are **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
+  static replaceable(kind: number): boolean {
+    return (10000 <= kind && kind < 20000) || [0, 3].includes(kind);
+  }
+
+  /** Events are **ephemeral**, which means they are not expected to be stored by relays. */
+  static ephemeral(kind: number): boolean {
+    return 20000 <= kind && kind < 30000;
+  }
+
+  /** Events are **parameterized replaceable**, which means that, for each combination of `pubkey`, `kind` and the `d` tag, only the latest event is expected to be stored by relays, older versions are expected to be discarded. */
+  static parameterizedReplaceable(kind: number): boolean {
+    return 30000 <= kind && kind < 40000;
+  }
+  
+  private relays = new Map<RelayDomain, NRelay>();
+
   constructor(private opts: NpoolRouterOptions) {}
 
   /** Get or create a relay instance for the given URL. */
-  relay(url: WebSocket['url']): NRelay {
+  relay(url: RelayDomain): NRelay {
     const relay = this.relays.get(url);
 
     if (relay) {
@@ -66,8 +89,8 @@ export class NPool implements NRelay {
     }
     const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
-    const eoses = new Set<WebSocket['url']>();
-    const closes = new Set<WebSocket['url']>();
+    const eoses = new Set<RelayDomain>();
+    const closes = new Set<RelayDomain>();
 
     for (const url of routes.keys()) {
       const relay = this.relay(url);
@@ -102,7 +125,7 @@ export class NPool implements NRelay {
     }
   }
 
-  async event(event: NostrEvent, opts?: { signal?: AbortSignal }): Promise<void> {
+  async event(event: NostrEventOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
     const relayUrls = await this.opts.eventRouter(event);
     if (relayUrls.length < 1) {
       return;
@@ -113,20 +136,21 @@ export class NPool implements NRelay {
     );
   }
 
-  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEvent[]> {
-    const events = new NSet();
+  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventOrigins[]> {
+    const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
     if (limit === 0) return [];
 
     const replaceable = filters.reduce((result, filter) => {
-      return result || !!filter.kinds?.some((k) => NKinds.replaceable(k) || NKinds.parameterizedReplaceable(k));
+      return result || !!filter.kinds?.some((k) => NostrPool.replaceable(k) || NostrPool.parameterizedReplaceable(k));
     }, false);
 
     try {
       for await (const msg of this.req(filters, opts)) {
         if (msg[0] === 'EOSE') break;
-        if (msg[0] === 'EVENT') events.add(msg[2]);
+        //  FIXME: refatorar incluindo origin
+        if (msg[0] === 'EVENT') events.add({ event: msg[2], origin: [] });
         if (msg[0] === 'CLOSED') throw new Error('Subscription closed');
 
         if (!replaceable && (events.size >= limit)) {

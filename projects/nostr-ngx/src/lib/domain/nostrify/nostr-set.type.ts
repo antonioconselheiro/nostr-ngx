@@ -1,4 +1,5 @@
-import { NostrEvent } from "../event/nostr-event.interface";
+import { kinds } from "nostr-tools";
+import { NostrEventOrigins } from "../event/nostr-event-origins.interface";
 
 /**
  * Nostr event implementation of the `Set` interface.
@@ -28,10 +29,10 @@ import { NostrEvent } from "../event/nostr-event.interface";
  * Any `Map` instance can be passed into `new NSet()`, making it compatible with
  * [lru-cache](https://www.npmjs.com/package/lru-cache), among others.
  */
-export class NSet implements Set<NostrEvent> {
-  protected cache: Map<string, NostrEvent>;
+export class NostrSet implements Set<NostrEventOrigins> {
+  protected cache: Map<string, NostrEventOrigins>;
 
-  constructor(map?: Map<string, NostrEvent>) {
+  constructor(map?: Map<string, NostrEventOrigins>) {
     this.cache = map ?? new Map();
   }
 
@@ -39,27 +40,27 @@ export class NSet implements Set<NostrEvent> {
     return this.cache.size;
   }
 
-  add(event: NostrEvent): this {
-    this.#processDeletions(event);
+  add(resultset: NostrEventOrigins): this {
+    this.#processDeletions(resultset);
 
     for (const e of this) {
-      if (NSet.deletes(e, event) || NSet.replaces(e, event)) {
+      if (NostrSet.deletes(e, resultset) || NostrSet.replaces(e, resultset)) {
         return this;
-      } else if (NSet.replaces(event, e)) {
+      } else if (NostrSet.replaces(resultset, e)) {
         this.delete(e);
       }
     }
 
-    this.cache.set(event.id, event);
+    this.cache.set(resultset.event.id, resultset);
     return this;
   }
 
-  #processDeletions(event: NostrEvent): void {
-    if (event.kind === 5) {
-      for (const tag of event.tags) {
+  #processDeletions(resultset: NostrEventOrigins): void {
+    if (resultset.event.kind === kinds.EventDeletion) {
+      for (const tag of resultset.event.tags) {
         if (tag[0] === 'e') {
           const e = this.cache.get(tag[1]);
-          if (e && e.pubkey === event.pubkey) {
+          if (e && e.event.pubkey === resultset.event.pubkey) {
             this.delete(e);
           }
         }
@@ -71,35 +72,35 @@ export class NSet implements Set<NostrEvent> {
     this.cache.clear();
   }
 
-  delete(event: NostrEvent): boolean {
-    return this.cache.delete(event.id);
+  delete(resultset: NostrEventOrigins): boolean {
+    return this.cache.delete(resultset.event.id);
   }
 
-  forEach(callbackfn: (event: NostrEvent, key: NostrEvent, set: typeof this) => void, thisArg?: any): void {
+  forEach(callbackfn: (resultset: NostrEventOrigins, key: NostrEventOrigins, set: typeof this) => void, thisArg?: any): void {
     return this.cache.forEach(event => callbackfn(event, event, this), thisArg);
   }
 
-  has(event: NostrEvent): boolean {
-    return this.cache.has(event.id);
+  has(resultset: NostrEventOrigins): boolean {
+    return this.cache.has(resultset.event.id);
   }
 
-  *entries(): IterableIterator<[NostrEvent, NostrEvent]> {
+  *entries(): IterableIterator<[NostrEventOrigins, NostrEventOrigins]> {
     for (const event of this.values()) {
       yield [event, event];
     }
   }
 
-  keys(): IterableIterator<NostrEvent> {
+  keys(): IterableIterator<NostrEventOrigins> {
     return this.values();
   }
 
-  *values(): IterableIterator<NostrEvent> {
-    for (const event of NSet.sortEvents([...this.cache.values()])) {
+  *values(): IterableIterator<NostrEventOrigins> {
+    for (const event of NostrSet.sortEvents([...this.cache.values()])) {
       yield event;
     }
   }
 
-  [Symbol.iterator](): IterableIterator<NostrEvent> {
+  [Symbol.iterator](): IterableIterator<NostrEventOrigins> {
     return this.values();
   }
 
@@ -119,20 +120,20 @@ export class NSet implements Set<NostrEvent> {
    * Both events must be replaceable, belong to the same kind and pubkey (and `d` tag, for parameterized events), and the `event` must be newer than the `target`.
    */
   // eslint-disable-next-line complexity
-  protected static replaces(event: NostrEvent, target: NostrEvent): boolean {
-    const { kind, pubkey } = event;
+  protected static replaces(resultset: NostrEventOrigins, target: NostrEventOrigins): boolean {
+    const { kind, pubkey } = resultset.event;
 
-    if (NSet.isReplaceable(kind)) {
-      return kind === target.kind && pubkey === target.pubkey && NSet.sortEvents([event, target])[0] === event;
+    if (NostrSet.isReplaceable(kind)) {
+      return kind === target.event.kind && pubkey === target.event.pubkey && NostrSet.sortEvents([resultset, target])[0] === resultset;
     }
 
-    if (NSet.isParameterizedReplaceable(kind)) {
-      const d1 = event.tags.find(([name]) => name === 'd')?.[1] || '';
-      const d2 = target.tags.find(([name]) => name === 'd')?.[1] || '';
+    if (NostrSet.isParameterizedReplaceable(kind)) {
+      const d1 = resultset.event.tags.find(([name]) => name === 'd')?.[1] || '';
+      const d2 = target.event.tags.find(([name]) => name === 'd')?.[1] || '';
 
-      return kind === target.kind &&
-        pubkey === target.pubkey &&
-        NSet.sortEvents([event, target])[0] === event &&
+      return kind === target.event.kind &&
+        pubkey === target.event.pubkey &&
+        NostrSet.sortEvents([resultset, target])[0] === resultset &&
         d1 === d2;
     }
 
@@ -144,11 +145,11 @@ export class NSet implements Set<NostrEvent> {
    *
    * `event` must be a kind `5` event, and both events must share the same `pubkey`.
    */
-  protected static deletes(event: NostrEvent, target: NostrEvent): boolean {
-    const { kind, pubkey, tags } = event;
-    if (kind === 5 && pubkey === target.pubkey) {
+  protected static deletes(resultset: NostrEventOrigins, target: NostrEventOrigins): boolean {
+    const { kind, pubkey, tags } = resultset.event;
+    if (kind === kinds.EventDeletion && pubkey === target.event.pubkey) {
       for (const [name, value] of tags) {
-        if (name === 'e' && value === target.id) {
+        if (name === 'e' && value === target.event.id) {
           return true;
         }
       }
@@ -161,12 +162,12 @@ export class NSet implements Set<NostrEvent> {
    * and then by the event `id` (lexicographically) in case of ties.
    * This mutates the array.
    */
-  protected static sortEvents(events: NostrEvent[]): NostrEvent[] {
-    return events.sort((a: NostrEvent, b: NostrEvent): number => {
-      if (a.created_at !== b.created_at) {
-        return b.created_at - a.created_at;
+  protected static sortEvents(events: NostrEventOrigins[]): NostrEventOrigins[] {
+    return events.sort((a: NostrEventOrigins, b: NostrEventOrigins): number => {
+      if (a.event.created_at !== b.event.created_at) {
+        return b.event.created_at - a.event.created_at;
       }
-      return a.id.localeCompare(b.id);
+      return a.event.id.localeCompare(b.event.id);
     });
   }
 

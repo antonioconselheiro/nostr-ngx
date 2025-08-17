@@ -1,9 +1,9 @@
 import { NostrFilter } from "./nostr-filter.type";
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from "./nostr-relay-message.type";
-import { NStore } from "./nstore.type";
+import { NostrStore } from "./nostr-store.type";
 
 /** Nostr event store with support for relay subscriptions. */
-export interface NRelay extends NStore {
+export interface NRelay extends NostrStore {
   /** Subscribe to events matching the given filters. Returns an iterator of raw NIP-01 relay messages. */
   req(
     filters: NostrFilter[],

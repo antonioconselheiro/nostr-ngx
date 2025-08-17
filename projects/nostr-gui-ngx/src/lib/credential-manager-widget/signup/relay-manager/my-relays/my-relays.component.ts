@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AccountsLocalStorage, NOSTR_CONFIG_TOKEN, NostrConfig, NostrEvent, NostrGuard, NostrPool, NostrSigner, NostrUserRelays, ProfileEventFactory, ProfileSessionStorage, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, NOSTR_CONFIG_TOKEN, NostrConfig, NostrEvent, NostrGuard, NostrPool, NostrSigner, NostrUserRelays, ProfileEventFactory, ProfileSessionStorage, RelayDomain, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { RecommendRelay } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
@@ -247,7 +247,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     return Object.keys(configs).map(relay => [relay, configs[relay]])
   }
 
-  removeRelay(relay: string): void {
+  removeRelay(relay: RelayDomain): void {
     if (this.unsavedConfig.general) {
       delete this.unsavedConfig.general[relay];
     }
@@ -291,7 +291,6 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     ].includes(this.relayType);
   }
 
-  // eslint-disable-next-line complexity
   connect(el: { value: string }): void {
     const relay = normalizeURL(el.value);
     if (!relay) {

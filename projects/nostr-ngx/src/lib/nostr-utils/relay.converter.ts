@@ -6,7 +6,8 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { isRelayString } from './is-relay-string.regex';
+import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
 import { NostrGuard } from './nostr.guard';
 
 @Injectable({
@@ -18,11 +19,11 @@ export class RelayConverter {
     private guard: NostrGuard
   ) { }
 
-  private convertRelayMetadataFromTag(tag: string[]): Array<WebSocket['url']> {
-    const relays = tag.filter(relay => isRelayString.test(relay));
-    const list: Array<WebSocket['url']> = [];
+  private convertRelayMetadataFromTag(tag: string[]): Array<RelayDomain> {
+    const relays = tag.filter((relay): relay is RelayDomain => this.guard.isRelayString(relay));
+    const list: Array<RelayDomain> = [];
 
-    Object.keys(relays).forEach(relay => {
+    Object.values(relays).forEach(relay => {
       if (relay) {
         list.push(relay);
       }
@@ -31,12 +32,12 @@ export class RelayConverter {
     return list;
   }
 
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList>): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent<SearchRelaysList>): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent<DirectMessageRelaysList>): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<WebSocket['url']>;
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<WebSocket['url']> {
-    let list: Array<WebSocket['url']> = [];
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList>): Array<RelayDomain>;
+  convertRelayEventToRelayList(event: NostrEvent<SearchRelaysList>): Array<RelayDomain>;
+  convertRelayEventToRelayList(event: NostrEvent<DirectMessageRelaysList>): Array<RelayDomain>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomain>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomain> {
+    let list: Array<RelayDomain> = [];
     event.tags.forEach(tag => list = [...list, ...this.convertRelayMetadataFromTag(tag)]);
 
     return list;
@@ -75,29 +76,33 @@ export class RelayConverter {
    *  
    * Read tag 'relays' and tag 'r', read either the relay from tag 'e' and from tag 'p'
    */
-  convertEventToRelayList(event: NostrEvent): Array<WebSocket['url']> {
+  convertEventToRelayList(event: NostrEvent): Array<RelayDomain> {
     const shouldIgnore = [kinds.RelayList].includes(event.kind);
     if (shouldIgnore) {
       return [];
     }
 
-    const relaysFound: Array<WebSocket['url']> = [];
+    const relaysFound: Array<RelayDomain> = [];
     event.tags.forEach(tags => {
       const [type, ...tagValues] = tags;
       switch (type) {
         case 'relays':
-          tagValues.forEach(relay => relaysFound.push(relay));
+          tagValues.forEach(relay => {
+            if (this.guard.isRelayString(relay)) {
+              relaysFound.push(relay);
+            }
+          });
           break;
         case 'r':
           //  TODO: add kind 17 WebsiteReaction in nostr-tools
-          if (tagValues[0] && !this.guard.isKind(event, 17)) {
+          if (this.guard.isRelayString(tagValues[0]) && !this.guard.isKind(event, 17)) {
             relaysFound.push(tagValues[0]);
           }
           break;
         case 'p':
         case 'e':
         case 'a':
-          if (tagValues[1]) {
+          if (this.guard.isRelayString(tagValues[1])) {
             relaysFound.push(tagValues[1]);
           }
           break;
@@ -108,7 +113,7 @@ export class RelayConverter {
   }
 
   convertEventsToRelayConfig(
-    relayEvents: Array<NostrEvent>,
+    resultsets: Array<NostrEventOrigins>,
     patchExistingUser?: AccountSession
   ): { [pubkey: HexString]: NostrUserRelays } {
     const record: { [pubkey: HexString]: NostrUserRelays } = {};
@@ -116,19 +121,19 @@ export class RelayConverter {
       record[patchExistingUser.pubkey] = patchExistingUser.relays;
     }
 
-    relayEvents.forEach(event => {
-      if (!record[event.pubkey]) {
-        record[event.pubkey] = {};
+    resultsets.forEach(resultset => {
+      if (!record[resultset.event.pubkey]) {
+        record[resultset.event.pubkey] = {};
       }
 
-      if (this.guard.isKind(event, RelayList)) {
-        record[event.pubkey].general = this.convertRelayListEventToRelayRecord(event);
-      } else if (this.guard.isKind(event, DirectMessageRelaysList)) {
-        record[event.pubkey].directMessage = this.convertEventToRelayList(event);
-      } else if (this.guard.isKind(event, SearchRelaysList)) {
-        record[event.pubkey].search = this.convertEventToRelayList(event);
-      } else if (this.guard.isKind(event, BlockedRelaysList)) {
-        record[event.pubkey].blocked = this.convertEventToRelayList(event);
+      if (this.guard.isKind(resultset, RelayList)) {
+        record[resultset.pubkey].general = this.convertRelayListEventToRelayRecord(resultset);
+      } else if (this.guard.isKind(resultset, DirectMessageRelaysList)) {
+        record[resultset.pubkey].directMessage = this.convertEventToRelayList(resultset);
+      } else if (this.guard.isKind(resultset, SearchRelaysList)) {
+        record[resultset.pubkey].search = this.convertEventToRelayList(resultset);
+      } else if (this.guard.isKind(resultset, BlockedRelaysList)) {
+        record[resultset.pubkey].blocked = this.convertEventToRelayList(resultset);
       }
     });
 
@@ -138,28 +143,34 @@ export class RelayConverter {
   /**
    * extract write relays
    */
-  extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+  extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomain> {
     return this.extractRelaysOfRelayRecord(userRelayConfig, 'write');
   }
 
   /**
    * extract read relays
    */
-  extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<WebSocket['url']> {
+  extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomain> {
     return this.extractRelaysOfRelayRecord(userRelayConfig, 'read');
   }
 
   extractRelaysOfRelayRecord(
     userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>,
     relayType: 'read' | 'write'
-  ): Array<WebSocket['url']> {
+  ): Array<RelayDomain> {
     if (userRelayConfig instanceof Array) {
       return userRelayConfig.map(record => this.extractOutboxRelays(record)).flat(2);
     } else if (userRelayConfig && userRelayConfig.general) {
       const general = userRelayConfig.general;
       return Object
         .keys(general)
-        .filter(relay => general[relay][relayType]);
+        .filter((relay): relay is RelayDomain => {
+          if (this.guard.isRelayString(relay)) {
+            return general[relay][relayType];
+          }
+
+          return false;
+        });
     }
 
     return [];

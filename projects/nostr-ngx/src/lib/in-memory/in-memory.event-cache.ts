@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
-import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
-import { indexNotFound } from "../domain/symbol/index-not-found.const";
 import { NCache } from "../domain/nostrify/ncache.type";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
-import { NSet } from "../domain/nostrify/nset.type";
+import { NostrSet } from "../domain/nostrify/nostr-set.type";
+import { indexNotFound } from "../domain/symbol/index-not-found.const";
+import { NostrEventOrigins } from "../domain/event/nostr-event-origins.interface";
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -20,25 +20,25 @@ export class InMemoryEventCache extends NCache {
   private authorIndex = new Map<HexString, Array<HexString>>();
   
   constructor() {
-    super(new LRUCache<HexString, NostrEvent>({
+    super(new LRUCache<HexString, NostrEventOrigins>({
       //  TODO: make this configurable
       max: 5000,
       dispose: event => this.delete(event)
     }));
   }
 
-  get(idEvent: HexString): NostrEvent | null {
+  get(idEvent: HexString): NostrEventOrigins | null {
     return this.cache.get(idEvent) || null;
   }
 
-  override async query(filters: NostrFilter[]): Promise<NostrEvent[]> {
+  override async query(filters: NostrFilter[]): Promise<NostrEventOrigins[]> {
     return Promise.resolve(this.syncQuery(filters));
   }
 
-  syncQuery(filters: NostrFilter[]): NostrEvent[] {
+  syncQuery(filters: NostrFilter[]): NostrEventOrigins[] {
     if (this.shouldLoadFromIndex(filters)) {
 
-      const nset = new NSet();
+      const nset = new NostrSet();
       try {
         filters.forEach(filter => this.querySingleFilter(filter, nset));
       } catch (e) {
@@ -57,21 +57,21 @@ export class InMemoryEventCache extends NCache {
     }
   }
 
-  private queryAll(filters: NostrFilter[]): NostrEvent[] {
-    const events: NostrEvent[] = [];
+  private queryAll(filters: NostrFilter[]): NostrEventOrigins[] {
+    const events = new Array<NostrEventOrigins>();
 
-    for (const event of this) {
-      if (matchFilters(filters, event)) {
+    for (const origins of this) {
+      if (matchFilters(filters, origins.event)) {
         //  restart cache timeout
-        this.cache.get(event.id);
-        events.push(event);
+        this.cache.get(origins.event.id);
+        events.push(origins);
       }
     }
 
     return events;
   }
 
-  private querySingleFilter(filter: NostrFilter, nset: NSet): void {
+  private querySingleFilter(filter: NostrFilter, nset: NostrSet): void {
     let ids: HexString[] = [];
     if (filter.ids?.length) {
       ids = filter.ids;
@@ -86,7 +86,7 @@ export class InMemoryEventCache extends NCache {
 
     ids
       .map(id => this.cache.get(id))
-      .filter((event): event is NostrEvent => event && matchFilters([filter], event) || false)
+      .filter((origins): origins is NostrEventOrigins => origins && matchFilters([filter], origins.event) || false)
       .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
@@ -94,17 +94,17 @@ export class InMemoryEventCache extends NCache {
       });
   }
 
-  protected indexInMemory(event: NostrEvent): this {
-    const indexedByKind = this.kindIndex.get(event.kind) || [];
-    const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
+  protected indexInMemory(origins: NostrEventOrigins): this {
+    const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
+    const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
 
-    indexedByKind.push(event.id);
-    indexedByAuthor.push(event.id);
+    indexedByKind.push(origins.event.id);
+    indexedByAuthor.push(origins.event.id);
 
-    this.kindIndex.set(event.kind, indexedByKind);
-    this.authorIndex.set(event.pubkey, indexedByAuthor);
+    this.kindIndex.set(origins.event.kind, indexedByKind);
+    this.authorIndex.set(origins.event.pubkey, indexedByAuthor);
 
-    return this.add(event);
+    return this.add(origins);
   }
 
   private shouldLoadFromIndex(filters: NostrFilter[]): boolean {
@@ -116,29 +116,29 @@ export class InMemoryEventCache extends NCache {
     return !shouldNot;
   }
 
-  override delete(event: NostrEvent): boolean {
-    const removed = super.delete(event);
+  override delete(origins: NostrEventOrigins): boolean {
+    const removed = super.delete(origins);
 
     if (removed) {
-      const indexedByKind = this.kindIndex.get(event.kind) || [];
-      const indexedByAuthor = this.authorIndex.get(event.pubkey) || [];
+      const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
+      const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
 
-      const indexOfByKind = indexedByKind.indexOf(event.id);
+      const indexOfByKind = indexedByKind.indexOf(origins.event.id);
       if (indexOfByKind !== indexNotFound) {
         indexedByKind.splice(indexOfByKind, 1);
       }
 
       if (!indexedByKind.length) {
-        this.kindIndex.delete(event.kind);
+        this.kindIndex.delete(origins.event.kind);
       }
 
-      const indexOfByAuthor = indexedByAuthor.indexOf(event.id);
+      const indexOfByAuthor = indexedByAuthor.indexOf(origins.event.id);
       if (indexOfByAuthor !== indexNotFound) {
         indexedByAuthor.splice(indexOfByAuthor, 1);
       }
 
       if (!indexedByAuthor.length) {
-        this.authorIndex.delete(event.pubkey);
+        this.authorIndex.delete(origins.event.pubkey);
       }
     }
 

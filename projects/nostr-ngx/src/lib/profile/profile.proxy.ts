@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { kinds } from 'nostr-tools';
-import { decode } from 'nostr-tools/nip19';
 import { Metadata } from 'nostr-tools/kinds';
 import { Nip05 } from "nostr-tools/nip05";
-import { Ncryptsec, NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
+import { decode, Ncryptsec, NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { AccountsLocalStorage } from '../configs/accounts-local.storage';
 import { AccountAuthenticable } from '../domain/account/account-authenticable.interface';
 import { AccountCalculated } from '../domain/account/account-calculated.interface';
@@ -17,19 +16,19 @@ import { AccountRenderable } from '../domain/account/compose/account-renderable.
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
 import { Base64String } from '../domain/base64-string.type';
-import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
+import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 import { FileManagerService } from '../nostr-media/file-manager.service';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
 import { NPoolRequestOptions } from '../pool/npool-request.options';
 import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
 import { ProfileNostr } from './profile.nostr';
-import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 
 //  TODO: a classe precisa ter um mecanismo para receber atualizações de informações e configurações de perfil
 //  mas como saber quais perfis devem ter suas atualizações escutadas? O programador que estiver utilizando a
@@ -200,13 +199,13 @@ export class ProfileProxy {
     return this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
   }
   
-  private getProfileMetadata(events: Array<NostrEvent<number>>): { [pubkey: HexString]: NostrMetadata } {
+  private getProfileMetadata(events: NostrEventOrigins[]): { [pubkey: HexString]: NostrMetadata } {
     const record: { [pubkey: HexString]: NostrMetadata } = {};
     events
-      .filter((event): event is NostrEvent<Metadata> => this.guard.isKind(event, kinds.Metadata))
-      .forEach(event => {
+      .filter((origins): origins is NostrEventOrigins<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
+      .forEach(origin => {
         // FIXME: include metadata validation .pipe(n.metadata())
-        record[event.pubkey] = JSON.parse(event.content);
+        record[origin.event.pubkey] = JSON.parse(origin.event.content);
       });
 
     return record;

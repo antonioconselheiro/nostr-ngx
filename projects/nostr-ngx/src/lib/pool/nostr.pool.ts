@@ -4,7 +4,7 @@ import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
-import { NostrEventResultset } from './nostr-event-resultset.interface';
+import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
 import { FacadeNPool } from './facade.npool';
 import { NPoolRequestOptions } from './npool-request.options';
 import { RelayRouterService } from './relay-router.service';
@@ -27,12 +27,12 @@ export class NostrPool extends FacadeNPool {
     super(routerService, nostrCache);
   }
 
-  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEventResultset> {
+  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEventOrigins> {
     console.info('[[subscribe filter]]', filters);
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
     opts.signal = signal;
-    const subject = new Subject<NostrEventResultset>();
+    const subject = new Subject<NostrEventOrigins>();
 
     (async () => {
       for await (const msg of this.req(filters, opts)) {
