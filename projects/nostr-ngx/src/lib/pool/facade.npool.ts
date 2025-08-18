@@ -1,13 +1,13 @@
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { Machina } from '../domain/nostrify/machina';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrPool } from '../domain/nostrify/nostr-pool';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 import { NostrSet } from '../domain/nostrify/nostr-set.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
-import { NPoolRequestOptions } from './npool-request.options';
-import { NpoolRouterOptions } from './npool-router.options';
+import { PoolRequestOptions } from './pool-request.options';
+import { PoolRouterOptions } from './pool-router.options';
 
 //  TODO: incluir mecânica de COUNT personalizada que dê suporte a tratamento de erros para versões que não suportam
 //  NIP45 e respondem com NOTICE o filtro de COUNT ao invés de CLOSED: https://github.com/soapbox-pub/nostrify/issues/3
@@ -18,7 +18,7 @@ import { NpoolRouterOptions } from './npool-router.options';
 export class FacadeNPool extends NostrPool {
 
   constructor(
-    opts: NpoolRouterOptions,
+    opts: PoolRouterOptions,
 
     /**
      * the main cache
@@ -30,16 +30,15 @@ export class FacadeNPool extends NostrPool {
 
   override async *req(
     filters: NostrFilter[],
-    opts?: NPoolRequestOptions,
+    opts?: PoolRequestOptions,
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
     const controller = new AbortController();
-    const signal = opts?.signal ? (AbortSignal as any).any([opts.signal, controller.signal]) : controller.signal;
 
     const routes = await this.getOpts().reqRouter(filters, opts);
     const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
-    const eoses = new Set<RelayDomain>();
-    const closes = new Set<RelayDomain>();
+    const eoses = new Set<RelayDomainString>();
+    const closes = new Set<RelayDomainString>();
 
     for (const url of routes.keys()) {
       const relay = this.relay(url);
@@ -74,7 +73,7 @@ export class FacadeNPool extends NostrPool {
     }
   }
 
-  override async event(origins: NostrEventOrigins, opts?: NPoolRequestOptions): Promise<void> {
+  override async event(origins: NostrEventWithOrigins, opts?: PoolRequestOptions): Promise<void> {
     const relayUrls = await this.getOpts().eventRouter(origins, opts);
 
     await Promise.any(
@@ -82,7 +81,7 @@ export class FacadeNPool extends NostrPool {
     );
   }
 
-  override async query(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<NostrEventOrigins[]> {
+  override async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithOrigins[]> {
     let limit: number | false = false;
     //  TODO: se o filtro tiver ids a quantidade de ids deve ser considera como limit
     //  FIXME: validar calculo do limite
@@ -115,8 +114,8 @@ export class FacadeNPool extends NostrPool {
     }
   }
 
-  protected getOpts(): NpoolRouterOptions {
+  protected getOpts(): PoolRouterOptions {
     //  u____u nobody need know, keep scrolling
-    return (this as any as { opts: NpoolRouterOptions }).opts;
+    return (this as any as { opts: PoolRouterOptions }).opts;
   }
 }

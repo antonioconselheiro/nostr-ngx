@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event.interface';
@@ -15,7 +15,7 @@ export class IdbEventCache extends InMemoryEventCache {
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   private timeoutId: number | null = null;
-  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEventOrigins }> = [];
+  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEventWithOrigins }> = [];
   protected flushTimeout = 1000;
 
   constructor() {
@@ -43,7 +43,7 @@ export class IdbEventCache extends InMemoryEventCache {
     });
   }
 
-  override add(origin: NostrEventOrigins): this {
+  override add(origin: NostrEventWithOrigins): this {
     const me = super.add(origin);
     this.cacheUpdates.push({ action: 'add', event: origin });
     this.flush();
@@ -56,7 +56,7 @@ export class IdbEventCache extends InMemoryEventCache {
     events.forEach(event => this.delete(event));
   }
 
-  override delete(event: NostrEventOrigins): boolean {
+  override delete(event: NostrEventWithOrigins): boolean {
     const removed = super.delete(event);
     
     if (removed) {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { getPublicKey, nip19 } from 'nostr-tools';
 import { NProfile, NPub, NSec, ProfilePointer } from 'nostr-tools/nip19';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrPublicUser } from '../domain/nostr-public-user.interface';
 import { ProfilePointerSanitized } from '../domain/profile-pointer-sanitized.interface';
 import { NostrGuard } from './nostr.guard';
@@ -38,8 +38,8 @@ export class NostrConverter {
   }
 
   convertNSecToPublicKeys(nostrSecret: NSec): Omit<NostrPublicUser, 'nprofile'>;
-  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<RelayDomain>): NostrPublicUser;
-  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<RelayDomain>): NostrPublicUser {
+  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<RelayDomainString>): NostrPublicUser;
+  convertNSecToPublicKeys(nostrSecret: NSec, outboxRelayList?: Array<RelayDomainString>): NostrPublicUser {
     const { data } = nip19.decode(nostrSecret);
     const pubkey = getPublicKey(data);
 
@@ -47,8 +47,8 @@ export class NostrConverter {
   }
 
   convertPubkeyToPublicKeys(pubkey: HexString): Omit<NostrPublicUser, 'nprofile'>;
-  convertPubkeyToPublicKeys(pubkey: HexString, outboxRelayList?: Array<RelayDomain>): NostrPublicUser;
-  convertPubkeyToPublicKeys(pubkey: HexString, outboxRelayList?: Array<RelayDomain>): NostrPublicUser {
+  convertPubkeyToPublicKeys(pubkey: HexString, outboxRelayList?: Array<RelayDomainString>): NostrPublicUser;
+  convertPubkeyToPublicKeys(pubkey: HexString, outboxRelayList?: Array<RelayDomainString>): NostrPublicUser {
     const npub = nip19.npubEncode(pubkey);
     const publicUser: NostrPublicUser = { pubkey, npub };
     if (outboxRelayList) {

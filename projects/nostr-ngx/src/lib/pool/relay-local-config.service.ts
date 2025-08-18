@@ -9,14 +9,14 @@ import { NostrConfig } from '../configs/nostr-config.interface';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { ProfileSessionStorage } from '../configs/profile-session.storage';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
 import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -94,7 +94,7 @@ export class RelayLocalConfigService {
     return Promise.resolve(config);
   }
 
-  private findProfileConfig(pubkey: HexString): Promise<Array<NostrEventOrigins>> {
+  private findProfileConfig(pubkey: HexString): Promise<Array<NostrEventWithOrigins>> {
     return this.nostrCache.query([
       {
         kinds: [kinds.Metadata],
@@ -128,14 +128,14 @@ export class RelayLocalConfigService {
     ]);
   }
 
-  async getCurrentUserOutboxRelays(): Promise<Array<RelayDomain>> {
+  async getCurrentUserOutboxRelays(): Promise<Array<RelayDomainString>> {
     const relays = await this.getCurrentUserRelays();
     const outbox = this.relayConverter.extractOutboxRelays(relays);
 
     return Promise.resolve(outbox);
   }
 
-  async getCurrentUserInboxRelays(): Promise<Array<RelayDomain>> {
+  async getCurrentUserInboxRelays(): Promise<Array<RelayDomainString>> {
     const relays = await this.getCurrentUserRelays();
     const inbox = this.relayConverter.extractInboxRelays(relays);
 
@@ -159,14 +159,14 @@ export class RelayLocalConfigService {
     return Promise.resolve(null);
   }
 
-  async getUserOutboxRelays(pubkey: HexString): Promise<Array<RelayDomain>> {
+  async getUserOutboxRelays(pubkey: HexString): Promise<Array<RelayDomainString>> {
     const relays = await this.getUserRelays(pubkey);
     const outbox = this.relayConverter.extractOutboxRelays(relays);
 
     return Promise.resolve(outbox);
   }
 
-  async getUserInboxRelays(pubkey: HexString): Promise<Array<RelayDomain>> {
+  async getUserInboxRelays(pubkey: HexString): Promise<Array<RelayDomainString>> {
     const relays = await this.getUserRelays(pubkey);
     const inbox = this.relayConverter.extractInboxRelays(relays);
 
@@ -224,38 +224,38 @@ export class RelayLocalConfigService {
    * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
    * @returns a user publically configured relay list
    */
-  getUserRelayList(userPublicAddress: string, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(userPublicAddress: string, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user list of blocked relays, using npub.
    */
-  getUserRelayList(npub: NPub, kind: BlockedRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(npub: NPub, kind: BlockedRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user list of blocked relays, using hexadecimal pubkey.
    */
-  getUserRelayList(pubkey: HexString, kind: BlockedRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(pubkey: HexString, kind: BlockedRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user configured relays for search, using npub.
    */
-  getUserRelayList(npub: NPub, kind: SearchRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(npub: NPub, kind: SearchRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user configured relays for search, using hexadecimal pubkey.
    */
-  getUserRelayList(pubkey: HexString, kind: SearchRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(pubkey: HexString, kind: SearchRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user configured relays for direct message, using npub.
    */
-  getUserRelayList(npub: NPub, kind: DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
+  getUserRelayList(npub: NPub, kind: DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
 
   /**
    * @returns user configured relays for direct message, using hexadecimal pubkey.
    */
-  getUserRelayList(pubkey: HexString, kind: DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
-  async getUserRelayList(userPublicAddress: string, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null> {
+  getUserRelayList(pubkey: HexString, kind: DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
+  async getUserRelayList(userPublicAddress: string, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null> {
     if (this.guard.isNPub(userPublicAddress)) {
       return this.getRelayListOnlyHavingNpub(userPublicAddress, kind);
     } else if (this.guard.isHexadecimal(userPublicAddress)) {
@@ -268,22 +268,22 @@ export class RelayLocalConfigService {
   /**
    * @returns user list of blocked relays, using npub.
    */
-  getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @returns user configured relays for search, using npub.
    */
-  getRelayListOnlyHavingNpub(npub: NPub, kind: SearchRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingNpub(npub: NPub, kind: SearchRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @returns user configured relays for direct message, using npub.
    */
-  getRelayListOnlyHavingNpub(npub: NPub, kind: DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingNpub(npub: NPub, kind: DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @param nip5 using npub
    * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
    * @returns a user publically configured relay list
    */
-  getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
-  async getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null> {
+  getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
+  async getRelayListOnlyHavingNpub(npub: NPub, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null> {
     const pubkey = this.nostrConverter.convertNPubToPubkey(npub);
     return this.getRelayListOnlyHavingPubkey(pubkey, kind);
   }
@@ -291,22 +291,22 @@ export class RelayLocalConfigService {
   /**
  * @returns user list of blocked relays, using hexadecimal pubkey.
  */
-  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @returns user configured relays for search, using hexadecimal pubkey.
    */
-  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: SearchRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: SearchRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @returns user configured relays for direct message, using hexadecimal pubkey.
    */
-  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
+  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
   /**
    * @param pubkey using pubkey hexadecimal
    * @param kind the relay list kind: 10006, blocked relays list; 10007, relays to use for search; 10050, relays for direct message. 
    * @returns a user publically configured relay list
    */
-  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null>;
-  async getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomain> | null> {
+  getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null>;
+  async getRelayListOnlyHavingPubkey(pubkey: HexString, kind: BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList): Promise<Array<RelayDomainString> | null> {
     const [relayListEvent] = await this.nostrCache.query([
       {
         kinds: [kind],

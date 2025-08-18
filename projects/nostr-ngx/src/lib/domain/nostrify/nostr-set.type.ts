@@ -1,5 +1,5 @@
 import { kinds } from "nostr-tools";
-import { NostrEventOrigins } from "../event/nostr-event-origins.interface";
+import { NostrEventWithOrigins } from "../event/nostr-event-with-origins.interface";
 
 /**
  * Nostr event implementation of the `Set` interface.
@@ -29,10 +29,10 @@ import { NostrEventOrigins } from "../event/nostr-event-origins.interface";
  * Any `Map` instance can be passed into `new NSet()`, making it compatible with
  * [lru-cache](https://www.npmjs.com/package/lru-cache), among others.
  */
-export class NostrSet implements Set<NostrEventOrigins> {
-  protected cache: Map<string, NostrEventOrigins>;
+export class NostrSet implements Set<NostrEventWithOrigins> {
+  protected cache: Map<string, NostrEventWithOrigins>;
 
-  constructor(map?: Map<string, NostrEventOrigins>) {
+  constructor(map?: Map<string, NostrEventWithOrigins>) {
     this.cache = map ?? new Map();
   }
 
@@ -40,7 +40,7 @@ export class NostrSet implements Set<NostrEventOrigins> {
     return this.cache.size;
   }
 
-  add(resultset: NostrEventOrigins): this {
+  add(resultset: NostrEventWithOrigins): this {
     this.#processDeletions(resultset);
 
     for (const e of this) {
@@ -55,7 +55,7 @@ export class NostrSet implements Set<NostrEventOrigins> {
     return this;
   }
 
-  #processDeletions(resultset: NostrEventOrigins): void {
+  #processDeletions(resultset: NostrEventWithOrigins): void {
     if (resultset.event.kind === kinds.EventDeletion) {
       for (const tag of resultset.event.tags) {
         if (tag[0] === 'e') {
@@ -72,35 +72,35 @@ export class NostrSet implements Set<NostrEventOrigins> {
     this.cache.clear();
   }
 
-  delete(resultset: NostrEventOrigins): boolean {
+  delete(resultset: NostrEventWithOrigins): boolean {
     return this.cache.delete(resultset.event.id);
   }
 
-  forEach(callbackfn: (resultset: NostrEventOrigins, key: NostrEventOrigins, set: typeof this) => void, thisArg?: any): void {
+  forEach(callbackfn: (resultset: NostrEventWithOrigins, key: NostrEventWithOrigins, set: typeof this) => void, thisArg?: any): void {
     return this.cache.forEach(event => callbackfn(event, event, this), thisArg);
   }
 
-  has(resultset: NostrEventOrigins): boolean {
+  has(resultset: NostrEventWithOrigins): boolean {
     return this.cache.has(resultset.event.id);
   }
 
-  *entries(): IterableIterator<[NostrEventOrigins, NostrEventOrigins]> {
+  *entries(): IterableIterator<[NostrEventWithOrigins, NostrEventWithOrigins]> {
     for (const event of this.values()) {
       yield [event, event];
     }
   }
 
-  keys(): IterableIterator<NostrEventOrigins> {
+  keys(): IterableIterator<NostrEventWithOrigins> {
     return this.values();
   }
 
-  *values(): IterableIterator<NostrEventOrigins> {
+  *values(): IterableIterator<NostrEventWithOrigins> {
     for (const event of NostrSet.sortEvents([...this.cache.values()])) {
       yield event;
     }
   }
 
-  [Symbol.iterator](): IterableIterator<NostrEventOrigins> {
+  [Symbol.iterator](): IterableIterator<NostrEventWithOrigins> {
     return this.values();
   }
 
@@ -120,7 +120,7 @@ export class NostrSet implements Set<NostrEventOrigins> {
    * Both events must be replaceable, belong to the same kind and pubkey (and `d` tag, for parameterized events), and the `event` must be newer than the `target`.
    */
   // eslint-disable-next-line complexity
-  protected static replaces(resultset: NostrEventOrigins, target: NostrEventOrigins): boolean {
+  protected static replaces(resultset: NostrEventWithOrigins, target: NostrEventWithOrigins): boolean {
     const { kind, pubkey } = resultset.event;
 
     if (NostrSet.isReplaceable(kind)) {
@@ -145,7 +145,7 @@ export class NostrSet implements Set<NostrEventOrigins> {
    *
    * `event` must be a kind `5` event, and both events must share the same `pubkey`.
    */
-  protected static deletes(resultset: NostrEventOrigins, target: NostrEventOrigins): boolean {
+  protected static deletes(resultset: NostrEventWithOrigins, target: NostrEventWithOrigins): boolean {
     const { kind, pubkey, tags } = resultset.event;
     if (kind === kinds.EventDeletion && pubkey === target.event.pubkey) {
       for (const [name, value] of tags) {
@@ -162,8 +162,8 @@ export class NostrSet implements Set<NostrEventOrigins> {
    * and then by the event `id` (lexicographically) in case of ties.
    * This mutates the array.
    */
-  protected static sortEvents(events: NostrEventOrigins[]): NostrEventOrigins[] {
-    return events.sort((a: NostrEventOrigins, b: NostrEventOrigins): number => {
+  protected static sortEvents(events: NostrEventWithOrigins[]): NostrEventWithOrigins[] {
+    return events.sort((a: NostrEventWithOrigins, b: NostrEventWithOrigins): number => {
       if (a.event.created_at !== b.event.created_at) {
         return b.event.created_at - a.event.created_at;
       }

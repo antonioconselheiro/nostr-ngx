@@ -1,4 +1,4 @@
-import { RelayDomain } from "../relay-domain.interface";
+import { RelayDomainString } from "../relay-domain-string.type";
 
 /**
  * Relay List
@@ -10,4 +10,4 @@ import { RelayDomain } from "../relay-domain.interface";
  * References:
  * https://github.com/nostr-protocol/nips/blob/dde8c81a87f01131ed2eec0dd653cd5b79900b82/57.md
  */
-export type TagRelayList = ['relays', ...Array<RelayDomain>];
+export type TagRelayList = ['relays', ...Array<RelayDomainString>];

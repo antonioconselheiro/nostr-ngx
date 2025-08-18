@@ -1,7 +1,7 @@
 import { getFilterLimit } from 'nostr-tools';
-import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
-import { NpoolRouterOptions } from '../../pool/npool-router.options';
-import { RelayDomain } from '../event/relay-domain.interface';
+import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
+import { PoolRouterOptions } from '../../pool/pool-router.options';
+import { RelayDomainString } from '../event/relay-domain-string.type';
 import { Machina } from './machina';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from './nostr-relay-message.type';
@@ -59,12 +59,12 @@ export class NostrPool implements NRelay {
     return 30000 <= kind && kind < 40000;
   }
   
-  private relays = new Map<RelayDomain, NRelay>();
+  private relays = new Map<RelayDomainString, NRelay>();
 
-  constructor(private opts: NpoolRouterOptions) {}
+  constructor(private opts: PoolRouterOptions) {}
 
   /** Get or create a relay instance for the given URL. */
-  relay(url: RelayDomain): NRelay {
+  relay(url: RelayDomainString): NRelay {
     const relay = this.relays.get(url);
 
     if (relay) {
@@ -89,8 +89,8 @@ export class NostrPool implements NRelay {
     }
     const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
-    const eoses = new Set<RelayDomain>();
-    const closes = new Set<RelayDomain>();
+    const eoses = new Set<RelayDomainString>();
+    const closes = new Set<RelayDomainString>();
 
     for (const url of routes.keys()) {
       const relay = this.relay(url);
@@ -125,7 +125,7 @@ export class NostrPool implements NRelay {
     }
   }
 
-  async event(event: NostrEventOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
+  async event(event: NostrEventWithOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
     const relayUrls = await this.opts.eventRouter(event);
     if (relayUrls.length < 1) {
       return;
@@ -136,7 +136,7 @@ export class NostrPool implements NRelay {
     );
   }
 
-  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventOrigins[]> {
+  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventWithOrigins[]> {
     const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);

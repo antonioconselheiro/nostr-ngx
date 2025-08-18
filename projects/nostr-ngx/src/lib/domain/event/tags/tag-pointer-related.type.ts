@@ -2,7 +2,7 @@ import { HexString } from '../primitive/hex-string.type';
 import { NostrEventRelation } from '../nostr-event-relation.interface';
 import { TagPointer } from './tag-pointer.type';
 import { TagReference } from './tag-reference.type';
-import { RelayDomain } from '../relay-domain.interface';
+import { RelayDomainString } from '../relay-domain-string.type';
 
 /**
  * Pointer Related
@@ -18,4 +18,4 @@ import { RelayDomain } from '../relay-domain.interface';
  */
 export type TagPointerRelated<Type extends string> = TagReference<Type> |
   TagPointer<Type> |
-  [Type, HexString, RelayDomain | '', NostrEventRelation, ...string[]];
+  [Type, HexString, RelayDomainString | '', NostrEventRelation, ...string[]];

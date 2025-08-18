@@ -1,6 +1,6 @@
 import { LRUCache } from 'lru-cache';
 import { matchFilters } from 'nostr-tools';
-import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCOUNT } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
@@ -28,17 +28,17 @@ import { NostrStore } from './nostr-store.type';
  * ```
  */
 export class NCache extends NostrSet implements NostrStore {
-  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventOrigins>>) {
+  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventWithOrigins>>) {
     //  FIXME: preciso dar um jeito de harmonizar esta tipagem corretamente
-    super(new LRUCache<string, NostrEventOrigins>(...args) as any as Map<string, NostrEventOrigins>);
+    super(new LRUCache<string, NostrEventWithOrigins>(...args) as any as Map<string, NostrEventWithOrigins>);
   }
 
-  async event(event: NostrEventOrigins): Promise<void> {
+  async event(event: NostrEventWithOrigins): Promise<void> {
     this.add(event);
   }
 
-  async query(filters: NostrFilter[]): Promise<NostrEventOrigins[]> {
-    const resultsets: NostrEventOrigins[] = [];
+  async query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]> {
+    const resultsets: NostrEventWithOrigins[] = [];
 
     for (const resultset of this) {
       if (matchFilters(filters, resultset.event)) {

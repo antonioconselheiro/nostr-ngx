@@ -10,7 +10,7 @@ import { RelayLocalConfigService } from "./relay-local-config.service";
 import { RouterMatcher } from "./router-matcher.interface";
 import { NostrEvent } from "../domain/event/nostr-event.interface";
 import { DirectMessageRelaysList, RelayList } from "nostr-tools/kinds";
-import { RelayDomain } from "../domain/event/relay-domain.interface";
+import { RelayDomainString } from "../domain/event/relay-domain-string.type";
 
 /**
  * TODO: incluir roteamento para addressed event
@@ -63,7 +63,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   // relays para encontrar eventos. Enfim, preciso entender isso para saber se
   // precisarei fazer modificações. 
   ///
-  defaultSearch(): Array<RelayDomain> {
+  defaultSearch(): Array<RelayDomainString> {
     return this.nostrConfig.searchFallback;
   }
 
@@ -71,7 +71,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return this.nostrConfig.defaultFallback;
   }
 
-  async requestRouter(): Promise<Array<RelayDomain>> {
+  async requestRouter(): Promise<Array<RelayDomainString>> {
     const mainRelayRecord = await this.relayConfigService.getCurrentUserRelays();
     return this.relayConverter.extractInboxRelays(mainRelayRecord);
   }
@@ -80,17 +80,17 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return event.kind === kinds.EncryptedDirectMessage || event.kind === kinds.PrivateDirectMessage;
   }
 
-  private async routesToDirectMessage(event: NostrEvent): Promise<Array<RelayDomain>> {
+  private async routesToDirectMessage(event: NostrEvent): Promise<Array<RelayDomainString>> {
     const senderDMRelays = await this.relayConfigService.getUserRelayList(event.pubkey, DirectMessageRelaysList);
     const pointers = this.getPTagsAsProfilePointer(event)
     const fellows = pointers.map(pointer => this.relayConfigService.getUserRelayList(pointer.pubkey, DirectMessageRelaysList));
     const fellowRelaysFromPointers = pointers.map(pointer => pointer.relays);
     const fellowDMRelays = await Promise.all(fellows);
-    const list = new Array<RelayDomain | null>()
+    const list = new Array<RelayDomainString | null>()
       .concat(senderDMRelays || [])
       .concat(fellowDMRelays.flat(2))
-      .concat(fellowRelaysFromPointers.flat(2).filter((r): r is RelayDomain => !!r))
-      .filter((r): r is RelayDomain => !!r);
+      .concat(fellowRelaysFromPointers.flat(2).filter((r): r is RelayDomainString => !!r))
+      .filter((r): r is RelayDomainString => !!r);
 
     console.log('routing direct message event, relays: ', list);
     return Promise.resolve(list);
@@ -110,7 +110,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
    * Relays outbox do usuário solicitante e relays inbox do usuário destino.
    * FIXME: reler sobre essa abordagem, pode ser que eu não esteja fazendo o roteamento correto para interação
    */
-  private async routesToUserOutboxAndFellowInbox(event: NostrEvent): Promise<Array<RelayDomain>> {
+  private async routesToUserOutboxAndFellowInbox(event: NostrEvent): Promise<Array<RelayDomainString>> {
     const relayRecord = await this.relayConfigService.getUserRelays(event.pubkey);
     const senderOutbox = this.relayConverter.extractOutboxRelays(relayRecord);
 
@@ -126,7 +126,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
       //  too much relays is bad
       ...fellowInbox.splice(0, 3),
       //  including all relays included as pointers
-      ...fellowRelaysFromPointers.flat(2).filter((r): r is RelayDomain => !!r)
+      ...fellowRelaysFromPointers.flat(2).filter((r): r is RelayDomainString => !!r)
     ];
 
     console.log('routing interaction to user outbox and fellows inbox, relays: ', relayList);
@@ -155,7 +155,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   /**
    * Update old write relays and new write relays
    */
-  private async routerToUpdateMainRelayList(event: NostrEvent<RelayList>): Promise<Array<RelayDomain>> {
+  private async routerToUpdateMainRelayList(event: NostrEvent<RelayList>): Promise<Array<RelayDomainString>> {
     //  Updating old relay list helps users listen to these knows you don't use this relay anymore.
     //  It will load the last published relay list from ncache or from indexeddb, if user is editing
     //  relay list the event will be surely loaded
@@ -174,7 +174,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
   /**
    * this is not for sending private message, is for update relay list for sending private message
    */
-  private async routerToUpdateDirectMessageRelayList(event: NostrEvent<DirectMessageRelaysList>): Promise<Array<RelayDomain>> {
+  private async routerToUpdateDirectMessageRelayList(event: NostrEvent<DirectMessageRelaysList>): Promise<Array<RelayDomainString>> {
     //  load author write relays
     const authorRelayRecord = await this.relayConfigService.getUserRelays(event.pubkey);
     const authorWriteRelays = this.relayConverter.extractRelaysOfRelayRecord(authorRelayRecord, 'write');
@@ -194,7 +194,7 @@ export class DefaultRouterMatcher implements RouterMatcher {
     return Promise.resolve(relayList);
   }
 
-  private async defaultRouting(event: NostrEvent): Promise<Array<RelayDomain>> {
+  private async defaultRouting(event: NostrEvent): Promise<Array<RelayDomainString>> {
     const authorRelayConfig = await this.relayConfigService.getUserRelays(event.pubkey);
     const authorWriteRelays = this.relayConverter.extractRelaysOfRelayRecord(authorRelayConfig, 'write');
 

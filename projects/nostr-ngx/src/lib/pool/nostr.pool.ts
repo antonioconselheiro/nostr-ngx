@@ -4,17 +4,11 @@ import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { FacadeNPool } from './facade.npool';
-import { NPoolRequestOptions } from './npool-request.options';
+import { PoolRequestOptions } from './pool-request.options';
 import { RelayRouterService } from './relay-router.service';
 
-// TODO: pool must be able to identify relay connection status
-/**
- * This class helps you interact with a websocket pool. 
- * "Clients SHOULD open a single websocket connection to each relay and use it for all their subscriptions."
- * https://github.com/nostr-protocol/nips/blob/master/01.md#communication-between-clients-and-relays
- */
 @Injectable({
   providedIn: 'root'
 })
@@ -27,12 +21,10 @@ export class NostrPool extends FacadeNPool {
     super(routerService, nostrCache);
   }
 
-  observe(filters: Array<NostrFilter>, opts: NPoolRequestOptions = {}): Observable<NostrEventOrigins> {
+  observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
     console.info('[[subscribe filter]]', filters);
     const controller = new AbortController();
-    const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
-    opts.signal = signal;
-    const subject = new Subject<NostrEventOrigins>();
+    const subject = new Subject<NostrEventWithOrigins>();
 
     (async () => {
       for await (const msg of this.req(filters, opts)) {
@@ -58,12 +50,12 @@ export class NostrPool extends FacadeNPool {
 
   override req(
     filters: Array<NostrFilter>,
-    opts?: NPoolRequestOptions
+    opts?: PoolRequestOptions
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
     return super.req(filters, opts);
   }
 
-  mergeOptions(optsA?: NPoolRequestOptions, optsB?: NPoolRequestOptions): NPoolRequestOptions {
+  mergeOptions(optsA?: PoolRequestOptions, optsB?: PoolRequestOptions): PoolRequestOptions {
     if (optsA && optsB) {
       return this.mergeDefinedOptions(optsA, optsB);
     } else if (optsA) {
@@ -75,25 +67,12 @@ export class NostrPool extends FacadeNPool {
     }
   }
 
-  // FIXME: solve cyclomatic complexity for this method by spliting it in minor pieces of logic
-  // eslint-disable-next-line complexity
-  private mergeDefinedOptions(optsA: NPoolRequestOptions, optsB: NPoolRequestOptions): NPoolRequestOptions {
+  private mergeDefinedOptions(optsA: PoolRequestOptions, optsB: PoolRequestOptions): PoolRequestOptions {
     const ignoreCache = optsA.ignoreCache || optsB.ignoreCache || false;
     const include = [ ...optsA.include || [], ...optsB.include || [] ];
     const useOnly = [ ...optsA.useOnly || [], ...optsB.useOnly || [] ];
-    let signal: AbortSignal | null = null;
-    if (optsA.signal && optsB.signal) {
-      signal = AbortSignal.any([optsA.signal, optsB.signal]);
-    } else if (optsA.signal) {
-      signal = optsA.signal;
-    } else if (optsB.signal) {
-      signal = optsB.signal;
-    }
 
-    const opts: NPoolRequestOptions = {};
-    if (signal) {
-      opts.signal = signal;
-    }
+    const opts: PoolRequestOptions = {};
 
     if (ignoreCache) {
       opts.ignoreCache = true;

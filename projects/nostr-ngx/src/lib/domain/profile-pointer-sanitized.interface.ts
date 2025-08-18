@@ -1,7 +1,7 @@
 import { HexString } from "./event/primitive/hex-string.type";
-import { RelayDomain } from "./event/relay-domain.interface";
+import { RelayDomainString } from "./event/relay-domain-string.type";
 
 export interface ProfilePointerSanitized {
   pubkey: HexString;
-  relays: Array<RelayDomain>;
+  relays: Array<RelayDomainString>;
 }

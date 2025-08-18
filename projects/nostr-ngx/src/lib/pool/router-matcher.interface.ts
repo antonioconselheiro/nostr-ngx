@@ -1,5 +1,5 @@
 import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { EventRouterMatcher } from './event-router-matcher.interface';
 import { RelayRecord } from 'nostr-tools/relay';
 
@@ -24,10 +24,10 @@ export interface RouterMatcher {
   /**
    * List of relays to find users relay list
    */
-  defaultSearch: () => Array<RelayDomain>;
+  defaultSearch: () => Array<RelayDomainString>;
 
   /**
    * relays to request
    */
-  requestRouter: () => Promise<Array<RelayDomain>>;
+  requestRouter: () => Promise<Array<RelayDomainString>>;
 }

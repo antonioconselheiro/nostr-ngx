@@ -6,8 +6,8 @@ import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountSession } from '../domain/account/compose/account-session.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrGuard } from './nostr.guard';
 
 @Injectable({
@@ -19,9 +19,9 @@ export class RelayConverter {
     private guard: NostrGuard
   ) { }
 
-  private convertRelayMetadataFromTag(tag: string[]): Array<RelayDomain> {
-    const relays = tag.filter((relay): relay is RelayDomain => this.guard.isRelayString(relay));
-    const list: Array<RelayDomain> = [];
+  private convertRelayMetadataFromTag(tag: string[]): Array<RelayDomainString> {
+    const relays = tag.filter((relay): relay is RelayDomainString => this.guard.isRelayString(relay));
+    const list: Array<RelayDomainString> = [];
 
     Object.values(relays).forEach(relay => {
       if (relay) {
@@ -32,12 +32,12 @@ export class RelayConverter {
     return list;
   }
 
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList>): Array<RelayDomain>;
-  convertRelayEventToRelayList(event: NostrEvent<SearchRelaysList>): Array<RelayDomain>;
-  convertRelayEventToRelayList(event: NostrEvent<DirectMessageRelaysList>): Array<RelayDomain>;
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomain>;
-  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomain> {
-    let list: Array<RelayDomain> = [];
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList>): Array<RelayDomainString>;
+  convertRelayEventToRelayList(event: NostrEvent<SearchRelaysList>): Array<RelayDomainString>;
+  convertRelayEventToRelayList(event: NostrEvent<DirectMessageRelaysList>): Array<RelayDomainString>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomainString>;
+  convertRelayEventToRelayList(event: NostrEvent<BlockedRelaysList | SearchRelaysList | DirectMessageRelaysList>): Array<RelayDomainString> {
+    let list: Array<RelayDomainString> = [];
     event.tags.forEach(tag => list = [...list, ...this.convertRelayMetadataFromTag(tag)]);
 
     return list;
@@ -76,13 +76,13 @@ export class RelayConverter {
    *  
    * Read tag 'relays' and tag 'r', read either the relay from tag 'e' and from tag 'p'
    */
-  convertEventToRelayList(event: NostrEvent): Array<RelayDomain> {
+  convertEventToRelayList(event: NostrEvent): Array<RelayDomainString> {
     const shouldIgnore = [kinds.RelayList].includes(event.kind);
     if (shouldIgnore) {
       return [];
     }
 
-    const relaysFound: Array<RelayDomain> = [];
+    const relaysFound: Array<RelayDomainString> = [];
     event.tags.forEach(tags => {
       const [type, ...tagValues] = tags;
       switch (type) {
@@ -113,7 +113,7 @@ export class RelayConverter {
   }
 
   convertEventsToRelayConfig(
-    resultsets: Array<NostrEventOrigins>,
+    resultsets: Array<NostrEventWithOrigins>,
     patchExistingUser?: AccountSession
   ): { [pubkey: HexString]: NostrUserRelays } {
     const record: { [pubkey: HexString]: NostrUserRelays } = {};
@@ -143,28 +143,28 @@ export class RelayConverter {
   /**
    * extract write relays
    */
-  extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomain> {
+  extractOutboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomainString> {
     return this.extractRelaysOfRelayRecord(userRelayConfig, 'write');
   }
 
   /**
    * extract read relays
    */
-  extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomain> {
+  extractInboxRelays(userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>): Array<RelayDomainString> {
     return this.extractRelaysOfRelayRecord(userRelayConfig, 'read');
   }
 
   extractRelaysOfRelayRecord(
     userRelayConfig: NostrUserRelays | null | Array<NostrUserRelays | null>,
     relayType: 'read' | 'write'
-  ): Array<RelayDomain> {
+  ): Array<RelayDomainString> {
     if (userRelayConfig instanceof Array) {
       return userRelayConfig.map(record => this.extractOutboxRelays(record)).flat(2);
     } else if (userRelayConfig && userRelayConfig.general) {
       const general = userRelayConfig.general;
       return Object
         .keys(general)
-        .filter((relay): relay is RelayDomain => {
+        .filter((relay): relay is RelayDomainString => {
           if (this.guard.isRelayString(relay)) {
             return general[relay][relayType];
           }

@@ -1,13 +1,13 @@
-import { NostrEventOrigins } from "../event/nostr-event-origins.interface";
+import { NostrEventWithOrigins } from "../event/nostr-event-with-origins.interface";
 import { NostrFilter } from "./nostr-filter.type";
 import { NostrRelayCOUNT } from "./nostr-relay-message.type";
 
 /** Nostr event store. */
 export interface NostrStore {
   /** Add an event to the store (equivalent of `EVENT` verb). */
-  event(event: NostrEventOrigins, opts?: { signal?: AbortSignal }): Promise<void>;
+  event(event: NostrEventWithOrigins, opts?: { signal?: AbortSignal }): Promise<void>;
   /** Get an array of events matching filters. */
-  query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventOrigins[]>;
+  query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventWithOrigins[]>;
   /** Get the number of events matching filters (equivalent of `COUNT` verb). */
   count?(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrRelayCOUNT[2]>;
   /** Remove events from the store. This action is temporary, unless a kind `5` deletion is issued. */

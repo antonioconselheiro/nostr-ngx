@@ -1,9 +1,9 @@
 import { RelayRecord } from 'nostr-tools/relay';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 
 export interface NostrUserRelays {
   general?: RelayRecord;
-  directMessage?: Array<RelayDomain>;
-  search?: Array<RelayDomain>;
-  blocked?: Array<RelayDomain>;
+  directMessage?: Array<RelayDomainString>;
+  search?: Array<RelayDomainString>;
+  blocked?: Array<RelayDomainString>;
 }

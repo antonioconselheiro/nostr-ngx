@@ -15,7 +15,7 @@ import { AccountSession } from '../domain/account/compose/account-session.type';
 import { Account } from '../domain/account/compose/account.interface';
 import { Base64String } from '../domain/base64-string.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
@@ -374,14 +374,14 @@ export class AccountFactory {
   }
 
   private getPointerDetails(metadata: NostrMetadata | null, nip05: ProfilePointer | null): AccountNip05Detail {
-    let relays = new Array<RelayDomain>(),
+    let relays = new Array<RelayDomainString>(),
       address: Nip05 | null = null,
       pointer = null;
 
     if (isNip05(metadata?.nip05)) {
       address = metadata.nip05;
       if (nip05) {
-        relays = nip05.relays as RelayDomain[] | undefined || [];
+        relays = nip05.relays as RelayDomainString[] | undefined || [];
         pointer = nip05;
       }
     }

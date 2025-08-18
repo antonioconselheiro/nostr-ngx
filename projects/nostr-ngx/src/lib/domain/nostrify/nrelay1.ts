@@ -1,8 +1,8 @@
 
 import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
-import { NostrEventOrigins } from '../event/nostr-event-origins.interface';
-import { RelayDomain } from '../event/relay-domain.interface';
+import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
+import { RelayDomainString } from '../event/relay-domain-string.type';
 import { Machina } from './machina';
 import { NostrClientMessage, NostrClientREQ } from './nostr-client-message.type';
 import { NostrFilter } from './nostr-filter.type';
@@ -33,7 +33,7 @@ export class NRelay1 implements NRelay {
   private subscriptions = new Map<string, NostrClientREQ>();
   private ee = new EventTarget();
 
-  constructor(url: RelayDomain, opts: NRelay1Opts = {}) {
+  constructor(url: RelayDomainString, opts: NRelay1Opts = {}) {
     const { auth, backoff = new ExponentialBackoff(1000), verifyEvent = _verifyEvent } = opts;
 
     this.socket = new WebsocketBuilder(url)
@@ -122,7 +122,7 @@ export class NRelay1 implements NRelay {
     }
   }
 
-  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventOrigins[]> {
+  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventWithOrigins[]> {
     const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
@@ -142,7 +142,7 @@ export class NRelay1 implements NRelay {
     return [...events];
   }
 
-  async event(origins: NostrEventOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
+  async event(origins: NostrEventWithOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
     const result = this.once(`ok:${origins.event.id}`, opts?.signal);
 

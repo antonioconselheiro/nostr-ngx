@@ -6,7 +6,7 @@ import { NCache } from "../domain/nostrify/ncache.type";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
 import { NostrSet } from "../domain/nostrify/nostr-set.type";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
-import { NostrEventOrigins } from "../domain/event/nostr-event-origins.interface";
+import { NostrEventWithOrigins } from "../domain/event/nostr-event-with-origins.interface";
 
 //  TODO: include index by create at
 //  TODO: include index by tag
@@ -20,22 +20,22 @@ export class InMemoryEventCache extends NCache {
   private authorIndex = new Map<HexString, Array<HexString>>();
   
   constructor() {
-    super(new LRUCache<HexString, NostrEventOrigins>({
+    super(new LRUCache<HexString, NostrEventWithOrigins>({
       //  TODO: make this configurable
       max: 5000,
       dispose: event => this.delete(event)
     }));
   }
 
-  get(idEvent: HexString): NostrEventOrigins | null {
+  get(idEvent: HexString): NostrEventWithOrigins | null {
     return this.cache.get(idEvent) || null;
   }
 
-  override async query(filters: NostrFilter[]): Promise<NostrEventOrigins[]> {
+  override async query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]> {
     return Promise.resolve(this.syncQuery(filters));
   }
 
-  syncQuery(filters: NostrFilter[]): NostrEventOrigins[] {
+  syncQuery(filters: NostrFilter[]): NostrEventWithOrigins[] {
     if (this.shouldLoadFromIndex(filters)) {
 
       const nset = new NostrSet();
@@ -57,8 +57,8 @@ export class InMemoryEventCache extends NCache {
     }
   }
 
-  private queryAll(filters: NostrFilter[]): NostrEventOrigins[] {
-    const events = new Array<NostrEventOrigins>();
+  private queryAll(filters: NostrFilter[]): NostrEventWithOrigins[] {
+    const events = new Array<NostrEventWithOrigins>();
 
     for (const origins of this) {
       if (matchFilters(filters, origins.event)) {
@@ -86,7 +86,7 @@ export class InMemoryEventCache extends NCache {
 
     ids
       .map(id => this.cache.get(id))
-      .filter((origins): origins is NostrEventOrigins => origins && matchFilters([filter], origins.event) || false)
+      .filter((origins): origins is NostrEventWithOrigins => origins && matchFilters([filter], origins.event) || false)
       .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
@@ -94,7 +94,7 @@ export class InMemoryEventCache extends NCache {
       });
   }
 
-  protected indexInMemory(origins: NostrEventOrigins): this {
+  protected indexInMemory(origins: NostrEventWithOrigins): this {
     const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
     const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
 
@@ -116,7 +116,7 @@ export class InMemoryEventCache extends NCache {
     return !shouldNot;
   }
 
-  override delete(origins: NostrEventOrigins): boolean {
+  override delete(origins: NostrEventWithOrigins): boolean {
     const removed = super.delete(origins);
 
     if (removed) {

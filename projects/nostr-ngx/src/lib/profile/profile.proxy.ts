@@ -23,8 +23,8 @@ import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
-import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { PoolRequestOptions } from '../pool/pool-request.options';
 import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
 import { ProfileCache } from './profile.cache';
@@ -60,12 +60,12 @@ export class ProfileProxy {
    * load one account from pool or from the cache the metadata and relay configs,
    * if loaded from pool, it will be added to cache
    */
-  loadAccount(pubkey: HexString, minimalState: 'calculated', opts?: NPoolRequestOptions): Promise<Account>;
-  loadAccount(pubkey: HexString, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<AccountRenderable>;
-  loadAccount(pubkey: HexString, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<AccountOpenable>;
-  loadAccount(pubkey: HexString, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<AccountSession>;
-  loadAccount(pubkey: HexString, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account>;
-  async loadAccount(pubkey: HexString, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccount(pubkey: HexString, minimalState: 'calculated', opts?: PoolRequestOptions): Promise<Account>;
+  loadAccount(pubkey: HexString, minimalState: 'essential', opts?: PoolRequestOptions): Promise<AccountRenderable>;
+  loadAccount(pubkey: HexString, minimalState: 'pointable', opts?: PoolRequestOptions): Promise<AccountOpenable>;
+  loadAccount(pubkey: HexString, minimalState: 'complete', opts?: PoolRequestOptions): Promise<AccountSession>;
+  loadAccount(pubkey: HexString, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Account>;
+  async loadAccount(pubkey: HexString, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Account> {
     if (!opts || !opts.ignoreCache) {
       const account = this.profileCache.get(pubkey);
       if (account) {
@@ -129,7 +129,7 @@ export class ProfileProxy {
    * load events related to pubkey and compose one account object
    * this account contains: pubkey + relay + metadata
    */
-  async loadAccountEssential(account: AccountCalculated, opts?: NPoolRequestOptions): Promise<AccountEssential> {
+  async loadAccountEssential(account: AccountCalculated, opts?: PoolRequestOptions): Promise<AccountEssential> {
     const events = await this.profileNostr.loadProfileConfig(account.pubkey, opts);
     const relayRecord = this.relayConverter.convertEventsToRelayConfig(events);
     const metadataRecord = this.getProfileMetadata(events);
@@ -199,10 +199,10 @@ export class ProfileProxy {
     return this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
   }
   
-  private getProfileMetadata(events: NostrEventOrigins[]): { [pubkey: HexString]: NostrMetadata } {
+  private getProfileMetadata(events: NostrEventWithOrigins[]): { [pubkey: HexString]: NostrMetadata } {
     const record: { [pubkey: HexString]: NostrMetadata } = {};
     events
-      .filter((origins): origins is NostrEventOrigins<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
+      .filter((origins): origins is NostrEventWithOrigins<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
       .forEach(origin => {
         // FIXME: include metadata validation .pipe(n.metadata())
         record[origin.event.pubkey] = JSON.parse(origin.event.content);
@@ -211,17 +211,17 @@ export class ProfileProxy {
     return record;
   }
 
-  loadAccountUsingNPub(npub: NPub, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccountUsingNPub(npub: NPub, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Account> {
     const { data } = decode(npub);
     return this.loadAccount(data, minimalState, opts);
   }
 
-  loadAccountUsingNProfile(nprofile: NProfile, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccountUsingNProfile(nprofile: NProfile, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Account> {
     const { data } = decode(nprofile);
     return this.loadAccountUsingProfilePointer(data, minimalState, opts);
   }
 
-  async loadAccountUsingNip05(nip05: Nip05, minimalState: 'pointable' | 'complete' | 'authenticable', opts?: NPoolRequestOptions): Promise<Account | null> {
+  async loadAccountUsingNip05(nip05: Nip05, minimalState: 'pointable' | 'complete' | 'authenticable', opts?: PoolRequestOptions): Promise<Account | null> {
     const pointer = await this.nip05Proxy.queryProfile(nip05);
 
     if (pointer) {
@@ -231,18 +231,18 @@ export class ProfileProxy {
     }
   }
 
-  loadAccountUsingProfilePointer(pointer: ProfilePointer, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Account> {
+  loadAccountUsingProfilePointer(pointer: ProfilePointer, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Account> {
     opts = opts || {};
     opts.include = opts.include ? [...opts.include, pointer] : [pointer];
     return this.loadAccount(pointer.pubkey, minimalState, opts);
   }
 
-  loadAccounts(pubkeys: Array<HexString>, minimalState: 'calculated', opts?: NPoolRequestOptions): Promise<Array<Account>>;
-  loadAccounts(pubkeys: Array<HexString>, minimalState: 'essential', opts?: NPoolRequestOptions): Promise<Array<AccountRenderable>>;
-  loadAccounts(pubkeys: Array<HexString>, minimalState: 'pointable', opts?: NPoolRequestOptions): Promise<Array<AccountPointable | AccountComplete>>;
-  loadAccounts(pubkeys: Array<HexString>, minimalState: 'complete', opts?: NPoolRequestOptions): Promise<Array<AccountComplete>>;
-  loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>>;
-  async loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+  loadAccounts(pubkeys: Array<HexString>, minimalState: 'calculated', opts?: PoolRequestOptions): Promise<Array<Account>>;
+  loadAccounts(pubkeys: Array<HexString>, minimalState: 'essential', opts?: PoolRequestOptions): Promise<Array<AccountRenderable>>;
+  loadAccounts(pubkeys: Array<HexString>, minimalState: 'pointable', opts?: PoolRequestOptions): Promise<Array<AccountPointable | AccountComplete>>;
+  loadAccounts(pubkeys: Array<HexString>, minimalState: 'complete', opts?: PoolRequestOptions): Promise<Array<AccountComplete>>;
+  loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Array<Account>>;
+  async loadAccounts(pubkeys: Array<HexString>, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Array<Account>> {
     const accounts = this.readCache(pubkeys, opts);
     if (minimalState === 'calculated') {
       return accounts;
@@ -266,7 +266,7 @@ export class ProfileProxy {
     return this.patchAccountsToComplete(accountsWithCompleteInfo);
   }
 
-  readCache(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Array<Account> {
+  readCache(pubkeys: Array<HexString>, opts?: PoolRequestOptions): Array<Account> {
     return pubkeys.map(pubkey => {
       if (!opts || !opts.ignoreCache) {
         const account = this.profileCache.get(pubkey);
@@ -279,7 +279,7 @@ export class ProfileProxy {
     });
   }
 
-  async patchAccountsToEssential(accounts: Array<Account>, opts?: NPoolRequestOptions): Promise<Array<AccountRenderable>> {
+  async patchAccountsToEssential(accounts: Array<Account>, opts?: PoolRequestOptions): Promise<Array<AccountRenderable>> {
     const notLoadedPubkeys = accounts
       .filter(account => [ 'calculated', 'raw' ].includes(account.state))
       .map(account => account.pubkey);
@@ -336,7 +336,7 @@ export class ProfileProxy {
     return completeLoadedAccounts;
   }
 
-  loadAccountsUsingNProfile(nprofiles: Array<NProfile>, minimalState: AccountState, opts?: NPoolRequestOptions): Promise<Array<Account>> {
+  loadAccountsUsingNProfile(nprofiles: Array<NProfile>, minimalState: AccountState, opts?: PoolRequestOptions): Promise<Array<Account>> {
     const include: ProfilePointer[] = [];
     const pubkeys = nprofiles.map(nprofile => {
       const { data } = decode(nprofile);

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { BlockedRelaysList, DirectMessageRelaysList, Metadata, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { Observable } from 'rxjs';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrPool } from '../pool/nostr.pool';
-import { NPoolRequestOptions } from '../pool/npool-request.options';
+import { PoolRequestOptions } from '../pool/pool-request.options';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class ProfileNostr {
     private nostrPool: NostrPool
   ) { }
 
-  loadProfilesConfig(pubkeys: Array<HexString>, opts?: NPoolRequestOptions): Promise<Array<NostrEventOrigins>> {
+  loadProfilesConfig(pubkeys: Array<HexString>, opts?: PoolRequestOptions): Promise<Array<NostrEventWithOrigins>> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
@@ -32,7 +32,7 @@ export class ProfileNostr {
     ], opts);
   }
 
-  loadProfileConfig(pubkey: HexString, opts?: NPoolRequestOptions): Promise<Array<NostrEventOrigins>> {
+  loadProfileConfig(pubkey: HexString, opts?: PoolRequestOptions): Promise<Array<NostrEventWithOrigins>> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
@@ -71,7 +71,7 @@ export class ProfileNostr {
   /**
    * FIXME: maybe should receive and array
    */
-  listenUserConfigUpdates(pubkey: HexString, opts?: NPoolRequestOptions): Observable<NostrEventOrigins> {
+  listenUserConfigUpdates(pubkey: HexString, opts?: PoolRequestOptions): Observable<NostrEventWithOrigins> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.observe([

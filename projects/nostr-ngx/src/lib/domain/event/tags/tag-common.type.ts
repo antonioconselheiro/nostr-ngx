@@ -1,5 +1,5 @@
 import { HexString } from "../primitive/hex-string.type";
-import { RelayDomain } from "../relay-domain.interface";
+import { RelayDomainString } from "../relay-domain-string.type";
 
 /**
  * Tags supported in all events
@@ -19,6 +19,6 @@ export type TagCommon = ['expiration', `${number}`] |
   ['t', string] |
   ['d', string] |
   ['a', `${number}:${HexString}:${string}`] |
-  ['a', `${number}:${HexString}:${string}`, RelayDomain] |
+  ['a', `${number}:${HexString}:${string}`, RelayDomainString] |
   ['nonce', `${number}`, `${number}`] |
-  ['zap', HexString, RelayDomain, `${number}` ];
+  ['zap', HexString, RelayDomainString, `${number}` ];

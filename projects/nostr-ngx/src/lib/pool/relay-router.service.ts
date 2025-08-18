@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@angular/core';
 import { nip19, kinds as NostrEventKind } from 'nostr-tools';
 import { NProfile, ProfilePointer } from 'nostr-tools/nip19';
-import { NostrEventOrigins } from '../domain/event/nostr-event-origins.interface';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
-import { RelayDomain } from '../domain/event/relay-domain.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NRelay } from '../domain/nostrify/nrelay';
 import { NRelay1 } from '../domain/nostrify/nrelay1';
 import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NPoolRequestOptions } from './npool-request.options';
-import { NpoolRouterOptions } from './npool-router.options';
+import { PoolRequestOptions } from './pool-request.options';
+import { PoolRouterOptions } from './pool-router.options';
 import { RelayLocalConfigService } from './relay-local-config.service';
 import { RouterMatcher } from './router-matcher.interface';
 
@@ -19,7 +19,7 @@ import { RouterMatcher } from './router-matcher.interface';
  * TODO: incluir mecânica para remover relays que estiverem na lista de bloqueio do usuário
  */
 @Injectable()
-export class RelayRouterService implements NpoolRouterOptions {
+export class RelayRouterService implements PoolRouterOptions {
 
   constructor(
     private nostrGuard: NostrGuard,
@@ -28,7 +28,7 @@ export class RelayRouterService implements NpoolRouterOptions {
     @Inject(RELAY_ROUTER_TOKEN) private routerMatcher: RouterMatcher
   ) { }
 
-  open(url: RelayDomain): NRelay {
+  open(url: RelayDomainString): NRelay {
     return new NRelay1(url);
   }
 
@@ -36,7 +36,7 @@ export class RelayRouterService implements NpoolRouterOptions {
   //  retornados atingiram o limit, se sim, então encerra-se, se não, deve se consultar o resto dos
   //  relays da pool e tratar deduplicação
   //  TODO: https://github.com/soapbox-pub/nostrify/issues/2 
-  async eventRouter(origins: NostrEventOrigins, opts?: NPoolRequestOptions): Promise<Array<RelayDomain>> {
+  async eventRouter(origins: NostrEventWithOrigins, opts?: PoolRequestOptions): Promise<Array<RelayDomainString>> {
     if (opts?.useOnly) {
       const usingOnly = this.parseRelayList(opts?.useOnly);
       if (usingOnly.length) {
@@ -46,7 +46,7 @@ export class RelayRouterService implements NpoolRouterOptions {
 
     const include = this.parseRelayList(opts?.include);
     const router = this.routerMatcher.eventRouter.find(matcher => (matcher.matcher && matcher.matcher(origins.event) || !matcher.matcher) && matcher.router);
-    let relays: Array<RelayDomain> = [];
+    let relays: Array<RelayDomainString> = [];
     if (router) {
       relays = await router.router(origins.event);
     }
@@ -64,15 +64,15 @@ export class RelayRouterService implements NpoolRouterOptions {
     }
   }
 
-  async reqRouter(filters: NostrFilter[], opts?: NPoolRequestOptions): Promise<ReadonlyMap<RelayDomain, NostrFilter[]>> {
-    let relays = new Array<RelayDomain>();
+  async reqRouter(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<ReadonlyMap<RelayDomainString, NostrFilter[]>> {
+    let relays = new Array<RelayDomainString>();
     if (opts?.useOnly) {
       relays = this.parseRelayList(opts?.useOnly);
     } else {
       const record = await this.relayConfigService.getCurrentUserRelays();
       if (record && record.general) {
         const general = record.general;
-        relays = Object.keys(general).filter((url): url is RelayDomain => {
+        relays = Object.keys(general).filter((url): url is RelayDomainString => {
           if (this.nostrGuard.isRelayString(url)) {
             return general[url].read;
           }
@@ -88,15 +88,15 @@ export class RelayRouterService implements NpoolRouterOptions {
       });
     }
 
-    const subscriptions: Array<[RelayDomain, NostrFilter[]]> = relays.map(relay => {
+    const subscriptions: Array<[RelayDomainString, NostrFilter[]]> = relays.map(relay => {
       return [ relay, filters ];
     });
   
     return new Map(subscriptions);
   }
 
-  private parseRelayList(list?: Array<RelayDomain | NostrEvent | ProfilePointer | NProfile | undefined | null>): Array<RelayDomain> {
-    let parsed = new Array<RelayDomain>;
+  private parseRelayList(list?: Array<RelayDomainString | NostrEvent | ProfilePointer | NProfile | undefined | null>): Array<RelayDomainString> {
+    let parsed = new Array<RelayDomainString>;
 
     if (!list?.length) {
       return [];
