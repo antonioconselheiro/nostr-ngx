@@ -3,13 +3,12 @@ import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent }
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
-import { Machina } from './machina';
+import { PoolAsyncIterable } from './pool.async-iterable';
 import { NostrClientMessage, NostrClientREQ } from './nostr-client-message.type';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayCOUNT, NostrRelayEOSE, NostrRelayEVENT, NostrRelayNOTICE, NostrRelayOK } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
 import { NRelay } from './nrelay';
-;
 
 type EventMap = {
   [k: `ok:${string}`]: NostrRelayOK;
@@ -27,7 +26,7 @@ export interface NRelay1Opts {
   verifyEvent?(event: NostrEvent): boolean;
 }
 
-export class NRelay1 implements NRelay {
+export class NostrRelay implements NRelay {
   readonly socket: Websocket;
 
   private subscriptions = new Map<string, NostrClientREQ>();
@@ -171,7 +170,7 @@ export class NRelay1 implements NRelay {
   private async *on<K extends keyof EventMap>(key: K, signal?: AbortSignal): AsyncIterable<EventMap[K]> {
     if (signal?.aborted) throw this.abortError();
 
-    const machina = new Machina<EventMap[K]>(signal);
+    const machina = new PoolAsyncIterable<EventMap[K]>(signal);
     const onMsg = (e: Event): void => machina.push((e as CustomEvent<EventMap[K]>).detail);
 
     this.ee.addEventListener(key, onMsg);

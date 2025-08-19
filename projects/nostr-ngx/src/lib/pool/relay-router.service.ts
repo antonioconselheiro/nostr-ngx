@@ -6,7 +6,7 @@ import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NRelay } from '../domain/nostrify/nrelay';
-import { NRelay1 } from '../domain/nostrify/nrelay1';
+import { NostrRelay } from '../domain/nostrify/nostr-relay';
 import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
@@ -29,7 +29,7 @@ export class RelayRouterService implements PoolRouterOptions {
   ) { }
 
   open(url: RelayDomainString): NRelay {
-    return new NRelay1(url);
+    return new NostrRelay(url);
   }
 
   //  TODO: deve-se ler primeiro do `include` (relay hint) e depois deve-se verificar se os eventos

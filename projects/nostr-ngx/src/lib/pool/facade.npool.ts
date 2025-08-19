@@ -1,6 +1,6 @@
 import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { Machina } from '../domain/nostrify/machina';
+import { PoolAsyncIterable } from '../domain/nostrify/pool.async-iterable';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrPool } from '../domain/nostrify/nostr-pool';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
@@ -35,7 +35,7 @@ export class FacadeNPool extends NostrPool {
     const controller = new AbortController();
 
     const routes = await this.getOpts().reqRouter(filters, opts);
-    const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const machina = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();

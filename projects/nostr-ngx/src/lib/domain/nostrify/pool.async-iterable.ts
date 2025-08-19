@@ -1,29 +1,7 @@
 /**
  * Infinite async generator. Iterates messages pushed to it until closed.
- * Only one consumer is expected to use a Machina instance at a time.
- *
- * @example
- * ```ts
- * // Create the Machina instance
- * const machina = new Machina<string>();
- *
- * // Async generator loop
- * async function getMessages() {
- *   for await (const msg of machina.stream()) {
- *     console.log(msg);
- *   }
- * }
- *
- * // Start the generator
- * getMessages();
- *
- * // Push messages to it
- * machina.push('hello!');
- * machina.push('whats up?');
- * machina.push('greetings');
- * ```
  */
-export class Machina<T> implements AsyncIterable<T> {
+export class PoolAsyncIterable<T> implements AsyncIterable<T> {
   #queue: T[] = [];
   #resolve: (() => void) | undefined;
   #aborted = false;

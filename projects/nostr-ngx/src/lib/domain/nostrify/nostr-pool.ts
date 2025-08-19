@@ -2,11 +2,13 @@ import { getFilterLimit } from 'nostr-tools';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { PoolRouterOptions } from '../../pool/pool-router.options';
 import { RelayDomainString } from '../event/relay-domain-string.type';
-import { Machina } from './machina';
+import { PoolAsyncIterable } from './pool.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
 import { NRelay } from './nrelay';
+import { NostrStore } from './nostr-store.type';
+import { NostrRelay } from './nostr-relay';
 
 /**
  * The `NPool` class is a `NRelay` implementation for connecting to multiple relays.
@@ -37,24 +39,36 @@ import { NRelay } from './nrelay';
  *
  * `pool.req` will only emit an `EOSE` when all relays in its set have emitted an `EOSE`, and likewise for `CLOSED`.
  */
-export class NostrPool implements NRelay {
+export class NostrPool implements NostrStore {
   
-    /** Events are **regular**, which means they're all expected to be stored by relays. */
+  /**
+   * Events are **regular**, which means they're all expected to be stored by relays.
+   **/
   static regular(kind: number): boolean {
     return (1000 <= kind && kind < 10000) || [1, 2, 4, 5, 6, 7, 8, 16, 40, 41, 42, 43, 44].includes(kind);
   }
 
-  /** Events are **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
+  /**
+   * Events are **replaceable**, which means that, for each combination of `pubkey` and `kind`,
+   * only the latest event is expected to (SHOULD) be stored by relays, older versions are
+   * expected to be discarded.
+   **/
   static replaceable(kind: number): boolean {
     return (10000 <= kind && kind < 20000) || [0, 3].includes(kind);
   }
 
-  /** Events are **ephemeral**, which means they are not expected to be stored by relays. */
+  /**
+   * Events are **ephemeral**, which means they are not expected to be stored by relays.
+   **/
   static ephemeral(kind: number): boolean {
     return 20000 <= kind && kind < 30000;
   }
 
-  /** Events are **parameterized replaceable**, which means that, for each combination of `pubkey`, `kind` and the `d` tag, only the latest event is expected to be stored by relays, older versions are expected to be discarded. */
+  /**
+   * Events are **parameterized replaceable**, which means that, for each combination of
+   * `pubkey`, `kind` and the `d` tag, only the latest event is expected to be stored by
+   * relays, older versions are expected to be discarded.
+   **/
   static parameterizedReplaceable(kind: number): boolean {
     return 30000 <= kind && kind < 40000;
   }
@@ -70,7 +84,7 @@ export class NostrPool implements NRelay {
     if (relay) {
       return relay;
     } else {
-      const relay = this.opts.open(url);
+      const relay = new NostrRelay(url);
       this.relays.set(url, relay);
       return relay;
     }
@@ -87,7 +101,7 @@ export class NostrPool implements NRelay {
     if (routes.size < 1) {
       return;
     }
-    const machina = new Machina<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const machina = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
