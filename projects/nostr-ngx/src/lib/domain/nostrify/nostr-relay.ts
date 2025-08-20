@@ -3,12 +3,12 @@ import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent }
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
-import { PoolAsyncIterable } from './pool.async-iterable';
 import { NostrClientMessage, NostrClientREQ } from './nostr-client-message.type';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayCOUNT, NostrRelayEOSE, NostrRelayEVENT, NostrRelayNOTICE, NostrRelayOK } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
-import { NRelay } from './nrelay';
+import { NostrStore } from './nostr-store.type';
+import { PoolAsyncIterable } from './pool.async-iterable';
 
 type EventMap = {
   [k: `ok:${string}`]: NostrRelayOK;
@@ -26,16 +26,19 @@ export interface NRelay1Opts {
   verifyEvent?(event: NostrEvent): boolean;
 }
 
-export class NostrRelay implements NRelay {
-  readonly socket: Websocket;
+export class NostrRelay implements NostrStore {
+  readonly connection: Websocket;
 
   private subscriptions = new Map<string, NostrClientREQ>();
-  private ee = new EventTarget();
+  private eventTarget = new EventTarget();
 
-  constructor(url: RelayDomainString, opts: NRelay1Opts = {}) {
+  constructor(
+    private relayUrl: RelayDomainString, 
+    opts: NRelay1Opts = {}
+  ) {
     const { auth, backoff = new ExponentialBackoff(1000), verifyEvent = _verifyEvent } = opts;
 
-    this.socket = new WebsocketBuilder(url)
+    this.connection = new WebsocketBuilder(relayUrl)
       .withBuffer(new ArrayQueue())
       .withBackoff(backoff === false ? undefined : backoff)
       .onOpen(() => {
@@ -55,16 +58,16 @@ export class NostrRelay implements NRelay {
           case 'CLOSED':
             if (msg[0] === 'EVENT' && !verifyEvent(msg[2])) break;
             if (msg[0] === 'CLOSED') this.subscriptions.delete(msg[1]);
-            this.ee.dispatchEvent(new CustomEvent(`sub:${msg[1]}`, { detail: msg }));
+            this.eventTarget.dispatchEvent(new CustomEvent(`sub:${msg[1]}`, { detail: msg }));
             break;
           case 'OK':
-            this.ee.dispatchEvent(new CustomEvent(`ok:${msg[1]}`, { detail: msg }));
+            this.eventTarget.dispatchEvent(new CustomEvent(`ok:${msg[1]}`, { detail: msg }));
             break;
           case 'NOTICE':
-            this.ee.dispatchEvent(new CustomEvent('notice', { detail: msg }));
+            this.eventTarget.dispatchEvent(new CustomEvent('notice', { detail: msg }));
             break;
           case 'COUNT':
-            this.ee.dispatchEvent(new CustomEvent(`count:${msg[1]}`, { detail: msg }));
+            this.eventTarget.dispatchEvent(new CustomEvent(`count:${msg[1]}`, { detail: msg }));
             break;
           case 'AUTH':
             // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -84,11 +87,11 @@ export class NostrRelay implements NRelay {
         break;
       case 'EVENT':
       case 'COUNT':
-        return this.socket.send(JSON.stringify(msg));
+        return this.connection.send(JSON.stringify(msg));
     }
 
-    if (this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(msg));
+    if (this.connection.readyState === WebSocket.OPEN) {
+      this.connection.send(JSON.stringify(msg));
     }
   }
 
@@ -128,10 +131,12 @@ export class NostrRelay implements NRelay {
     if (limit === 0) return [];
 
     for await (const msg of this.req(filters, opts)) {
-      if (msg[0] === 'EOSE') break;
-      //  FIXME: Encontrar um jeito de incluir o relay
-      if (msg[0] === 'EVENT') events.add({ event: msg[2], origin: [] });
-      if (msg[0] === 'CLOSED') throw new Error('Subscription closed');
+      if (msg[0] === 'EOSE')
+        break;
+      if (msg[0] === 'EVENT')
+        events.add({ event: msg[2], origin: [this.relayUrl] });
+      if (msg[0] === 'CLOSED')
+        throw new Error('Subscription closed');
 
       if (events.size >= limit) {
         break;
@@ -141,11 +146,11 @@ export class NostrRelay implements NRelay {
     return [...events];
   }
 
-  async event(origins: NostrEventWithOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
+  async event(event: NostrEvent, opts?: { signal?: AbortSignal }): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
-    const result = this.once(`ok:${origins.event.id}`, opts?.signal);
+    const result = this.once(`ok:${event.id}`, opts?.signal);
 
-    this.send(['EVENT', origins.event]);
+    this.send(['EVENT', event]);
 
     const [, , ok, reason] = await result;
 
@@ -173,14 +178,14 @@ export class NostrRelay implements NRelay {
     const machina = new PoolAsyncIterable<EventMap[K]>(signal);
     const onMsg = (e: Event): void => machina.push((e as CustomEvent<EventMap[K]>).detail);
 
-    this.ee.addEventListener(key, onMsg);
+    this.eventTarget.addEventListener(key, onMsg);
 
     try {
       for await (const msg of machina) {
         yield msg;
       }
     } finally {
-      this.ee.removeEventListener(key, onMsg);
+      this.eventTarget.removeEventListener(key, onMsg);
     }
   }
 
@@ -196,10 +201,10 @@ export class NostrRelay implements NRelay {
   }
 
   async close(): Promise<void> {
-    if (this.socket.readyState === WebSocket.CLOSED) return;
+    if (this.connection.readyState === WebSocket.CLOSED) return;
     await new Promise((resolve) => {
-      this.socket.addEventListener(WebsocketEvent.close, resolve, { once: true });
-      this.socket.close();
+      this.connection.addEventListener(WebsocketEvent.close, resolve, { once: true });
+      this.connection.close();
     });
   }
 }

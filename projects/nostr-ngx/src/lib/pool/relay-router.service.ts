@@ -1,12 +1,9 @@
 import { Inject, Injectable } from '@angular/core';
 import { nip19, kinds as NostrEventKind } from 'nostr-tools';
 import { NProfile, ProfilePointer } from 'nostr-tools/nip19';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
-import { NRelay } from '../domain/nostrify/nrelay';
-import { NostrRelay } from '../domain/nostrify/nostr-relay';
 import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
@@ -28,15 +25,11 @@ export class RelayRouterService implements PoolRouterOptions {
     @Inject(RELAY_ROUTER_TOKEN) private routerMatcher: RouterMatcher
   ) { }
 
-  open(url: RelayDomainString): NRelay {
-    return new NostrRelay(url);
-  }
-
   //  TODO: deve-se ler primeiro do `include` (relay hint) e depois deve-se verificar se os eventos
   //  retornados atingiram o limit, se sim, então encerra-se, se não, deve se consultar o resto dos
   //  relays da pool e tratar deduplicação
   //  TODO: https://github.com/soapbox-pub/nostrify/issues/2 
-  async eventRouter(origins: NostrEventWithOrigins, opts?: PoolRequestOptions): Promise<Array<RelayDomainString>> {
+  async eventRouter(event: NostrEvent, opts?: PoolRequestOptions): Promise<Array<RelayDomainString>> {
     if (opts?.useOnly) {
       const usingOnly = this.parseRelayList(opts?.useOnly);
       if (usingOnly.length) {
@@ -45,21 +38,21 @@ export class RelayRouterService implements PoolRouterOptions {
     }
 
     const include = this.parseRelayList(opts?.include);
-    const router = this.routerMatcher.eventRouter.find(matcher => (matcher.matcher && matcher.matcher(origins.event) || !matcher.matcher) && matcher.router);
+    const router = this.routerMatcher.eventRouter.find(matcher => (matcher.matcher && matcher.matcher(event) || !matcher.matcher) && matcher.router);
     let relays: Array<RelayDomainString> = [];
     if (router) {
-      relays = await router.router(origins.event);
+      relays = await router.router(event);
     }
 
     const routes = [...include, ...relays];
     if (routes.length) {
-      console.info(`routing event to `, routes, origins);
+      console.info(`routing event to `, routes, event);
       return Promise.resolve(routes);
     } else {
       const outbox = this.relayConverter.extractOutboxRelays({
         general: this.routerMatcher.defaultFallback()
       });
-      console.info(`routing event to `, outbox, origins);
+      console.info(`routing event to `, outbox, event);
       return outbox;
     }
   }

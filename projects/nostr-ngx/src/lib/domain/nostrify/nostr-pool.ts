@@ -1,44 +1,20 @@
+import { Inject } from '@angular/core';
 import { getFilterLimit } from 'nostr-tools';
+import { finalize, Observable, Subject } from 'rxjs';
+import { NostrCache } from '../../injection-token/nostr-cache.interface';
+import { NOSTR_CACHE_TOKEN } from '../../injection-token/nostr-cache.token';
+import { PoolRequestOptions } from '../../pool/pool-request.options';
+import { RelayRouterService } from '../../pool/relay-router.service';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
-import { PoolRouterOptions } from '../../pool/pool-router.options';
 import { RelayDomainString } from '../event/relay-domain-string.type';
-import { PoolAsyncIterable } from './pool.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
+import { NostrRelay } from './nostr-relay';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
-import { NRelay } from './nrelay';
 import { NostrStore } from './nostr-store.type';
-import { NostrRelay } from './nostr-relay';
+import { PoolAsyncIterable } from './pool.async-iterable';
+import { NostrEvent } from '../event/nostr-event.interface';
 
-/**
- * The `NPool` class is a `NRelay` implementation for connecting to multiple relays.
- *
- * ```ts
- * const pool = new NPool({
- *   open: (url) => new NRelay1(url),
- *   reqRouter: async (filters) => new Map([
- *     ['wss://relay1.mostr.pub', filters],
- *     ['wss://relay2.mostr.pub', filters],
- *   ]),
- *   eventRouter: async (event) => ['wss://relay1.mostr.pub', 'wss://relay2.mostr.pub'],
- * });
- *
- * // Now you can use the pool like a regular relay.
- * for await (const msg of pool.req([{ kinds: [1] }])) {
- *   if (msg[0] === 'EVENT') console.log(msg[2]);
- *   if (msg[0] === 'EOSE') break;
- * }
- * ```
- *
- * This class is designed with the Outbox model in mind.
- * Instead of passing relay URLs into each method, you pass functions into the contructor that statically-analyze filters and events to determine which relays to use for requesting and publishing events.
- * If a relay wasn't already connected, it will be opened automatically.
- * Defining `open` will also let you use any relay implementation, such as `NRelay1`.
- *
- * Note that `pool.req` may stream duplicate events, while `pool.query` will correctly process replaceable events and deletions within the event set before returning them.
- *
- * `pool.req` will only emit an `EOSE` when all relays in its set have emitted an `EOSE`, and likewise for `CLOSED`.
- */
 export class NostrPool implements NostrStore {
   
   /**
@@ -73,12 +49,42 @@ export class NostrPool implements NostrStore {
     return 30000 <= kind && kind < 40000;
   }
   
-  private relays = new Map<RelayDomainString, NRelay>();
+  private relays = new Map<RelayDomainString, NostrRelay>();
 
-  constructor(private opts: PoolRouterOptions) {}
+  constructor(
+    private routerService: RelayRouterService,
+    @Inject(NOSTR_CACHE_TOKEN) private nostrCache: NostrCache
+  ) { }
+
+  observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
+    console.info('[[subscribe filter]]', filters);
+    const controller = new AbortController();
+    const subject = new Subject<NostrEventWithOrigins>();
+
+    (async () => {
+      for await (const msg of this.req(filters)) {
+        if (msg[0] === 'CLOSED') {
+          subject.error(msg);
+          break;
+        } else if (msg[0] === 'EVENT') {
+          //  FIXME: incluir relays de onde o evento foi coletado
+          subject.next({ event: msg[2], origin: [] });
+        }
+      }
+    })();
+  
+    return subject
+      .asObservable()
+      .pipe(
+        finalize(() => {
+          console.info('[[unsubscribe filter]]', filters);
+          controller.abort();
+        })
+      );
+  }
 
   /** Get or create a relay instance for the given URL. */
-  relay(url: RelayDomainString): NRelay {
+  relay(url: RelayDomainString): NostrRelay {
     const relay = this.relays.get(url);
 
     if (relay) {
@@ -97,11 +103,11 @@ export class NostrPool implements NostrStore {
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
 
-    const routes = await this.opts.reqRouter(filters);
+    const routes = await this.routerService.reqRouter(filters);
     if (routes.size < 1) {
       return;
     }
-    const machina = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const poolIterable = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
@@ -113,17 +119,17 @@ export class NostrPool implements NostrStore {
           if (msg[0] === 'EOSE') {
             eoses.add(url);
             if (eoses.size === routes.size) {
-              machina.push(msg);
+              poolIterable.push(msg);
             }
           }
           if (msg[0] === 'CLOSED') {
             closes.add(url);
             if (closes.size === routes.size) {
-              machina.push(msg);
+              poolIterable.push(msg);
             }
           }
           if (msg[0] === 'EVENT') {
-            machina.push(msg);
+            poolIterable.push(msg);
           }
         }
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -131,7 +137,7 @@ export class NostrPool implements NostrStore {
     }
 
     try {
-      for await (const msg of machina) {
+      for await (const msg of poolIterable) {
         yield msg;
       }
     } finally {
@@ -139,8 +145,8 @@ export class NostrPool implements NostrStore {
     }
   }
 
-  async event(event: NostrEventWithOrigins, opts?: { signal?: AbortSignal }): Promise<void> {
-    const relayUrls = await this.opts.eventRouter(event);
+  async event(event: NostrEvent, opts?: { signal?: AbortSignal }): Promise<void> {
+    const relayUrls = await this.routerService.eventRouter(event);
     if (relayUrls.length < 1) {
       return;
     }

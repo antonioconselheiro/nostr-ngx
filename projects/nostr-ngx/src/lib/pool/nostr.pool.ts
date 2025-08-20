@@ -1,25 +1,17 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { finalize, Observable, Subject } from 'rxjs';
+import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
-import { NostrCache } from '../injection-token/nostr-cache.interface';
-import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { FacadeNPool } from './facade.npool';
 import { PoolRequestOptions } from './pool-request.options';
-import { RelayRouterService } from './relay-router.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NostrPool extends FacadeNPool {
 
-  constructor(
-    routerService: RelayRouterService,
-    @Inject(NOSTR_CACHE_TOKEN) protected override nostrCache: NostrCache
-  ) {
-    super(routerService, nostrCache);
-  }
+
 
   observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
     console.info('[[subscribe filter]]', filters);

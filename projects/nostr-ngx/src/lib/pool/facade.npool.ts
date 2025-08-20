@@ -35,7 +35,7 @@ export class FacadeNPool extends NostrPool {
     const controller = new AbortController();
 
     const routes = await this.getOpts().reqRouter(filters, opts);
-    const machina = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const poolIterable = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
@@ -47,17 +47,17 @@ export class FacadeNPool extends NostrPool {
           if (msg[0] === 'EOSE') {
             eoses.add(url);
             if (eoses.size === routes.size) {
-              machina.push(msg);
+              poolIterable.push(msg);
             }
           }
           if (msg[0] === 'CLOSED') {
             closes.add(url);
             if (closes.size === routes.size) {
-              machina.push(msg);
+              poolIterable.push(msg);
             }
           }
           if (msg[0] === 'EVENT') {
-            machina.push(msg);
+            poolIterable.push(msg);
           }
         }
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -65,7 +65,7 @@ export class FacadeNPool extends NostrPool {
     }
 
     try {
-      for await (const msg of machina) {
+      for await (const msg of poolIterable) {
         yield msg;
       }
     } finally {
@@ -73,11 +73,11 @@ export class FacadeNPool extends NostrPool {
     }
   }
 
-  override async event(origins: NostrEventWithOrigins, opts?: PoolRequestOptions): Promise<void> {
-    const relayUrls = await this.getOpts().eventRouter(origins, opts);
+  override async event(event: NostrEventWithOrigins, opts?: PoolRequestOptions): Promise<void> {
+    const relayUrls = await this.getOpts().eventRouter(event, opts);
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).event(origins, opts))
+      relayUrls.map((url) => this.relay(url).event(event, opts))
     );
   }
 
