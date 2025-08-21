@@ -1,6 +1,6 @@
 import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { PoolAsyncIterable } from '../domain/nostrify/pool.async-iterable';
+import { NostrEventAsyncIterable } from '../domain/nostrify/nostr-event.async-iterable';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrPool } from '../domain/nostrify/nostr-pool';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
@@ -18,7 +18,7 @@ import { PoolRouterOptions } from './pool-router.options';
 export class FacadeNPool extends NostrPool {
 
   constructor(
-    opts: PoolRouterOptions,
+    private opts: PoolRouterOptions,
 
     /**
      * the main cache
@@ -34,8 +34,8 @@ export class FacadeNPool extends NostrPool {
   ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
     const controller = new AbortController();
 
-    const routes = await this.getOpts().reqRouter(filters, opts);
-    const poolIterable = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const routes = await this.opts.reqRouter(filters, opts);
+    const poolIterable = new NostrEventAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(controller.signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
@@ -43,7 +43,7 @@ export class FacadeNPool extends NostrPool {
     for (const url of routes.keys()) {
       const relay = this.relay(url);
       (async () => {
-        for await (const msg of relay.req(filters, { signal })) {
+        for await (const msg of relay.req(filters, { signal: })) {
           if (msg[0] === 'EOSE') {
             eoses.add(url);
             if (eoses.size === routes.size) {
@@ -112,10 +112,5 @@ export class FacadeNPool extends NostrPool {
 
       return result.flat(2).map(event => event);
     }
-  }
-
-  protected getOpts(): PoolRouterOptions {
-    //  u____u nobody need know, keep scrolling
-    return (this as any as { opts: PoolRouterOptions }).opts;
   }
 }

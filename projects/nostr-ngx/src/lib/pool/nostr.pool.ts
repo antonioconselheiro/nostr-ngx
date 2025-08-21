@@ -3,14 +3,13 @@ import { finalize, Observable, Subject } from 'rxjs';
 import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
-import { FacadeNPool } from './facade.npool';
 import { PoolRequestOptions } from './pool-request.options';
+import { NostrStore } from '../domain/nostrify/nostr-store.type';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NostrPool extends FacadeNPool {
-
+export class NostrPool implements NostrStore {
 
 
   observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {

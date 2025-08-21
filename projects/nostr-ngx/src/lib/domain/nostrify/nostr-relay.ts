@@ -1,21 +1,19 @@
 
 import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
+import { PoolRequestOptions } from '../../pool/pool-request.options';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
-import { NostrClientMessage, NostrClientREQ } from './nostr-client-message.type';
+import { NostrRequest } from '../request/nostr.request';
+import { ReqRequest } from '../request/req.request';
+import { ClosedResultset } from '../resultset/closed.resultset';
+import { EoseResultset } from '../resultset/eose.resultset';
+import { EventResultset } from '../resultset/event.resultset';
+import { ResultsetMap } from '../resultset/resultset.map';
+import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
-import { NostrRelayCLOSED, NostrRelayCOUNT, NostrRelayEOSE, NostrRelayEVENT, NostrRelayNOTICE, NostrRelayOK } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
 import { NostrStore } from './nostr-store.type';
-import { PoolAsyncIterable } from './pool.async-iterable';
-
-type EventMap = {
-  [k: `ok:${string}`]: NostrRelayOK;
-  [k: `sub:${string}`]: NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED;
-  [k: `count:${string}`]: NostrRelayCOUNT;
-  notice: NostrRelayNOTICE;
-};
 
 export interface NRelay1Opts {
   /** Respond to `AUTH` challenges by producing a signed kind `22242` event. */
@@ -29,7 +27,7 @@ export interface NRelay1Opts {
 export class NostrRelay implements NostrStore {
   readonly connection: Websocket;
 
-  private subscriptions = new Map<string, NostrClientREQ>();
+  private subscriptions = new Map<string, ReqRequest>();
   private eventTarget = new EventTarget();
 
   constructor(
@@ -77,7 +75,7 @@ export class NostrRelay implements NostrStore {
       .build();
   }
 
-  protected send(msg: NostrClientMessage): void {
+  protected send(msg: NostrRequest): void {
     switch (msg[0]) {
       case 'REQ':
         this.subscriptions.set(msg[1], msg);
@@ -97,13 +95,13 @@ export class NostrRelay implements NostrStore {
 
   async *req(
     filters: NostrFilter[],
-    opts: { signal?: AbortSignal } = {},
-  ): AsyncGenerator<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
+    opts: PoolRequestOptions = {},
+  ): AsyncGenerator<EventResultset | EoseResultset | ClosedResultset> {
     const { signal } = opts;
     const subscriptionId = crypto.randomUUID();
 
     const msgs = this.on(`sub:${subscriptionId}`, signal);
-    const req: NostrClientREQ = ['REQ', subscriptionId, ...filters];
+    const req: ReqRequest = ['REQ', subscriptionId, ...filters];
 
     this.send(req);
 
@@ -124,7 +122,7 @@ export class NostrRelay implements NostrStore {
     }
   }
 
-  async query(filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEventWithOrigins[]> {
+  async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithOrigins[]> {
     const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
@@ -146,7 +144,7 @@ export class NostrRelay implements NostrStore {
     return [...events];
   }
 
-  async event(event: NostrEvent, opts?: { signal?: AbortSignal }): Promise<void> {
+  async event(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
     const result = this.once(`ok:${event.id}`, opts?.signal);
 
@@ -155,33 +153,20 @@ export class NostrRelay implements NostrStore {
     const [, , ok, reason] = await result;
 
     if (!ok) {
-      throw new Error(reason);
+      return Promise.reject(new Error(reason));
     }
   }
 
-  async count(
-    filters: NostrFilter[],
-    opts?: { signal?: AbortSignal },
-  ): Promise<{ count: number; approximate?: boolean }> {
-    const subscriptionId = crypto.randomUUID();
-    const result = this.once(`count:${subscriptionId}`, opts?.signal);
-
-    this.send(['COUNT', subscriptionId, ...filters]);
-
-    const [, , count] = await result;
-    return count;
-  }
-
-  private async *on<K extends keyof EventMap>(key: K, signal?: AbortSignal): AsyncIterable<EventMap[K]> {
+  private async *on<K extends keyof ResultsetMap>(key: K, signal?: AbortSignal): AsyncIterable<ResultsetMap[K]> {
     if (signal?.aborted) throw this.abortError();
 
-    const machina = new PoolAsyncIterable<EventMap[K]>(signal);
-    const onMsg = (e: Event): void => machina.push((e as CustomEvent<EventMap[K]>).detail);
+    const iterable = new NostrEventAsyncIterable<ResultsetMap[K]>(signal);
+    const onMsg = (e: Event): void => iterable.push((e as CustomEvent<ResultsetMap[K]>).detail);
 
     this.eventTarget.addEventListener(key, onMsg);
 
     try {
-      for await (const msg of machina) {
+      for await (const msg of iterable) {
         yield msg;
       }
     } finally {
@@ -189,7 +174,7 @@ export class NostrRelay implements NostrStore {
     }
   }
 
-  private async once<K extends keyof EventMap>(key: K, signal?: AbortSignal): Promise<EventMap[K]> {
+  private async once<K extends keyof ResultsetMap>(key: K, signal?: AbortSignal): Promise<ResultsetMap[K]> {
     for await (const msg of this.on(key, signal)) {
       return msg;
     }

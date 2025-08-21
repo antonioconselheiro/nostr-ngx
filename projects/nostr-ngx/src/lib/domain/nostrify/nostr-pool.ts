@@ -6,14 +6,16 @@ import { NOSTR_CACHE_TOKEN } from '../../injection-token/nostr-cache.token';
 import { PoolRequestOptions } from '../../pool/pool-request.options';
 import { RelayRouterService } from '../../pool/relay-router.service';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
+import { NostrEvent } from '../event/nostr-event.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
+import { ClosedResultset } from '../resultset/closed.resultset';
+import { EoseResultset } from '../resultset/eose.resultset';
+import { EventResultset } from '../resultset/event.resultset';
+import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelay } from './nostr-relay';
-import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
 import { NostrStore } from './nostr-store.type';
-import { PoolAsyncIterable } from './pool.async-iterable';
-import { NostrEvent } from '../event/nostr-event.interface';
 
 export class NostrPool implements NostrStore {
   
@@ -59,10 +61,11 @@ export class NostrPool implements NostrStore {
   observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
     console.info('[[subscribe filter]]', filters);
     const controller = new AbortController();
+    const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
     const subject = new Subject<NostrEventWithOrigins>();
 
     (async () => {
-      for await (const msg of this.req(filters)) {
+      for await (const msg of this.req(filters, { ...opts, signal })) {
         if (msg[0] === 'CLOSED') {
           subject.error(msg);
           break;
@@ -99,7 +102,7 @@ export class NostrPool implements NostrStore {
   async *req(
     filters: NostrFilter[],
     opts?: { signal?: AbortSignal },
-  ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
+  ): AsyncIterable<EventResultset | EoseResultset | ClosedResultset> {
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
 
@@ -107,7 +110,7 @@ export class NostrPool implements NostrStore {
     if (routes.size < 1) {
       return;
     }
-    const poolIterable = new PoolAsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED>(signal);
+    const poolIterable = new NostrEventAsyncIterable<EventResultset | EoseResultset | ClosedResultset>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();

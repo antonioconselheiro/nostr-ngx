@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
 import { HexString } from "../domain/event/primitive/hex-string.type";
-import { NCache } from "../domain/nostrify/ncache.type";
+import { NostrCache } from "../domain/nostrify/nostr-cache.type";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
 import { NostrSet } from "../domain/nostrify/nostr-set.type";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
@@ -13,7 +13,7 @@ import { NostrEventWithOrigins } from "../domain/event/nostr-event-with-origins.
 //  TODO: exclude user config events (0, 10002, 10006, 10007, 10050)
 
 @Injectable()
-export class InMemoryEventCache extends NCache {
+export class InMemoryEventCache extends NostrCache {
 
   private readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
   private kindIndex = new Map<number, Array<HexString>>();

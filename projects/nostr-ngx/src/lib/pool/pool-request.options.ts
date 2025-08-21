@@ -5,6 +5,11 @@ import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 export interface PoolRequestOptions {
 
   /**
+   * Abort signal
+   */
+  signal?: AbortSignal;
+
+  /**
    * Relays to be included in the operation
    */
   include?: Array<RelayDomainString | NostrEvent | ProfilePointer | NProfile | undefined | null>;

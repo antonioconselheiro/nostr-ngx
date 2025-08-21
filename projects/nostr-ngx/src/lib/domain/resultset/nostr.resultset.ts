@@ -6,4 +6,4 @@ import { EventResultset } from './event.resultset';
 import { NoticeResultset } from './notice.resultset';
 import { OkResultset } from './ok.resultset';
 
-export type Nip01Resultset = AuthResultset | ClosedResultset | CountResultset | EoseResultset | EventResultset | NoticeResultset | OkResultset;
+export type NostrResultset = AuthResultset | ClosedResultset | CountResultset | EoseResultset | EventResultset | NoticeResultset | OkResultset;

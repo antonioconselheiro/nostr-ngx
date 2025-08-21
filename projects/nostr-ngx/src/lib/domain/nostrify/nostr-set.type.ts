@@ -1,67 +1,94 @@
+import { LRUCache } from "lru-cache";
 import { kinds } from "nostr-tools";
 import { NostrEventWithOrigins } from "../event/nostr-event-with-origins.interface";
+import { NostrEvent } from "../event/nostr-event.interface";
+import { HexString } from "../event/primitive/hex-string.type";
 
-/**
- * Nostr event implementation of the `Set` interface.
- *
- * NSet is an implementation of the theory that a Nostr Storage is actually just a Set.
- * Events are Nostr's only data type, and they are immutable, making the Set interface ideal.
- *
- * ```ts
- * const events = new NSet();
- *
- * // Events can be added like a regular `Set`:
- * events.add(event1);
- * events.add(event2);
- *
- * // Can be iterated:
- * for (const event of events) {
- *   if (matchFilters(filters, event)) {
- *     console.log(event);
- *   }
- * }
- * ```
- *
- * `NSet` will handle kind `5` deletions, removing events from the set.
- * Replaceable (and parameterized) events will keep only the newest version.
- * However, verification of `id` and `sig` is NOT performed.
- *
- * Any `Map` instance can be passed into `new NSet()`, making it compatible with
- * [lru-cache](https://www.npmjs.com/package/lru-cache), among others.
- */
-export class NostrSet implements Set<NostrEventWithOrigins> {
-  protected cache: Map<string, NostrEventWithOrigins>;
+export class NostrSet {
 
-  constructor(map?: Map<string, NostrEventWithOrigins>) {
-    this.cache = map ?? new Map();
+  /** Event kind is **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
+  protected static isReplaceable(kind: number): boolean {
+    return [0, 3].includes(kind) || (10000 <= kind && kind < 20000);
   }
+
+  /** Event kind is **parameterized replaceable**, which means that, for each combination of `pubkey`, `kind` and the `d` tag, only the latest event is expected to be stored by relays, older versions are expected to be discarded. */
+  protected static isParameterizedReplaceable(kind: number): boolean {
+    return 30000 <= kind && kind < 40000;
+  }
+
+  /**
+   * Returns true if `event` replaces `target`.
+   *
+   * Both events must be replaceable, belong to the same kind and pubkey (and `d` tag, for parameterized events), and the `event` must be newer than the `target`.
+   */
+  // eslint-disable-next-line complexity
+  protected static replaces(event: NostrEvent, target: NostrEvent): boolean {
+    const { kind, pubkey } = event;
+
+    if (NostrSet.isReplaceable(kind)) {
+      return kind === target.kind && pubkey === target.pubkey && event.created_at >= target.created_at;
+    }
+
+    if (NostrSet.isParameterizedReplaceable(kind)) {
+      const d1 = event.tags.find(([name]) => name === 'd')?.[1] || '';
+      const d2 = target.tags.find(([name]) => name === 'd')?.[1] || '';
+
+      return kind === target.kind &&
+        pubkey === target.pubkey &&
+        event.created_at >= target.created_at &&
+        d1 === d2;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns true if the `event` deletes`target`.
+   *
+   * `event` must be a kind `5` event, and both events must share the same `pubkey`.
+   */
+  protected static deletes(deletionEvent: NostrEvent, target: NostrEvent): boolean {
+    const { kind, pubkey, tags } = deletionEvent;
+    if (kind === kinds.EventDeletion && pubkey === target.pubkey) {
+      for (const [name, value] of tags) {
+        if (name === 'e' && value === target.id) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  constructor(
+    protected cache: LRUCache<HexString, NostrEventWithOrigins> | Map<HexString, NostrEventWithOrigins> = new Map()
+  ) { }
 
   get size(): number {
     return this.cache.size;
   }
 
-  add(resultset: NostrEventWithOrigins): this {
-    this.#processDeletions(resultset);
+  add(origins: NostrEventWithOrigins): this {
+    this.#processDeletions(origins.event);
 
-    for (const e of this) {
-      if (NostrSet.deletes(e, resultset) || NostrSet.replaces(e, resultset)) {
+    for (const o of this) {
+      if (NostrSet.deletes(o.event, origins.event) || NostrSet.replaces(o.event, origins.event)) {
         return this;
-      } else if (NostrSet.replaces(resultset, e)) {
-        this.delete(e);
+      } else if (NostrSet.replaces(origins.event, o.event)) {
+        this.delete(o.event.id);
       }
     }
 
-    this.cache.set(resultset.event.id, resultset);
+    this.cache.set(origins.event.id, origins);
     return this;
   }
 
-  #processDeletions(resultset: NostrEventWithOrigins): void {
-    if (resultset.event.kind === kinds.EventDeletion) {
-      for (const tag of resultset.event.tags) {
+  #processDeletions(event: NostrEvent): void {
+    if (event.kind === kinds.EventDeletion) {
+      for (const tag of event.tags) {
         if (tag[0] === 'e') {
           const e = this.cache.get(tag[1]);
-          if (e && e.event.pubkey === resultset.event.pubkey) {
-            this.delete(e);
+          if (e && e.event.pubkey === event.pubkey) {
+            this.delete(e.event.id);
           }
         }
       }
@@ -72,8 +99,8 @@ export class NostrSet implements Set<NostrEventWithOrigins> {
     this.cache.clear();
   }
 
-  delete(resultset: NostrEventWithOrigins): boolean {
-    return this.cache.delete(resultset.event.id);
+  delete(eventId: HexString): boolean {
+    return this.cache.delete(eventId);
   }
 
   forEach(callbackfn: (resultset: NostrEventWithOrigins, key: NostrEventWithOrigins, set: typeof this) => void, thisArg?: any): void {
@@ -95,80 +122,13 @@ export class NostrSet implements Set<NostrEventWithOrigins> {
   }
 
   *values(): IterableIterator<NostrEventWithOrigins> {
-    for (const event of NostrSet.sortEvents([...this.cache.values()])) {
+    for (const event of this.cache.values()) {
       yield event;
     }
   }
 
   [Symbol.iterator](): IterableIterator<NostrEventWithOrigins> {
     return this.values();
-  }
-
-  /** Event kind is **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
-  protected static isReplaceable(kind: number): boolean {
-    return [0, 3].includes(kind) || (10000 <= kind && kind < 20000);
-  }
-
-  /** Event kind is **parameterized replaceable**, which means that, for each combination of `pubkey`, `kind` and the `d` tag, only the latest event is expected to be stored by relays, older versions are expected to be discarded. */
-  protected static isParameterizedReplaceable(kind: number): boolean {
-    return 30000 <= kind && kind < 40000;
-  }
-
-  /**
-   * Returns true if `event` replaces `target`.
-   *
-   * Both events must be replaceable, belong to the same kind and pubkey (and `d` tag, for parameterized events), and the `event` must be newer than the `target`.
-   */
-  // eslint-disable-next-line complexity
-  protected static replaces(resultset: NostrEventWithOrigins, target: NostrEventWithOrigins): boolean {
-    const { kind, pubkey } = resultset.event;
-
-    if (NostrSet.isReplaceable(kind)) {
-      return kind === target.event.kind && pubkey === target.event.pubkey && NostrSet.sortEvents([resultset, target])[0] === resultset;
-    }
-
-    if (NostrSet.isParameterizedReplaceable(kind)) {
-      const d1 = resultset.event.tags.find(([name]) => name === 'd')?.[1] || '';
-      const d2 = target.event.tags.find(([name]) => name === 'd')?.[1] || '';
-
-      return kind === target.event.kind &&
-        pubkey === target.event.pubkey &&
-        NostrSet.sortEvents([resultset, target])[0] === resultset &&
-        d1 === d2;
-    }
-
-    return false;
-  }
-
-  /**
-   * Returns true if the `event` deletes`target`.
-   *
-   * `event` must be a kind `5` event, and both events must share the same `pubkey`.
-   */
-  protected static deletes(resultset: NostrEventWithOrigins, target: NostrEventWithOrigins): boolean {
-    const { kind, pubkey, tags } = resultset.event;
-    if (kind === kinds.EventDeletion && pubkey === target.event.pubkey) {
-      for (const [name, value] of tags) {
-        if (name === 'e' && value === target.event.id) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Sort events in reverse-chronological order by the `created_at` timestamp,
-   * and then by the event `id` (lexicographically) in case of ties.
-   * This mutates the array.
-   */
-  protected static sortEvents(events: NostrEventWithOrigins[]): NostrEventWithOrigins[] {
-    return events.sort((a: NostrEventWithOrigins, b: NostrEventWithOrigins): number => {
-      if (a.event.created_at !== b.event.created_at) {
-        return b.event.created_at - a.event.created_at;
-      }
-      return a.event.id.localeCompare(b.event.id);
-    });
   }
 
   [Symbol.toStringTag] = 'NSet';
