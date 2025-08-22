@@ -10,7 +10,7 @@ import { NostrEvent } from '../event/nostr-event.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
 import { ClosedResultset } from '../resultset/closed.resultset';
 import { EoseResultset } from '../resultset/eose.resultset';
-import { EventResultset } from '../resultset/event.resultset';
+import { OriginsResultset } from '../resultset/origins.resultset';
 import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrRelay } from './nostr-relay';
@@ -69,9 +69,8 @@ export class NostrPool implements NostrStore {
         if (msg[0] === 'CLOSED') {
           subject.error(msg);
           break;
-        } else if (msg[0] === 'EVENT') {
-          //  FIXME: incluir relays de onde o evento foi coletado
-          subject.next({ event: msg[2], origin: [] });
+        } else if (msg[0] === 'ORIGINS') {
+          subject.next(msg[2]);
         }
       }
     })();
@@ -102,7 +101,7 @@ export class NostrPool implements NostrStore {
   async *req(
     filters: NostrFilter[],
     opts?: { signal?: AbortSignal },
-  ): AsyncIterable<EventResultset | EoseResultset | ClosedResultset> {
+  ): AsyncIterable<OriginsResultset | EoseResultset | ClosedResultset> {
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
 
@@ -110,7 +109,7 @@ export class NostrPool implements NostrStore {
     if (routes.size < 1) {
       return;
     }
-    const poolIterable = new NostrEventAsyncIterable<EventResultset | EoseResultset | ClosedResultset>(signal);
+    const poolIterable = new NostrEventAsyncIterable<OriginsResultset | EoseResultset | ClosedResultset>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
@@ -131,7 +130,7 @@ export class NostrPool implements NostrStore {
               poolIterable.push(msg);
             }
           }
-          if (msg[0] === 'EVENT') {
+          if (msg[0] === 'ORIGINS') {
             poolIterable.push(msg);
           }
         }
@@ -172,8 +171,7 @@ export class NostrPool implements NostrStore {
     try {
       for await (const msg of this.req(filters, opts)) {
         if (msg[0] === 'EOSE') break;
-        //  FIXME: refatorar incluindo origin
-        if (msg[0] === 'EVENT') events.add({ event: msg[2], origin: [] });
+        if (msg[0] === 'ORIGINS') events.add(msg[2]);
         if (msg[0] === 'CLOSED') throw new Error('Subscription closed');
 
         if (!replaceable && (events.size >= limit)) {

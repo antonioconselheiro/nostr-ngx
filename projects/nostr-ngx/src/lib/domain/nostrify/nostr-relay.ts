@@ -8,14 +8,15 @@ import { NostrRequest } from '../request/nostr.request';
 import { ReqRequest } from '../request/req.request';
 import { ClosedResultset } from '../resultset/closed.resultset';
 import { EoseResultset } from '../resultset/eose.resultset';
-import { EventResultset } from '../resultset/event.resultset';
+import { OriginsResultset } from '../resultset/origins.resultset';
 import { ResultsetMap } from '../resultset/resultset.map';
 import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrSet } from './nostr-set.type';
 import { NostrStore } from './nostr-store.type';
 
-export interface NRelay1Opts {
+//  FIXME: remover esta interface daqui
+export interface RelayOptions {
   /** Respond to `AUTH` challenges by producing a signed kind `22242` event. */
   auth?(challenge: string): Promise<NostrEvent>;
   /** Configure reconnection strategy, or set to `false` to disable. Default: `new ExponentialBackoff(1000)`. */
@@ -32,7 +33,7 @@ export class NostrRelay implements NostrStore {
 
   constructor(
     private relayUrl: RelayDomainString, 
-    opts: NRelay1Opts = {}
+    opts: RelayOptions = {}
   ) {
     const { auth, backoff = new ExponentialBackoff(1000), verifyEvent = _verifyEvent } = opts;
 
@@ -96,7 +97,7 @@ export class NostrRelay implements NostrStore {
   async *req(
     filters: NostrFilter[],
     opts: PoolRequestOptions = {},
-  ): AsyncGenerator<EventResultset | EoseResultset | ClosedResultset> {
+  ): AsyncGenerator<OriginsResultset | EoseResultset | ClosedResultset> {
     const { signal } = opts;
     const subscriptionId = crypto.randomUUID();
 
@@ -111,7 +112,7 @@ export class NostrRelay implements NostrStore {
         if (msg[0] === 'CLOSED') break;
         if (msg[0] === 'EVENT') {
           if (matchFilters(filters, msg[2])) {
-            yield msg;
+            yield [ 'ORIGINS', msg[1], { event: msg[2], origin: [this.relayUrl] }];
           } else {
             continue;
           }
@@ -131,8 +132,8 @@ export class NostrRelay implements NostrStore {
     for await (const msg of this.req(filters, opts)) {
       if (msg[0] === 'EOSE')
         break;
-      if (msg[0] === 'EVENT')
-        events.add({ event: msg[2], origin: [this.relayUrl] });
+      if (msg[0] === 'ORIGINS')
+        events.add(msg[2]);
       if (msg[0] === 'CLOSED')
         throw new Error('Subscription closed');
 

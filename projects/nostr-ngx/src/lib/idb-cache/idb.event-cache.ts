@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
 import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event.interface';
@@ -15,7 +16,13 @@ export class IdbEventCache extends InMemoryEventCache {
   protected db: Promise<IDBPDatabase<IdbNostrEventCache>>;
 
   private timeoutId: number | null = null;
-  protected cacheUpdates: Array<{ action: 'add' | 'delete', event: NostrEventWithOrigins }> = [];
+  protected cacheUpdates: Array<{
+    action: 'add',
+    data: NostrEventWithOrigins
+  } | {
+    action: 'delete',
+    data: HexString
+  }> = [];
   protected flushTimeout = 1000;
 
   constructor() {
@@ -43,9 +50,9 @@ export class IdbEventCache extends InMemoryEventCache {
     });
   }
 
-  override add(origin: NostrEventWithOrigins): this {
-    const me = super.add(origin);
-    this.cacheUpdates.push({ action: 'add', event: origin });
+  override add(origins: NostrEventWithOrigins): this {
+    const me = super.add(origins);
+    this.cacheUpdates.push({ action: 'add', data: origins });
     this.flush();
 
     return me;
@@ -53,14 +60,14 @@ export class IdbEventCache extends InMemoryEventCache {
 
   override async remove(filters: NostrFilter[]): Promise<void> {
     const events = await this.query(filters)
-    events.forEach(event => this.delete(event));
+    events.forEach(origins => this.delete(origins.event.id));
   }
 
-  override delete(event: NostrEventWithOrigins): boolean {
-    const removed = super.delete(event);
+  override delete(idEvent: HexString): boolean {
+    const removed = super.delete(idEvent);
     
     if (removed) {
-      this.cacheUpdates.push({ action: 'delete', event });
+      this.cacheUpdates.push({ action: 'delete', data: idEvent });
       this.flush();
     }
     
@@ -84,11 +91,11 @@ export class IdbEventCache extends InMemoryEventCache {
       const tx = db.transaction(this.table, 'readwrite');
       const queeue: Array<Promise<unknown>> = [];
 
-      this.cacheUpdates.forEach(({ action, event: origins }) => {
+      this.cacheUpdates.forEach(({ action, data }) => {
         if (action === 'add') {
-          queeue.push(tx.objectStore(this.table).put(origins));
+          queeue.push(tx.objectStore(this.table).put(data));
         } else if (action === 'delete') {
-          queeue.push(tx.objectStore(this.table).delete(origins.event.id));
+          queeue.push(tx.objectStore(this.table).delete(data));
         }
       });
 

@@ -1,14 +1,13 @@
 import { Injectable } from "@angular/core";
 import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
+import { NostrEventWithOrigins } from "../domain/event/nostr-event-with-origins.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
 import { NostrCache } from "../domain/nostrify/nostr-cache.type";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
 import { NostrSet } from "../domain/nostrify/nostr-set.type";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
-import { NostrEventWithOrigins } from "../domain/event/nostr-event-with-origins.interface";
 
-//  TODO: include index by create at
 //  TODO: include index by tag
 //  TODO: exclude user config events (0, 10002, 10006, 10007, 10050)
 
@@ -23,7 +22,7 @@ export class InMemoryEventCache extends NostrCache {
     super(new LRUCache<HexString, NostrEventWithOrigins>({
       //  TODO: make this configurable
       max: 5000,
-      dispose: event => this.delete(event)
+      dispose: origins => this.delete(origins.event.id)
     }));
   }
 
@@ -116,29 +115,30 @@ export class InMemoryEventCache extends NostrCache {
     return !shouldNot;
   }
 
-  override delete(origins: NostrEventWithOrigins): boolean {
-    const removed = super.delete(origins);
+  override delete(eventId: HexString): boolean {
+    const deletingEvent = this.get(eventId);
+    const removed = super.delete(eventId);
 
-    if (removed) {
-      const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
-      const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
+    if (removed && deletingEvent) {
+      const indexedByKind = this.kindIndex.get(deletingEvent.event.kind) || [];
+      const indexedByAuthor = this.authorIndex.get(deletingEvent.event.pubkey) || [];
 
-      const indexOfByKind = indexedByKind.indexOf(origins.event.id);
+      const indexOfByKind = indexedByKind.indexOf(deletingEvent.event.id);
       if (indexOfByKind !== indexNotFound) {
         indexedByKind.splice(indexOfByKind, 1);
       }
 
       if (!indexedByKind.length) {
-        this.kindIndex.delete(origins.event.kind);
+        this.kindIndex.delete(deletingEvent.event.kind);
       }
 
-      const indexOfByAuthor = indexedByAuthor.indexOf(origins.event.id);
+      const indexOfByAuthor = indexedByAuthor.indexOf(deletingEvent.event.id);
       if (indexOfByAuthor !== indexNotFound) {
         indexedByAuthor.splice(indexOfByAuthor, 1);
       }
 
       if (!indexedByAuthor.length) {
-        this.authorIndex.delete(origins.event.pubkey);
+        this.authorIndex.delete(deletingEvent.event.pubkey);
       }
     }
 

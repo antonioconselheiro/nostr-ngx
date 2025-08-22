@@ -3,7 +3,6 @@ import { matchFilters } from 'nostr-tools';
 import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
 import { NostrEvent } from '../event/nostr-event.interface';
 import { NostrFilter } from './nostr-filter.type';
-import { NostrRelayCOUNT } from './nostr-relay-message.type';
 import { NostrSet } from './nostr-set.type';
 import { NostrStore } from './nostr-store.type';
 
@@ -13,7 +12,7 @@ export class NostrCache extends NostrSet implements NostrStore {
   }
 
   async event(event: NostrEvent): Promise<void> {
-    this.add(event);
+    this.add({ event });
   }
 
   async query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]> {
@@ -35,14 +34,6 @@ export class NostrCache extends NostrSet implements NostrStore {
         this.delete(origins.event.id);
       }
     }
-  }
-
-  async count(filters: NostrFilter[]): Promise<NostrRelayCOUNT[2]> {
-    const events = await this.query(filters);
-    return {
-      count: events.length,
-      approximate: false,
-    };
   }
 }
 

@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { finalize, Observable, Subject } from 'rxjs';
 import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
-import { NostrRelayCLOSED, NostrRelayEOSE, NostrRelayEVENT } from '../domain/nostrify/nostr-relay-message.type';
-import { PoolRequestOptions } from './pool-request.options';
 import { NostrStore } from '../domain/nostrify/nostr-store.type';
+import { ClosedResultset } from '../domain/resultset/closed.resultset';
+import { EoseResultset } from '../domain/resultset/eose.resultset';
+import { EventResultset } from '../domain/resultset/event.resultset';
+import { PoolRequestOptions } from './pool-request.options';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NostrPool implements NostrStore {
-
 
   observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
     console.info('[[subscribe filter]]', filters);
@@ -42,41 +43,7 @@ export class NostrPool implements NostrStore {
   override req(
     filters: Array<NostrFilter>,
     opts?: PoolRequestOptions
-  ): AsyncIterable<NostrRelayEVENT | NostrRelayEOSE | NostrRelayCLOSED> {
+  ): AsyncIterable<EventResultset | EoseResultset | ClosedResultset> {
     return super.req(filters, opts);
-  }
-
-  mergeOptions(optsA?: PoolRequestOptions, optsB?: PoolRequestOptions): PoolRequestOptions {
-    if (optsA && optsB) {
-      return this.mergeDefinedOptions(optsA, optsB);
-    } else if (optsA) {
-      return optsA;
-    } else if (optsB) {
-      return optsB;
-    } else {
-      return {};
-    }
-  }
-
-  private mergeDefinedOptions(optsA: PoolRequestOptions, optsB: PoolRequestOptions): PoolRequestOptions {
-    const ignoreCache = optsA.ignoreCache || optsB.ignoreCache || false;
-    const include = [ ...optsA.include || [], ...optsB.include || [] ];
-    const useOnly = [ ...optsA.useOnly || [], ...optsB.useOnly || [] ];
-
-    const opts: PoolRequestOptions = {};
-
-    if (ignoreCache) {
-      opts.ignoreCache = true;
-    }
-
-    if (include.length) {
-      opts.include = include;
-    }
-
-    if (useOnly.length) {
-      opts.useOnly = useOnly;
-    }
-
-    return opts;
   }
 }
