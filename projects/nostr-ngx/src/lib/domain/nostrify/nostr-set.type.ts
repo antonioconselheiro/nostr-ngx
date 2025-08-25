@@ -1,10 +1,10 @@
 import { LRUCache } from "lru-cache";
 import { kinds } from "nostr-tools";
-import { NostrEventWithOrigins } from "../event/nostr-event-with-origins.interface";
+import { NostrEventWithRelays } from "../event/nostr-event-with-relays.interface";
 import { NostrEvent } from "../event/nostr-event.interface";
 import { HexString } from "../event/primitive/hex-string.type";
 
-export class NostrSet {
+export class NostrSet extends Set<NostrEventWithRelays> {
 
   /** Event kind is **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
   protected static isReplaceable(kind: number): boolean {
@@ -60,14 +60,16 @@ export class NostrSet {
   }
 
   constructor(
-    protected cache: LRUCache<HexString, NostrEventWithOrigins> | Map<HexString, NostrEventWithOrigins> = new Map()
-  ) { }
+    protected cache: LRUCache<HexString, NostrEventWithRelays> | Map<HexString, NostrEventWithRelays> = new Map()
+  ) { 
+    super();
+  }
 
-  get size(): number {
+  override get size(): number {
     return this.cache.size;
   }
 
-  add(origins: NostrEventWithOrigins): this {
+  override add(origins: NostrEventWithRelays): this {
     this.#processDeletions(origins.event);
 
     for (const o of this) {
@@ -95,41 +97,41 @@ export class NostrSet {
     }
   }
 
-  clear(): void {
+  override clear(): void {
     this.cache.clear();
   }
 
-  delete(eventId: HexString): boolean {
+  override delete(eventId: HexString): boolean {
     return this.cache.delete(eventId);
   }
 
-  forEach(callbackfn: (resultset: NostrEventWithOrigins, key: NostrEventWithOrigins, set: typeof this) => void, thisArg?: any): void {
+  override forEach(callbackfn: (resultset: NostrEventWithRelays, key: NostrEventWithRelays, set: typeof this) => void, thisArg?: any): void {
     return this.cache.forEach(event => callbackfn(event, event, this), thisArg);
   }
 
-  has(resultset: NostrEventWithOrigins): boolean {
+  override has(resultset: NostrEventWithRelays): boolean {
     return this.cache.has(resultset.event.id);
   }
 
-  *entries(): IterableIterator<[NostrEventWithOrigins, NostrEventWithOrigins]> {
+  override *entries(): IterableIterator<[NostrEventWithRelays, NostrEventWithRelays]> {
     for (const event of this.values()) {
       yield [event, event];
     }
   }
 
-  keys(): IterableIterator<NostrEventWithOrigins> {
+  override keys(): IterableIterator<NostrEventWithRelays> {
     return this.values();
   }
 
-  *values(): IterableIterator<NostrEventWithOrigins> {
+  override *values(): IterableIterator<NostrEventWithRelays> {
     for (const event of this.cache.values()) {
       yield event;
     }
   }
 
-  [Symbol.iterator](): IterableIterator<NostrEventWithOrigins> {
+  override [Symbol.iterator](): IterableIterator<NostrEventWithRelays> {
     return this.values();
   }
 
-  [Symbol.toStringTag] = 'NSet';
+  override [Symbol.toStringTag] = 'NostrSet';
 }

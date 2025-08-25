@@ -16,7 +16,7 @@ import { NOSTR_CONFIG_TOKEN } from '../injection-token/nostr-config.token';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 
 // this service is used by pool, so it should never import the pool.
 /**
@@ -94,7 +94,7 @@ export class RelayLocalConfigService {
     return Promise.resolve(config);
   }
 
-  private findProfileConfig(pubkey: HexString): Promise<Array<NostrEventWithOrigins>> {
+  private findProfileConfig(pubkey: HexString): Promise<Array<NostrEventWithRelays>> {
     return this.nostrCache.query([
       {
         kinds: [kinds.Metadata],

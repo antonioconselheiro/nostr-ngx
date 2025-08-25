@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
-import { NostrEventWithOrigins } from "../domain/event/nostr-event-with-origins.interface";
+import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
 import { NostrCache } from "../domain/nostrify/nostr-cache.type";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
@@ -19,22 +19,22 @@ export class InMemoryEventCache extends NostrCache {
   private authorIndex = new Map<HexString, Array<HexString>>();
   
   constructor() {
-    super(new LRUCache<HexString, NostrEventWithOrigins>({
+    super(new LRUCache<HexString, NostrEventWithRelays>({
       //  TODO: make this configurable
       max: 5000,
       dispose: origins => this.delete(origins.event.id)
     }));
   }
 
-  get(idEvent: HexString): NostrEventWithOrigins | null {
+  get(idEvent: HexString): NostrEventWithRelays | null {
     return this.cache.get(idEvent) || null;
   }
 
-  override async query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]> {
+  override async query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
     return Promise.resolve(this.syncQuery(filters));
   }
 
-  syncQuery(filters: NostrFilter[]): NostrEventWithOrigins[] {
+  syncQuery(filters: NostrFilter[]): NostrEventWithRelays[] {
     if (this.shouldLoadFromIndex(filters)) {
 
       const nset = new NostrSet();
@@ -56,8 +56,8 @@ export class InMemoryEventCache extends NostrCache {
     }
   }
 
-  private queryAll(filters: NostrFilter[]): NostrEventWithOrigins[] {
-    const events = new Array<NostrEventWithOrigins>();
+  private queryAll(filters: NostrFilter[]): NostrEventWithRelays[] {
+    const events = new Array<NostrEventWithRelays>();
 
     for (const origins of this) {
       if (matchFilters(filters, origins.event)) {
@@ -85,7 +85,7 @@ export class InMemoryEventCache extends NostrCache {
 
     ids
       .map(id => this.cache.get(id))
-      .filter((origins): origins is NostrEventWithOrigins => origins && matchFilters([filter], origins.event) || false)
+      .filter((origins): origins is NostrEventWithRelays => origins && matchFilters([filter], origins.event) || false)
       .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
@@ -93,7 +93,7 @@ export class InMemoryEventCache extends NostrCache {
       });
   }
 
-  protected indexInMemory(origins: NostrEventWithOrigins): this {
+  protected indexInMemory(origins: NostrEventWithRelays): this {
     const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
     const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
 

@@ -1,22 +1,22 @@
 import { LRUCache } from 'lru-cache';
 import { matchFilters } from 'nostr-tools';
-import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../event/nostr-event-with-relays.interface';
 import { NostrEvent } from '../event/nostr-event.interface';
 import { NostrFilter } from './nostr-filter.type';
 import { NostrSet } from './nostr-set.type';
 import { NostrStore } from './nostr-store.type';
 
 export class NostrCache extends NostrSet implements NostrStore {
-  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventWithOrigins>>) {
-    super(new LRUCache<string, NostrEventWithOrigins>(...args));
+  constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventWithRelays>>) {
+    super(new LRUCache<string, NostrEventWithRelays>(...args));
   }
 
   async event(event: NostrEvent): Promise<void> {
     this.add({ event });
   }
 
-  async query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]> {
-    const resultsets: NostrEventWithOrigins[] = [];
+  async query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
+    const resultsets: NostrEventWithRelays[] = [];
 
     for (const origins of this) {
       if (matchFilters(filters, origins.event)) {

@@ -22,7 +22,7 @@ export * from './lib/domain/account/compose/account-renderable.type';
 export * from './lib/domain/account/compose/account-session.type';
 export * from './lib/domain/account/compose/account.interface';
 export * from './lib/domain/base64-string.type';
-export * from './lib/domain/event/nostr-event-with-origins.interface';
+export * from './lib/domain/event/nostr-event-with-relays.interface';
 export * from './lib/domain/event/nostr-event-relation.interface';
 export * from './lib/domain/event/nostr-event-tags.array';
 export * from './lib/domain/event/nostr-event.interface';

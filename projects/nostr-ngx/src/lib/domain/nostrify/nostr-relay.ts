@@ -2,13 +2,13 @@
 import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
 import { PoolRequestOptions } from '../../pool/pool-request.options';
-import { NostrEventWithOrigins } from '../event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../event/nostr-event-with-relays.interface';
 import { RelayDomainString } from '../event/relay-domain-string.type';
 import { NostrRequest } from '../request/nostr.request';
 import { ReqRequest } from '../request/req.request';
 import { ClosedResultset } from '../resultset/closed.resultset';
 import { EoseResultset } from '../resultset/eose.resultset';
-import { OriginsResultset } from '../resultset/origins.resultset';
+import { EventWithRelaysResultset } from '../resultset/event-with-relays.resultset';
 import { ResultsetMap } from '../resultset/resultset.map';
 import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
 import { NostrFilter } from './nostr-filter.type';
@@ -97,7 +97,7 @@ export class NostrRelay implements NostrStore {
   async *req(
     filters: NostrFilter[],
     opts: PoolRequestOptions = {},
-  ): AsyncGenerator<OriginsResultset | EoseResultset | ClosedResultset> {
+  ): AsyncGenerator<EventWithRelaysResultset | EoseResultset | ClosedResultset> {
     const { signal } = opts;
     const subscriptionId = crypto.randomUUID();
 
@@ -112,7 +112,7 @@ export class NostrRelay implements NostrStore {
         if (msg[0] === 'CLOSED') break;
         if (msg[0] === 'EVENT') {
           if (matchFilters(filters, msg[2])) {
-            yield [ 'ORIGINS', msg[1], { event: msg[2], origin: [this.relayUrl] }];
+            yield [ 'EVENT_WITH_RELAYS', msg[1], { event: msg[2], origin: [this.relayUrl] }];
           } else {
             continue;
           }
@@ -123,7 +123,7 @@ export class NostrRelay implements NostrStore {
     }
   }
 
-  async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithOrigins[]> {
+  async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithRelays[]> {
     const events = new NostrSet();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
@@ -132,7 +132,7 @@ export class NostrRelay implements NostrStore {
     for await (const msg of this.req(filters, opts)) {
       if (msg[0] === 'EOSE')
         break;
-      if (msg[0] === 'ORIGINS')
+      if (msg[0] === 'EVENT_WITH_RELAYS')
         events.add(msg[2]);
       if (msg[0] === 'CLOSED')
         throw new Error('Subscription closed');
@@ -145,7 +145,9 @@ export class NostrRelay implements NostrStore {
     return [...events];
   }
 
-  async event(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
+  async event(event: NostrEvent, opts?: PoolRequestOptions): Promise<void>;
+  async event(event: EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void>;
+  async event(event: NostrEvent | EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
     const result = this.once(`ok:${event.id}`, opts?.signal);
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
@@ -18,7 +18,7 @@ export class IdbEventCache extends InMemoryEventCache {
   private timeoutId: number | null = null;
   protected cacheUpdates: Array<{
     action: 'add',
-    data: NostrEventWithOrigins
+    data: NostrEventWithRelays
   } | {
     action: 'delete',
     data: HexString
@@ -50,7 +50,7 @@ export class IdbEventCache extends InMemoryEventCache {
     });
   }
 
-  override add(origins: NostrEventWithOrigins): this {
+  override add(origins: NostrEventWithRelays): this {
     const me = super.add(origins);
     this.cacheUpdates.push({ action: 'add', data: origins });
     this.flush();

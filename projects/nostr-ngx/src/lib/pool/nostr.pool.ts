@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { finalize, Observable, Subject } from 'rxjs';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrStore } from '../domain/nostrify/nostr-store.type';
 import { ClosedResultset } from '../domain/resultset/closed.resultset';
@@ -13,10 +13,10 @@ import { PoolRequestOptions } from './pool-request.options';
 })
 export class NostrPool implements NostrStore {
 
-  observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithOrigins> {
+  observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithRelays> {
     console.info('[[subscribe filter]]', filters);
     const controller = new AbortController();
-    const subject = new Subject<NostrEventWithOrigins>();
+    const subject = new Subject<NostrEventWithRelays>();
 
     (async () => {
       for await (const msg of this.req(filters, opts)) {

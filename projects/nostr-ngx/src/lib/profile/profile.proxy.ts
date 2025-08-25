@@ -23,7 +23,7 @@ import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { NSecCrypto } from '../nostr-utils/nsec.crypto';
 import { RelayConverter } from '../nostr-utils/relay.converter';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { PoolRequestOptions } from '../pool/pool-request.options';
 import { AccountFactory } from './account.factory';
 import { Nip05Proxy } from './nip05.proxy';
@@ -199,10 +199,10 @@ export class ProfileProxy {
     return this.accountFactory.accountAuthenticableFactory(account, ncryptsec);
   }
   
-  private getProfileMetadata(events: NostrEventWithOrigins[]): { [pubkey: HexString]: NostrMetadata } {
+  private getProfileMetadata(events: NostrEventWithRelays[]): { [pubkey: HexString]: NostrMetadata } {
     const record: { [pubkey: HexString]: NostrMetadata } = {};
     events
-      .filter((origins): origins is NostrEventWithOrigins<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
+      .filter((origins): origins is NostrEventWithRelays<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
       .forEach(origin => {
         // FIXME: include metadata validation .pipe(n.metadata())
         record[origin.event.pubkey] = JSON.parse(origin.event.content);

@@ -1,7 +1,7 @@
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
 import { NostrStore } from '../domain/nostrify/nostr-store.type';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrProfileCache } from './nostr-profile-cache.interface';
 
 /**
@@ -19,22 +19,22 @@ export interface NostrCache extends NostrStore {
   /**
    * get an event from cache if it exists
    */
-  get(idEvent: HexString): NostrEventWithOrigins | null;
+  get(idEvent: HexString): NostrEventWithRelays | null;
 
   /**
    * query cache sync
    */
-  syncQuery(filters: NostrFilter[]): NostrEventWithOrigins[];
+  syncQuery(filters: NostrFilter[]): NostrEventWithRelays[];
 
   /**
    * query cache async
    */
-  query(filters: NostrFilter[]): Promise<NostrEventWithOrigins[]>;
+  query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]>;
   
   /**
    * save event in cache
    */
-  event(event: NostrEventWithOrigins): Promise<void>;
+  event(event: NostrEventWithRelays): Promise<void>;
 
   /**
    * remove event from cache

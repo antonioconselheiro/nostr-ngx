@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BlockedRelaysList, DirectMessageRelaysList, Metadata, RelayList, SearchRelaysList } from 'nostr-tools/kinds';
 import { Observable } from 'rxjs';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrPool } from '../pool/nostr.pool';
 import { PoolRequestOptions } from '../pool/pool-request.options';
 
@@ -15,7 +15,7 @@ export class ProfileNostr {
     private nostrPool: NostrPool
   ) { }
 
-  loadProfilesConfig(pubkeys: Array<HexString>, opts?: PoolRequestOptions): Promise<Array<NostrEventWithOrigins>> {
+  loadProfilesConfig(pubkeys: Array<HexString>, opts?: PoolRequestOptions): Promise<Array<NostrEventWithRelays>> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
@@ -32,7 +32,7 @@ export class ProfileNostr {
     ], opts);
   }
 
-  loadProfileConfig(pubkey: HexString, opts?: PoolRequestOptions): Promise<Array<NostrEventWithOrigins>> {
+  loadProfileConfig(pubkey: HexString, opts?: PoolRequestOptions): Promise<Array<NostrEventWithRelays>> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.query([
@@ -71,7 +71,7 @@ export class ProfileNostr {
   /**
    * FIXME: maybe should receive and array
    */
-  listenUserConfigUpdates(pubkey: HexString, opts?: PoolRequestOptions): Observable<NostrEventWithOrigins> {
+  listenUserConfigUpdates(pubkey: HexString, opts?: PoolRequestOptions): Observable<NostrEventWithRelays> {
     //  FIXME: aplicar schemas para validar o formato do evento
     //  FIXME: aplicar filtros de bloqueio, para caso este usuário tenha bloqueado a pubkey sendo chamada
     return this.nostrPool.observe([

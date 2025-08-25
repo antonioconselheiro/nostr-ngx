@@ -7,7 +7,7 @@ import { AccountSession } from '../domain/account/compose/account-session.type';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { NostrEventWithOrigins } from '../domain/event/nostr-event-with-origins.interface';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrGuard } from './nostr.guard';
 
 @Injectable({
@@ -113,7 +113,7 @@ export class RelayConverter {
   }
 
   convertEventsToRelayConfig(
-    resultsets: Array<NostrEventWithOrigins>,
+    resultsets: Array<NostrEventWithRelays>,
     patchExistingUser?: AccountSession
   ): { [pubkey: HexString]: NostrUserRelays } {
     const record: { [pubkey: HexString]: NostrUserRelays } = {};
