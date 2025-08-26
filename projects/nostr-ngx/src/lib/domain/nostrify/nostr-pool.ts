@@ -147,16 +147,16 @@ export class NostrPool implements NostrStore {
     }
   }
 
-  async event(event: NostrEvent, opts?: PoolRequestOptions): Promise<void>;
-  async event(event: EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void>;
-  async event(event: NostrEvent | EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void> {
+  async cache(event: NostrEvent, opts?: PoolRequestOptions): Promise<void>;
+  async cache(event: EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void>;
+  async cache(event: NostrEvent | EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void> {
     const relayUrls = await this.routerService.eventRouter(event);
     if (relayUrls.length < 1) {
       return;
     }
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).event(event, opts)),
+      relayUrls.map((url) => this.relay(url).cache(event, opts)),
     );
   }
 

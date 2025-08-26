@@ -112,7 +112,7 @@ export class NostrRelay implements NostrStore {
         if (msg[0] === 'CLOSED') break;
         if (msg[0] === 'EVENT') {
           if (matchFilters(filters, msg[2])) {
-            yield [ 'EVENT_WITH_RELAYS', msg[1], { event: msg[2], origin: [this.relayUrl] }];
+            yield [ 'EVENT_WITH_RELAYS', msg[1], { event: msg[2], relays: [this.relayUrl] }];
           } else {
             continue;
           }
@@ -145,9 +145,7 @@ export class NostrRelay implements NostrStore {
     return [...events];
   }
 
-  async event(event: NostrEvent, opts?: PoolRequestOptions): Promise<void>;
-  async event(event: EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void>;
-  async event(event: NostrEvent | EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void> {
+  async publish(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
     const result = this.once(`ok:${event.id}`, opts?.signal);
 

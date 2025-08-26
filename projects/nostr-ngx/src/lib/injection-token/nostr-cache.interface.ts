@@ -34,7 +34,7 @@ export interface NostrCache extends NostrStore {
   /**
    * save event in cache
    */
-  event(event: NostrEventWithRelays): Promise<void>;
+  cache(event: NostrEventWithRelays): Promise<void>;
 
   /**
    * remove event from cache

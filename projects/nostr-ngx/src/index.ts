@@ -52,7 +52,7 @@ export * from './lib/domain/event/tags/tag-zap-receipt.type';
 export * from './lib/domain/event/tags/tag-zap-request.type';
 export * from './lib/domain/nostr-public-user.interface';
 export * from './lib/domain/nostrify/nostr-event.async-iterable';
-export * from './lib/domain/nostrify/nostr-cache.type';
+export * from './lib/domain/nostrify/nostr-cache.service';
 export * from './lib/domain/nostrify/nostr-client-message.type';
 export * from './lib/domain/nostrify/nostr-filter.type';
 export * from './lib/domain/nostrify/nostr-metadata.type';

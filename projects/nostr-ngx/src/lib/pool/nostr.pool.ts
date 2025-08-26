@@ -25,7 +25,7 @@ export class NostrPool implements NostrStore {
           break;
         } else if (msg[0] === 'EVENT') {
           //  FIXME: incluir relays de onde o evento foi coletado
-          subject.next({ event: msg[2], origin: [] });
+          subject.next({ event: msg[2], relays: [] });
         }
       }
     })();

@@ -3,7 +3,7 @@ import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
 import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
-import { NostrCache } from "../domain/nostrify/nostr-cache.type";
+import { NostrCacheService } from "../domain/nostrify/nostr-cache.service";
 import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
 import { NostrSet } from "../domain/nostrify/nostr-set.type";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
@@ -12,7 +12,7 @@ import { indexNotFound } from "../domain/symbol/index-not-found.const";
 //  TODO: exclude user config events (0, 10002, 10006, 10007, 10050)
 
 @Injectable()
-export class InMemoryEventCache extends NostrCache {
+export class InMemoryEventCache extends NostrCacheService {
 
   private readonly InMemoryIndexExceptionSymbol = Symbol('InMemoryIndexExceptionSymbol');
   private kindIndex = new Map<number, Array<HexString>>();
@@ -27,7 +27,7 @@ export class InMemoryEventCache extends NostrCache {
   }
 
   get(idEvent: HexString): NostrEventWithRelays | null {
-    return this.cache.get(idEvent) || null;
+    return this.store.get(idEvent) || null;
   }
 
   override async query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
@@ -62,7 +62,7 @@ export class InMemoryEventCache extends NostrCache {
     for (const origins of this) {
       if (matchFilters(filters, origins.event)) {
         //  restart cache timeout
-        this.cache.get(origins.event.id);
+        this.store.get(origins.event.id);
         events.push(origins);
       }
     }
@@ -84,7 +84,7 @@ export class InMemoryEventCache extends NostrCache {
     }
 
     ids
-      .map(id => this.cache.get(id))
+      .map(id => this.store.get(id))
       .filter((origins): origins is NostrEventWithRelays => origins && matchFilters([filter], origins.event) || false)
       .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {

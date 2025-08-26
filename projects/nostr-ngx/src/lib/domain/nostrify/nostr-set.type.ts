@@ -60,13 +60,13 @@ export class NostrSet extends Set<NostrEventWithRelays> {
   }
 
   constructor(
-    protected cache: LRUCache<HexString, NostrEventWithRelays> | Map<HexString, NostrEventWithRelays> = new Map()
+    protected store: LRUCache<HexString, NostrEventWithRelays> | Map<HexString, NostrEventWithRelays> = new Map()
   ) { 
     super();
   }
 
   override get size(): number {
-    return this.cache.size;
+    return this.store.size;
   }
 
   override add(origins: NostrEventWithRelays): this {
@@ -80,7 +80,7 @@ export class NostrSet extends Set<NostrEventWithRelays> {
       }
     }
 
-    this.cache.set(origins.event.id, origins);
+    this.store.set(origins.event.id, origins);
     return this;
   }
 
@@ -88,7 +88,7 @@ export class NostrSet extends Set<NostrEventWithRelays> {
     if (event.kind === kinds.EventDeletion) {
       for (const tag of event.tags) {
         if (tag[0] === 'e') {
-          const e = this.cache.get(tag[1]);
+          const e = this.store.get(tag[1]);
           if (e && e.event.pubkey === event.pubkey) {
             this.delete(e.event.id);
           }
@@ -98,19 +98,19 @@ export class NostrSet extends Set<NostrEventWithRelays> {
   }
 
   override clear(): void {
-    this.cache.clear();
+    this.store.clear();
   }
 
   override delete(eventId: HexString): boolean {
-    return this.cache.delete(eventId);
+    return this.store.delete(eventId);
   }
 
   override forEach(callbackfn: (resultset: NostrEventWithRelays, key: NostrEventWithRelays, set: typeof this) => void, thisArg?: any): void {
-    return this.cache.forEach(event => callbackfn(event, event, this), thisArg);
+    return this.store.forEach(event => callbackfn(event, event, this), thisArg);
   }
 
   override has(resultset: NostrEventWithRelays): boolean {
-    return this.cache.has(resultset.event.id);
+    return this.store.has(resultset.event.id);
   }
 
   override *entries(): IterableIterator<[NostrEventWithRelays, NostrEventWithRelays]> {
@@ -124,7 +124,7 @@ export class NostrSet extends Set<NostrEventWithRelays> {
   }
 
   override *values(): IterableIterator<NostrEventWithRelays> {
-    for (const event of this.cache.values()) {
+    for (const event of this.store.values()) {
       yield event;
     }
   }

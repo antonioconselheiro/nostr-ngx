@@ -5,5 +5,5 @@ import { StrictTagKinds } from "./strict-tag-kinds.type";
 
 export interface NostrEventWithRelays<T extends StrictTagKinds | number = number> {
   event: NostrEvent<T>;
-  origin: Array<RelayDomainString>;
+  relays: Array<RelayDomainString>;
 }
