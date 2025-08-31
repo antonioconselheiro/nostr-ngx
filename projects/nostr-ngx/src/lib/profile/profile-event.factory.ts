@@ -5,7 +5,7 @@ import { RelayRecord } from 'nostr-tools/relay';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { NostrRawEvent } from '../domain/event/nostr-raw-event.interface';
 import { NostrSigner } from './nostr.signer';
-import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
+import { NostrMetadata } from '../domain/account/nostr-metadata.type';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 
 @Injectable({

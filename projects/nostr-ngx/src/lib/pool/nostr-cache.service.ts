@@ -1,11 +1,11 @@
 import { LRUCache } from 'lru-cache';
 import { matchFilters } from 'nostr-tools';
-import { NostrEventWithRelays } from '../event/nostr-event-with-relays.interface';
-import { NostrFilter } from './nostr-filter.type';
-import { NostrSet } from './nostr-set.type';
-import { NostrStore } from './nostr-store.type';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { NostrEventCollection } from '../cache/nostr-event.collection';
+import { NostrFilter } from './nostr-filter.interface';
+import { NostrCache } from './nostr-cache.interface';
 
-export class NostrCacheService extends NostrSet implements NostrStore {
+export class NostrCacheService extends NostrEventCollection implements NostrCache {
   constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventWithRelays>>) {
     super(new LRUCache<string, NostrEventWithRelays>(...args));
   }

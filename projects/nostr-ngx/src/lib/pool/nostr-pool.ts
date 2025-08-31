@@ -1,24 +1,20 @@
-import { Inject } from '@angular/core';
 import { getFilterLimit } from 'nostr-tools';
 import { finalize, Observable, Subject } from 'rxjs';
-import { NostrCache } from '../../injection-token/nostr-cache.interface';
-import { NOSTR_CACHE_TOKEN } from '../../injection-token/nostr-cache.token';
-import { PoolRequestOptions } from '../../pool/pool-request.options';
-import { RelayRouterService } from '../../pool/relay-router.service';
-import { NostrEventWithRelays } from '../event/nostr-event-with-relays.interface';
-import { NostrEvent } from '../event/nostr-event.interface';
-import { RelayDomainString } from '../event/relay-domain-string.type';
-import { ClosedResultset } from '../resultset/closed.resultset';
-import { EoseResultset } from '../resultset/eose.resultset';
-import { EventWithRelaysResultset } from '../resultset/event-with-relays.resultset';
-import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
-import { NostrFilter } from './nostr-filter.type';
+import { PoolRequestOptions } from './pool-request.options';
+import { RelayRouterService } from './relay-router.service';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
+import { ClosedResultset } from '../domain/resultset/closed.resultset';
+import { EoseResultset } from '../domain/resultset/eose.resultset';
+import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.resultset';
+import { NostrEventCollection } from '../cache/nostr-event.collection';
+import { NostrEventIterable } from './nostr-event.iterable';
+import { NostrFilter } from './nostr-filter.interface';
 import { NostrRelay } from './nostr-relay';
-import { NostrSet } from './nostr-set.type';
-import { NostrStore } from './nostr-store.type';
 
-export class NostrPool implements NostrStore {
-  
+export class NostrPool {
+
   /**
    * Events are **regular**, which means they're all expected to be stored by relays.
    **/
@@ -54,8 +50,7 @@ export class NostrPool implements NostrStore {
   private relays = new Map<RelayDomainString, NostrRelay>();
 
   constructor(
-    private routerService: RelayRouterService,
-    @Inject(NOSTR_CACHE_TOKEN) private nostrCache: NostrCache
+    private routerService: RelayRouterService
   ) { }
 
   observe(filters: Array<NostrFilter>, opts: PoolRequestOptions = {}): Observable<NostrEventWithRelays> {
@@ -109,7 +104,7 @@ export class NostrPool implements NostrStore {
     if (routes.size < 1) {
       return;
     }
-    const poolIterable = new NostrEventAsyncIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset>(signal);
+    const poolIterable = new NostrEventIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset>(signal);
 
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
@@ -147,21 +142,19 @@ export class NostrPool implements NostrStore {
     }
   }
 
-  async cache(event: NostrEvent, opts?: PoolRequestOptions): Promise<void>;
-  async cache(event: EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void>;
-  async cache(event: NostrEvent | EventWithRelaysResultset, opts?: PoolRequestOptions): Promise<void> {
+  async publish(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
     const relayUrls = await this.routerService.eventRouter(event);
-    if (relayUrls.length < 1) {
-      return;
+    if (!relayUrls.length) {
+      return Promise.resolve();
     }
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).cache(event, opts)),
+      relayUrls.map((url) => this.relay(url).publish(event, opts)),
     );
   }
 
   async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithRelays[]> {
-    const events = new NostrSet();
+    const events = new NostrEventCollection();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
     if (limit === 0) return [];

@@ -1,7 +1,7 @@
 /**
  * Infinite async generator. Iterates messages pushed to it until closed.
  */
-export class NostrEventAsyncIterable<T> implements AsyncIterable<T> {
+export class NostrEventIterable<T> implements AsyncIterable<T> {
   #queue: T[] = [];
   #resolve: (() => void) | undefined;
   #aborted = false;

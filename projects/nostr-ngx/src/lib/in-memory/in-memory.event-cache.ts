@@ -3,9 +3,9 @@ import { LRUCache } from "lru-cache";
 import { matchFilters } from "nostr-tools";
 import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.interface";
 import { HexString } from "../domain/event/primitive/hex-string.type";
-import { NostrCacheService } from "../domain/nostrify/nostr-cache.service";
-import { NostrFilter } from "../domain/nostrify/nostr-filter.type";
-import { NostrSet } from "../domain/nostrify/nostr-set.type";
+import { NostrCacheService } from "../pool/nostr-cache.service";
+import { NostrFilter } from "../pool/nostr-filter.interface";
+import { NostrEventCollection } from "../cache/nostr-event.collection";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
 
 //  TODO: include index by tag
@@ -37,7 +37,7 @@ export class InMemoryEventCache extends NostrCacheService {
   syncQuery(filters: NostrFilter[]): NostrEventWithRelays[] {
     if (this.shouldLoadFromIndex(filters)) {
 
-      const nset = new NostrSet();
+      const nset = new NostrEventCollection();
       try {
         filters.forEach(filter => this.querySingleFilter(filter, nset));
       } catch (e) {
@@ -70,7 +70,7 @@ export class InMemoryEventCache extends NostrCacheService {
     return events;
   }
 
-  private querySingleFilter(filter: NostrFilter, nset: NostrSet): void {
+  private querySingleFilter(filter: NostrFilter, nset: NostrEventCollection): void {
     let ids: HexString[] = [];
     if (filter.ids?.length) {
       ids = filter.ids;

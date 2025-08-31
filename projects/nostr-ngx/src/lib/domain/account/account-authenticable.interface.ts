@@ -3,7 +3,7 @@ import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
 import { AccountNip05Detail } from './account-nip05-detail.type';
 import { HexString } from '../event/primitive/hex-string.type';
 import { Base64String } from '../base64-string.type';
-import { NostrMetadata } from '../nostrify/nostr-metadata.type';
+import { NostrMetadata } from './nostr-metadata.type';
 
 /**
  * Authenticable account, have all account data loaded and a ncryptsec to user authenticate.

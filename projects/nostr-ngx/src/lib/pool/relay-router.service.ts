@@ -3,7 +3,7 @@ import { nip19, kinds as NostrEventKind } from 'nostr-tools';
 import { NProfile, ProfilePointer } from 'nostr-tools/nip19';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrFilter } from './nostr-filter.interface';
 import { RELAY_ROUTER_TOKEN } from '../injection-token/relay-router.token';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';

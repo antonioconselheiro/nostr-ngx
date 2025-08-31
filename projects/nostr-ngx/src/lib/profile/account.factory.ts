@@ -16,7 +16,7 @@ import { Account } from '../domain/account/compose/account.interface';
 import { Base64String } from '../domain/base64-string.type';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { NostrMetadata } from '../domain/nostrify/nostr-metadata.type';
+import { NostrMetadata } from '../domain/account/nostr-metadata.type';
 import { NostrConverter } from '../nostr-utils/nostr.converter';
 import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { RelayConverter } from '../nostr-utils/relay.converter';

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { IDBPDatabase, openDB } from 'idb';
 import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrFilter } from '../pool/nostr-filter.interface';
 import { InMemoryEventCache } from '../in-memory/in-memory.event-cache';
 import { IdbNostrEventCache } from './idb-nostr-event.interface';
 

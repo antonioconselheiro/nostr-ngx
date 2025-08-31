@@ -1,10 +1,10 @@
 import { LRUCache } from "lru-cache";
 import { kinds } from "nostr-tools";
-import { NostrEventWithRelays } from "../event/nostr-event-with-relays.interface";
-import { NostrEvent } from "../event/nostr-event.interface";
-import { HexString } from "../event/primitive/hex-string.type";
+import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.interface";
+import { NostrEvent } from "../domain/event/nostr-event.interface";
+import { HexString } from "../domain/event/primitive/hex-string.type";
 
-export class NostrSet extends Set<NostrEventWithRelays> {
+export class NostrEventCollection {
 
   /** Event kind is **replaceable**, which means that, for each combination of `pubkey` and `kind`, only the latest event is expected to (SHOULD) be stored by relays, older versions are expected to be discarded. */
   protected static isReplaceable(kind: number): boolean {
@@ -25,11 +25,11 @@ export class NostrSet extends Set<NostrEventWithRelays> {
   protected static replaces(event: NostrEvent, target: NostrEvent): boolean {
     const { kind, pubkey } = event;
 
-    if (NostrSet.isReplaceable(kind)) {
+    if (NostrEventCollection.isReplaceable(kind)) {
       return kind === target.kind && pubkey === target.pubkey && event.created_at >= target.created_at;
     }
 
-    if (NostrSet.isParameterizedReplaceable(kind)) {
+    if (NostrEventCollection.isParameterizedReplaceable(kind)) {
       const d1 = event.tags.find(([name]) => name === 'd')?.[1] || '';
       const d2 = target.tags.find(([name]) => name === 'd')?.[1] || '';
 
@@ -61,21 +61,19 @@ export class NostrSet extends Set<NostrEventWithRelays> {
 
   constructor(
     protected store: LRUCache<HexString, NostrEventWithRelays> | Map<HexString, NostrEventWithRelays> = new Map()
-  ) { 
-    super();
-  }
+  ) { }
 
-  override get size(): number {
+  get size(): number {
     return this.store.size;
   }
 
-  override add(origins: NostrEventWithRelays): this {
+  add(origins: NostrEventWithRelays): this {
     this.#processDeletions(origins.event);
 
     for (const o of this) {
-      if (NostrSet.deletes(o.event, origins.event) || NostrSet.replaces(o.event, origins.event)) {
+      if (NostrEventCollection.deletes(o.event, origins.event) || NostrEventCollection.replaces(o.event, origins.event)) {
         return this;
-      } else if (NostrSet.replaces(origins.event, o.event)) {
+      } else if (NostrEventCollection.replaces(origins.event, o.event)) {
         this.delete(o.event.id);
       }
     }
@@ -97,41 +95,41 @@ export class NostrSet extends Set<NostrEventWithRelays> {
     }
   }
 
-  override clear(): void {
+  clear(): void {
     this.store.clear();
   }
 
-  override delete(eventId: HexString): boolean {
+  delete(eventId: HexString): boolean {
     return this.store.delete(eventId);
   }
 
-  override forEach(callbackfn: (resultset: NostrEventWithRelays, key: NostrEventWithRelays, set: typeof this) => void, thisArg?: any): void {
+  forEach(callbackfn: (resultset: NostrEventWithRelays, key: NostrEventWithRelays, set: typeof this) => void, thisArg?: any): void {
     return this.store.forEach(event => callbackfn(event, event, this), thisArg);
   }
 
-  override has(resultset: NostrEventWithRelays): boolean {
+  has(resultset: NostrEventWithRelays): boolean {
     return this.store.has(resultset.event.id);
   }
 
-  override *entries(): IterableIterator<[NostrEventWithRelays, NostrEventWithRelays]> {
+  *entries(): IterableIterator<[NostrEventWithRelays, NostrEventWithRelays]> {
     for (const event of this.values()) {
       yield [event, event];
     }
   }
 
-  override keys(): IterableIterator<NostrEventWithRelays> {
+  keys(): IterableIterator<NostrEventWithRelays> {
     return this.values();
   }
 
-  override *values(): IterableIterator<NostrEventWithRelays> {
+  *values(): IterableIterator<NostrEventWithRelays> {
     for (const event of this.store.values()) {
       yield event;
     }
   }
 
-  override [Symbol.iterator](): IterableIterator<NostrEventWithRelays> {
+  [Symbol.iterator](): IterableIterator<NostrEventWithRelays> {
     return this.values();
   }
 
-  override [Symbol.toStringTag] = 'NostrSet';
+  [Symbol.toStringTag] = 'NostrEventCollection';
 }

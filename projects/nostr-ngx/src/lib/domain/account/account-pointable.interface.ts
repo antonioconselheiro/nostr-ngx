@@ -1,7 +1,7 @@
 import { NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
 import { HexString } from '../event/primitive/hex-string.type';
-import { NostrMetadata } from '../nostrify/nostr-metadata.type';
+import { NostrMetadata } from './nostr-metadata.type';
 import { AccountNip05Detail } from './account-nip05-detail.type';
 
 /**

@@ -1,6 +1,6 @@
 import { NostrEvent } from 'nostr-tools';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
+import { NostrFilter } from './nostr-filter.interface';
 import { PoolRequestOptions } from './pool-request.options';
 
 export interface PoolRouterOptions {

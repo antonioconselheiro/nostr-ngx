@@ -1,6 +1,6 @@
 import { HexString } from '../domain/event/primitive/hex-string.type';
-import { NostrFilter } from '../domain/nostrify/nostr-filter.type';
-import { NostrStore } from '../domain/nostrify/nostr-store.type';
+import { NostrFilter } from '../pool/nostr-filter.interface';
+import { NostrStore } from '../cache/nostr-store.interface';
 import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrProfileCache } from './nostr-profile-cache.interface';
 

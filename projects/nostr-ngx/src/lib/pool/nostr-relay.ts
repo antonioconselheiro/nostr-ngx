@@ -1,19 +1,18 @@
 
 import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
 import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
-import { PoolRequestOptions } from '../../pool/pool-request.options';
-import { NostrEventWithRelays } from '../event/nostr-event-with-relays.interface';
-import { RelayDomainString } from '../event/relay-domain-string.type';
-import { NostrRequest } from '../request/nostr.request';
-import { ReqRequest } from '../request/req.request';
-import { ClosedResultset } from '../resultset/closed.resultset';
-import { EoseResultset } from '../resultset/eose.resultset';
-import { EventWithRelaysResultset } from '../resultset/event-with-relays.resultset';
-import { ResultsetMap } from '../resultset/resultset.map';
-import { NostrEventAsyncIterable } from './nostr-event.async-iterable';
-import { NostrFilter } from './nostr-filter.type';
-import { NostrSet } from './nostr-set.type';
-import { NostrStore } from './nostr-store.type';
+import { PoolRequestOptions } from './pool-request.options';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { RelayDomainString } from '../domain/event/relay-domain-string.type';
+import { NostrRequest } from '../domain/request/nostr.request';
+import { ReqRequest } from '../domain/request/req.request';
+import { ClosedResultset } from '../domain/resultset/closed.resultset';
+import { EoseResultset } from '../domain/resultset/eose.resultset';
+import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.resultset';
+import { ResultsetMap } from '../domain/resultset/resultset.map';
+import { NostrEventCollection } from '../cache/nostr-event.collection';
+import { NostrEventIterable } from './nostr-event.iterable';
+import { NostrFilter } from './nostr-filter.interface';
 
 //  FIXME: remover esta interface daqui
 export interface RelayOptions {
@@ -25,7 +24,7 @@ export interface RelayOptions {
   verifyEvent?(event: NostrEvent): boolean;
 }
 
-export class NostrRelay implements NostrStore {
+export class NostrRelay {
   readonly connection: Websocket;
 
   private subscriptions = new Map<string, ReqRequest>();
@@ -124,7 +123,7 @@ export class NostrRelay implements NostrStore {
   }
 
   async query(filters: NostrFilter[], opts?: PoolRequestOptions): Promise<NostrEventWithRelays[]> {
-    const events = new NostrSet();
+    const events = new NostrEventCollection();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
     if (limit === 0) return [];
@@ -161,7 +160,7 @@ export class NostrRelay implements NostrStore {
   private async *on<K extends keyof ResultsetMap>(key: K, signal?: AbortSignal): AsyncIterable<ResultsetMap[K]> {
     if (signal?.aborted) throw this.abortError();
 
-    const iterable = new NostrEventAsyncIterable<ResultsetMap[K]>(signal);
+    const iterable = new NostrEventIterable<ResultsetMap[K]>(signal);
     const onMsg = (e: Event): void => iterable.push((e as CustomEvent<ResultsetMap[K]>).detail);
 
     this.eventTarget.addEventListener(key, onMsg);

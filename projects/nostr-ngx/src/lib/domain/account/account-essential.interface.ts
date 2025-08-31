@@ -1,7 +1,7 @@
 import { NProfile, NPub } from 'nostr-tools/nip19';
 import { NostrUserRelays } from '../../configs/nostr-user-relays.interface';
 import { HexString } from '../event/primitive/hex-string.type';
-import { NostrMetadata } from '../nostrify/nostr-metadata.type';
+import { NostrMetadata } from './nostr-metadata.type';
 
 /**
  * account with pubkey, metadata and settings events loaded
