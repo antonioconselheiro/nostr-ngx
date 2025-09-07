@@ -1,6 +1,5 @@
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../pool/nostr-filter.interface';
-import { NostrStore } from '../cache/nostr-store.interface';
 import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrProfileCache } from './nostr-profile-cache.interface';
 
@@ -9,7 +8,7 @@ import { NostrProfileCache } from './nostr-profile-cache.interface';
  * This should help find already loaded profiles and events.
  * The provided implementation will be used by NostrPool.
  */
-export interface NostrCache extends NostrStore {
+export interface NostrCache {
 
   /**
    * service focused in cache prefetched user data, the Account object

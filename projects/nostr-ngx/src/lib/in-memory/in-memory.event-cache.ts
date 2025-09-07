@@ -5,7 +5,7 @@ import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.in
 import { HexString } from "../domain/event/primitive/hex-string.type";
 import { NostrCacheService } from "../pool/nostr-cache.service";
 import { NostrFilter } from "../pool/nostr-filter.interface";
-import { NostrEventCollection } from "../cache/nostr-event.collection";
+import { NostrEventCollection } from "../domain/event/nostr-event.collection";
 import { indexNotFound } from "../domain/symbol/index-not-found.const";
 
 //  TODO: include index by tag

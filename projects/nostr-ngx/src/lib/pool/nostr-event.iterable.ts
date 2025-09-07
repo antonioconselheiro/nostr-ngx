@@ -26,8 +26,6 @@ export class NostrEventIterable<T> implements AsyncIterable<T> {
         this.#resolve = _resolve;
       });
     }
-
-    throw new DOMException('The signal has been aborted', 'AbortError');
   }
 
   /** Push a message into the Machina instance, making it available to the consumer of `stream()`. */

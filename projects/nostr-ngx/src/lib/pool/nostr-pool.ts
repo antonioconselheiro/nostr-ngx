@@ -8,7 +8,7 @@ import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { ClosedResultset } from '../domain/resultset/closed.resultset';
 import { EoseResultset } from '../domain/resultset/eose.resultset';
 import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.resultset';
-import { NostrEventCollection } from '../cache/nostr-event.collection';
+import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { NostrEventIterable } from './nostr-event.iterable';
 import { NostrFilter } from './nostr-filter.interface';
 import { NostrRelay } from './nostr-relay';

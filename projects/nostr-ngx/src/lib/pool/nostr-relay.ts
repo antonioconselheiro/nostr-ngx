@@ -10,7 +10,7 @@ import { ClosedResultset } from '../domain/resultset/closed.resultset';
 import { EoseResultset } from '../domain/resultset/eose.resultset';
 import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.resultset';
 import { ResultsetMap } from '../domain/resultset/resultset.map';
-import { NostrEventCollection } from '../cache/nostr-event.collection';
+import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { NostrEventIterable } from './nostr-event.iterable';
 import { NostrFilter } from './nostr-filter.interface';
 

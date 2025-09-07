@@ -1,8 +1,8 @@
 import { LRUCache } from "lru-cache";
 import { kinds } from "nostr-tools";
-import { NostrEventWithRelays } from "../domain/event/nostr-event-with-relays.interface";
-import { NostrEvent } from "../domain/event/nostr-event.interface";
-import { HexString } from "../domain/event/primitive/hex-string.type";
+import { NostrEventWithRelays } from "./nostr-event-with-relays.interface";
+import { NostrEvent } from "./nostr-event.interface";
+import { HexString } from "./primitive/hex-string.type";
 
 export class NostrEventCollection {
 
