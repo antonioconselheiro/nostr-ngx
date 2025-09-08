@@ -1,4 +1,5 @@
-import { HexString } from "@belomonte/nostr-ngx";
+import { HexString } from "../event/primitive/hex-string.type";
+
 
 /**
  * You may not have all the data for an event, but having its id is enough to associate

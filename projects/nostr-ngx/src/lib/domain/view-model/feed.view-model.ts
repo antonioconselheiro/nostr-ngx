@@ -1,5 +1,5 @@
-import { HexString } from '@belomonte/nostr-ngx';
-import { ViewModelGuard } from '@shared/view-model-mapper/view-model.guard';
+import { ViewModelGuard } from '../../view-model-mapper/view-model.guard';
+import { HexString } from '../event/primitive/hex-string.type';
 import { LazyNoteViewModel } from './lazy-note.view-model';
 import { NostrViewModelSet } from './nostr-view-model.set';
 import { NoteViewModel } from './note.view-model';

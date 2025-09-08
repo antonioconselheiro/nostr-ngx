@@ -1,7 +1,6 @@
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrFilter } from '../pool/nostr-filter.interface';
-import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
-import { NostrProfileCache } from './nostr-profile-cache.interface';
 
 /**
  * Cache structure where both cached events and prefetched account data can be accessed.
@@ -11,19 +10,9 @@ import { NostrProfileCache } from './nostr-profile-cache.interface';
 export interface NostrCache {
 
   /**
-   * service focused in cache prefetched user data, the Account object
-   */
-  profiles: NostrProfileCache;
-
-  /**
    * get an event from cache if it exists
    */
   get(idEvent: HexString): NostrEventWithRelays | null;
-
-  /**
-   * query cache sync
-   */
-  syncQuery(filters: NostrFilter[]): NostrEventWithRelays[];
 
   /**
    * query cache async

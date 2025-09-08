@@ -1,7 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { ProfileModule } from '@belomonte/nostr-ngx';
-import { NoteHtmlfierModule } from '@shared/htmlfier/note-htmlfier.module';
 import { AccountViewModelProxy } from './account-view-model.proxy';
 import { NoteContentMapper } from './note-content.mapper';
 import { ReactionMapper } from './reaction.mapper';
@@ -10,12 +8,12 @@ import { SimpleTextMapper } from './simple-text.mapper';
 import { TagHelper } from './tag.helper';
 import { ViewModelGuard } from './view-model.guard';
 import { ZapMapper } from './zap.mapper';
+import { ProfileModule } from '../profile/profile.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    ProfileModule,
-    NoteHtmlfierModule
+    ProfileModule
   ],
   providers: [
     AccountViewModelProxy,

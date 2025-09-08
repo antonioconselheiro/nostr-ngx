@@ -1,4 +1,7 @@
-import { AccountRaw, HexString, NostrEvent } from "@belomonte/nostr-ngx";
+
+import { AccountRaw } from "../account/account-raw.interface";
+import { NostrEvent } from "../event/nostr-event.interface";
+import { HexString } from "../event/primitive/hex-string.type";
 import { NostrEventIdViewModel } from "./nostr-event-id.view-model";
 import { Note, NEvent } from 'nostr-tools/nip19';
 

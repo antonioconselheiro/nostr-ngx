@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { NostrEvent, NostrGuard } from '@belomonte/nostr-ngx';
-import { EagerNoteViewModel } from '@view-model/eager-note.view-model';
-import { FeedViewModel } from '@view-model/feed.view-model';
-import { NoteViewModel } from '@view-model/note.view-model';
-import { ReactionViewModel } from '@view-model/reaction.view-model';
-import { RelayDomain } from '@view-model/relay-domain.type';
-import { RepostNoteViewModel } from '@view-model/repost-note.view-model';
 import { Reaction, Repost, ShortTextNote, Zap } from 'nostr-tools/kinds';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { EagerNoteViewModel } from '../domain/view-model/eager-note.view-model';
+import { FeedViewModel } from '../domain/view-model/feed.view-model';
+import { NoteViewModel } from '../domain/view-model/note.view-model';
+import { ReactionViewModel } from '../domain/view-model/reaction.view-model';
+import { RepostNoteViewModel } from '../domain/view-model/repost-note.view-model';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
 import { ReactionMapper } from './reaction.mapper';
 import { RepostMapper } from './repost.mapper';
 import { SimpleTextMapper } from './simple-text.mapper';
@@ -27,35 +27,33 @@ export class FeedMapper implements ViewModelMapper<NoteViewModel, FeedViewModel>
     private zapMapper: ZapMapper
   ) { }
 
-  toViewModel(event: Array<NostrEvent>, origin: Array<RelayDomain>): FeedViewModel;
-  toViewModel(event: NostrEvent<ShortTextNote>, origin: Array<RelayDomain>): NoteViewModel;
-  toViewModel(event: NostrEvent<Repost>, origin: Array<RelayDomain>): RepostNoteViewModel;
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): NoteViewModel | null;
-  toViewModel(event: NostrEvent | Array<NostrEvent>, origin: Array<RelayDomain>): NoteViewModel | FeedViewModel | null {
-    if (event instanceof Array) {
-      return this.toViewModelCollection(event, origin);
-    } else if (this.guard.isKind(event, ShortTextNote)) {
-      return this.simpleTextMapper.toViewModel(event, origin);
-    } else if (this.guard.isKind(event, Repost)) {
-      return this.repostMapper.toViewModel(event, origin);
+  toViewModel(withRelays: Array<NostrEventWithRelays>): FeedViewModel;
+  toViewModel(withRelays: NostrEventWithRelays<ShortTextNote>): NoteViewModel;
+  toViewModel(withRelays: NostrEventWithRelays<Repost>): RepostNoteViewModel;
+  toViewModel(withRelays: NostrEventWithRelays): NoteViewModel | null;
+  toViewModel(withRelays: NostrEventWithRelays | Array<NostrEventWithRelays>): NoteViewModel | FeedViewModel | null {
+    if (withRelays instanceof Array) {
+      return this.toViewModelCollection(withRelays);
+    } else if (this.guard.isWithRelaysKind(withRelays, ShortTextNote)) {
+      return this.simpleTextMapper.toViewModel(withRelays);
+    } else if (this.guard.isWithRelaysKind(withRelays, Repost)) {
+      return this.repostMapper.toViewModel(withRelays);
     }
 
     return null;
   }
 
-  //  FIXME: split into minor methods
-  // eslint-disable-next-line complexity
-  private toViewModelCollection(events: Array<NostrEvent>, origin: Array<RelayDomain>, feed = new FeedViewModel(), indexOnly = false): FeedViewModel {
-    for (const event of events) {
+  private toViewModelCollection(withRelayList: Array<NostrEventWithRelays>, feed = new FeedViewModel(), indexOnly = false): FeedViewModel {
+    for (const withRelay of withRelayList) {
       let viewModel: EagerNoteViewModel | ReactionViewModel | null = null;
-      if (this.guard.isKind(event, Repost) || this.guard.isSerializedNostrEvent(event.content)) {
-        viewModel = this.repostMapper.toViewModel(event, origin);
-      } else if (this.guard.isKind(event, ShortTextNote)) {
-        viewModel = this.simpleTextMapper.toViewModel(event, origin);
-      } else if (this.guard.isKind(event, Reaction)) {
-        viewModel = this.reactionMapper.toViewModel(event, origin);
-      } else if (this.guard.isKind(event, Zap)) {
-        viewModel = this.zapMapper.toViewModel(event, origin);
+      if (this.guard.isWithRelaysKind(withRelay, Repost) || this.guard.isSerializedNostrEvent(withRelay.event.content)) {
+        viewModel = this.repostMapper.toViewModel(withRelay);
+      } else if (this.guard.isWithRelaysKind(withRelay, ShortTextNote)) {
+        viewModel = this.simpleTextMapper.toViewModel(withRelay);
+      } else if (this.guard.isWithRelaysKind(withRelay, Reaction)) {
+        viewModel = this.reactionMapper.toViewModel(withRelay);
+      } else if (this.guard.isWithRelaysKind(withRelay, Zap)) {
+        viewModel = this.zapMapper.toViewModel(withRelay);
       }
 
       if (viewModel) {
@@ -70,11 +68,11 @@ export class FeedMapper implements ViewModelMapper<NoteViewModel, FeedViewModel>
     return feed;
   }
 
-  patchViewModel(feed: FeedViewModel, events: Array<NostrEvent>, origin: Array<RelayDomain>): FeedViewModel {
-    return this.toViewModelCollection(events, origin, feed);
+  patchViewModel(feed: FeedViewModel, events: Array<NostrEventWithRelays>): FeedViewModel {
+    return this.toViewModelCollection(events, feed);
   }
 
-  indexViewModel(feed: FeedViewModel, events: Array<NostrEvent>, origin: Array<RelayDomain>): FeedViewModel {
-    return this.toViewModelCollection(events, origin, feed, true);
+  indexViewModel(feed: FeedViewModel, events: Array<NostrEventWithRelays>): FeedViewModel {
+    return this.toViewModelCollection(events, feed, true);
   }
 }

@@ -1,4 +1,4 @@
-import { HexString } from '@belomonte/nostr-ngx';
+import { HexString } from '../event/primitive/hex-string.type';
 import { NostrEventIdViewModel } from './nostr-event-id.view-model';
 import { NostrEventViewModel } from './nostr-event.view-model';
 

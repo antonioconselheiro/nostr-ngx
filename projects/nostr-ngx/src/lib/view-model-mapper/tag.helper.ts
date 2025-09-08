@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HexString, NostrEvent, NostrEventRelation, NostrGuard, TagPointerRelated } from '@belomonte/nostr-ngx';
-import { EventRelationType } from '@view-model/event-relation.type';
 import { nip19 } from "nostr-tools";
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
+import { EventRelationType } from '../domain/view-model/event-relation.type';
+import { NostrEventRelation } from '../domain/event/nostr-event-relation.interface';
+import { TagPointerRelated } from '../domain/event/tags/tag-pointer-related.type';
 
 @Injectable({
   providedIn: 'root'

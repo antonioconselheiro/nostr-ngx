@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { NostrEvent, NostrGuard, ProfileProxy } from '@belomonte/nostr-ngx';
-import { NostrViewModelSet } from '@view-model/nostr-view-model.set';
-import { RelayDomain } from '@view-model/relay-domain.type';
-import { ZapViewModel } from '@view-model/zap.view-model';
+import { nip19 } from 'nostr-tools';
 import { Zap } from 'nostr-tools/kinds';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { NostrViewModelSet } from '../domain/view-model/nostr-view-model.set';
+import { ZapViewModel } from '../domain/view-model/zap.view-model';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { ProfileProxy } from '../profile/profile.proxy';
 import { SingleViewModelMapper } from './single-view-model.mapper';
 import { TagHelper } from './tag.helper';
-import { nip19 } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -19,21 +20,22 @@ export class ZapMapper implements SingleViewModelMapper<ZapViewModel> {
     private guard: NostrGuard
   ) { }
 
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): ZapViewModel | null;
-  toViewModel(event: NostrEvent<Zap>, origin: Array<RelayDomain>): ZapViewModel;
-  toViewModel(event: Array<NostrEvent>, origin: Array<RelayDomain>): NostrViewModelSet<ZapViewModel>;
-  toViewModel(event: NostrEvent | Array<NostrEvent>, origin: Array<RelayDomain>): ZapViewModel | NostrViewModelSet<ZapViewModel> | null;
-  toViewModel(event: NostrEvent | Array<NostrEvent>, origin: Array<RelayDomain>): ZapViewModel | NostrViewModelSet<ZapViewModel> | null {
+  toViewModel(event: NostrEventWithRelays): ZapViewModel | null;
+  toViewModel(event: NostrEventWithRelays<Zap>): ZapViewModel;
+  toViewModel(event: Array<NostrEventWithRelays>): NostrViewModelSet<ZapViewModel>;
+  toViewModel(event: NostrEventWithRelays | Array<NostrEventWithRelays>): ZapViewModel | NostrViewModelSet<ZapViewModel> | null;
+  toViewModel(event: NostrEventWithRelays | Array<NostrEventWithRelays>): ZapViewModel | NostrViewModelSet<ZapViewModel> | null {
     if (event instanceof Array) {
-      return this.toViewModelCollection(event, origin);
-    } else if (this.guard.isKind(event, Zap)) {
-      return this.toSingleViewModel(event, origin);
+      return this.toViewModelCollection(event);
+    } else if (this.guard.isWithRelaysKind(event, Zap)) {
+      return this.toSingleViewModel(event);
     }
 
     return null;
   }
 
-  private toSingleViewModel(event: NostrEvent<Zap>, origin: Array<RelayDomain>): ZapViewModel {
+  private toSingleViewModel(withRelays: NostrEventWithRelays<Zap>): ZapViewModel {
+    const { event, relays } = withRelays;
     const reactedTo = this.tagHelper.listIdsFromTag('e', event);
 
     // TODO: validate zap data
@@ -44,7 +46,7 @@ export class ZapMapper implements SingleViewModelMapper<ZapViewModel> {
       id: event.id,
       author: event.pubkey,
       kind: event.kind,
-      relays: origin
+      relays
     });
 
     return {
@@ -55,19 +57,19 @@ export class ZapMapper implements SingleViewModelMapper<ZapViewModel> {
       content: event.content,
       reactedTo,
       author,
-      origin,
+      origin: relays,
       relates: this.tagHelper.getRelatedEvents(event).map(([hex]) => hex),
       amount: amountZapped ? Number(amountZapped) : null,
       createdAt: event.created_at
     };
   }
 
-  private toViewModelCollection(events: Array<NostrEvent>, origin: Array<RelayDomain>): NostrViewModelSet<ZapViewModel> {
+  private toViewModelCollection(events: Array<NostrEventWithRelays>): NostrViewModelSet<ZapViewModel> {
     const zapSet = new NostrViewModelSet<ZapViewModel>();
 
     for (const event of events) {
-      if (this.guard.isKind(event, Zap)) {
-        const viewModel = this.toSingleViewModel(event, origin);
+      if (this.guard.isWithRelaysKind(event, Zap)) {
+        const viewModel = this.toSingleViewModel(event);
         zapSet.add(viewModel);
       }
     }

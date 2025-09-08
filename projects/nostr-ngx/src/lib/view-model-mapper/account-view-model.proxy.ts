@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AccountGuard, ProfileProxy } from '@belomonte/nostr-ngx';
-import { FeedViewModel } from '@view-model/feed.view-model';
+import { FeedViewModel } from '../domain/view-model/feed.view-model';
+import { AccountGuard } from '../profile/account.guard';
+import { ProfileProxy } from '../profile/profile.proxy';
 
 @Injectable({
   providedIn: 'root'

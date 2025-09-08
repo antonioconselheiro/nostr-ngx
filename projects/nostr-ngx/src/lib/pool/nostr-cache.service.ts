@@ -10,8 +10,8 @@ export class NostrCacheService extends NostrEventCollection implements NostrCach
     super(new LRUCache<string, NostrEventWithRelays>(...args));
   }
 
-  async cache(origins: NostrEventWithRelays): Promise<void> {
-    this.add(origins);
+  async cache(withRelays: NostrEventWithRelays): Promise<void> {
+    this.add(withRelays);
   }
 
   async query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
@@ -28,9 +28,9 @@ export class NostrCacheService extends NostrEventCollection implements NostrCach
   }
 
   async remove(filters: NostrFilter[]): Promise<void> {
-    for (const origins of this) {
-      if (matchFilters(filters, origins.event)) {
-        this.delete(origins.event.id);
+    for (const withRelays of this) {
+      if (matchFilters(filters, withRelays.event)) {
+        this.delete(withRelays.event.id);
       }
     }
   }

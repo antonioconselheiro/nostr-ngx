@@ -6,6 +6,7 @@ import { NAddr, Ncryptsec, NEvent, NostrTypeGuard, Note, NProfile, NPub, NSec } 
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 
 /**
  * A facade to nostr-tools guard tools with some extra util type-guards
@@ -144,8 +145,12 @@ export class NostrGuard {
     return NostrGuard.isNostrEvent(event);
   }
 
-  isKind<T extends number>(event: unknown, kind: T | T[]): event is NostrEvent<T> {
+  isKind<T extends number>(event: NostrEvent, kind: T | T[]): event is NostrEvent<T> {
     return NostrGuard.isKind(event, kind);
+  }
+
+  isWithRelaysKind<T extends number>(withRelays: NostrEventWithRelays, kind: T | T[]): withRelays is NostrEventWithRelays<T> {
+    return NostrGuard.isKind(withRelays.event, kind);
   }
 
   isHexadecimal(stuff: unknown): stuff is HexString {

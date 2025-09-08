@@ -1,4 +1,5 @@
-import { HexString, NostrEvent } from '@belomonte/nostr-ngx';
+import { NostrEvent } from '../event/nostr-event.interface';
+import { HexString } from '../event/primitive/hex-string.type';
 import { LazyNoteViewModel } from './lazy-note.view-model';
 import { NostrEventIdViewModel } from './nostr-event-id.view-model';
 import { NostrEventViewModel } from './nostr-event.view-model';

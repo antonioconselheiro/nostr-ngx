@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HexString, NostrEvent, NostrGuard, ProfileProxy } from '@belomonte/nostr-ngx';
-import { EagerNoteViewModel } from '@view-model/eager-note.view-model';
-import { SimpleTextNoteViewModel } from '@view-model/simple-text-note.view-model';
+import { nip19 } from 'nostr-tools';
 import { ShortTextNote } from 'nostr-tools/kinds';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
+import { EagerNoteViewModel } from '../domain/view-model/eager-note.view-model';
+import { SimpleTextNoteViewModel } from '../domain/view-model/simple-text-note.view-model';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { ProfileProxy } from '../profile/profile.proxy';
 import { NoteContentMapper } from './note-content.mapper';
 import { SingleViewModelMapper } from './single-view-model.mapper';
 import { TagHelper } from './tag.helper';
-import { RelayDomain } from '@view-model/relay-domain.type';
-import { nip19 } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +23,9 @@ export class SimpleTextMapper implements SingleViewModelMapper<EagerNoteViewMode
     private guard: NostrGuard
   ) { }
 
-  toViewModel(event: NostrEvent<ShortTextNote>, origin: Array<RelayDomain>): EagerNoteViewModel;
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): EagerNoteViewModel | null;
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): EagerNoteViewModel | null {
+  toViewModel(event: NostrEventWithRelays<ShortTextNote>): EagerNoteViewModel;
+  toViewModel(event: NostrEventWithRelays): EagerNoteViewModel | null;
+  toViewModel(event: NostrEventWithRelays): EagerNoteViewModel | null {
     if (!this.guard.isKind(event, ShortTextNote)) {
       return null;
     }

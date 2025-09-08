@@ -22,48 +22,40 @@ export class InMemoryEventCache extends NostrCacheService {
     super(new LRUCache<HexString, NostrEventWithRelays>({
       //  TODO: make this configurable
       max: 5000,
-      dispose: origins => this.delete(origins.event.id)
+      dispose: withRelays => this.delete(withRelays.event.id)
     }));
   }
 
-  get(idEvent: HexString): NostrEventWithRelays | null {
-    return this.store.get(idEvent) || null;
-  }
-
-  override async query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
-    return Promise.resolve(this.syncQuery(filters));
-  }
-
-  syncQuery(filters: NostrFilter[]): NostrEventWithRelays[] {
+  override query(filters: NostrFilter[]): Promise<NostrEventWithRelays[]> {
     if (this.shouldLoadFromIndex(filters)) {
 
-      const nset = new NostrEventCollection();
+      const collection = new NostrEventCollection();
       try {
-        filters.forEach(filter => this.querySingleFilter(filter, nset));
+        filters.forEach(filter => this.querySingleFilter(filter, collection));
       } catch (e) {
         if (e === this.InMemoryIndexExceptionSymbol) {
           console.warn('InMemoryIndexExceptionSymbol was thrown', this.InMemoryIndexExceptionSymbol);
-          return this.queryAll(filters);
+          return Promise.resolve(this.queryAll(filters));
         } else {
           throw e;
         }
       }
 
-      return Array.from(nset);
+      return Promise.resolve(Array.from(collection));
     } else {
 
-      return this.queryAll(filters);
+      return Promise.resolve(this.queryAll(filters));
     }
   }
 
   private queryAll(filters: NostrFilter[]): NostrEventWithRelays[] {
     const events = new Array<NostrEventWithRelays>();
 
-    for (const origins of this) {
-      if (matchFilters(filters, origins.event)) {
+    for (const withRelays of this) {
+      if (matchFilters(filters, withRelays.event)) {
         //  restart cache timeout
-        this.store.get(origins.event.id);
-        events.push(origins);
+        this.store.get(withRelays.event.id);
+        events.push(withRelays);
       }
     }
 
@@ -85,7 +77,7 @@ export class InMemoryEventCache extends NostrCacheService {
 
     ids
       .map(id => this.store.get(id))
-      .filter((origins): origins is NostrEventWithRelays => origins && matchFilters([filter], origins.event) || false)
+      .filter((withRelays): withRelays is NostrEventWithRelays => withRelays && matchFilters([filter], withRelays.event) || false)
       .forEach(event => {
         if (filter.limit && filter.limit > nset.size) {
           nset.add(event);
@@ -93,17 +85,17 @@ export class InMemoryEventCache extends NostrCacheService {
       });
   }
 
-  protected indexInMemory(origins: NostrEventWithRelays): this {
-    const indexedByKind = this.kindIndex.get(origins.event.kind) || [];
-    const indexedByAuthor = this.authorIndex.get(origins.event.pubkey) || [];
+  protected indexInMemory(withRelays: NostrEventWithRelays): this {
+    const indexedByKind = this.kindIndex.get(withRelays.event.kind) || [];
+    const indexedByAuthor = this.authorIndex.get(withRelays.event.pubkey) || [];
 
-    indexedByKind.push(origins.event.id);
-    indexedByAuthor.push(origins.event.id);
+    indexedByKind.push(withRelays.event.id);
+    indexedByAuthor.push(withRelays.event.id);
 
-    this.kindIndex.set(origins.event.kind, indexedByKind);
-    this.authorIndex.set(origins.event.pubkey, indexedByAuthor);
+    this.kindIndex.set(withRelays.event.kind, indexedByKind);
+    this.authorIndex.set(withRelays.event.pubkey, indexedByAuthor);
 
-    return this.add(origins);
+    return this.add(withRelays);
   }
 
   private shouldLoadFromIndex(filters: NostrFilter[]): boolean {

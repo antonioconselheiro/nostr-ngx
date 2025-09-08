@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { EagerNoteViewModel } from "@view-model/eager-note.view-model";
-import { LazyNoteViewModel } from "@view-model/lazy-note.view-model";
-import { NostrEventViewModel } from "@view-model/nostr-event.view-model";
-import { NoteViewModel } from "@view-model/note.view-model";
-import { ReactionViewModel } from "@view-model/reaction.view-model";
-import { RepostNoteViewModel } from "@view-model/repost-note.view-model";
-import { ZapViewModel } from "@view-model/zap.view-model";
 import { Reaction, Repost, ShortTextNote, Zap } from 'nostr-tools/kinds';
+import { NostrEventViewModel } from "../domain/view-model/nostr-event.view-model";
+import { LazyNoteViewModel } from "../domain/view-model/lazy-note.view-model";
+import { ReactionViewModel } from "../domain/view-model/reaction.view-model";
+import { ZapViewModel } from "../domain/view-model/zap.view-model";
+import { RepostNoteViewModel } from "../domain/view-model/repost-note.view-model";
+import { EagerNoteViewModel } from "../domain/view-model/eager-note.view-model";
+import { NoteViewModel } from "../domain/view-model/note.view-model";
 
 /**
  * Allow identify which type of view model is implemented

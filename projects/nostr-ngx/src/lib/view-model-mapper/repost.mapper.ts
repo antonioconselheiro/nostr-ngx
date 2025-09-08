@@ -1,14 +1,19 @@
 import { Inject, Injectable } from '@angular/core';
-import { HexString, NOSTR_CACHE_TOKEN, NostrCache, NostrEvent, NostrGuard, ProfileProxy } from '@belomonte/nostr-ngx';
-import { EagerNoteViewModel } from '@view-model/eager-note.view-model';
-import { RelayDomain } from '@view-model/relay-domain.type';
-import { RepostNoteViewModel } from '@view-model/repost-note.view-model';
+import { nip19 } from 'nostr-tools';
 import { Repost, ShortTextNote } from 'nostr-tools/kinds';
+import { NostrEvent } from '../domain/event/nostr-event.interface';
+import { HexString } from '../domain/event/primitive/hex-string.type';
+import { EagerNoteViewModel } from '../domain/view-model/eager-note.view-model';
+import { RepostNoteViewModel } from '../domain/view-model/repost-note.view-model';
+import { NostrCache } from '../injection-token/nostr-cache.interface';
+import { NOSTR_CACHE_TOKEN } from '../injection-token/nostr-cache.token';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { ProfileProxy } from '../profile/profile.proxy';
 import { NoteContentMapper } from './note-content.mapper';
 import { SimpleTextMapper } from './simple-text.mapper';
 import { SingleViewModelMapper } from './single-view-model.mapper';
 import { TagHelper } from './tag.helper';
-import { nip19 } from 'nostr-tools';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 
 /**
  * 1. A consulta de timeline do usuário representará uma consulta de todos os eventos assinados por
@@ -66,9 +71,8 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
     @Inject(NOSTR_CACHE_TOKEN) private nostrCache: NostrCache
   ) { }
 
-  //  FIXME: refactor this into minor methods
-  // eslint-disable-next-line complexity
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): RepostNoteViewModel {
+  toViewModel(withRelays: NostrEventWithRelays): RepostNoteViewModel {
+    const { event, relays } = withRelays;
     const eventContent = event.content || '';
     const relates: Array<HexString> = [];
     const contentEvent = this.extractNostrEvent(eventContent);
@@ -79,10 +83,10 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       relates.push(contentEvent.id);
       if (this.guard.isKind(contentEvent, Repost)) {
         //  there is no way to get infinity recursively, this was a stringified json
-        retweeted = this.toViewModel(contentEvent, origin);
+        retweeted = this.toViewModel(contentEvent);
         reposting.push(retweeted);
       } else if (this.guard.isKind(contentEvent, ShortTextNote)) {
-        retweeted = this.simpleTextMapper.toViewModel(contentEvent, origin);
+        retweeted = this.simpleTextMapper.toViewModel(contentEvent);
         reposting.push(retweeted);
       }
 
@@ -117,7 +121,7 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       nevent,
       type: 'repost',
       author,
-      event,
+      event: event,
       createdAt: event.created_at,
       content,
       media,

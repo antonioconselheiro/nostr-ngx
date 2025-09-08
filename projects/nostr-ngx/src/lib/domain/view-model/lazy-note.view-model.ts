@@ -1,6 +1,6 @@
-import { HexString } from '@belomonte/nostr-ngx';
 import { NostrEventIdViewModel } from './nostr-event-id.view-model';
 import { NoteContentSegmentViewModel } from './context/note-content-segment.view-model';
+import { HexString } from '../event/primitive/hex-string.type';
 
 /**
  * Represents an event that was referenced but not loaded

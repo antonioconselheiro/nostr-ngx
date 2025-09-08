@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { IterableString } from "@belomonte/iterable-string";
-import { NoteContentViewModel } from "@view-model/context/note-content.view-model";
+import { IterableString } from '@belomonte/iterable-string';
+import { NoteContentViewModel } from "../domain/view-model/context/note-content.view-model";
 
 @Injectable()
 export class NoteContentMapper {
@@ -33,7 +33,6 @@ export class NoteContentMapper {
     'hashtag': this.readHashtag
   };
 
-  // eslint-disable-next-line complexity
   toViewModel(content: string): NoteContentViewModel {
     const iterable = new IterableString(content);
     const eventContent: NoteContentViewModel = [];

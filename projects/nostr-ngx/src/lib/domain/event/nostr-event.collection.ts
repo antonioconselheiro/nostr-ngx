@@ -67,18 +67,18 @@ export class NostrEventCollection {
     return this.store.size;
   }
 
-  add(origins: NostrEventWithRelays): this {
-    this.#processDeletions(origins.event);
+  add(withRelays: NostrEventWithRelays): this {
+    this.#processDeletions(withRelays.event);
 
     for (const o of this) {
-      if (NostrEventCollection.deletes(o.event, origins.event) || NostrEventCollection.replaces(o.event, origins.event)) {
+      if (NostrEventCollection.deletes(o.event, withRelays.event) || NostrEventCollection.replaces(o.event, withRelays.event)) {
         return this;
-      } else if (NostrEventCollection.replaces(origins.event, o.event)) {
+      } else if (NostrEventCollection.replaces(withRelays.event, o.event)) {
         this.delete(o.event.id);
       }
     }
 
-    this.store.set(origins.event.id, origins);
+    this.store.set(withRelays.event.id, withRelays);
     return this;
   }
 
@@ -109,6 +109,10 @@ export class NostrEventCollection {
 
   has(resultset: NostrEventWithRelays): boolean {
     return this.store.has(resultset.event.id);
+  }
+
+  get(idEvent: HexString): NostrEventWithRelays | null {
+    return this.store.get(idEvent) || null;
   }
 
   *entries(): IterableIterator<[NostrEventWithRelays, NostrEventWithRelays]> {

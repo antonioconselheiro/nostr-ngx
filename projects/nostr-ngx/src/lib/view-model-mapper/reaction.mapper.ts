@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { NostrEvent, NostrGuard, ProfileProxy } from '@belomonte/nostr-ngx';
-import { NostrViewModelSet } from '@view-model/nostr-view-model.set';
-import { ReactionViewModel } from '@view-model/reaction.view-model';
+import { nip19 } from 'nostr-tools';
 import { Reaction } from 'nostr-tools/kinds';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { NostrViewModelSet } from '../domain/view-model/nostr-view-model.set';
+import { ReactionViewModel } from '../domain/view-model/reaction.view-model';
+import { NostrGuard } from '../nostr-utils/nostr.guard';
+import { ProfileProxy } from '../profile/profile.proxy';
 import { TagHelper } from './tag.helper';
 import { ViewModelMapper } from './view-model.mapper';
-import { RelayDomain } from '@view-model/relay-domain.type';
-import { nip19 } from 'nostr-tools';
 
 @Injectable({
   providedIn: 'root'
@@ -19,20 +20,21 @@ export class ReactionMapper implements ViewModelMapper<ReactionViewModel, Record
     private guard: NostrGuard
   ) { }
 
-  toViewModel(event: NostrEvent, origin: Array<RelayDomain>): ReactionViewModel | null;
-  toViewModel(event: NostrEvent<Reaction>, origin: Array<RelayDomain>): ReactionViewModel;
-  toViewModel(events: Array<NostrEvent>, origin: Array<RelayDomain>): Record<string, NostrViewModelSet<ReactionViewModel>>;
-  toViewModel(event: NostrEvent | Array<NostrEvent>, origin: Array<RelayDomain>): ReactionViewModel | Record<string, NostrViewModelSet<ReactionViewModel>> | null {
+  toViewModel(event: NostrEventWithRelays): ReactionViewModel | null;
+  toViewModel(event: NostrEventWithRelays<Reaction>): ReactionViewModel;
+  toViewModel(events: Array<NostrEventWithRelays>): Record<string, NostrViewModelSet<ReactionViewModel>>;
+  toViewModel(event: NostrEventWithRelays | Array<NostrEventWithRelays>): ReactionViewModel | Record<string, NostrViewModelSet<ReactionViewModel>> | null {
     if (event instanceof Array) {
-      return this.toViewModelCollection(event, origin);
-    } else if (this.guard.isKind(event, Reaction)) {
-      return this.toSingleViewModel(event, origin);
+      return this.toViewModelCollection(event);
+    } else if (this.guard.isWithRelaysKind(event, Reaction)) {
+      return this.toSingleViewModel(event);
     }
 
     return null;
   }
 
-  private toSingleViewModel(event: NostrEvent<Reaction>, origin: Array<RelayDomain>): ReactionViewModel {
+  private toSingleViewModel(withRelays: NostrEventWithRelays<Reaction>): ReactionViewModel {
+    const { event, relays } = withRelays;
     const reactedTo = this.tagHelper.listIdsFromTag('e', event);
     const relates = this.tagHelper.getRelatedEvents(event).map(([event]) => event)
     const author = this.profileProxy.getRawAccount(event.pubkey);
@@ -42,7 +44,7 @@ export class ReactionMapper implements ViewModelMapper<ReactionViewModel, Record
       id: event.id,
       author: event.pubkey,
       kind: event.kind,
-      relays: origin
+      relays
     });
 
     return {
@@ -53,19 +55,19 @@ export class ReactionMapper implements ViewModelMapper<ReactionViewModel, Record
       reactedTo,
       event,
       author,
-      origin,
+      origin: relays,
       relates,
       createdAt: event.created_at
     };
   }
 
-  private toViewModelCollection(events: Array<NostrEvent>, origin: Array<RelayDomain>): Record<string, NostrViewModelSet<ReactionViewModel>> {
+  private toViewModelCollection(withRelaysList: Array<NostrEventWithRelays>): Record<string, NostrViewModelSet<ReactionViewModel>> {
     const reactionRecord: Record<string, NostrViewModelSet<ReactionViewModel>> = {};
 
-    for (const event of events) {
-      if (this.guard.isKind(event, Reaction)) {
-        const sortedSet = reactionRecord[event.content] || new NostrViewModelSet<ReactionViewModel>();
-        const viewModel = this.toSingleViewModel(event, origin);
+    for (const withRelays of withRelaysList) {
+      if (this.guard.isWithRelaysKind(withRelays, Reaction)) {
+        const sortedSet = reactionRecord[withRelays.event.content] || new NostrViewModelSet<ReactionViewModel>();
+        const viewModel = this.toSingleViewModel(withRelays);
         sortedSet.add(viewModel);
       }
     }

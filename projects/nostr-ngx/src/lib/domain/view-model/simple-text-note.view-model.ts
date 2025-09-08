@@ -1,8 +1,8 @@
-import { HexString } from '@belomonte/nostr-ngx';
 import Geohash from 'latlon-geohash';
 import { NostrEventViewModel } from './nostr-event.view-model';
 import { NoteContentViewModel } from './context/note-content.view-model';
 import { NoteContentSegmentViewModel } from './context/note-content-segment.view-model';
+import { HexString } from '../event/primitive/hex-string.type';
 
 /**
  * This interface represents the simple text note

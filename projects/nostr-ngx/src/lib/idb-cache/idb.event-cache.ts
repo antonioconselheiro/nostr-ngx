@@ -50,9 +50,9 @@ export class IdbEventCache extends InMemoryEventCache {
     });
   }
 
-  override add(origins: NostrEventWithRelays): this {
-    const me = super.add(origins);
-    this.cacheUpdates.push({ action: 'add', data: origins });
+  override add(withRelays: NostrEventWithRelays): this {
+    const me = super.add(withRelays);
+    this.cacheUpdates.push({ action: 'add', data: withRelays });
     this.flush();
 
     return me;
@@ -60,7 +60,7 @@ export class IdbEventCache extends InMemoryEventCache {
 
   override async remove(filters: NostrFilter[]): Promise<void> {
     const events = await this.query(filters)
-    events.forEach(origins => this.delete(origins.event.id));
+    events.forEach(withRelays => this.delete(withRelays.event.id));
   }
 
   override delete(idEvent: HexString): boolean {

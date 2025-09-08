@@ -202,7 +202,7 @@ export class ProfileProxy {
   private getProfileMetadata(events: NostrEventWithRelays[]): { [pubkey: HexString]: NostrMetadata } {
     const record: { [pubkey: HexString]: NostrMetadata } = {};
     events
-      .filter((origins): origins is NostrEventWithRelays<Metadata> => this.guard.isKind(origins.event, kinds.Metadata))
+      .filter((withRelays): withRelays is NostrEventWithRelays<Metadata> => this.guard.isKind(withRelays.event, kinds.Metadata))
       .forEach(origin => {
         // FIXME: include metadata validation .pipe(n.metadata())
         record[origin.event.pubkey] = JSON.parse(origin.event.content);
