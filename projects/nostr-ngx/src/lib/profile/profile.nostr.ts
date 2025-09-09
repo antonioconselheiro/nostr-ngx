@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { PoolRequestOptions } from '../pool/pool-request.options';
-import { NostrPool } from '../pool/nostr-pool';
+import { NostrPool } from '../pool/nostr.pool';
 
 @Injectable({
   providedIn: 'root'

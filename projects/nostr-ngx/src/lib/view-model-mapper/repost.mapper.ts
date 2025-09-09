@@ -83,10 +83,10 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       relates.push(contentEvent.id);
       if (this.guard.isKind(contentEvent, Repost)) {
         //  there is no way to get infinity recursively, this was a stringified json
-        retweeted = this.toViewModel(contentEvent);
+        retweeted = this.toViewModel({ event: contentEvent, relays });
         reposting.push(retweeted);
       } else if (this.guard.isKind(contentEvent, ShortTextNote)) {
-        retweeted = this.simpleTextMapper.toViewModel(contentEvent);
+        retweeted = this.simpleTextMapper.toViewModel({ event: contentEvent, relays });
         reposting.push(retweeted);
       }
 
@@ -95,7 +95,7 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       for (const idEvent of mentions) {
         const retweeted = this.nostrCache.get(idEvent);
         if (retweeted) {
-          const viewModel = this.toViewModel(retweeted, origin);
+          const viewModel = this.toViewModel(retweeted);
           reposting.push(viewModel);
         }
       }
@@ -112,7 +112,7 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       id: event.id,
       author: event.pubkey,
       kind: event.kind,
-      relays: origin
+      relays
     });
 
     const repost: RepostNoteViewModel = {
@@ -126,7 +126,7 @@ export class RepostMapper implements SingleViewModelMapper<RepostNoteViewModel> 
       content,
       media,
       reposting,
-      origin,
+      origin: relays,
       relates
     };
 

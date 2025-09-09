@@ -23,13 +23,14 @@ export class SimpleTextMapper implements SingleViewModelMapper<EagerNoteViewMode
     private guard: NostrGuard
   ) { }
 
-  toViewModel(event: NostrEventWithRelays<ShortTextNote>): EagerNoteViewModel;
-  toViewModel(event: NostrEventWithRelays): EagerNoteViewModel | null;
-  toViewModel(event: NostrEventWithRelays): EagerNoteViewModel | null {
-    if (!this.guard.isKind(event, ShortTextNote)) {
+  toViewModel(withRelays: NostrEventWithRelays<ShortTextNote>): EagerNoteViewModel;
+  toViewModel(withRelays: NostrEventWithRelays): EagerNoteViewModel | null;
+  toViewModel(withRelays: NostrEventWithRelays): EagerNoteViewModel | null {
+    if (!this.guard.isWithRelaysKind(withRelays, ShortTextNote)) {
       return null;
     }
 
+    const { event, relays } = withRelays;
     const author = this.profileProxy.getRawAccount(event.pubkey);
     const relates: Array<HexString> = [];
     this.tagHelper.getRelatedEvents(event).forEach(([related]) => relates.push(related));
@@ -42,7 +43,7 @@ export class SimpleTextMapper implements SingleViewModelMapper<EagerNoteViewMode
       id: event.id,
       author: event.pubkey,
       kind: event.kind,
-      relays: origin
+      relays
     });
 
     const simpleText: SimpleTextNoteViewModel = {
@@ -55,7 +56,7 @@ export class SimpleTextMapper implements SingleViewModelMapper<EagerNoteViewMode
       createdAt: event.created_at,
       content,
       media,
-      origin,
+      origin: relays,
       relates
     };
 

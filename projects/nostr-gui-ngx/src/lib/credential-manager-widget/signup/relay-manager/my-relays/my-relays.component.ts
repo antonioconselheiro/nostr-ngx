@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { AccountsLocalStorage, NOSTR_CONFIG_TOKEN, NostrConfig, NostrEvent, NostrGuard, NostrPool, NostrSigner, NostrUserRelays, ProfileEventFactory, ProfileSessionStorage, RelayDomain, RelayLocalConfigService } from '@belomonte/nostr-ngx';
+import { AccountsLocalStorage, NOSTR_CONFIG_TOKEN, NostrConfig, NostrEvent, NostrGuard, NostrPool, NostrSigner, NostrUserRelays, ProfileEventFactory, ProfileSessionStorage, RelayDomainString, RelayLocalConfigService } from '@belomonte/nostr-ngx';
 import { RecommendRelay } from 'nostr-tools/kinds';
 import { RelayRecord } from 'nostr-tools/relay';
 import { normalizeURL } from 'nostr-tools/utils';
@@ -48,7 +48,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
   constructor(
     private guard: NostrGuard,
-    private npool: NostrPool,
+    private nostrPool: NostrPool,
     private nostrSigner: NostrSigner,
     private profileEventFactory: ProfileEventFactory,
     private accountsLocalStorage: AccountsLocalStorage,
@@ -96,14 +96,14 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   }
 
   private loadKnownRelays(): void {
-    this.npool.query([
+    this.nostrPool.query([
       {
         kinds: [RecommendRelay]
       }
     ]).then(events => {
       const knownRelays = events
-        .filter(event => this.guard.isKind(event, RecommendRelay))
-        .map(event => this.castEventRecomendedRelayToRelay(event))
+        .filter(withRelays => this.guard.isWithRelaysKind(withRelays, RecommendRelay))
+        .map(withRelays => this.castEventRecomendedRelayToRelay(withRelays.event))
         .flat(2)
         .map(relay => relay.replace(/^wss?:\/\/|\/$/g, ''));
 
@@ -194,7 +194,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     return !!Object.keys(this.extensionRelays).length;
   }
 
-  listExtensionRelays(): Array<[string, { read: boolean; write: boolean; }]> {
+  listExtensionRelays(): Array<[RelayDomainString, { read: boolean; write: boolean; }]> {
     const extension = this.extensionRelays;
     if (!extension) {
       return [];
@@ -202,7 +202,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
 
     return Object
       .keys(extension)
-      .map(relay => [relay, extension[relay]]);
+      .map(relay => [relay as RelayDomainString, extension[relay]]);
   }
 
   private hasMainRelayList(): boolean {
@@ -217,7 +217,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     return (mainRelayList || hasDm || hasSearch);
   }
 
-  listRelays(): Array<[string, RelayConfig]> {
+  listRelays(): Array<[RelayDomainString, RelayConfig]> {
     const configs: { [relay: WebSocket['url']]: RelayConfig } = {};
     const general = this.unsavedConfig.general;
     if (this.hasMainRelayList() && general) {
@@ -244,10 +244,10 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
       configs[relay].search = true;
     });
 
-    return Object.keys(configs).map(relay => [relay, configs[relay]])
+    return Object.keys(configs).map(relay => [relay as RelayDomainString, configs[relay]])
   }
 
-  removeRelay(relay: RelayDomain): void {
+  removeRelay(relay: RelayDomainString): void {
     if (this.unsavedConfig.general) {
       delete this.unsavedConfig.general[relay];
     }
@@ -292,7 +292,7 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
   }
 
   connect(el: { value: string }): void {
-    const relay = normalizeURL(el.value);
+    const relay = normalizeURL(el.value) as RelayDomainString;
     if (!relay) {
       this.newRelayError = 'required';
       return;
@@ -347,15 +347,15 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     }
 
     const relayListEvent = await this.profileEventFactory.createRelayEvent(record);
-    await this.npool.event(relayListEvent);
+    await this.nostrPool.publish(relayListEvent);
     if (this.unsavedConfig.directMessage?.length) {
       const privateDMRelayListEvent = await this.profileEventFactory.createPrivateDirectMessageListEvent(this.unsavedConfig.directMessage);
-      await this.npool.event(privateDMRelayListEvent);
+      await this.nostrPool.publish(privateDMRelayListEvent);
     }
 
     if (this.unsavedConfig.search?.length) {
       const searchRelayListEvent = await this.profileEventFactory.createSearchRelayListEvent(this.unsavedConfig.search);
-      await this.npool.event(searchRelayListEvent);
+      await this.nostrPool.publish(searchRelayListEvent);
     }
 
     this.cleanFormStorage();
@@ -368,11 +368,11 @@ export class MyRelaysComponent implements OnInit, OnDestroy {
     const { defaultFallback, searchFallback } = this.nostrConfig;
 
     const relayListEvent = await this.profileEventFactory.createRelayEvent(defaultFallback);
-    await this.npool.event(relayListEvent);
+    await this.nostrPool.publish(relayListEvent);
 
     if (searchFallback.length) {
       const searchRelayListEvent = await this.profileEventFactory.createSearchRelayListEvent(searchFallback);
-      await this.npool.event(searchRelayListEvent);
+      await this.nostrPool.publish(searchRelayListEvent);
     }
 
     this.cleanFormStorage();

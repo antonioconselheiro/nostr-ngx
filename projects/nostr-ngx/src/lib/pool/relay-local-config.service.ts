@@ -151,8 +151,8 @@ export class RelayLocalConfigService {
       }
     ]).catch(() => Promise.resolve([null]));
 
-    if (this.guard.isKind(relayListEvent, kinds.RelayList)) {
-      const relayList = this.relayConverter.convertRelayListEventToRelayRecord(relayListEvent);
+    if (this.guard.isWithRelaysKind(relayListEvent, kinds.RelayList)) {
+      const relayList = this.relayConverter.convertRelayListEventToRelayRecord(relayListEvent.event);
       return Promise.resolve(relayList);
     }
 
@@ -315,8 +315,8 @@ export class RelayLocalConfigService {
       }
     ]).catch(() => Promise.resolve([null]));
 
-    if (this.guard.isKind(relayListEvent, kind)) {
-      const relayList = this.relayConverter.convertRelayEventToRelayList(relayListEvent);
+    if (this.guard.isWithRelaysKind(relayListEvent, kind)) {
+      const relayList = this.relayConverter.convertRelayEventToRelayList(relayListEvent.event);
       return Promise.resolve(relayList);
     }
 

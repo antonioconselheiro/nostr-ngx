@@ -11,8 +11,10 @@ import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.
 import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { NostrEventIterable } from './nostr-event.iterable';
 import { NostrFilter } from './nostr-filter.interface';
-import { NostrRelay } from './nostr-relay';
+import { NostrRelay } from './nostr.relay';
+import { Injectable } from '@angular/core';
 
+@Injectable()
 export class NostrPool {
 
   /**

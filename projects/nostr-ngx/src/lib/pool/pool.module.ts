@@ -11,8 +11,8 @@ import { RelayRouterService } from "./relay-router.service";
     CommonModule
   ],
   providers: [
-    RelayRouterService,
     NostrPool,
+    RelayRouterService,
     RelayLocalConfigService,
     {
       provide: RELAY_ROUTER_TOKEN,

@@ -4,10 +4,10 @@ import { BlockedRelaysList, DirectMessageRelaysList, RelayList, SearchRelaysList
 import { RelayRecord } from 'nostr-tools/relay';
 import { NostrUserRelays } from '../configs/nostr-user-relays.interface';
 import { AccountSession } from '../domain/account/compose/account-session.type';
+import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrEvent } from '../domain/event/nostr-event.interface';
 import { HexString } from '../domain/event/primitive/hex-string.type';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
-import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
 import { NostrGuard } from './nostr.guard';
 
 @Injectable({
@@ -122,18 +122,19 @@ export class RelayConverter {
     }
 
     resultsets.forEach(resultset => {
-      if (!record[resultset.event.pubkey]) {
-        record[resultset.event.pubkey] = {};
+      const event = resultset.event;
+      if (!record[event.pubkey]) {
+        record[event.pubkey] = {};
       }
 
-      if (this.guard.isKind(resultset, RelayList)) {
-        record[resultset.pubkey].general = this.convertRelayListEventToRelayRecord(resultset);
-      } else if (this.guard.isKind(resultset, DirectMessageRelaysList)) {
-        record[resultset.pubkey].directMessage = this.convertEventToRelayList(resultset);
-      } else if (this.guard.isKind(resultset, SearchRelaysList)) {
-        record[resultset.pubkey].search = this.convertEventToRelayList(resultset);
-      } else if (this.guard.isKind(resultset, BlockedRelaysList)) {
-        record[resultset.pubkey].blocked = this.convertEventToRelayList(resultset);
+      if (this.guard.isKind(event, RelayList)) {
+        record[event.pubkey].general = this.convertRelayListEventToRelayRecord(event);
+      } else if (this.guard.isKind(event, DirectMessageRelaysList)) {
+        record[event.pubkey].directMessage = this.convertEventToRelayList(event);
+      } else if (this.guard.isKind(event, SearchRelaysList)) {
+        record[event.pubkey].search = this.convertEventToRelayList(event);
+      } else if (this.guard.isKind(event, BlockedRelaysList)) {
+        record[event.pubkey].blocked = this.convertEventToRelayList(event);
       }
     });
 

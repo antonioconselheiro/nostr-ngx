@@ -28,7 +28,7 @@ export class RegisterAccountComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private npool: NostrPool,
+    private nostrPool: NostrPool,
     private profile$: CurrentProfileObservable,
     private profileEventFactory: ProfileEventFactory,
     @Inject(NOSTR_CONFIG_TOKEN) private nostrConfig: Required<NostrConfig>
@@ -107,6 +107,6 @@ export class RegisterAccountComponent implements OnInit {
     const updatedProfile = this.castRawValueIntoProfileMetadata(account?.metadata || null, raw);
     this.profileEventFactory
       .createProfileMetadata(updatedProfile)
-      .then(nostrEvent => this.npool.event(nostrEvent));
+      .then(nostrEvent => this.nostrPool.publish(nostrEvent));
   }
 }
