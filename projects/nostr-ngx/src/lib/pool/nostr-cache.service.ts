@@ -5,6 +5,10 @@ import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { NostrFilter } from './nostr-filter.interface';
 import { NostrCache } from '../injection-token/nostr-cache.interface';
 
+/**
+ * Base structure for cache service that feeds on queries from the pool.
+ * The service `InMemoryEventCache` extends this and implements as an angular service.
+ */
 export class NostrCacheService extends NostrEventCollection implements NostrCache {
   constructor(...args: ConstructorParameters<typeof LRUCache<string, NostrEventWithRelays>>) {
     super(new LRUCache<string, NostrEventWithRelays>(...args));
