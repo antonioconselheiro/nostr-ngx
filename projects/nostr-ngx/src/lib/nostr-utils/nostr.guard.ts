@@ -117,7 +117,7 @@ export class NostrGuard {
   }
 
   static isRelayString(stuff: unknown): stuff is RelayDomainString {
-    const isRelayStringRegex = /^wss?:\/\/[^.]+\.[^.]=/;
+    const isRelayStringRegex = /^wss?:\/\/[^.]+\.[^.]/;
     return typeof stuff === 'string' && isRelayStringRegex.test(stuff);
   }
 

@@ -19,8 +19,8 @@
         "./dist/nostr-ngx"
       ]
     },
-    "moduleResolution": "Bundler",
     "importHelpers": true,
+    "moduleResolution": "Bundler",
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,

@@ -76,8 +76,9 @@ export class RelayRouterService implements PoolRouterOptions {
     }
 
     if (!relays.length) {
+      const defaultFallback = this.routerMatcher.defaultFallback();
       relays = this.relayConverter.extractInboxRelays({
-        general: this.routerMatcher.defaultFallback()
+        general: defaultFallback
       });
     }
 

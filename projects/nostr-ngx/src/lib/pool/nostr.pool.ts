@@ -95,44 +95,42 @@ export class NostrPool {
     }
   }
 
+  //  FIXME: solve complexity
+  // eslint-disable-next-line complexity
   async *req(
     filters: NostrFilter[],
     opts?: { signal?: AbortSignal },
   ): AsyncIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset> {
     const controller = new AbortController();
     const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
-
     const routes = await this.routerService.reqRouter(filters);
     if (routes.size < 1) {
       return;
     }
-    const poolIterable = new NostrEventIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset>(signal);
 
+    const poolIterable = new NostrEventIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset>(signal);
     const eoses = new Set<RelayDomainString>();
     const closes = new Set<RelayDomainString>();
 
     for (const url of routes.keys()) {
       const relay = this.relay(url);
-      (async () => {
-        for await (const msg of relay.req(filters, { signal })) {
-          if (msg[0] === 'EOSE') {
-            eoses.add(url);
-            if (eoses.size === routes.size) {
-              poolIterable.push(msg);
-            }
-          }
-          if (msg[0] === 'CLOSED') {
-            closes.add(url);
-            if (closes.size === routes.size) {
-              poolIterable.push(msg);
-            }
-          }
-          if (msg[0] === 'EVENT_WITH_RELAYS') {
+      for await (const msg of relay.req(filters, { signal })) {
+        if (msg[0] === 'EOSE') {
+          eoses.add(url);
+          if (eoses.size === routes.size) {
             poolIterable.push(msg);
           }
         }
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      })().catch(() => {});
+        if (msg[0] === 'CLOSED') {
+          closes.add(url);
+          if (closes.size === routes.size) {
+            poolIterable.push(msg);
+          }
+        }
+        if (msg[0] === 'EVENT_WITH_RELAYS') {
+          poolIterable.push(msg);
+        }
+      }
     }
 
     try {
@@ -159,7 +157,9 @@ export class NostrPool {
     const events = new NostrEventCollection();
 
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
-    if (limit === 0) return [];
+    if (limit === 0) {
+      return [];
+    }
 
     const replaceable = filters.reduce((result, filter) => {
       return result || !!filter.kinds?.some((k) => NostrPool.replaceable(k) || NostrPool.parameterizedReplaceable(k));
@@ -167,16 +167,17 @@ export class NostrPool {
 
     try {
       for await (const msg of this.req(filters, opts)) {
-        if (msg[0] === 'EOSE') break;
-        if (msg[0] === 'EVENT_WITH_RELAYS') events.add(msg[2]);
-        if (msg[0] === 'CLOSED') throw new Error('Subscription closed');
-
-        if (!replaceable && (events.size >= limit)) {
+        if (msg[0] === 'EOSE') {
+          break;
+        } else if (msg[0] === 'EVENT_WITH_RELAYS') {
+          events.add(msg[2]);
+        } else if (msg[0] === 'CLOSED') {
+          throw new Error('Subscription closed');
+        } else if (!replaceable && (events.size >= limit)) {
           break;
         }
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
+    } catch {
       // Skip errors, return partial results.
     }
 

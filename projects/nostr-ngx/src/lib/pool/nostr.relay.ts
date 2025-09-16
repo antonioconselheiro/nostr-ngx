@@ -47,9 +47,8 @@ export class NostrRelay {
       // eslint-disable-next-line complexity
       .onMessage((_ws, ev) => {
         //  FIXME: cast data in a safe way
-        const result = JSON.parse(ev.data)
-        if (!result.success) return;
-        const msg = result.data;
+        const msg = JSON.parse(ev.data)
+
         switch (msg[0]) {
           case 'EVENT':
           case 'EOSE':
@@ -107,13 +106,13 @@ export class NostrRelay {
 
     try {
       for await (const msg of msgs) {
-        if (msg[0] === 'EOSE') yield msg;
-        if (msg[0] === 'CLOSED') break;
-        if (msg[0] === 'EVENT') {
+        if (msg[0] === 'EOSE') {
+          yield msg;
+        } else if (msg[0] === 'CLOSED') {
+          break;
+        } else if (msg[0] === 'EVENT') {
           if (matchFilters(filters, msg[2])) {
             yield [ 'EVENT_WITH_RELAYS', msg[1], { event: msg[2], relays: [this.relayUrl] }];
-          } else {
-            continue;
           }
         }
       }
@@ -128,17 +127,20 @@ export class NostrRelay {
     const limit = filters.reduce((result, filter) => result + getFilterLimit(filter), 0);
     if (limit === 0) return [];
 
-    for await (const msg of this.req(filters, opts)) {
-      if (msg[0] === 'EOSE')
-        break;
-      if (msg[0] === 'EVENT_WITH_RELAYS')
-        events.add(msg[2]);
-      if (msg[0] === 'CLOSED')
-        throw new Error('Subscription closed');
-
-      if (events.size >= limit) {
-        break;
+    try {
+      for await (const msg of this.req(filters, opts)) {
+        if (msg[0] === 'EOSE') {
+          break;
+        } else if (msg[0] === 'EVENT_WITH_RELAYS') {
+          events.add(msg[2]);
+        } else  if (msg[0] === 'CLOSED') {
+          throw new Error('Subscription closed');
+        } else if (events.size >= limit) {
+          break;
+        }
       }
+    } catch {
+      // Skip errors, return partial results.
     }
 
     return [...events];
@@ -158,19 +160,21 @@ export class NostrRelay {
   }
 
   private async *on<K extends keyof ResultsetMap>(key: K, signal?: AbortSignal): AsyncIterable<ResultsetMap[K]> {
-    if (signal?.aborted) throw this.abortError();
+    if (signal?.aborted) {
+      throw this.abortError();
+    }
 
     const iterable = new NostrEventIterable<ResultsetMap[K]>(signal);
-    const onMsg = (e: Event): void => iterable.push((e as CustomEvent<ResultsetMap[K]>).detail);
+    const onMessage = (e: Event): void => iterable.push((e as CustomEvent<ResultsetMap[K]>).detail);
 
-    this.eventTarget.addEventListener(key, onMsg);
+    this.eventTarget.addEventListener(key, onMessage);
 
     try {
       for await (const msg of iterable) {
         yield msg;
       }
     } finally {
-      this.eventTarget.removeEventListener(key, onMsg);
+      this.eventTarget.removeEventListener(key, onMessage);
     }
   }
 
