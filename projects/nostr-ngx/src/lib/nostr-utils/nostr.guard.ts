@@ -101,7 +101,7 @@ export class NostrGuard {
       return false;
     }
 
-    return NostrGuard.isWithRelaysKind(withRelays, kind);
+    return NostrGuard.isKind(withRelays.event, kind);
   }
 
   static isHexadecimal(stuff: unknown): stuff is HexString {
