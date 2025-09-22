@@ -62,7 +62,7 @@ export class NostrPool {
     const subject = new Subject<NostrEventWithRelays>();
 
     (async () => {
-      for await (const msg of this.req(filters, { ...opts, signal })) {
+      for await (const msg of this.req(filters, signal)) {
         if (msg[0] === 'CLOSED') {
           subject.error(msg);
           break;
@@ -95,14 +95,12 @@ export class NostrPool {
     }
   }
 
-  //  FIXME: solve complexity
-  // eslint-disable-next-line complexity
   async *req(
     filters: NostrFilter[],
-    opts?: { signal?: AbortSignal },
+    signal?: AbortSignal
   ): AsyncIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset> {
     const controller = new AbortController();
-    const signal = opts?.signal ? AbortSignal.any([opts.signal, controller.signal]) : controller.signal;
+    signal = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
     const routes = await this.routerService.reqRouter(filters);
     if (routes.size < 1) {
       return;
@@ -113,24 +111,9 @@ export class NostrPool {
     const closes = new Set<RelayDomainString>();
 
     for (const url of routes.keys()) {
-      const relay = this.relay(url);
-      for await (const msg of relay.req(filters, { signal })) {
-        if (msg[0] === 'EOSE') {
-          eoses.add(url);
-          if (eoses.size === routes.size) {
-            poolIterable.push(msg);
-          }
-        }
-        if (msg[0] === 'CLOSED') {
-          closes.add(url);
-          if (closes.size === routes.size) {
-            poolIterable.push(msg);
-          }
-        }
-        if (msg[0] === 'EVENT_WITH_RELAYS') {
-          poolIterable.push(msg);
-        }
-      }
+      this.requestRelay(
+        url, filters, routes, poolIterable, eoses, closes, signal
+      ).catch(e => console.error(' :: error iterating events: ', e));
     }
 
     try {
@@ -142,14 +125,41 @@ export class NostrPool {
     }
   }
 
-  async publish(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
+  private async requestRelay(
+    url: RelayDomainString,
+    filters: NostrFilter[],
+    routes: ReadonlyMap<RelayDomainString, NostrFilter[]>,
+    iterable: NostrEventIterable<EventWithRelaysResultset | EoseResultset | ClosedResultset>,
+    eoses: Set<RelayDomainString>,
+    closes: Set<RelayDomainString>,
+    signal?: AbortSignal
+  ): Promise<void> {
+    const relay = this.relay(url);
+    for await (const msg of relay.req(filters, { signal })) {
+      if (msg[0] === 'EOSE') {
+        eoses.add(url);
+        if (eoses.size === routes.size) {
+          iterable.push(msg);
+        }
+      } else if (msg[0] === 'CLOSED') {
+        closes.add(url);
+        if (closes.size === routes.size) {
+          iterable.push(msg);
+        }
+      } else if (msg[0] === 'EVENT_WITH_RELAYS') {
+        iterable.push(msg);
+      }
+    }
+  }
+
+  async publish(event: NostrEvent, signal?: AbortSignal): Promise<void> {
     const relayUrls = await this.routerService.eventRouter(event);
     if (!relayUrls.length) {
       return Promise.resolve();
     }
 
     await Promise.any(
-      relayUrls.map((url) => this.relay(url).publish(event, opts)),
+      relayUrls.map((url) => this.relay(url).publish(event, signal)),
     );
   }
 
@@ -166,7 +176,7 @@ export class NostrPool {
     }, false);
 
     try {
-      for await (const msg of this.req(filters, opts)) {
+      for await (const msg of this.req(filters, opts?.signal)) {
         if (msg[0] === 'EOSE') {
           break;
         } else if (msg[0] === 'EVENT_WITH_RELAYS') {

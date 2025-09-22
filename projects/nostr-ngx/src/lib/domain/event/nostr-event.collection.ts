@@ -21,7 +21,6 @@ export class NostrEventCollection {
    *
    * Both events must be replaceable, belong to the same kind and pubkey (and `d` tag, for parameterized events), and the `event` must be newer than the `target`.
    */
-  // eslint-disable-next-line complexity
   protected static replaces(event: NostrEvent, target: NostrEvent): boolean {
     const { kind, pubkey } = event;
 
@@ -70,11 +69,11 @@ export class NostrEventCollection {
   add(withRelays: NostrEventWithRelays): this {
     this.#processDeletions(withRelays.event);
 
-    for (const o of this) {
-      if (NostrEventCollection.deletes(o.event, withRelays.event) || NostrEventCollection.replaces(o.event, withRelays.event)) {
+    for (const item of this) {
+      if (NostrEventCollection.deletes(item.event, withRelays.event) || NostrEventCollection.replaces(item.event, withRelays.event)) {
         return this;
-      } else if (NostrEventCollection.replaces(withRelays.event, o.event)) {
-        this.delete(o.event.id);
+      } else if (NostrEventCollection.replaces(withRelays.event, item.event)) {
+        this.delete(item.event.id);
       }
     }
 

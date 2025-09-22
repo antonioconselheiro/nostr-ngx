@@ -1,8 +1,8 @@
 
 import { verifyEvent as _verifyEvent, getFilterLimit, matchFilters, NostrEvent } from 'nostr-tools';
-import { ArrayQueue, Backoff, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
-import { PoolRequestOptions } from './pool-request.options';
+import { ArrayQueue, ExponentialBackoff, Websocket, WebsocketBuilder, WebsocketEvent } from 'websocket-ts';
 import { NostrEventWithRelays } from '../domain/event/nostr-event-with-relays.interface';
+import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { RelayDomainString } from '../domain/event/relay-domain-string.type';
 import { NostrRequest } from '../domain/request/nostr.request';
 import { ReqRequest } from '../domain/request/req.request';
@@ -10,19 +10,10 @@ import { ClosedResultset } from '../domain/resultset/closed.resultset';
 import { EoseResultset } from '../domain/resultset/eose.resultset';
 import { EventWithRelaysResultset } from '../domain/resultset/event-with-relays.resultset';
 import { ResultsetMap } from '../domain/resultset/resultset.map';
-import { NostrEventCollection } from '../domain/event/nostr-event.collection';
 import { NostrEventIterable } from './nostr-event.iterable';
 import { NostrFilter } from './nostr-filter.interface';
-
-//  FIXME: remover esta interface daqui
-export interface RelayOptions {
-  /** Respond to `AUTH` challenges by producing a signed kind `22242` event. */
-  auth?(challenge: string): Promise<NostrEvent>;
-  /** Configure reconnection strategy, or set to `false` to disable. Default: `new ExponentialBackoff(1000)`. */
-  backoff?: Backoff | false;
-  /** Ensure the event is valid before returning it. Default: `nostrTools.verifyEvent`. */
-  verifyEvent?(event: NostrEvent): boolean;
-}
+import { PoolRequestOptions } from './pool-request.options';
+import { RelayOptions } from './relay.options';
 
 export class NostrRelay {
   readonly connection: Websocket;
@@ -44,7 +35,6 @@ export class NostrRelay {
           this.send(req);
         }
       })
-      // eslint-disable-next-line complexity
       .onMessage((_ws, ev) => {
         //  FIXME: cast data in a safe way
         const msg = JSON.parse(ev.data)
@@ -53,8 +43,11 @@ export class NostrRelay {
           case 'EVENT':
           case 'EOSE':
           case 'CLOSED':
-            if (msg[0] === 'EVENT' && !verifyEvent(msg[2])) break;
-            if (msg[0] === 'CLOSED') this.subscriptions.delete(msg[1]);
+            if (msg[0] === 'EVENT' && !verifyEvent(msg[2])) {
+              break;
+            } else if (msg[0] === 'CLOSED') {
+              this.subscriptions.delete(msg[1]);
+            }
             this.eventTarget.dispatchEvent(new CustomEvent(`sub:${msg[1]}`, { detail: msg }));
             break;
           case 'OK':
@@ -146,9 +139,9 @@ export class NostrRelay {
     return [...events];
   }
 
-  async publish(event: NostrEvent, opts?: PoolRequestOptions): Promise<void> {
+  async publish(event: NostrEvent, signal?: AbortSignal): Promise<void> {
     //  FIXME: garantir que o evento seja publicado nos relays descritos
-    const result = this.once(`ok:${event.id}`, opts?.signal);
+    const result = this.once(`ok:${event.id}`, signal);
 
     this.send(['EVENT', event]);
 
